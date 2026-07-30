@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bách khoa Claude — Sổ tay dùng Claude hiệu quả cho DS/AI & Web Dev</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F1EDE3; --paper-2:#E9E2D3; --panel:#F7F3EB;
+  --ink:#17150F; --ink-2:#4C473B; --ink-3:#736B59;
+  --clay:#C2552F; --clay-deep:#9C3E1E;
+  --teal:#1E443D; --teal-2:#2F6356;
+  --line:#D2C5AC; --line-soft:#E1D7C3;
+  --ok:#2E6B4F; --warn:#A66416;
+  --maxw:1280px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Newsreader",Georgia,serif; font-size:18px; line-height:1.62;
+  -webkit-font-smoothing:antialiased; font-optical-sizing:auto;
+}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+.disp{font-family:"Space Grotesk",sans-serif}
+h1,h2,h3,h4{font-family:"Space Grotesk",sans-serif; font-weight:600; line-height:1.1; letter-spacing:-.01em}
+a{color:var(--clay-deep); text-underline-offset:3px; text-decoration-thickness:1px}
+hr{border:0;border-top:1px solid var(--line);margin:0}
+
+/* ---------- masthead ---------- */
+.masthead{
+  position:sticky; top:0; z-index:60; background:var(--ink); color:#EDE6D6;
+  border-bottom:1px solid #000;
+}
+.masthead .row{
+  max-width:var(--maxw); margin:0 auto; padding:7px 22px;
+  display:flex; gap:16px; align-items:center; justify-content:space-between;
+  font-family:"JetBrains Mono",monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+}
+.masthead b{color:var(--clay)}
+.masthead .dots{color:#7d7460}
+.menu-btn{display:none;background:none;border:1px solid #4b463a;color:#EDE6D6;border-radius:6px;padding:5px 10px;font-family:inherit;font-size:11px;letter-spacing:.1em;cursor:pointer}
+
+/* ---------- shell ---------- */
+.shell{max-width:var(--maxw); margin:0 auto; display:grid; grid-template-columns:248px 1fr; gap:0}
+nav.index{
+  position:sticky; top:34px; align-self:start; height:calc(100vh - 34px); overflow-y:auto;
+  border-right:1px solid var(--line); padding:30px 20px 60px;
+}
+nav.index .ix-title{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);margin:0 0 14px}
+nav.index ol{list-style:none;margin:0;padding:0;counter-reset:ix}
+nav.index li{counter-increment:ix;margin:0}
+nav.index a{
+  display:grid; grid-template-columns:26px 1fr; gap:8px; align-items:baseline;
+  padding:6px 8px; border-radius:7px; text-decoration:none; color:var(--ink-2);
+  font-family:"Space Grotesk",sans-serif; font-size:13.5px; line-height:1.25; transition:background .15s,color .15s;
+}
+nav.index a::before{content:counter(ix,decimal-leading-zero);font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--clay);padding-top:1px}
+nav.index a:hover{background:var(--paper-2);color:var(--ink)}
+nav.index a.active{background:var(--ink);color:#F4EEE0}
+nav.index a.active::before{color:#E9A07E}
+
+main{min-width:0; padding:0 0 100px}
+.wrap{padding:0 48px}
+section{scroll-margin-top:48px; border-bottom:1px solid var(--line-soft)}
+
+/* ---------- hero ---------- */
+.hero{padding:62px 48px 50px; border-bottom:1px solid var(--line)}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--clay-deep);margin:0 0 18px}
+.hero h1{font-size:clamp(38px,5.6vw,68px);font-weight:700;margin:0 0 8px;letter-spacing:-.02em}
+.hero h1 .sub{display:block;font-weight:400;font-size:clamp(17px,2vw,23px);color:var(--ink-2);font-family:"Newsreader",serif;margin-top:14px;line-height:1.4;max-width:46ch}
+.hero-lede{max-width:60ch;color:var(--ink-2);margin:22px 0 0;font-size:19px}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.chip{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.05em;border:1px solid var(--line);background:var(--panel);padding:6px 11px;border-radius:999px;color:var(--ink-2)}
+.chip b{color:var(--clay-deep)}
+
+/* schematic */
+.schematic{margin-top:40px;border:1px solid var(--line);border-radius:14px;background:
+  linear-gradient(0deg,rgba(0,0,0,.012),rgba(0,0,0,.012)),
+  repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(30,68,61,.05) 27px,rgba(30,68,61,.05) 28px),
+  repeating-linear-gradient(90deg,transparent,transparent 27px,rgba(30,68,61,.05) 27px,rgba(30,68,61,.05) 28px),
+  var(--panel);
+  padding:8px;overflow:hidden}
+.schematic figcaption{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);padding:8px 10px 2px;display:flex;justify-content:space-between}
+
+/* ---------- section headers ---------- */
+.sec-head{display:flex;gap:18px;align-items:flex-start;padding:54px 0 6px}
+.sec-num{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--clay);border:1px solid var(--clay);border-radius:8px;padding:4px 9px;white-space:nowrap;margin-top:6px}
+.sec-head h2{font-size:clamp(26px,3.4vw,38px);margin:0;font-weight:700}
+.sec-head .kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin:0 0 8px}
+.lead{font-size:19.5px;color:var(--ink-2);max-width:66ch;margin:14px 0 8px}
+p{max-width:70ch}
+.wrap h3{font-size:20px;margin:34px 0 6px}
+.wrap h4{font-size:15px;font-family:"Space Grotesk";font-weight:600;margin:22px 0 4px;letter-spacing:.01em}
+
+/* ---------- cards / grid ---------- */
+.grid{display:grid;gap:16px;margin:24px 0}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.card{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:20px 20px 18px}
+.card .tag{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--clay-deep);display:block;margin-bottom:7px}
+.card h4{margin:0 0 6px;font-size:17px}
+.card p{font-size:15.5px;color:var(--ink-2);margin:0;max-width:none;line-height:1.5}
+.card ul{margin:8px 0 0;padding-left:18px;font-size:15px;color:var(--ink-2)}
+.card ul li{margin:3px 0}
+
+/* feature list rows */
+.frow{border:1px solid var(--line);border-radius:12px;background:var(--panel);margin:14px 0;padding:18px 20px;display:grid;grid-template-columns:150px 1fr;gap:18px}
+.frow .fk{font-family:"Space Grotesk";font-weight:600;font-size:16.5px}
+.frow .fk .mini{display:block;font-family:"JetBrains Mono",monospace;font-weight:400;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:6px}
+.frow .fv{font-size:15.5px;color:var(--ink-2);line-height:1.5}
+.frow .fv b{color:var(--ink)}
+.frow .fv code{font-size:13px}
+
+/* callouts */
+.note{border-left:3px solid var(--teal-2);background:rgba(47,99,86,.07);padding:14px 18px;border-radius:0 10px 10px 0;margin:20px 0;font-size:15.5px;color:var(--ink-2)}
+.note.tip{border-left-color:var(--ok);background:rgba(46,107,79,.08)}
+.note.warn{border-left-color:var(--warn);background:rgba(166,100,22,.08)}
+.note b{color:var(--ink)}
+.note .lbl{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal-2);display:block;margin-bottom:5px}
+.note.tip .lbl{color:var(--ok)} .note.warn .lbl{color:var(--warn)}
+
+/* code */
+pre{background:#1b1913;color:#ece4d2;border-radius:11px;padding:16px 18px;overflow-x:auto;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.6;margin:16px 0;border:1px solid #000}
+pre .c{color:#9a8f76} pre .k{color:#e89a72} pre .s{color:#9bbf8f} pre .y{color:#d8c277}
+code{font-family:"JetBrains Mono",monospace;background:var(--paper-2);padding:1.5px 6px;border-radius:5px;font-size:14px;color:var(--clay-deep)}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;margin:22px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:560px}
+th,td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+thead th{font-family:"Space Grotesk";font-size:12.5px;letter-spacing:.03em;color:var(--ink);border-bottom:1.5px solid var(--ink);text-transform:uppercase}
+tbody tr:hover{background:var(--panel)}
+td.mono,th.mono{font-family:"JetBrains Mono",monospace;font-size:12.5px}
+.pill{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--line)}
+.pill.y{background:rgba(46,107,79,.12);border-color:rgba(46,107,79,.4);color:var(--ok)}
+.pill.n{background:rgba(156,62,30,.1);border-color:rgba(156,62,30,.35);color:var(--clay-deep)}
+
+/* steps */
+.steps{counter-reset:st;margin:22px 0;display:grid;gap:12px}
+.steps .st{counter-increment:st;display:grid;grid-template-columns:34px 1fr;gap:14px;align-items:start}
+.steps .st::before{content:counter(st);font-family:"Space Grotesk";font-weight:600;font-size:15px;color:var(--paper);background:var(--teal);width:30px;height:30px;border-radius:8px;display:grid;place-items:center}
+.steps .st p{margin:3px 0 0;font-size:15.5px;color:var(--ink-2)}
+.steps .st b{color:var(--ink);font-family:"Space Grotesk";font-weight:600}
+
+/* margin note */
+.marg{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-3);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0;margin:18px 0;line-height:1.5}
+.marg b{color:var(--clay-deep)}
+
+footer{padding:40px 48px;color:var(--ink-3);font-family:"JetBrains Mono",monospace;font-size:12px;line-height:1.7}
+footer b{color:var(--ink-2)}
+
+/* svg helpers */
+.s-node{fill:var(--panel);stroke:var(--ink);stroke-width:1.4}
+.s-core{fill:var(--ink)}
+.s-lbl{font-family:"Space Grotesk",sans-serif;font-weight:600;fill:var(--ink)}
+.s-lbl-w{font-family:"Space Grotesk",sans-serif;font-weight:600;fill:#F4EEE0}
+.s-sub{font-family:"JetBrains Mono",monospace;fill:var(--ink-3)}
+.s-line{stroke:var(--teal-2);stroke-width:1.4;fill:none}
+.s-dash{stroke:var(--clay);stroke-width:1.4;fill:none;stroke-dasharray:5 5}
+.pulse{stroke-dasharray:4 8;animation:flow 2.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-24}}
+
+@media (max-width:960px){
+  .shell{grid-template-columns:1fr}
+  nav.index{position:fixed;inset:34px auto 0 0;width:268px;background:var(--paper);z-index:50;transform:translateX(-105%);transition:transform .25s;box-shadow:6px 0 30px rgba(0,0,0,.12);height:calc(100vh - 34px)}
+  nav.index.open{transform:none}
+  .menu-btn{display:inline-block}
+  .wrap,.hero,footer{padding-left:24px;padding-right:24px}
+  .g2,.g3{grid-template-columns:1fr}
+  .frow{grid-template-columns:1fr;gap:6px}
+  body{font-size:17px}
+}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none}}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="row">
+    <span><b>BÁCH&nbsp;KHOA&nbsp;CLAUDE</b> <span class="dots">//</span> sổ tay dùng hiệu quả</span>
+    <span class="dots">ấn bản 06·2026 · DS/AI eng · web dev</span>
+    <button class="menu-btn" id="menuBtn">☰ MỤC LỤC</button>
+  </div>
+</div>
+
+<div class="shell">
+  <nav class="index" id="index">
+    <p class="ix-title">Mục lục</p>
+    <ol>
+      <li><a href="#map">Bản đồ hệ sinh thái</a></li>
+      <li><a href="#models">Mô hình &amp; gói dịch vụ</a></li>
+      <li><a href="#chat">Claude web/app — nền tảng</a></li>
+      <li><a href="#code">Claude Code</a></li>
+      <li><a href="#cowork">Claude Cowork</a></li>
+      <li><a href="#design">Claude Design</a></li>
+      <li><a href="#beta">Chrome · Excel · PowerPoint</a></li>
+      <li><a href="#prompt">Prompting hiệu quả</a></li>
+      <li><a href="#playbook">Công thức theo vai trò</a></li>
+      <li><a href="#api">API &amp; xây trên Claude</a></li>
+      <li><a href="#security">Bảo mật &amp; dữ liệu</a></li>
+      <li><a href="#cheat">Tra cứu nhanh</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <!-- HERO -->
+    <header class="hero">
+      <p class="eyebrow">Field guide · phiên bản kỹ thuật</p>
+      <h1>Dùng Claude như một<br>người vận hành thành thạo
+        <span class="sub">Một cuốn sổ tay tra cứu đầy đủ về mọi bề mặt của Claude — Chat, Code, Cowork, Design — và cách khai thác từng tính năng cho công việc Data Science, AI engineering và phát triển web.</span>
+      </h1>
+      <p class="hero-lede">Claude không phải một sản phẩm duy nhất mà là một <b>hệ các bề mặt</b> chia sẻ chung lõi mô hình. Hiểu đúng "việc nào dùng bề mặt nào" là khác biệt lớn nhất giữa người dùng casual và người dùng hiệu quả. Cuốn này đi từ bản đồ tổng quan đến từng tính năng, kèm playbook cụ thể cho nghề của bạn.</p>
+      <div class="hero-meta">
+        <span class="chip"><b>4</b> bề mặt chính</span>
+        <span class="chip"><b>3</b> mô hình hiện hành</span>
+        <span class="chip"><b>Opus 4.8</b> · Sonnet 4.6 · Haiku 4.5</span>
+        <span class="chip">cập nhật <b>06/2026</b></span>
+      </div>
+
+      <figure class="schematic">
+        <figcaption><span>SƠ ĐỒ 01 — Hệ sinh thái Claude</span><span>một lõi · nhiều bề mặt</span></figcaption>
+        <svg viewBox="0 0 920 380" width="100%" role="img" aria-label="Sơ đồ hệ sinh thái Claude: lõi mô hình ở trung tâm, các bề mặt Chat, Code, Cowork, Design bao quanh">
+          <!-- connectors -->
+          <g class="s-line">
+            <line x1="460" y1="190" x2="200" y2="95"/><line x1="460" y1="190" x2="720" y2="95"/>
+            <line x1="460" y1="190" x2="200" y2="290"/><line x1="460" y1="190" x2="720" y2="290"/>
+          </g>
+          <g class="s-line pulse">
+            <line x1="460" y1="190" x2="200" y2="95"/><line x1="460" y1="190" x2="720" y2="95"/>
+            <line x1="460" y1="190" x2="200" y2="290"/><line x1="460" y1="190" x2="720" y2="290"/>
+          </g>
+          <!-- core -->
+          <circle cx="460" cy="190" r="62" class="s-core"/>
+          <text x="460" y="183" text-anchor="middle" class="s-lbl-w" font-size="17">LÕI MÔ HÌNH</text>
+          <text x="460" y="203" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#E9A07E">Opus·Sonnet·Haiku</text>
+          <!-- surface nodes -->
+          <g>
+            <rect x="70" y="60" width="200" height="70" rx="12" class="s-node"/>
+            <text x="170" y="92" text-anchor="middle" class="s-lbl" font-size="17">Chat (web/app)</text>
+            <text x="170" y="112" text-anchor="middle" class="s-sub" font-size="11">hỏi–đáp · artifacts · projects</text>
+          </g>
+          <g>
+            <rect x="650" y="60" width="200" height="70" rx="12" class="s-node"/>
+            <text x="750" y="92" text-anchor="middle" class="s-lbl" font-size="17">Code</text>
+            <text x="750" y="112" text-anchor="middle" class="s-sub" font-size="11">agent lập trình · terminal/IDE</text>
+          </g>
+          <g>
+            <rect x="70" y="255" width="200" height="70" rx="12" class="s-node"/>
+            <text x="170" y="287" text-anchor="middle" class="s-lbl" font-size="17">Cowork</text>
+            <text x="170" y="307" text-anchor="middle" class="s-sub" font-size="11">agent việc tri thức · desktop</text>
+          </g>
+          <g>
+            <rect x="650" y="255" width="200" height="70" rx="12" class="s-node"/>
+            <text x="750" y="287" text-anchor="middle" class="s-lbl" font-size="17">Design</text>
+            <text x="750" y="307" text-anchor="middle" class="s-sub" font-size="11">canvas thiết kế · prototype</text>
+          </g>
+          <!-- beta strip -->
+          <text x="460" y="350" text-anchor="middle" class="s-sub" font-size="11.5">+ bề mặt beta: Claude in Chrome · Excel · PowerPoint</text>
+        </svg>
+      </figure>
+      <p class="marg"><b>Cách đọc:</b> mỗi mục được đánh số như một "plate" trong sổ tay kỹ thuật. Cột trái là mục lục cố định — bấm để nhảy. Nội dung viết dạng tra cứu: đọc lướt được, nhưng đủ sâu để học từng tính năng.</p>
+    </header>
+
+    <!-- 01 MAP -->
+    <section id="map">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">01</span><div><p class="kicker">Định hướng</p><h2>Bản đồ hệ sinh thái: việc nào dùng bề mặt nào</h2></div></div>
+        <p class="lead">Cùng một lõi mô hình, nhưng bốn bề mặt khác nhau ở <b>quyền hạn</b> và <b>nơi nó chạy</b>. Chọn sai bề mặt là nguyên nhân phổ biến nhất khiến người ta thấy Claude "kém hiệu quả".</p>
+
+        <div class="grid g2">
+          <div class="card"><span class="tag">Bề mặt 1 · chat</span><h4>Claude web / mobile / desktop</h4><p>Giao diện hội thoại. Claude trả lời, viết, phân tích, tạo artifact (tài liệu/biểu đồ/app), nhưng <b>không tự đụng vào máy hay repo của bạn</b> trừ khi bạn bật công cụ. Đây là nơi để hỏi, brainstorm, soạn thảo, tạo file.</p></div>
+          <div class="card"><span class="tag">Bề mặt 2 · code</span><h4>Claude Code</h4><p>Agent lập trình sống trong terminal/IDE/desktop/browser. Đọc cả codebase, sửa nhiều file, chạy lệnh, chạy test, mở PR. Bạn giao mục tiêu, nó tự lập kế hoạch và thực thi — bạn duyệt kết quả.</p></div>
+          <div class="card"><span class="tag">Bề mặt 3 · cowork</span><h4>Claude Cowork</h4><p>Cùng kiến trúc agent với Code nhưng cho <b>việc tri thức phi lập trình</b>, trên desktop. Trỏ vào một thư mục: nó đọc/sửa/tạo file thật, dựng báo cáo, dọn dữ liệu, điều phối sub-agent.</p></div>
+          <div class="card"><span class="tag">Bề mặt 4 · design</span><h4>Claude Design</h4><p>Canvas trực quan. Mô tả bằng lời → Claude dựng UI/prototype/slide bằng HTML/CSS/JS thật, đọc design system của bạn để bám brand, rồi export hoặc bàn giao thẳng cho Claude Code.</p></div>
+        </div>
+
+        <h3>Cây quyết định</h3>
+        <figure class="schematic">
+          <figcaption><span>SƠ ĐỒ 02 — Chọn bề mặt</span><span>theo bản chất công việc</span></figcaption>
+          <svg viewBox="0 0 920 330" width="100%" role="img" aria-label="Cây quyết định chọn bề mặt Claude phù hợp">
+            <g class="s-sub" font-size="12.5"></g>
+            <!-- root -->
+            <rect x="350" y="20" width="220" height="48" rx="10" class="s-core"/>
+            <text x="460" y="49" text-anchor="middle" class="s-lbl-w" font-size="14">Việc của bạn là gì?</text>
+            <!-- branches -->
+            <g class="s-line"><path d="M460 68 V100 H150 V128"/><path d="M460 68 V100 H385 V128"/><path d="M460 68 V100 H615 V128"/><path d="M460 68 V100 H835 V128"/></g>
+            <!-- leaf 1 -->
+            <rect x="40" y="128" width="220" height="54" rx="10" class="s-node"/>
+            <text x="150" y="150" text-anchor="middle" class="s-lbl" font-size="13">Hỏi / soạn / phân tích</text>
+            <text x="150" y="170" text-anchor="middle" class="s-sub" font-size="11">không cần đụng file hệ thống</text>
+            <text x="150" y="208" text-anchor="middle" class="s-lbl" font-size="14" fill="#9C3E1E">→ Chat</text>
+            <!-- leaf 2 -->
+            <rect x="278" y="128" width="214" height="54" rx="10" class="s-node"/>
+            <text x="385" y="150" text-anchor="middle" class="s-lbl" font-size="13">Sửa code / repo thật</text>
+            <text x="385" y="170" text-anchor="middle" class="s-sub" font-size="11">build · test · git · CI</text>
+            <text x="385" y="208" text-anchor="middle" class="s-lbl" font-size="14" fill="#9C3E1E">→ Code</text>
+            <!-- leaf 3 -->
+            <rect x="508" y="128" width="214" height="54" rx="10" class="s-node"/>
+            <text x="615" y="150" text-anchor="middle" class="s-lbl" font-size="13">Việc file/tài liệu hàng loạt</text>
+            <text x="615" y="170" text-anchor="middle" class="s-sub" font-size="11">dọn folder · ghép báo cáo</text>
+            <text x="615" y="208" text-anchor="middle" class="s-lbl" font-size="14" fill="#9C3E1E">→ Cowork</text>
+            <!-- leaf 4 -->
+            <rect x="738" y="128" width="180" height="54" rx="10" class="s-node"/>
+            <text x="828" y="150" text-anchor="middle" class="s-lbl" font-size="13">Dựng giao diện/slide</text>
+            <text x="828" y="170" text-anchor="middle" class="s-sub" font-size="11">prototype · deck</text>
+            <text x="828" y="208" text-anchor="middle" class="s-lbl" font-size="14" fill="#9C3E1E">→ Design</text>
+            <!-- footnote flow -->
+            <g class="s-dash"><path d="M828 218 V250 H460 V250"/><path d="M385 218 V250"/></g>
+            <text x="460" y="285" text-anchor="middle" class="s-sub" font-size="12">Các bề mặt nối nhau: Design → bàn giao → Code · Cowork ↔ Chrome · tất cả ↔ MCP/connectors</text>
+            <text x="460" y="305" text-anchor="middle" class="s-sub" font-size="11">một quy trình thật thường đi qua nhiều bề mặt</text>
+          </svg>
+        </figure>
+
+        <div class="note tip"><span class="lbl">Nguyên tắc</span><b>Chat để nghĩ và tạo, agent (Code/Cowork) để làm.</b> Nếu bạn thấy mình copy–paste qua lại nhiều lần giữa chat và máy của mình, đó là tín hiệu nên chuyển sang Code hoặc Cowork để Claude tự thao tác.</div>
+      </div>
+    </section>
+
+    <!-- 02 MODELS -->
+    <section id="models">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">02</span><div><p class="kicker">Nền tảng</p><h2>Mô hình &amp; gói dịch vụ</h2></div></div>
+        <p class="lead">Hai trục độc lập cần tách bạch: <b>mô hình</b> (năng lực vs tốc độ/chi phí) và <b>gói</b> (bao nhiêu dung lượng dùng + mở khoá tính năng nào).</p>
+
+        <h3>Các mô hình hiện hành</h3>
+        <figure class="schematic">
+          <figcaption><span>SƠ ĐỒ 03 — Thang mô hình</span><span>năng lực ↔ tốc độ</span></figcaption>
+          <svg viewBox="0 0 920 250" width="100%" role="img" aria-label="Thang ba mô hình Claude: Haiku nhanh nhất, Sonnet cân bằng, Opus mạnh nhất">
+            <defs><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#2F6356"/><stop offset="1" stop-color="#C2552F"/></linearGradient></defs>
+            <line x1="80" y1="200" x2="840" y2="200" stroke="url(#g1)" stroke-width="3"/>
+            <text x="80" y="230" class="s-sub" font-size="12">← nhanh &amp; rẻ</text>
+            <text x="840" y="230" text-anchor="end" class="s-sub" font-size="12">mạnh &amp; sâu →</text>
+            <!-- haiku -->
+            <circle cx="180" cy="200" r="8" fill="#2F6356"/>
+            <rect x="100" y="70" width="160" height="96" rx="11" class="s-node"/>
+            <text x="180" y="98" text-anchor="middle" class="s-lbl" font-size="18">Haiku 4.5</text>
+            <text x="180" y="120" text-anchor="middle" class="s-sub" font-size="11.5">nhanh nhất · chi phí thấp</text>
+            <text x="180" y="140" text-anchor="middle" class="s-sub" font-size="11.5">phân loại · tóm tắt · realtime</text>
+            <line x1="180" y1="166" x2="180" y2="192" class="s-line"/>
+            <!-- sonnet -->
+            <circle cx="460" cy="200" r="8" fill="#7a6f3f"/>
+            <rect x="370" y="50" width="180" height="116" rx="11" class="s-node"/>
+            <text x="460" y="80" text-anchor="middle" class="s-lbl" font-size="18">Sonnet 4.6</text>
+            <text x="460" y="102" text-anchor="middle" class="s-sub" font-size="11.5">cân bằng — mặc định</text>
+            <text x="460" y="122" text-anchor="middle" class="s-sub" font-size="11.5">coding · phân tích · đa số</text>
+            <text x="460" y="142" text-anchor="middle" class="s-sub" font-size="11.5">production tốt</text>
+            <line x1="460" y1="166" x2="460" y2="192" class="s-line"/>
+            <!-- opus -->
+            <circle cx="760" cy="200" r="8" fill="#C2552F"/>
+            <rect x="660" y="36" width="200" height="130" rx="11" class="s-node" stroke="#C2552F" stroke-width="2"/>
+            <text x="760" y="66" text-anchor="middle" class="s-lbl" font-size="18">Opus 4.8</text>
+            <text x="760" y="88" text-anchor="middle" class="s-sub" font-size="11.5">mạnh nhất công khai</text>
+            <text x="760" y="108" text-anchor="middle" class="s-sub" font-size="11.5">reasoning sâu · agent dài hơi</text>
+            <text x="760" y="128" text-anchor="middle" class="s-sub" font-size="11.5">bài toán khó nhất</text>
+            <line x1="760" y1="166" x2="760" y2="192" class="s-line"/>
+          </svg>
+        </figure>
+        <p>Trong app, chế độ <b>Auto</b> sẽ tự chọn mô hình theo độ khó; bạn có thể chọn tay khi cần. Quy tắc đơn giản: dùng <b>Sonnet 4.6</b> cho phần lớn việc; nâng lên <b>Opus 4.8</b> khi bài toán cần suy luận sâu, kiến trúc, hoặc agent chạy dài; hạ xuống <b>Haiku 4.5</b> cho việc khối lượng lớn cần nhanh/rẻ (phân loại, trích xuất, tóm tắt hàng loạt).</p>
+        <p class="marg"><b>Lưu ý:</b> trên Opus còn một lớp "Mythos" (Mythos&nbsp;5 / Fable&nbsp;5) chưa mở công khai. Nếu cần thông tin mới nhất, xem thông báo chính thức của Anthropic — bản hướng dẫn này có thể chưa cập nhật trạng thái đó.</p>
+
+        <h3>Các gói cho cá nhân &amp; tổ chức</h3>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Gói</th><th>Giá*</th><th>Hợp với ai</th><th>Điểm chính</th></tr></thead>
+            <tbody>
+              <tr><td><b>Free</b></td><td class="mono">$0</td><td>Dùng thử, hỏi đáp nhẹ</td><td>Chat, web search, upload file, Artifacts, memory. <b>Không</b> có Claude Code, Research, Cowork, Opus đầy đủ.</td></tr>
+              <tr><td><b>Pro</b></td><td class="mono">~$20/th<br>($17 trả năm)</td><td>Cá nhân làm việc thật — DS/AI, dev</td><td>Sonnet mặc định + Opus, Research, Projects không giới hạn, <b>Claude Code</b>, code execution &amp; tạo file, <b>Cowork</b>, connectors, voice.</td></tr>
+              <tr><td><b>Max 5×/20×</b></td><td class="mono">$100 / $200/th</td><td>Người dùng nặng, chạy agent nhiều</td><td>Cùng tính năng Pro nhưng <b>nhiều dung lượng hơn</b> (5× hoặc 20×) + ưu tiên + sớm tiếp cận tính năng mới. Không phải nâng cấp mô hình.</td></tr>
+              <tr><td><b>Team</b></td><td class="mono">$25 / $125 seat/th</td><td>Nhóm ≥5 người</td><td>Quản trị tập trung, SSO, billing chung, Projects dùng chung. Seat <b>Premium</b> kèm Claude Code.</td></tr>
+              <tr><td><b>Enterprise</b></td><td class="mono">tuỳ chỉnh</td><td>Tổ chức cần tuân thủ</td><td>SSO/SCIM, audit log, kiểm soát lưu trữ dữ liệu, context lớn, residency. Định giá qua sales.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="marg">* Giá &amp; quyền lợi thay đổi theo thời gian — đây là ảnh chụp <b>06/2026</b>. Luôn xác nhận tại <b>claude.com/pricing</b>.</p>
+
+        <div class="note"><span class="lbl">Hạn mức dùng (usage limits)</span>Mọi gói đều có hạn mức theo <b>cửa sổ trượt ~5 giờ</b>, cộng thêm <b>trần theo tuần</b> ở gói trả phí. Các bề mặt agentic (Code, Cowork, Design) "ăn" hạn mức nhanh hơn chat thường vì chạy nhiều bước. Quan trọng: hạn mức nay <b>dùng chung</b> giữa Chat · Code · Cowork · Design, nên hãy ưu tiên việc nặng đúng lúc.</div>
+        <div class="note tip"><span class="lbl">Lời khuyên thực dụng</span>Bắt đầu ở <b>Pro</b> — nó đã mở khoá gần như tất cả tính năng (kể cả Code và Cowork). Chỉ lên Max khi bạn thường xuyên chạm trần. Đừng trả tiền cho dung lượng trước khi thực sự thấy giới hạn.</div>
+      </div>
+    </section>
+
+    <!-- 03 CHAT -->
+    <section id="chat">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">03</span><div><p class="kicker">Bề mặt nền tảng</p><h2>Claude web/app — và bộ tính năng cốt lõi</h2></div></div>
+        <p class="lead">Đây là nơi bạn dành phần lớn thời gian. Bên dưới ô chat là một bộ tính năng mà phần lớn người dùng chưa khai thác hết. Học kỹ phần này là đòn bẩy lớn nhất.</p>
+
+        <div class="frow"><div class="fk">Projects<span class="mini">workspace</span></div><div class="fv"><b>Không gian làm việc có ngữ cảnh dùng chung.</b> Mỗi project có <i>custom instructions</i> riêng (định nghĩa vai trò, định dạng đầu ra, ràng buộc) và <i>knowledge</i> (tài liệu nền). Mọi chat trong project kế thừa các thứ này — lý tưởng cho công việc lặp lại có khuôn mẫu (vd: dựng chuỗi bài giảng, báo cáo theo template). Tách biệt theo project, không lẫn ngữ cảnh.</div></div>
+        <div class="frow"><div class="fk">Artifacts<span class="mini">đầu ra sống</span></div><div class="fv"><b>Cửa sổ bên cạnh hiển thị sản phẩm</b> Claude tạo: tài liệu, code, biểu đồ, hoặc cả app HTML/React chạy được. Có thể lặp/sửa trực tiếp. Artifact còn hỗ trợ <i>persistent storage</i> (key–value) để làm app có lưu trạng thái như tracker, journal.</div></div>
+        <div class="frow"><div class="fk">Styles<span class="mini">giọng văn</span></div><div class="fv"><b>Cấu hình phong cách viết</b> để đầu ra luôn nhất quán (vd: súc tích, không bullet, giọng kỹ thuật). Đặt một lần, áp cho mọi phản hồi — khỏi nhắc lại "viết ngắn gọn" mỗi lần.</div></div>
+        <div class="frow"><div class="fk">Memory + Past chats<span class="mini">liên tục</span></div><div class="fv"><b>Memory</b> rút trích thông tin bền vững từ lịch sử để giữ ngữ cảnh giữa các phiên (bật trong Settings). <b>Search past chats</b> cho phép tìm lại và tiếp nối hội thoại cũ. Hữu ích khi bạn liên tục nhắc tới "dự án của tôi" mà không muốn mô tả lại.</div></div>
+        <div class="frow"><div class="fk">Web search + Research<span class="mini">truy xuất</span></div><div class="fv"><b>Web search</b> lấy thông tin hiện tại kèm trích dẫn. <b>Research</b> (gói trả phí) đào sâu nhiều nguồn cho câu hỏi lớn rồi tổng hợp có dẫn nguồn — đúng loại việc như "bức tranh công nghệ X trên thế giới &amp; VN" hay kiểm chứng số liệu báo cáo.</div></div>
+        <div class="frow"><div class="fk">Code execution &amp; tạo file<span class="mini">skills</span></div><div class="fv"><b>Chạy code thật trong sandbox</b> để phân tích dữ liệu, vẽ biểu đồ; và <b>tạo file</b> chuyên nghiệp — Word (.docx), PowerPoint (.pptx), Excel (.xlsx), PDF — qua bộ "skills" đóng gói best practice. Tải về hoặc đẩy lên Drive.</div></div>
+        <div class="frow"><div class="fk">Connectors / MCP<span class="mini">kết nối ngoài</span></div><div class="fv"><b>Nối Claude với ứng dụng ngoài</b> (Google Drive, Gmail, Calendar, Jira, Slack…) qua Model Context Protocol. Claude đọc/thao tác dữ liệu nơi nó đang nằm thay vì bắt bạn copy vào. Bật trong Settings hoặc thư mục connector.</div></div>
+        <div class="frow"><div class="fk">Voice &amp; vision<span class="mini">đa phương thức</span></div><div class="fv"><b>Nói chuyện bằng giọng</b> và <b>đưa ảnh/PDF vào</b> để Claude đọc sơ đồ, ảnh chụp màn hình, biểu đồ, ảnh tài liệu. Hữu ích cho việc đọc figure trong paper hay debug từ screenshot.</div></div>
+
+        <div class="note tip"><span class="lbl">Combo mạnh cho DS/AI</span>Tạo một <b>Project</b> "Nghiên cứu của tôi" → custom instructions ghi rõ phong cách bảng/thuật ngữ Anh–Việt → bật <b>memory</b> → dùng <b>code execution</b> để EDA và <b>tạo file</b> để xuất báo cáo docx. Bốn tính năng ghép lại thành một quy trình một-cửa.</div>
+      </div>
+    </section>
+
+    <!-- 04 CODE -->
+    <section id="code">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">04</span><div><p class="kicker">Bề mặt agent · cho kỹ sư</p><h2>Claude Code</h2></div></div>
+        <p class="lead">Công cụ lập trình agentic chạy ở <b>terminal, IDE, desktop app, hoặc browser</b>. Khác với autocomplete: nó hoạt động ở cấp dự án — đọc cả codebase, lập kế hoạch xuyên nhiều file, thực thi, chạy test, lặp khi lỗi. Bạn định nghĩa mục tiêu, nó làm phần còn lại.</p>
+
+        <h3>Cài đặt &amp; bề mặt</h3>
+        <pre><span class="c"># macOS / Linux — script cài chính thức</span>
+curl -fsSL https://claude.ai/install.sh | bash
+
+<span class="c"># Windows: chạy trong PowerShell (xem docs nếu gặp lỗi cú pháp)</span>
+<span class="c"># Bản cài native tự cập nhật nền; Homebrew có cask claude-code</span>
+
+<span class="c"># Dùng ngay trong thư mục dự án</span>
+claude
+claude <span class="s">"thêm test cho module thanh toán rồi chạy"</span></pre>
+        <p>Hỗ trợ <b>CLI terminal</b>, tích hợp <b>VS Code</b>/IDE, <b>desktop app</b>, và <b>Claude Code Web</b>. Phần lớn bề mặt cần subscription Claude hoặc tài khoản Console; CLI và VS Code còn hỗ trợ provider bên thứ ba (Bedrock, Vertex).</p>
+
+        <h3>Cơ chế cốt lõi cần nắm</h3>
+        <div class="grid g2">
+          <div class="card"><span class="tag">ngữ cảnh</span><h4>CLAUDE.md</h4><p>File markdown ở gốc repo, Claude đọc đầu mỗi phiên. Ghi coding standard, kiến trúc, thư viện ưu tiên, checklist review. Ngoài ra Claude tự xây <b>auto memory</b>: lưu lệnh build, insight debug… qua các phiên mà bạn không phải viết tay.</p></div>
+          <div class="card"><span class="tag">đóng gói</span><h4>Skills &amp; slash commands</h4><p>Gói quy trình lặp lại thành lệnh dùng chung cho cả team: <code>/review-pr</code>, <code>/deploy-staging</code>. Một lần định nghĩa, cả nhóm gọi như chuyên gia có sẵn.</p></div>
+          <div class="card"><span class="tag">tự động</span><h4>Hooks</h4><p>Chạy shell command trước/sau hành động của Claude — ví dụ auto-format, chặn commit nếu lint fail. Biến quy ước thành ràng buộc thực thi.</p></div>
+          <div class="card"><span class="tag">song song</span><h4>Sub-agents</h4><p>Chia việc lớn cho nhiều agent con chạy song song với context riêng — review, sửa, test đồng thời thay vì tuần tự.</p></div>
+          <div class="card"><span class="tag">kết nối</span><h4>MCP</h4><p>Đọc design doc trong Drive, cập nhật ticket Jira, kéo dữ liệu Slack, hoặc gọi tooling nội bộ của bạn — ngay trong phiên code.</p></div>
+          <div class="card"><span class="tag">lịch &amp; CI</span><h4>Routines &amp; GitHub Actions</h4><p>Chạy theo lịch trên hạ tầng Anthropic (review PR mỗi sáng, phân tích CI fail ban đêm) — chạy cả khi máy bạn tắt. Tự động review &amp; triage trong CI qua GitHub Actions / GitLab.</p></div>
+        </div>
+
+        <h3>Chế độ "headless" — ghép vào pipeline</h3>
+        <pre><span class="c"># Theo triết lý Unix: pipe vào, dùng cờ -p để chạy không tương tác</span>
+tail -200 app.log | claude -p <span class="s">"báo cho tôi nếu thấy bất thường"</span>
+git diff main --name-only | claude -p <span class="s">"review các file đổi về lỗ hổng bảo mật"</span></pre>
+
+        <div class="note warn"><span class="lbl">An toàn</span>Mặc định Claude Code <b>hỏi trước khi sửa file hoặc chạy lệnh</b>. Nó làm trong môi trường của bạn, dùng công cụ của bạn — quyết định cuối cùng vẫn ở con người. Có chế độ phân quyền chi tiết cho autonomous mode. Hãy giữ thói quen review trước khi merge.</div>
+      </div>
+    </section>
+
+    <!-- 05 COWORK -->
+    <section id="cowork">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">05</span><div><p class="kicker">Bề mặt agent · việc tri thức</p><h2>Claude Cowork</h2></div></div>
+        <p class="lead">Sức mạnh agent của Claude Code, nhưng cho <b>việc không-lập-trình</b> và không cần terminal. Chạy trong Claude Desktop: bạn trỏ vào một thư mục, giao mục tiêu, nó tự lập kế hoạch và thực thi — giống giao việc cho một đồng nghiệp giỏi rồi để họ làm.</p>
+
+        <div class="grid g2">
+          <div class="card"><span class="tag">file thật</span><h4>Truy cập file cục bộ</h4><p>Đọc/sửa/tạo file trong thư mục bạn cấp quyền — không cần upload/download thủ công. Nó "làm" thay vì chỉ "mô tả cách làm".</p></div>
+          <div class="card"><span class="tag">điều phối</span><h4>Sub-agent song song</h4><p>Chia việc phức tạp thành nhiều luồng con chạy đồng thời; bạn theo dõi tiến trình và có thể chen vào chỉnh hướng bất cứ lúc nào.</p></div>
+          <div class="card"><span class="tag">đầu ra</span><h4>Sản phẩm chỉn chu</h4><p>Xuất Excel có công thức chạy được, PowerPoint, tài liệu định dạng. Soạn Markdown thì bôi đen → "Edit with Claude" để sửa tại chỗ.</p></div>
+          <div class="card"><span class="tag">web</span><h4>Claude in Chrome (connector)</h4><p>Bật Chrome như connector để Cowork thao tác web: bấm nút, điền form, chuyển tab — hoàn tất tác vụ cần truy cập web.</p></div>
+        </div>
+
+        <h4>Việc Cowork làm tốt nhất</h4>
+        <div class="steps">
+          <div class="st"><p><b>Dọn &amp; tổ chức file:</b> trỏ vào folder bừa bộn (drafts, downloads, attachment) → đổi tên theo nội dung, sắp xếp, khử trùng lặp, nổi bật cái cần.</p></div>
+          <div class="st"><p><b>Dựng báo cáo từ nguồn rời:</b> đưa một bộ file nguồn → nó tổng hợp thành bản nháp có cấu trúc; phần còn lại của bạn chỉ là tinh chỉnh.</p></div>
+          <div class="st"><p><b>Số hoá việc lặt vặt:</b> biến đống ảnh hoá đơn thành bảng chi phí; chuyển định dạng hàng loạt; quét dữ liệu/feedback mà thường bị bỏ qua.</p></div>
+        </div>
+
+        <p>Có hệ <b>plugin việc tri thức</b> (mã nguồn mở) bổ sung quản lý task, "workplace memory" để Claude học người/dự án/thuật ngữ của bạn, và dashboard trực quan — biến Claude thành đồng nghiệp hiểu ngữ cảnh thay vì chatbot.</p>
+
+        <div class="note warn"><span class="lbl">Rủi ro cần biết</span>Vì Cowork hành động trên file thật: prompt mơ hồ có thể gây hậu quả (vd xoá nhầm — nên Claude <b>luôn hỏi quyền trước khi xoá vĩnh viễn</b>). Còn rủi ro <b>prompt injection</b>: nội dung độc trong file/web có thể tác động hành vi agent. Đừng dùng cho dữ liệu bị quản lý chặt nếu chưa có kiểm soát phù hợp; app phải mở khi đang chạy task.</div>
+        <div class="note"><span class="lbl">Khả dụng</span>Cowork chạy trong <b>Claude Desktop</b> (research preview), cho các gói trả phí (Pro, Max, Team, Enterprise). Kiểm tra bản desktop mới nhất tại <b>claude.com/download</b>.</div>
+      </div>
+    </section>
+
+    <!-- 06 DESIGN -->
+    <section id="design">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">06</span><div><p class="kicker">Bề mặt trực quan</p><h2>Claude Design</h2></div></div>
+        <p class="lead">Sản phẩm của Anthropic Labs để <b>cộng tác làm việc trực quan</b>: prototype, slide, one-pager, landing page. Điểm khác biệt: nó không xuất mockup tĩnh mà <b>sinh HTML/CSS/JS chạy được</b>. Có canvas riêng tại <code>claude.ai/design</code>.</p>
+
+        <div class="grid g2">
+          <div class="card"><span class="tag">canvas + chat</span><h4>Mô tả → dựng → tinh chỉnh</h4><p>Một panel chat để mô tả, một canvas hiển thị output sống. Comment trực tiếp lên phần tử hoặc nhập chỉ dẫn tiếp; kéo–thả, canh chỉnh chi tiết trên canvas.</p></div>
+          <div class="card"><span class="tag">bám brand</span><h4>Import design system</h4><p>Trỏ vào <b>repo GitHub, file Figma, hoặc slide deck</b> → Claude trích màu, font, component để mọi thiết kế sau đó tự bám đúng brand. Làm một lần cho mỗi project.</p></div>
+          <div class="card"><span class="tag">đầu ra</span><h4>Export linh hoạt</h4><p>Xuất <b>PDF, PPTX, HTML</b> độc lập, hoặc đẩy sang <b>Canva</b> và nhiều nền tảng (Adobe, Miro, Vercel, Replit…). Chia sẻ qua URL nội bộ tổ chức.</p></div>
+          <div class="card"><span class="tag">nối tiếp</span><h4>Bàn giao cho Claude Code</h4><p>Khi sẵn sàng build, Claude đóng gói "handoff bundle" gói cả ý đồ thiết kế để Code dựng thành sản phẩm thật chỉ với một chỉ dẫn. Hai chiều qua lệnh <code>/design</code>.</p></div>
+        </div>
+
+        <h4>Dùng khi nào — và khi nào không</h4>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Hợp với</th><th>Không thay thế</th></tr></thead>
+          <tbody>
+            <tr><td>Prototype tương tác, thử nhiều hướng nhanh, deck/landing page, wireframe trao cho dev.</td><td>Không thay Figma cho design system production (thiếu token enforcement, version đặt tên, đa người realtime); không tự dựng backend/auth.</td></tr>
+          </tbody>
+        </table></div>
+        <div class="note"><span class="lbl">Khả dụng &amp; chi phí ngầm</span>Beta/research preview cho <b>Pro, Max, Team, Enterprise</b>, không tính phí riêng. Lưu ý: sinh thiết kế "ăn" hạn mức nhanh — nay đã dùng chung hạn mức với Chat/Code/Cowork và tối ưu token hơn trước, nhưng vẫn nên dùng có chủ đích.</div>
+      </div>
+    </section>
+
+    <!-- 07 BETA -->
+    <section id="beta">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">07</span><div><p class="kicker">Bề mặt beta</p><h2>Claude trong Chrome · Excel · PowerPoint</h2></div></div>
+        <p class="lead">Các tác nhân chuyên biệt nằm ngay trong công cụ bạn đã dùng. Cowork có thể gọi chúng như công cụ con.</p>
+        <div class="grid g3">
+          <div class="card"><span class="tag">trình duyệt</span><h4>Claude in Chrome</h4><p>Tác nhân duyệt web: điều hướng, bấm, điền form, làm tác vụ web. Kết hợp với Cowork để hoàn tất việc cần internet.</p></div>
+          <div class="card"><span class="tag">bảng tính</span><h4>Claude in Excel</h4><p>Tác nhân làm việc trên spreadsheet — dựng/sửa công thức, phân tích, làm sạch dữ liệu ngay trong Excel.</p></div>
+          <div class="card"><span class="tag">slide</span><h4>Claude in PowerPoint</h4><p>Tác nhân tạo/chỉnh slide trong PowerPoint — từ outline tới deck.</p></div>
+        </div>
+        <div class="note tip"><span class="lbl">Cho DS/AI &amp; analyst</span>Claude in Excel đặc biệt hợp với người hay xử lý bảng dữ liệu: kiểm tra công thức, pivot, làm sạch, ghép bảng — mà không rời file gốc.</div>
+      </div>
+    </section>
+
+    <!-- 08 PROMPT -->
+    <section id="prompt">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">08</span><div><p class="kicker">Kỹ năng lõi</p><h2>Prompting hiệu quả</h2></div></div>
+        <p class="lead">Mọi bề mặt đều mạnh hơn nhiều khi bạn ra chỉ dẫn tốt. Đây là kỹ năng có đòn bẩy cao nhất và áp dụng ở mọi nơi.</p>
+
+        <figure class="schematic">
+          <figcaption><span>SƠ ĐỒ 04 — Giải phẫu một prompt tốt</span><span>5 lớp</span></figcaption>
+          <svg viewBox="0 0 920 300" width="100%" role="img" aria-label="Năm lớp của một prompt tốt: vai trò, ngữ cảnh, nhiệm vụ, ví dụ, định dạng đầu ra">
+            <g>
+              <rect x="60" y="30" width="800" height="40" rx="8" fill="#1E443D"/><text x="80" y="55" class="s-lbl-w" font-size="14">① Vai trò &amp; mục tiêu</text><text x="855" y="55" text-anchor="end" font-family="JetBrains Mono" font-size="11" fill="#cdbca7">"Bạn là kỹ sư dữ liệu review pipeline…"</text>
+              <rect x="60" y="80" width="800" height="40" rx="8" fill="#2F6356"/><text x="80" y="105" class="s-lbl-w" font-size="14">② Ngữ cảnh &amp; ràng buộc</text><text x="855" y="105" text-anchor="end" font-family="JetBrains Mono" font-size="11" fill="#dfeee9">dữ liệu mất cân bằng, Python, không dùng lib X</text>
+              <rect x="60" y="130" width="800" height="40" rx="8" fill="#7a5a3a"/><text x="80" y="155" class="s-lbl-w" font-size="14">③ Nhiệm vụ cụ thể</text><text x="855" y="155" text-anchor="end" font-family="JetBrains Mono" font-size="11" fill="#f0e2d0">"viết hàm tính F1 theo lớp, có docstring"</text>
+              <rect x="60" y="180" width="800" height="40" rx="8" fill="#9C3E1E"/><text x="80" y="205" class="s-lbl-w" font-size="14">④ Ví dụ (tốt &amp; xấu)</text><text x="855" y="205" text-anchor="end" font-family="JetBrains Mono" font-size="11" fill="#f3d8c8">input mẫu → output mong đợi</text>
+              <rect x="60" y="230" width="800" height="40" rx="8" fill="#17150F"/><text x="80" y="255" class="s-lbl-w" font-size="14">⑤ Định dạng đầu ra</text><text x="855" y="255" text-anchor="end" font-family="JetBrains Mono" font-size="11" fill="#cdbca7">dùng thẻ &lt;code&gt;, bảng, độ dài, từng bước</text>
+            </g>
+          </svg>
+        </figure>
+
+        <h3>Bảy nguyên tắc</h3>
+        <div class="grid g2">
+          <div class="card"><span class="tag">01</span><h4>Rõ &amp; chi tiết</h4><p>Nói thẳng bạn muốn gì, ràng buộc gì, đối tượng đọc là ai. Mơ hồ vào → mơ hồ ra. "Cải thiện hàm này về tốc độ, giữ API cũ" tốt hơn "làm cho tốt hơn".</p></div>
+          <div class="card"><span class="tag">02</span><h4>Cho ngữ cảnh</h4><p>Dán schema, ví dụ dữ liệu, thông báo lỗi, ràng buộc môi trường. Claude suy luận tốt hơn nhiều khi thấy bối cảnh thật thay vì đoán.</p></div>
+          <div class="card"><span class="tag">03</span><h4>Dùng ví dụ (few-shot)</h4><p>Một cặp input→output mẫu định hình đầu ra mạnh hơn cả đoạn mô tả dài. Thêm ví dụ "xấu" để chỉ rõ cái cần tránh.</p></div>
+          <div class="card"><span class="tag">04</span><h4>Khuyến khích suy luận từng bước</h4><p>Với bài toán khó, yêu cầu "nghĩ từng bước trước khi trả lời" hoặc tách kế hoạch khỏi thực thi giúp kết quả chính xác hơn.</p></div>
+          <div class="card"><span class="tag">05</span><h4>Cấu trúc bằng thẻ XML</h4><p>Bọc các phần bằng thẻ như <code>&lt;data&gt;</code>, <code>&lt;yeu_cau&gt;</code>, <code>&lt;vi_du&gt;</code> để Claude phân biệt rạch ròi đâu là dữ liệu, đâu là chỉ dẫn.</p></div>
+          <div class="card"><span class="tag">06</span><h4>Chỉ định định dạng &amp; độ dài</h4><p>"Trả về bảng 3 cột", "tối đa 200 từ", "chỉ code, không giải thích". Nói rõ hình thức đầu ra để khỏi phải sửa lại.</p></div>
+          <div class="card"><span class="tag">07</span><h4>Lặp &amp; tinh chỉnh</h4><p>Coi prompt như vòng lặp: ra kết quả → chỉ ra chỗ chưa đúng → tinh chỉnh. Thường nhanh hơn cố viết một prompt hoàn hảo ngay.</p></div>
+        </div>
+
+        <h4>Ví dụ: từ yếu đến mạnh</h4>
+        <pre><span class="c"># YẾU</span>
+viết hàm đánh giá model
+
+<span class="c"># MẠNH</span>
+<span class="k">&lt;vai_tro&gt;</span> Bạn là ML engineer, dữ liệu phân loại nhị phân mất cân bằng (~5% lớp dương). <span class="k">&lt;/vai_tro&gt;</span>
+<span class="k">&lt;nhiem_vu&gt;</span> Viết hàm Python tính precision, recall, F1 và specificity theo từng lớp,
+trả về dict, có docstring và type hint, không phụ thuộc sklearn. <span class="k">&lt;/nhiem_vu&gt;</span>
+<span class="k">&lt;dinh_dang&gt;</span> Chỉ trả code trong một block, kèm 1 ví dụ chạy ở cuối. <span class="k">&lt;/dinh_dang&gt;</span></pre>
+
+        <p class="marg">Tài liệu prompt engineering đầy đủ: <b>docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview</b></p>
+      </div>
+    </section>
+
+    <!-- 09 PLAYBOOK -->
+    <section id="playbook">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">09</span><div><p class="kicker">Theo vai trò</p><h2>Công thức cho DS/AI engineer &amp; Web dev</h2></div></div>
+        <p class="lead">Tính năng chỉ hữu ích khi ghép vào quy trình thật. Dưới đây là các playbook bám sát công việc của bạn.</p>
+
+        <h3>Data Scientist / AI engineer</h3>
+        <div class="grid g2">
+          <div class="card"><span class="tag">EDA &amp; notebook</span><h4>Khám phá dữ liệu</h4><p>Upload CSV → dùng <b>code execution</b> để thống kê, vẽ phân phối, phát hiện outlier/missing. Yêu cầu xuất biểu đồ và bảng tóm tắt. Hợp ở Chat; nếu là nhiều file rời, dùng <b>Cowork</b>.</p></div>
+          <div class="card"><span class="tag">đánh giá model</span><h4>Metric &amp; chẩn đoán</h4><p>Dán confusion matrix / log training → nhờ giải thích precision–recall vs specificity–sensitivity, chẩn đoán overfit/leak, đề xuất bước tiếp. Yêu cầu code metric kèm test nhỏ.</p></div>
+          <div class="card"><span class="tag">RAG &amp; agent</span><h4>Dựng &amp; tinh chỉnh</h4><p>Thiết kế pipeline chunking/embedding/retrieval; với hệ thống thật, dùng <b>Claude Code</b> để cắm vào repo, viết eval, đo. Dùng <b>API</b> khi sản phẩm hoá.</p></div>
+          <div class="card"><span class="tag">đọc paper</span><h4>Tiêu hoá tài liệu</h4><p>Đưa PDF + hỏi đóng góp chính, hạn chế, cách tái lập. Dùng <b>vision</b> để đọc figure. Nhờ tóm tắt cho slide báo cáo lãnh đạo (kèm mốc thời gian &amp; nguồn).</p></div>
+          <div class="card"><span class="tag">synthetic data</span><h4>Xử lý mất cân bằng</h4><p>Bàn chiến lược sinh dữ liệu/cân bằng lớp hiếm, so sánh phương pháp, sinh code thử nghiệm và biểu đồ specificity/sensitivity để đánh giá công bằng giữa hai lớp.</p></div>
+          <div class="card"><span class="tag">báo cáo</span><h4>Từ phân tích → deliverable</h4><p>Kết quả phân tích → xuất <b>docx/pptx/xlsx</b> qua skills, hoặc dựng tài liệu HTML trực quan. Đây chính là quy trình một-cửa từ dữ liệu tới sản phẩm gửi đi.</p></div>
+        </div>
+        <div class="note tip"><span class="lbl">Mẹo độ tin cậy</span>Với mọi con số từ web, bật <b>web search/Research</b> và yêu cầu trích nguồn; nhờ Claude <b>kiểm chứng chéo</b> số liệu trong slide trước khi trình lãnh đạo, ghi rõ mốc thời gian vì lĩnh vực AI thay đổi nhanh.</div>
+
+        <h3>Web developer</h3>
+        <div class="grid g2">
+          <div class="card"><span class="tag">khởi tạo</span><h4>Scaffold &amp; component</h4><p>Mô tả component/trang → nhận code chạy được (xem trước qua <b>Artifacts</b>). Cho UI hoàn chỉnh hơn, dùng <b>Claude Design</b> rồi bàn giao sang Code.</p></div>
+          <div class="card"><span class="tag">sửa lỗi</span><h4>Debug có ngữ cảnh</h4><p>Dán stack trace + đoạn code + hành vi mong đợi. Trong repo thật, để <b>Claude Code</b> tự đọc, sửa nhiều file, chạy test, lặp tới khi xanh.</p></div>
+          <div class="card"><span class="tag">refactor</span><h4>Đổi mới an toàn</h4><p>Giao mục tiêu ("tách logic ra hook, giữ API"), thêm test trước. Dùng <b>hooks</b> để ép lint/format, <b>sub-agents</b> để làm song song nhiều module.</p></div>
+          <div class="card"><span class="tag">design→code</span><h4>Prototype tới production</h4><p>Đi theo chuỗi: ý tưởng → <b>Design</b> (prototype, bám design system) → handoff bundle → <b>Code</b> dựng thật. Khoảng cách prototype–production thu lại còn vài prompt.</p></div>
+          <div class="card"><span class="tag">test &amp; docs</span><h4>Phủ test &amp; tài liệu</h4><p>Sinh unit/integration test, sinh README/ADR từ code. Đặt checklist review trong <b>CLAUDE.md</b> để chuẩn hoá chất lượng cả team.</p></div>
+          <div class="card"><span class="tag">CI</span><h4>Tự động hoá</h4><p>Cắm <b>GitHub Actions</b> để Claude review PR &amp; triage issue; <b>routines</b> chạy audit phụ thuộc hàng tuần, phân tích CI fail ban đêm.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 API -->
+    <section id="api">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">10</span><div><p class="kicker">Xây trên Claude</p><h2>API &amp; Claude Platform</h2></div></div>
+        <p class="lead">Khi bạn muốn nhúng Claude vào sản phẩm của mình. Đây là phần tóm tắt định hướng — chi tiết ở <code>docs.claude.com</code>.</p>
+
+        <h3>Năng lực API cần biết</h3>
+        <div class="grid g2">
+          <div class="card"><span class="tag">nền</span><h4>Messages API</h4><p>Điểm cuối hội thoại chuẩn. Model string: <code>claude-opus-4-8</code>, <code>claude-sonnet-4-6</code>, <code>claude-haiku-4-5</code>. Không trạng thái — gửi đủ ngữ cảnh mỗi lần gọi.</p></div>
+          <div class="card"><span class="tag">công cụ</span><h4>Tool use &amp; server tools</h4><p>Function calling để Claude gọi tool của bạn; sẵn các <b>server tool</b>: web search, web fetch, code execution, tool search, memory.</p></div>
+          <div class="card"><span class="tag">đầu ra</span><h4>Structured outputs</h4><p>Buộc đầu ra theo JSON/schema để parse an toàn — quan trọng khi nối Claude vào UI hay pipeline dữ liệu.</p></div>
+          <div class="card"><span class="tag">suy luận</span><h4>Extended thinking</h4><p>Bật suy luận sâu cho bài toán khó; kiểm soát ngân sách "thinking" theo nhu cầu chính xác vs chi phí.</p></div>
+          <div class="card"><span class="tag">tối ưu chi phí</span><h4>Prompt caching</h4><p>Cache phần ngữ cảnh lặp (system prompt, tài liệu): trả full giá một lần, lần sau giảm tới <b>~90%</b>. Đòn bẩy lớn cho app có context cố định.</p></div>
+          <div class="card"><span class="tag">khối lượng</span><h4>Batch API</h4><p>Xử lý không gấp trong tối đa 24h, <b>giảm 50%</b> giá token — hợp pipeline xử lý tài liệu/dữ liệu hàng loạt qua đêm.</p></div>
+          <div class="card"><span class="tag">realtime</span><h4>Streaming</h4><p>Trả token theo luồng cho UX phản hồi tức thì.</p></div>
+          <div class="card"><span class="tag">agent</span><h4>Agent SDK</h4><p>Bộ khung dựng agent riêng — cùng kiến trúc đứng sau Code/Cowork — để bạn tự xây tác nhân chuyên biệt.</p></div>
+        </div>
+
+        <pre><span class="c"># Mẫu tối giản (Python)</span>
+<span class="k">import</span> anthropic
+client = anthropic.Anthropic()
+msg = client.messages.create(
+    model=<span class="s">"claude-sonnet-4-6"</span>,
+    max_tokens=1024,
+    messages=[{<span class="s">"role"</span>:<span class="s">"user"</span>,<span class="s">"content"</span>:<span class="s">"Tóm tắt log này…"</span>}],
+)
+<span class="k">print</span>(msg.content)</pre>
+        <div class="note"><span class="lbl">Phân biệt billing</span>Subscription (Free/Pro/Max/Team/Enterprise) và <b>API</b> là hai đường thanh toán khác nhau. Dùng app thì theo subscription; nhúng vào phần mềm của bạn thì trả theo token qua API. Đừng nhầm hai cái khi tính chi phí.</div>
+      </div>
+    </section>
+
+    <!-- 11 SECURITY -->
+    <section id="security">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">11</span><div><p class="kicker">Quan trọng cho môi trường doanh nghiệp</p><h2>Bảo mật &amp; dữ liệu</h2></div></div>
+        <p class="lead">Nếu bạn làm trong ngân hàng/tài chính hay xử lý dữ liệu nhạy cảm, phần này đáng đọc kỹ.</p>
+        <div class="grid g2">
+          <div class="card"><span class="tag">huấn luyện</span><h4>Dữ liệu có bị dùng để train?</h4><p>Với <b>API</b>: input/output <b>không</b> dùng để huấn luyện theo mặc định, log giữ ngắn (khoảng 7 ngày) rồi xoá. Với sản phẩm tiêu dùng (Free/Pro/Max): người dùng có thể <b>opt-in</b> — kiểm tra cài đặt nếu không muốn.</p></div>
+          <div class="card"><span class="tag">nhạy cảm</span><h4>Trước khi dán</h4><p>Che (redact) credential, mật khẩu, khoá API, IP nội bộ, PII khách hàng trước khi đưa vào. Nội dung vẫn đủ để Claude hỗ trợ mà không lộ bí mật thật.</p></div>
+          <div class="card"><span class="tag">agent</span><h4>Prompt injection</h4><p>Với Cowork/Code/Chrome, nội dung độc nhúng trong file hoặc trang web có thể cố điều khiển agent. Hạn chế quyền, duyệt hành động, không trỏ agent vào nguồn không tin cậy.</p></div>
+          <div class="card"><span class="tag">tổ chức</span><h4>Kiểm soát Enterprise</h4><p>SSO/SCIM, audit log, kiểm soát lưu trữ &amp; residency, tắt web search cho Cowork/Chat ở cấp tổ chức, quản lý quyền tính năng và chi tiêu.</p></div>
+        </div>
+        <div class="note warn"><span class="lbl">Quy tắc vàng</span>Coi mọi thứ bạn dán như có thể bị lưu tạm. Với tài liệu được bảo vệ bằng nhãn IRM/Purview của công ty, Claude trong môi trường ngoài <b>không giải mã được</b> — xử lý các thao tác đó trên máy đã đăng nhập tài khoản tổ chức.</div>
+      </div>
+    </section>
+
+    <!-- 12 CHEAT -->
+    <section id="cheat">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">12</span><div><p class="kicker">Tra cứu nhanh</p><h2>Bảng tổng &amp; thuật ngữ</h2></div></div>
+
+        <h3>Việc → bề mặt</h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Bạn muốn…</th><th>Bề mặt</th><th>Tính năng then chốt</th></tr></thead>
+          <tbody>
+            <tr><td>Hỏi, brainstorm, soạn thảo, phân tích nhanh</td><td><b>Chat</b></td><td>Artifacts · code execution · web search</td></tr>
+            <tr><td>Tạo Word/PPT/Excel/PDF chuyên nghiệp</td><td><b>Chat</b></td><td>tạo file (skills)</td></tr>
+            <tr><td>Nghiên cứu sâu nhiều nguồn có dẫn nguồn</td><td><b>Chat</b></td><td>Research</td></tr>
+            <tr><td>Sửa code trong repo thật, chạy test, mở PR</td><td><b>Code</b></td><td>CLAUDE.md · sub-agents · MCP · CI</td></tr>
+            <tr><td>Dọn folder, ghép báo cáo từ nhiều file</td><td><b>Cowork</b></td><td>truy cập file cục bộ · plugins</td></tr>
+            <tr><td>Dựng prototype/slide/landing trực quan</td><td><b>Design</b></td><td>import design system · handoff → Code</td></tr>
+            <tr><td>Thao tác web tự động</td><td><b>Chrome</b></td><td>connector cho Cowork</td></tr>
+            <tr><td>Nhúng Claude vào sản phẩm của bạn</td><td><b>API</b></td><td>tool use · caching · batch · Agent SDK</td></tr>
+          </tbody>
+        </table></div>
+
+        <h3>Mô hình → chọn khi nào</h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Mô hình</th><th>Dùng cho</th><th class="mono">API string</th></tr></thead>
+          <tbody>
+            <tr><td><b>Haiku 4.5</b></td><td>Khối lượng lớn, cần nhanh/rẻ: phân loại, trích xuất, tóm tắt</td><td class="mono">claude-haiku-4-5</td></tr>
+            <tr><td><b>Sonnet 4.6</b></td><td>Mặc định cho phần lớn việc: coding, phân tích, production</td><td class="mono">claude-sonnet-4-6</td></tr>
+            <tr><td><b>Opus 4.8</b></td><td>Bài toán khó nhất: reasoning sâu, kiến trúc, agent dài hơi</td><td class="mono">claude-opus-4-8</td></tr>
+          </tbody>
+        </table></div>
+
+        <h3>Thuật ngữ</h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Thuật ngữ</th><th>Nghĩa ngắn</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">Artifact</td><td>Sản phẩm sống (tài liệu/code/app) hiện cạnh chat, sửa &amp; tái dùng được.</td></tr>
+            <tr><td class="mono">Project</td><td>Workspace có custom instructions + knowledge dùng chung cho nhiều chat.</td></tr>
+            <tr><td class="mono">Skill</td><td>Gói best-practice/quy trình đóng sẵn (vd tạo docx, /review-pr).</td></tr>
+            <tr><td class="mono">MCP</td><td>Chuẩn mở nối Claude với app/dữ liệu ngoài (Drive, Jira, Slack…).</td></tr>
+            <tr><td class="mono">CLAUDE.md</td><td>File cấu hình ngữ cảnh ở gốc repo cho Claude Code.</td></tr>
+            <tr><td class="mono">Sub-agent</td><td>Agent con chạy song song một phần việc với context riêng.</td></tr>
+            <tr><td class="mono">Handoff bundle</td><td>Gói ý đồ thiết kế từ Design chuyển cho Code để dựng thật.</td></tr>
+            <tr><td class="mono">Prompt caching</td><td>Cache ngữ cảnh lặp để giảm tới ~90% chi phí lần gọi sau (API).</td></tr>
+          </tbody>
+        </table></div>
+
+        <div class="note tip"><span class="lbl">Ba việc làm ngay</span>① Tạo một <b>Project</b> cho luồng việc lặp lại nhất của bạn, viết custom instructions. ② Bật <b>memory</b> + cài một <b>Style</b> phù hợp giọng văn bạn cần. ③ Cài <b>Claude Code</b> và thử giao một task nhỏ end-to-end để cảm nhận khác biệt giữa "chat" và "agent".</div>
+      </div>
+    </section>
+
+    <footer>
+      <div><b>BÁCH KHOA CLAUDE</b> — sổ tay dùng hiệu quả · ấn bản 06/2026.</div>
+      <div>Nội dung biên soạn cho DS/AI engineer &amp; web developer. Giá, hạn mức và trạng thái tính năng (preview/beta) thay đổi theo thời gian — xác nhận tại claude.com/pricing, docs.claude.com và support.claude.com.</div>
+      <div>Sơ đồ trong tài liệu là minh hoạ gốc, thiết kế riêng cho bản hướng dẫn này.</div>
+    </footer>
+  </main>
+</div>
+
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('nav.index a'));
+  var secs=links.map(function(a){return document.querySelector(a.getAttribute('href'));});
+  var idx=document.getElementById('index');
+  var btn=document.getElementById('menuBtn');
+  btn.addEventListener('click',function(){idx.classList.toggle('open');});
+  idx.addEventListener('click',function(e){if(e.target.tagName==='A')idx.classList.remove('open');});
+  function onScroll(){
+    var y=window.scrollY+120,cur=0;
+    for(var i=0;i<secs.length;i++){if(secs[i]&&secs[i].offsetTop<=y)cur=i;}
+    links.forEach(function(l,i){l.classList.toggle('active',i===cur);});
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+})();
+</script>
+</body>
+</html>

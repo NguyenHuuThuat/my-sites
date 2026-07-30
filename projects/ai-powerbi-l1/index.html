@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buổi 1 · Làm quen Power BI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FDFEFF;
+    --bg-panel:#FFFFFF;
+    --ink:#1E2547;
+    --ink-soft:#5B6486;
+    --ink-faint:#9AA2BE;
+    --border:#E8ECF7;
+
+    --blue:#3D8BFD;    --blue-soft:#EAF2FF;   --blue-deep:#1F6FE0;
+    --amber:#FFB627;   --amber-soft:#FFF6E2;  --amber-deep:#E0970A;
+    --coral:#FF6F61;   --coral-soft:#FFECE8;  --coral-deep:#E24B3B;
+    --teal:#17C3B2;    --teal-soft:#E3FBF6;   --teal-deep:#0C9E8E;
+    --violet:#8B5CF6;  --violet-soft:#F1EBFF; --violet-deep:#6D3FE0;
+
+    --radius:20px;
+    --shadow: 0 12px 32px -14px rgba(30,37,71,0.16);
+    --maxw:1120px;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Inter',sans-serif;font-size:16px;line-height:1.65;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  h1,h2,h3,h4,.display{font-family:'Be Vietnam Pro',sans-serif;color:var(--ink);margin:0 0 .5em 0;line-height:1.18;}
+  code,.mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;} img{max-width:100%;display:block;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;position:relative;z-index:1;}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;display:flex;align-items:center;gap:8px;}
+  section{padding:92px 0;position:relative;}
+  .section-head{max-width:640px;margin-bottom:48px;position:relative;z-index:1;}
+  .section-head h2{font-size:clamp(1.6rem,3vw,2.25rem);}
+  .section-head p{color:var(--ink-soft);font-size:1.05rem;}
+
+  .tint-blue{background:var(--blue-soft);}
+  .tint-amber{background:var(--amber-soft);}
+  .tint-coral{background:var(--coral-soft);}
+  .tint-teal{background:var(--teal-soft);}
+  .tint-violet{background:var(--violet-soft);}
+
+  /* decorative blobs */
+  .blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.45;pointer-events:none;z-index:0;}
+  @media (prefers-reduced-motion: no-preference){ .blob.drift{animation:drift 14s ease-in-out infinite alternate;} }
+  @keyframes drift{ from{transform:translate(0,0);} to{transform:translate(24px,-18px);} }
+  @keyframes floaty{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+  @keyframes pop{ 0%{transform:scale(.6);opacity:0;} 60%{transform:scale(1.08);opacity:1;} 100%{transform:scale(1);} }
+  @media (prefers-reduced-motion: reduce){ *{animation:none !important;transition:none !important;} html{scroll-behavior:auto;} }
+
+  /* ---------- NAV ---------- */
+  .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(253,254,255,0.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
+  .nav-inner{max-width:var(--maxw);margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
+  .nav-brand{display:flex;align-items:center;gap:10px;color:var(--ink);font-weight:700;white-space:nowrap;font-size:.95rem;}
+  .nav-brand .mark{width:28px;height:28px;flex:none;}
+  .nav-brand .session-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;color:#fff;background:linear-gradient(120deg,var(--coral),var(--amber));padding:3px 9px;border-radius:20px;letter-spacing:.03em;}
+  .nav-links{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;}
+  .nav-links::-webkit-scrollbar{display:none;}
+  .nav-links a{color:var(--ink-soft);text-decoration:none;font-size:.82rem;font-weight:600;padding:8px 12px;border-radius:8px;white-space:nowrap;transition:.2s;}
+  .nav-links a:hover,.nav-links a.active{color:var(--blue-deep);background:var(--blue-soft);}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background:
+      radial-gradient(1000px 520px at 88% -8%, rgba(255,182,39,.28), transparent 60%),
+      radial-gradient(760px 460px at 6% 0%, rgba(61,139,253,.22), transparent 58%),
+      radial-gradient(700px 420px at 50% 115%, rgba(139,92,246,.16), transparent 60%),
+      #F3F7FF;
+    padding:148px 0 0;overflow:hidden;
+  }
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding-bottom:80px;}
+  .hero h1{font-size:clamp(2rem,4vw,2.85rem);letter-spacing:-0.01em;}
+  .hero h1 .accent{background:linear-gradient(100deg,var(--blue-deep),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .hero .lede{color:var(--ink-soft);font-size:1.08rem;max-width:520px;}
+  .hero .eyebrow{color:var(--coral-deep);}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin:26px 0 30px;}
+  .pill{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--border);color:var(--ink-soft);padding:7px 14px;border-radius:30px;font-size:.82rem;box-shadow:var(--shadow);}
+  .pill svg{width:14px;height:14px;flex:none;}
+  .cta-row{display:flex;gap:12px;flex-wrap:wrap;}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:12px;font-weight:700;font-size:.92rem;text-decoration:none;border:1px solid transparent;transition:.2s;cursor:pointer;}
+  .btn-primary{background:linear-gradient(100deg,var(--blue),var(--violet));color:#fff;box-shadow:0 10px 24px -8px rgba(61,139,253,0.55);}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 14px 28px -8px rgba(61,139,253,0.6);}
+  .btn-ghost{border-color:var(--border);color:var(--ink);background:#fff;}
+  .btn-ghost:hover{background:var(--blue-soft);}
+  .progress-dots{display:flex;gap:7px;margin-top:34px;}
+  .progress-dots span{width:26px;height:6px;border-radius:3px;background:var(--border);}
+  .progress-dots span.on{background:linear-gradient(90deg,var(--coral),var(--amber));}
+
+  /* hero illustration */
+  .hero-illustration{position:relative;display:flex;justify-content:center;align-items:center;min-height:280px;}
+  .hero-illustration svg{width:min(280px,80%);height:auto;filter:drop-shadow(0 20px 30px rgba(30,37,71,0.15));}
+  .float-badge{position:absolute;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);background:#fff;animation:floaty 4s ease-in-out infinite;}
+  .float-badge svg{width:24px;height:24px;}
+  .fb-1{top:6%;left:2%;background:var(--teal);color:#fff;animation-delay:0s;}
+  .fb-2{top:12%;right:0%;background:var(--amber);color:#fff;animation-delay:.6s;}
+  .fb-3{bottom:8%;left:8%;background:var(--coral);color:#fff;animation-delay:1.2s;}
+  .fb-4{bottom:18%;right:6%;background:var(--violet);color:#fff;animation-delay:1.8s;}
+
+  /* report mock (light) */
+  .report-mock{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;}
+  .rm-titlebar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border);background:#FBFCFF;}
+  .rm-titlebar .dot{width:9px;height:9px;border-radius:50%;}
+  .rm-titlebar .d1{background:var(--coral);} .rm-titlebar .d2{background:var(--amber);} .rm-titlebar .d3{background:var(--teal);}
+  .rm-titlebar .rm-title{margin-left:8px;font-size:.75rem;color:var(--ink-faint);font-family:'JetBrains Mono',monospace;}
+  .rm-body{padding:18px;}
+  .rm-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  .rm-card{background:var(--blue-soft);border:1px solid var(--border);border-radius:12px;padding:12px 14px;}
+  .rm-card:nth-child(2){background:var(--coral-soft);}
+  .rm-card .lbl{font-size:.68rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.06em;font-weight:600;}
+  .rm-card .val{font-family:'JetBrains Mono',monospace;font-size:1.35rem;font-weight:700;color:var(--ink);margin-top:4px;}
+  .rm-chart-row{display:grid;grid-template-columns:1.4fr 1fr;gap:10px;margin-bottom:14px;}
+  .rm-panel{background:#F7F9FF;border:1px solid var(--border);border-radius:12px;padding:14px;}
+  .rm-panel .lbl{font-size:.68rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;font-weight:600;}
+  .bars{display:flex;align-items:flex-end;gap:6px;height:78px;}
+  .bars .bar{flex:1;border-radius:5px 5px 0 0;height:6%;transition:height 1s cubic-bezier(.2,.8,.2,1);}
+  .bars .bar:nth-child(1){background:linear-gradient(180deg,var(--blue),var(--blue-deep));}
+  .bars .bar:nth-child(2){background:linear-gradient(180deg,var(--amber),var(--amber-deep));}
+  .bars .bar:nth-child(3){background:linear-gradient(180deg,var(--coral),var(--coral-deep));}
+  .bars .bar:nth-child(4){background:linear-gradient(180deg,var(--teal),var(--teal-deep));}
+  .bars .bar:nth-child(5){background:linear-gradient(180deg,var(--violet),var(--violet-deep));}
+  .bars .bar:nth-child(6){background:linear-gradient(180deg,var(--blue),var(--blue-deep));}
+  .donut{width:74px;height:74px;border-radius:50%;margin:0 auto;background:conic-gradient(var(--blue) 0deg 140deg, var(--amber) 140deg 250deg, var(--coral) 250deg 360deg);display:flex;align-items:center;justify-content:center;}
+  .donut span{width:38px;height:38px;background:#F7F9FF;border-radius:50%;}
+  .rm-slicers{display:flex;gap:8px;}
+  .rm-chip{font-family:'JetBrains Mono',monospace;font-size:.75rem;padding:6px 12px;border-radius:20px;background:#F1F3FA;border:1px solid var(--border);color:var(--ink-faint);cursor:pointer;transition:.15s;}
+  .rm-chip:hover{border-color:var(--blue);}
+  .rm-chip.active{background:linear-gradient(100deg,var(--blue),var(--violet));color:#fff;border-color:transparent;font-weight:700;}
+  .rm-caption{text-align:center;font-size:.85rem;color:var(--ink-faint);margin-top:16px;padding-bottom:10px;}
+
+  /* dark variant used only inside the live demo card */
+  .demo-card{background:linear-gradient(135deg,#1E2547,#2E2A6B);border-radius:20px;padding:24px;box-shadow:var(--shadow);color:#fff;}
+  .demo-card .rm-titlebar{background:transparent;border-bottom:1px solid rgba(255,255,255,0.12);}
+  .demo-card .rm-title{color:rgba(255,255,255,0.55);}
+  .demo-card .rm-card{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.12);}
+  .demo-card .rm-card .lbl{color:rgba(255,255,255,0.5);}
+  .demo-card .rm-card .val{color:#fff;}
+  .demo-card .rm-panel{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.1);}
+  .demo-card .rm-panel .lbl{color:rgba(255,255,255,0.5);}
+  .demo-card .donut span{background:#241F52;}
+  .demo-card .rm-chip{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.14);color:rgba(255,255,255,0.6);}
+  .demo-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .demo-head h4{color:#fff;font-size:.95rem;margin:0;}
+  .demo-head .live{font-size:.65rem;background:rgba(255,111,97,0.22);color:#FFA79C;padding:3px 9px;border-radius:20px;display:flex;align-items:center;gap:5px;font-weight:700;}
+  .demo-head .live::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--coral);animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+  .demo-hint{font-size:.82rem;color:rgba(255,255,255,0.55);margin-bottom:18px;}
+
+  /* wave divider */
+  .wave{display:block;width:100%;height:90px;margin-top:-2px;}
+
+  /* ---------- OBJECTIVES ---------- */
+  .obj-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .obj-card{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px 20px;box-shadow:var(--shadow);transition:.2s;}
+  .obj-card:hover{transform:translateY(-3px);}
+  .obj-card .num{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-size:1.3rem;}
+  .obj-card:nth-child(1) .num{background:var(--blue-soft);}
+  .obj-card:nth-child(2) .num{background:var(--amber-soft);}
+  .obj-card:nth-child(3) .num{background:var(--coral-soft);}
+  .obj-card:nth-child(4) .num{background:var(--teal-soft);}
+  .obj-card h4{font-size:1rem;margin-bottom:6px;}
+  .obj-card p{color:var(--ink-soft);font-size:.88rem;margin:0;}
+
+  /* ---------- CALLOUTS ---------- */
+  .callout{display:flex;gap:14px;border-radius:16px;padding:18px 20px;margin:22px 0;border:1px solid;position:relative;z-index:1;}
+  .callout .c-emoji{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex:none;background:#fff;}
+  .callout .c-title{font-weight:700;font-size:.85rem;margin-bottom:4px;}
+  .callout p{margin:0;font-size:.92rem;color:var(--ink-soft);}
+  .callout.tip{background:var(--teal-soft);border-color:#BFEFE9;} .callout.tip .c-title{color:#0B8A7C;}
+  .callout.warn{background:var(--coral-soft);border-color:#FFD3CA;} .callout.warn .c-title{color:var(--coral-deep);}
+  .callout.note{background:var(--violet-soft);border-color:#DBD3FF;} .callout.note .c-title{color:var(--violet-deep);}
+
+  /* ---------- INTRO / COMPARE ---------- */
+  .intro-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:44px;align-items:start;}
+  .bullet-list{list-style:none;margin:20px 0;padding:0;display:flex;flex-direction:column;gap:14px;}
+  .bullet-list li{display:flex;gap:12px;align-items:flex-start;color:var(--ink-soft);font-size:.96rem;}
+  .bullet-list .chk{width:22px;height:22px;border-radius:7px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;flex:none;margin-top:1px;}
+  .bullet-list .chk svg{width:13px;height:13px;}
+  .bullet-list b{color:var(--ink);}
+  .compare-card{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
+  .compare-head{display:grid;grid-template-columns:1fr 1fr;}
+  .compare-head div{padding:14px 16px;font-weight:700;font-size:.88rem;text-align:center;color:#fff;}
+  .compare-head div:first-child{background:var(--ink-faint);}
+  .compare-head div:last-child{background:linear-gradient(100deg,var(--blue),var(--violet));}
+  .compare-row{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--border);}
+  .compare-row div{padding:14px 16px;font-size:.85rem;color:var(--ink-soft);}
+  .compare-row div:first-child{border-right:1px solid var(--border);}
+  .compare-row div b{color:var(--ink);display:block;font-size:.8rem;margin-bottom:2px;}
+
+  /* ---------- ECOSYSTEM ---------- */
+  .eco-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .eco-card{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius);padding:26px 22px;box-shadow:var(--shadow);position:relative;transition:.2s;}
+  .eco-card:hover{transform:translateY(-3px);}
+  .eco-card.main{border:2px solid var(--amber);}
+  .eco-badge{position:absolute;top:-11px;right:20px;background:linear-gradient(100deg,var(--coral),var(--amber));color:#fff;font-size:.66rem;font-weight:700;padding:4px 10px;border-radius:20px;}
+  .eco-icon{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
+  .eco-icon svg{width:30px;height:30px;}
+  .eco-card:nth-child(1) .eco-icon{background:linear-gradient(135deg,var(--amber),#FFD37A);color:#fff;}
+  .eco-card:nth-child(2) .eco-icon{background:linear-gradient(135deg,var(--teal),#5EE0D0);color:#fff;}
+  .eco-card:nth-child(3) .eco-icon{background:linear-gradient(135deg,var(--violet),#B79CFF);color:#fff;}
+  .eco-card h4{font-size:1.05rem;}
+  .eco-card p{color:var(--ink-soft);font-size:.88rem;}
+
+  /* ---------- PROCESS FLOW ---------- */
+  .flow{display:flex;gap:0;align-items:stretch;overflow-x:auto;padding-bottom:8px;}
+  .flow-step{flex:1;min-width:150px;text-align:center;position:relative;padding:0 6px;}
+  .flow-step .fnum{width:50px;height:50px;border-radius:50%;background:#fff;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.3rem;position:relative;z-index:2;}
+  .flow-step.done .fnum{background:linear-gradient(135deg,var(--coral),var(--amber));border-color:transparent;box-shadow:0 8px 18px -6px rgba(255,111,97,0.5);}
+  .flow-step:not(:last-child)::after{content:'';position:absolute;top:25px;left:56%;width:88%;height:2px;background:var(--border);z-index:1;}
+  .flow-step.done:not(:last-child)::after{background:linear-gradient(90deg,var(--coral),var(--amber));}
+  .flow-step h5{font-size:.85rem;margin:0 0 6px;}
+  .flow-tag{display:inline-block;font-size:.66rem;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--bg);color:var(--ink-faint);}
+  .flow-step.done .flow-tag{background:var(--amber-soft);color:var(--amber-deep);}
+
+  /* ---------- INSTALL ---------- */
+  .install-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:44px;align-items:center;}
+  .install-illustration{position:relative;display:flex;align-items:center;justify-content:center;min-height:220px;}
+  .install-illustration svg{width:70%;filter:drop-shadow(0 16px 24px rgba(30,37,71,0.14));}
+  .req-table{width:100%;border-collapse:collapse;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-top:20px;}
+  .req-table th,.req-table td{padding:12px 16px;text-align:left;font-size:.85rem;}
+  .req-table th{background:linear-gradient(100deg,var(--blue),var(--violet));color:#fff;font-weight:700;}
+  .req-table tr:not(:last-child) td{border-bottom:1px solid var(--border);}
+  .req-table td:first-child{color:var(--ink-soft);width:42%;}
+  .method-card{background:var(--bg-panel);border:1px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:14px;display:flex;gap:16px;box-shadow:var(--shadow);transition:.2s;}
+  .method-card:hover{transform:translateX(3px);}
+  .method-card .m-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:none;color:#fff;}
+  .method-card:nth-child(1) .m-icon{background:linear-gradient(135deg,var(--blue),var(--violet));}
+  .method-card:nth-child(2) .m-icon{background:linear-gradient(135deg,var(--teal),#5EE0D0);}
+  .method-card:nth-child(3) .m-icon{background:linear-gradient(135deg,var(--coral),var(--amber));}
+  .method-card .m-icon svg{width:22px;height:22px;}
+  .method-card h4{font-size:.95rem;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+  .method-card p{margin:0;font-size:.85rem;color:var(--ink-soft);}
+  .rec-tag{background:var(--amber);color:#4A3600;font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:20px;}
+
+  /* ---------- SCREENSHOT PLACEHOLDER ---------- */
+  .shot{border:2px dashed #C7CEE2;border-radius:16px;padding:30px 24px;text-align:center;background:#FBFCFF;margin:24px 0;}
+  .shot .cam{font-size:2rem;margin-bottom:10px;}
+  .shot .cap{font-weight:700;color:var(--ink);font-size:.92rem;margin-bottom:4px;}
+  .shot .hint{font-size:.78rem;color:var(--ink-faint);max-width:440px;margin:0 auto;}
+
+  /* ---------- IMAGE FRAME ---------- */
+  .img-frame{border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);margin:24px 0;background:#fff;}
+  .img-frame img{width:100%;height:auto;display:block;}
+  .img-frame .img-cap{padding:8px 16px 10px;font-size:.78rem;color:var(--ink-faint);border-top:1px solid var(--border);background:#FAFBFF;}
+
+  /* ---------- DATA SOURCES ---------- */
+  .source-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .source-card{background:var(--bg-panel);border:1px solid var(--border);border-radius:16px;padding:20px 16px;text-align:center;box-shadow:var(--shadow);transition:.2s;}
+  .source-card:hover{transform:translateY(-3px);}
+  .source-card .src-ico{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.4rem;}
+  .source-card:nth-child(1) .src-ico{background:var(--teal-soft);}
+  .source-card:nth-child(2) .src-ico{background:var(--blue-soft);}
+  .source-card:nth-child(3) .src-ico{background:var(--violet-soft);}
+  .source-card:nth-child(4) .src-ico{background:var(--coral-soft);}
+  .source-card h5{font-size:.88rem;margin:0 0 4px;}
+  .source-card p{font-size:.78rem;color:var(--ink-soft);margin:0;}
+
+  /* ---------- INTERFACE ZONES ---------- */
+  .zones-wrap{display:grid;grid-template-columns:1.3fr 1fr;gap:36px;align-items:center;}
+  .pbi-window{background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;font-size:.7rem;}
+  .pbi-ribbon{background:linear-gradient(100deg,var(--amber),#FFD37A);color:#4A3600;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;position:relative;font-weight:600;}
+  .pbi-main{display:grid;grid-template-columns:36px 1fr 150px;min-height:230px;}
+  .pbi-viewswitch{background:linear-gradient(180deg,var(--violet),#6D3FE0);position:relative;display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:16px;}
+  .pbi-viewswitch .vs-dot{width:16px;height:16px;border-radius:5px;background:rgba(255,255,255,0.25);}
+  .pbi-viewswitch .vs-dot.on{background:#fff;}
+  .pbi-canvas{background:#F7F9FF;position:relative;padding:14px;}
+  .pbi-canvas .fake-chart{background:#fff;border:1.5px dashed var(--blue);border-radius:10px;height:100%;display:flex;align-items:center;justify-content:center;color:var(--blue-deep);font-family:'JetBrains Mono',monospace;font-weight:600;}
+  .pbi-side{background:#fff;border-left:1px solid var(--border);display:flex;flex-direction:column;position:relative;}
+  .pbi-side .side-block{flex:1;border-bottom:1px solid var(--border);padding:8px;color:var(--ink-faint);font-family:'JetBrains Mono',monospace;font-weight:600;}
+  .pbi-pages{background:var(--blue-soft);padding:8px 14px;display:flex;gap:8px;position:relative;}
+  .pbi-pages .ptab{background:#fff;border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:.68rem;color:var(--blue-deep);font-weight:600;}
+  .zbadge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.65rem;font-weight:700;box-shadow:0 3px 8px rgba(0,0,0,0.2);}
+  .zone-legend{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px;}
+  .zone-legend li{display:flex;gap:12px;align-items:flex-start;}
+  .zone-legend b{font-size:.92rem;display:block;margin-bottom:2px;}
+  .zone-legend span{font-size:.85rem;color:var(--ink-soft);}
+
+  /* ---------- PRACTICE ---------- */
+  .practice-grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:44px;align-items:start;}
+  .steps{list-style:none;margin:0;padding:0;counter-reset:step;}
+  .steps li{position:relative;padding-left:48px;padding-bottom:26px;}
+  .steps li:not(:last-child)::before{content:'';position:absolute;left:17px;top:36px;bottom:0;width:2px;background:var(--border);}
+  .steps .semoji{position:absolute;left:0;top:0;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.05rem;box-shadow:var(--shadow);}
+  .steps li:nth-child(1) .semoji{background:var(--blue-soft);}
+  .steps li:nth-child(2) .semoji{background:var(--amber-soft);}
+  .steps li:nth-child(3) .semoji{background:var(--coral-soft);}
+  .steps li:nth-child(4) .semoji{background:var(--teal-soft);}
+  .steps li:nth-child(5) .semoji{background:var(--violet-soft);}
+  .steps li:nth-child(6) .semoji{background:var(--blue-soft);}
+  .steps li:nth-child(7) .semoji{background:var(--amber-soft);}
+  .steps h5{font-size:.95rem;margin:0 0 4px;}
+  .steps p{margin:0;color:var(--ink-soft);font-size:.87rem;}
+
+  /* ---------- ERRORS TABLE ---------- */
+  .err-table{width:100%;border-collapse:collapse;background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
+  .err-table th,.err-table td{padding:14px 16px;text-align:left;font-size:.87rem;vertical-align:top;}
+  .err-table th{background:linear-gradient(100deg,var(--coral),var(--amber));color:#fff;}
+  .err-table tr:not(:last-child) td{border-bottom:1px solid var(--border);}
+  .err-table td:first-child{color:var(--ink);font-weight:600;width:38%;}
+  .err-table td:last-child{color:var(--ink-soft);}
+
+  /* ---------- SUMMARY ---------- */
+  .summary-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .summary-list li{display:flex;gap:12px;background:var(--bg-panel);border:1px solid var(--border);border-radius:14px;padding:14px 16px;font-size:.88rem;color:var(--ink-soft);box-shadow:var(--shadow);align-items:flex-start;}
+  .summary-list .s-ico{width:28px;height:28px;border-radius:8px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;flex:none;}
+  .summary-list .s-ico svg{width:15px;height:15px;}
+
+  /* ---------- QUIZ ---------- */
+  .quiz-score{display:flex;align-items:center;gap:12px;background:var(--bg-panel);border:1px solid var(--border);border-radius:14px;padding:14px 20px;margin-bottom:28px;box-shadow:var(--shadow);}
+  .quiz-score .qs-num{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.3rem;color:var(--ink);}
+  .quiz-score .qs-bar{flex:1;height:9px;background:var(--border);border-radius:6px;overflow:hidden;}
+  .quiz-score .qs-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--teal),var(--blue));transition:width .4s;}
+  .q-card{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;margin-bottom:16px;box-shadow:var(--shadow);}
+  .q-card .q-title{font-weight:700;font-size:.96rem;margin-bottom:14px;display:flex;gap:10px;}
+  .q-card .q-title .qn{font-family:'JetBrains Mono',monospace;color:var(--coral-deep);flex:none;}
+  .q-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .q-opt{border:1.5px solid var(--border);border-radius:12px;padding:11px 14px;font-size:.85rem;cursor:pointer;background:#fff;transition:.15s;color:var(--ink-soft);}
+  .q-opt:hover{border-color:var(--blue);background:var(--blue-soft);}
+  .q-opt.correct{background:var(--teal-soft);border-color:var(--teal);color:#0B8A7C;font-weight:700;}
+  .q-opt.wrong{background:var(--coral-soft);border-color:var(--coral);color:var(--coral-deep);font-weight:700;}
+  .q-opt.disabled{cursor:default;}
+  .q-explain{margin-top:12px;font-size:.83rem;color:var(--ink-soft);padding-top:12px;border-top:1px dashed var(--border);display:none;}
+  .q-explain.show{display:block;}
+
+  /* ---------- HOMEWORK ---------- */
+  .hw-card{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+  .hw-progress{display:flex;align-items:center;gap:14px;margin-bottom:22px;}
+  .hw-progress .hp-bar{flex:1;height:11px;background:var(--border);border-radius:6px;overflow:hidden;}
+  .hw-progress .hp-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--coral),var(--amber));transition:width .35s;}
+  .hw-progress .hp-label{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--ink-soft);white-space:nowrap;}
+  .hw-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;}
+  .hw-item{display:flex;gap:14px;align-items:flex-start;padding:13px 8px;border-radius:12px;cursor:pointer;transition:.15s;}
+  .hw-item:hover{background:var(--blue-soft);}
+  .hw-check{width:24px;height:24px;border-radius:7px;border:2px solid var(--border);flex:none;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:.15s;}
+  .hw-check svg{width:14px;height:14px;opacity:0;transition:.15s;color:#fff;}
+  .hw-item.checked .hw-check{background:var(--teal);border-color:var(--teal);}
+  .hw-item.checked .hw-check svg{opacity:1;}
+  .hw-item.checked .hw-text{color:var(--ink-faint);text-decoration:line-through;}
+  .hw-text{font-size:.92rem;color:var(--ink-soft);}
+  .hw-filename{margin-top:20px;padding:14px 16px;background:var(--blue-soft);border-radius:12px;font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--ink-soft);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+  .celebrate{display:none;align-items:center;gap:10px;background:linear-gradient(100deg,var(--teal-soft),var(--amber-soft));border:1px solid var(--teal);border-radius:12px;padding:14px 16px;margin-top:18px;font-weight:700;font-size:.9rem;color:#0B8A7C;}
+  .celebrate.show{display:flex;animation:pop .5s ease;}
+
+  /* ---------- GLOSSARY ---------- */
+  .glossary{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .g-item{background:var(--bg-panel);border:1px solid var(--border);border-radius:12px;padding:12px 16px;box-shadow:var(--shadow);}
+  .g-item b{font-family:'JetBrains Mono',monospace;font-size:.83rem;color:var(--violet-deep);display:block;margin-bottom:2px;}
+  .g-item span{font-size:.83rem;color:var(--ink-soft);}
+
+  /* ---------- NEXT / FOOTER ---------- */
+  .next-card{background:linear-gradient(120deg,#1E2547,#3B2E8C);color:#fff;border-radius:24px;padding:44px;display:flex;justify-content:space-between;align-items:center;gap:30px;flex-wrap:wrap;position:relative;overflow:hidden;}
+  .next-card .eyebrow{color:var(--amber);}
+  .next-card h3{color:#fff;font-size:1.4rem;}
+  .next-card p{color:rgba(255,255,255,0.68);max-width:480px;margin:0;}
+  footer{padding:34px 0;text-align:center;color:var(--ink-faint);font-size:.82rem;}
+
+  /* ---------- STAT STRIP ---------- */
+  .stat-strip{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0 0;}
+  .stat-item{flex:1;min-width:120px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);}
+  .stat-num{font-family:'JetBrains Mono',monospace;font-size:1.55rem;font-weight:700;color:var(--blue-deep);line-height:1;}
+  .stat-lbl{font-size:.75rem;color:var(--ink-faint);margin-top:4px;}
+
+  /* ---------- PAIN CARDS ---------- */
+  .pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
+  .pain-card{background:var(--bg-panel);border:1.5px solid var(--border);border-radius:var(--radius);padding:20px 18px;box-shadow:var(--shadow);transition:.2s;cursor:pointer;position:relative;}
+  .pain-card:hover{transform:translateY(-2px);border-color:var(--teal);}
+  .pain-card .pain-ico{font-size:1.7rem;margin-bottom:8px;}
+  .pain-card h5{font-size:.93rem;margin:0 0 5px;}
+  .pain-card p{font-size:.82rem;color:var(--ink-soft);margin:0;}
+  .pain-card .pain-check{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:7px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;transition:.15s;background:#fff;}
+  .pain-card .pain-check svg{width:13px;height:13px;opacity:0;color:#fff;transition:.15s;}
+  .pain-card.checked .pain-check{background:var(--teal);border-color:var(--teal);}
+  .pain-card.checked .pain-check svg{opacity:1;}
+  .pain-card.checked{border-color:var(--teal);background:var(--teal-soft);}
+  .pain-result{padding:16px 20px;background:linear-gradient(135deg,var(--teal-soft),var(--amber-soft));border:1px dashed var(--teal);border-radius:16px;font-size:.93rem;color:#0B8A7C;display:none;margin-top:4px;}
+
+  /* ---------- BEFORE / AFTER ---------- */
+  .ba-wrap{display:grid;grid-template-columns:1fr 50px 1fr;align-items:center;gap:0;margin:20px 0;}
+  .ba-panel{border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
+  .ba-panel.before{border:1px solid var(--border);}
+  .ba-panel.after{border:2px solid var(--teal);}
+  .ba-header{padding:10px 14px;font-weight:700;font-size:.82rem;display:flex;align-items:center;gap:8px;}
+  .ba-panel.before .ba-header{background:#F1F3FA;color:var(--ink-faint);}
+  .ba-panel.after .ba-header{background:linear-gradient(100deg,var(--teal),#5EE0D0);color:#fff;}
+  .ba-body{padding:14px;}
+  .ba-panel.before .ba-body{background:#FFFBF0;}
+  .ba-panel.after .ba-body{background:var(--teal-soft);}
+  .ba-arrow{display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:var(--ink-soft);}
+  .excel-chaos{display:grid;grid-template-columns:repeat(6,1fr);gap:2px;}
+  .excel-cell{background:#fff;border:1px solid #D8D8D8;padding:4px 5px;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--ink-soft);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+  .excel-cell.head{background:#2F75B6;color:#fff;font-weight:700;}
+  .excel-cell.val{color:var(--ink);}
+  .excel-cell.formula{color:#196B24;}
+  .pbi-mini{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .pbi-kpi{background:linear-gradient(135deg,var(--blue),var(--violet));border-radius:12px;padding:12px;color:#fff;text-align:center;}
+  .pbi-kpi .k-val{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;}
+  .pbi-kpi .k-lbl{font-size:.63rem;opacity:.8;margin-top:2px;}
+  .pbi-chart-mini{background:#fff;border-radius:10px;padding:10px;grid-column:1/-1;border:1px solid var(--border);}
+  .mini-bars{display:flex;align-items:flex-end;gap:4px;height:50px;}
+  .mini-bar{flex:1;border-radius:3px 3px 0 0;}
+
+  /* ---------- PREP CHECKLIST ---------- */
+  .prep-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .prep-card{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px 18px;box-shadow:var(--shadow);}
+  .prep-card .p-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.9rem;color:#fff;margin-bottom:12px;}
+  .prep-card:nth-child(1) .p-num{background:linear-gradient(135deg,var(--blue),var(--violet));}
+  .prep-card:nth-child(2) .p-num{background:linear-gradient(135deg,var(--amber),#FFD37A);color:#4A3600;}
+  .prep-card:nth-child(3) .p-num{background:linear-gradient(135deg,var(--coral),var(--amber));}
+  .prep-card h5{font-size:.93rem;margin:0 0 8px;}
+  .prep-steps{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;}
+  .prep-steps li{font-size:.82rem;color:var(--ink-soft);display:flex;align-items:flex-start;gap:8px;}
+  .prep-steps li::before{content:'→';color:var(--blue);font-weight:700;flex:none;}
+
+  /* ---------- ANALYTICS PYRAMID ---------- */
+  .pyramid-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;margin:22px auto 0;max-width:640px;}
+  .pyr-row{display:flex;align-items:center;justify-content:center;width:100%;}
+  .pyr-block{border-radius:12px;padding:11px 20px;text-align:center;transition:.15s;cursor:default;}
+  .pyr-block:hover{filter:brightness(1.08);transform:scale(1.02);}
+  .pyr-block .pyr-icon{font-size:1.25rem;margin-bottom:2px;}
+  .pyr-block h5{font-size:.79rem;margin:0 0 2px;color:#fff;font-weight:700;}
+  .pyr-block span{font-size:.69rem;color:rgba(255,255,255,.78);}
+  .pyr-badge{position:absolute;top:-9px;right:-9px;background:#fff;border-radius:20px;padding:2px 8px;font-size:.6rem;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.15);white-space:nowrap;}
+  .pyr-label{min-width:106px;text-align:right;font-size:.71rem;color:var(--ink-faint);padding-right:10px;flex:none;}
+  .pyr-label-right{min-width:106px;text-align:left;font-size:.71rem;color:var(--ink-faint);padding-left:10px;flex:none;}
+
+  /* ---------- USE CASE CARDS ---------- */
+  .uc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .uc-card{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px 18px;box-shadow:var(--shadow);transition:.2s;}
+  .uc-card:hover{transform:translateY(-3px);}
+  .uc-card .uc-tag{font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:700;padding:4px 10px;border-radius:20px;display:inline-block;margin-bottom:12px;}
+  .uc-card h5{font-size:.92rem;margin:0 0 7px;}
+  .uc-card p{font-size:.82rem;color:var(--ink-soft);margin:0 0 12px;}
+  .uc-card .uc-metric{padding:9px 13px;border-radius:10px;font-size:.77rem;font-weight:600;}
+
+  @media (max-width:900px){
+    .hero-grid,.intro-grid,.install-grid,.zones-wrap,.practice-grid{grid-template-columns:1fr;}
+    .obj-grid{grid-template-columns:1fr 1fr;}
+    .eco-grid,.pain-grid,.prep-grid,.uc-grid{grid-template-columns:1fr 1fr;}
+    .ba-wrap{grid-template-columns:1fr;} .ba-arrow{transform:rotate(90deg);}
+    .pyramid-wrap{max-width:100%;} .pyr-label,.pyr-label-right{display:none;}
+    .summary-list{grid-template-columns:1fr;}
+    .glossary{grid-template-columns:1fr;}
+    .q-opts{grid-template-columns:1fr;}
+    section{padding:64px 0;}
+  }
+  @media (max-width:560px){
+    .obj-grid,.pain-grid,.prep-grid,.uc-grid{grid-template-columns:1fr;}
+    .nav-brand span.full{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <svg class="mark" viewBox="0 0 28 28" fill="none"><defs><linearGradient id="navg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3D8BFD"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient></defs><rect width="28" height="28" rx="8" fill="url(#navg)"/><rect x="7" y="15" width="3.4" height="6" rx="1.2" fill="#fff"/><rect x="12.3" y="11" width="3.4" height="10" rx="1.2" fill="#fff"/><rect x="17.6" y="7" width="3.4" height="14" rx="1.2" fill="#fff"/></svg>
+      <span class="full">Power BI Cho Người Đi Làm</span>
+      <span class="session-tag">BUỔI 1/5</span>
+    </div>
+    <div class="nav-links" id="navLinks">
+      <a href="#khoi-dong">Khởi động</a>
+      <a href="#muc-tieu">Mục tiêu</a>
+      <a href="#gioi-thieu">Giới thiệu</a>
+      <a href="#ai-overview">AI &amp; Data</a>
+      <a href="#he-sinh-thai">Hệ sinh thái</a>
+      <a href="#ung-dung">Ứng dụng</a>
+      <a href="#quy-trinh">Quy trình</a>
+      <a href="#cai-dat">Cài đặt</a>
+      <a href="#giao-dien">Giao diện</a>
+      <a href="#ket-noi">Nguồn dữ liệu</a>
+      <a href="#thuc-hanh">Thực hành</a>
+      <a href="#trac-nghiem">Trắc nghiệm</a>
+      <a href="#btvn">Bài tập</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">✨ Buổi 1 · Làm quen Power BI</div>
+      <h1>Biến số liệu khô khan<br>thành <span class="accent">báo cáo biết kể chuyện</span></h1>
+      <p class="lede">Buổi học đầu tiên trong chuỗi 5 buổi đưa bạn từ con số 0 đến người tự tin dựng báo cáo Power BI đầu tiên của riêng mình.</p>
+      <div class="meta-row">
+        <div class="pill">⏱️ 150 phút</div>
+        <div class="pill">🌱 Trình độ: Cơ bản</div>
+        <div class="pill">🖥️ Power BI Desktop (miễn phí)</div>
+      </div>
+      <div class="cta-row">
+        <a href="#muc-tieu" class="btn btn-primary">Bắt đầu học ↓</a>
+        <a href="#trac-nghiem" class="btn btn-ghost">Xem trắc nghiệm ôn tập</a>
+      </div>
+      <div class="progress-dots" aria-hidden="true">
+        <span class="on"></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="stat-strip">
+        <div class="stat-item"><div class="stat-num">5M+</div><div class="stat-lbl">Người dùng toàn cầu</div></div>
+        <div class="stat-item"><div class="stat-num">500+</div><div class="stat-lbl">Nguồn dữ liệu hỗ trợ</div></div>
+        <div class="stat-item"><div class="stat-num">#1</div><div class="stat-lbl">BI tool · Gartner 2023</div></div>
+      </div>
+    </div>
+
+    <div class="hero-illustration">
+      <span class="float-badge fb-1">✅</span>
+      <span class="float-badge fb-2">📊</span>
+      <span class="float-badge fb-3">☁️</span>
+      <span class="float-badge fb-4">⚡</span>
+      <svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="screenGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#3D8BFD"/><stop offset="1" stop-color="#8B5CF6"/>
+          </linearGradient>
+        </defs>
+        <rect x="128" y="196" width="44" height="14" rx="6" fill="#C9D2E3"/>
+        <rect x="144" y="176" width="12" height="26" fill="#C9D2E3"/>
+        <rect x="26" y="18" width="248" height="168" rx="26" fill="url(#screenGrad)"/>
+        <rect x="42" y="34" width="216" height="136" rx="16" fill="#FFFFFF"/>
+        <circle cx="112" cy="92" r="10" fill="#1E2547"/>
+        <circle cx="188" cy="92" r="10" fill="#1E2547"/>
+        <rect x="97" y="128" width="14" height="20" rx="4" fill="#FFB627"/>
+        <rect x="117" y="118" width="14" height="30" rx="4" fill="#17C3B2"/>
+        <rect x="137" y="106" width="14" height="42" rx="4" fill="#FF6F61"/>
+        <rect x="157" y="118" width="14" height="30" rx="4" fill="#17C3B2"/>
+        <rect x="177" y="128" width="14" height="20" rx="4" fill="#FFB627"/>
+      </svg>
+    </div>
+    <p class="rm-caption" style="grid-column:2;margin-top:-56px;color:var(--ink-faint);">Chú thích: nụ cười của "trợ lý Power BI" chính là một biểu đồ cột 😄</p>
+  </div>
+
+  <svg class="wave" viewBox="0 0 1440 90" preserveAspectRatio="none"><path d="M0,50 C240,90 480,10 720,34 C960,58 1200,84 1440,40 L1440,90 L0,90 Z" fill="#FDFEFF"/></svg>
+</header>
+
+<!-- ================= KHỞI ĐỘNG ================= -->
+<section id="khoi-dong" class="tint-amber">
+  <div class="blob drift" style="width:280px;height:280px;background:var(--amber);top:-80px;right:-60px;"></div>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--amber-deep);">🔥 00 · Khởi động</div>
+      <h2>Trước khi chạm vào Power BI — bức tranh quen thuộc</h2>
+      <p>Nhìn lại công việc hàng ngày của bạn. Bạn có đang gặp những tình huống này không?</p>
+    </div>
+
+    <p style="font-weight:700;font-size:.95rem;margin-bottom:14px;">👇 Tích vào những vấn đề bạn từng gặp:</p>
+    <div class="pain-grid" id="painGrid">
+      <div class="pain-card">
+        <div class="pain-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>
+        <div class="pain-ico">📋</div>
+        <h5>Báo cáo phải làm lại mỗi tháng</h5>
+        <p>Sao chép, dán số mới, chỉnh lại biểu đồ — mất vài giờ chỉ để cập nhật số liệu.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>
+        <div class="pain-ico">📂</div>
+        <h5>File Excel ngày càng chậm và nặng</h5>
+        <p>File 50MB, hàng ngàn hàm VLOOKUP, pivot table bị freeze. Không dám mở trên máy cũ.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>
+        <div class="pain-ico">🔀</div>
+        <h5>Nhiều phiên bản gây nhầm lẫn</h5>
+        <p>"BC_Final_v3_CHINHSUA_cuoi.xlsx" — không biết file nào mới nhất, ai đang sửa.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>
+        <div class="pain-ico">🎭</div>
+        <h5>Mỗi người hiểu số một cách khác nhau</h5>
+        <p>Sếp hỏi doanh thu Q1, sales nói X triệu, kế toán nói Y triệu — ai đúng?</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>
+        <div class="pain-ico">⏰</div>
+        <h5>Câu hỏi đột xuất không trả lời ngay được</h5>
+        <p>"Tháng vừa rồi sản phẩm A bán chạy ở tỉnh nào?" — mất 30 phút mới có số.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>
+        <div class="pain-ico">📊</div>
+        <h5>Biểu đồ nhìn khó hiểu, sếp không đọc</h5>
+        <p>Bảng số liệu chi chít, trình bày chưa trực quan — "tóm tắt lại cho anh đi".</p>
+      </div>
+    </div>
+    <div class="pain-result" id="painResult"></div>
+
+    <h4 style="margin:40px 0 16px;">👀 Cùng một dữ liệu — trước và sau Power BI</h4>
+    <div class="ba-wrap">
+      <div class="ba-panel before">
+        <div class="ba-header">❌ Excel thuần — cập nhật thủ công mỗi tháng</div>
+        <div class="ba-body">
+          <div class="excel-chaos">
+            <div class="excel-cell head">Month</div><div class="excel-cell head">Region</div><div class="excel-cell head">Product</div><div class="excel-cell head">Sales</div><div class="excel-cell head">Cost</div><div class="excel-cell head">Profit</div>
+            <div class="excel-cell val">Jan</div><div class="excel-cell val">HCM</div><div class="excel-cell val">SP A</div><div class="excel-cell val">1,240,000</div><div class="excel-cell val">820,000</div><div class="excel-cell formula">=D2-E2</div>
+            <div class="excel-cell val">Jan</div><div class="excel-cell val">HN</div><div class="excel-cell val">SP B</div><div class="excel-cell val">980,000</div><div class="excel-cell val">610,000</div><div class="excel-cell formula">=D3-E3</div>
+            <div class="excel-cell val">Feb</div><div class="excel-cell val">HCM</div><div class="excel-cell val">SP A</div><div class="excel-cell val">1,420,000</div><div class="excel-cell val">890,000</div><div class="excel-cell formula">=D4-E4</div>
+            <div class="excel-cell val">Feb</div><div class="excel-cell val">DN</div><div class="excel-cell val">SP C</div><div class="excel-cell val">560,000</div><div class="excel-cell val">320,000</div><div class="excel-cell formula">=D5-E5</div>
+            <div class="excel-cell val">Mar</div><div class="excel-cell val">HN</div><div class="excel-cell val">SP B</div><div class="excel-cell val">1,100,000</div><div class="excel-cell val">720,000</div><div class="excel-cell formula">=D6-E6</div>
+          </div>
+          <p style="font-size:.71rem;color:var(--ink-faint);margin:8px 0 0;text-align:center;">+ 1.200 dòng nữa... copy-paste thủ công mỗi tháng</p>
+        </div>
+      </div>
+      <div class="ba-arrow">→</div>
+      <div class="ba-panel after">
+        <div class="ba-header">✅ Power BI — nhấn Refresh là xong</div>
+        <div class="ba-body">
+          <div class="pbi-mini">
+            <div class="pbi-kpi"><div class="k-val">₫ 38.4M</div><div class="k-lbl">Tổng Sales ▲ 12%</div></div>
+            <div class="pbi-kpi" style="background:linear-gradient(135deg,var(--teal),#5EE0D0);"><div class="k-val">420</div><div class="k-lbl">Đơn hàng ▲ 8%</div></div>
+            <div class="pbi-chart-mini">
+              <div style="font-size:.63rem;color:var(--ink-faint);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Sales theo Tháng</div>
+              <div class="mini-bars">
+                <div class="mini-bar" style="height:45%;background:var(--blue);"></div>
+                <div class="mini-bar" style="height:60%;background:var(--blue);"></div>
+                <div class="mini-bar" style="height:52%;background:var(--blue);"></div>
+                <div class="mini-bar" style="height:75%;background:var(--amber);"></div>
+                <div class="mini-bar" style="height:88%;background:var(--amber);"></div>
+                <div class="mini-bar" style="height:95%;background:var(--coral);"></div>
+              </div>
+            </div>
+          </div>
+          <p style="font-size:.71rem;color:#0B8A7C;margin:8px 0 0;text-align:center;font-weight:700;">🔄 Nhấn Refresh — số tự cập nhật, không làm gì thêm</p>
+        </div>
+      </div>
+    </div>
+
+    <h4 style="margin:40px 0 16px;">🎒 Chuẩn bị 3 thứ trước khi bắt đầu</h4>
+    <div class="prep-grid">
+      <div class="prep-card">
+        <div class="p-num">1</div>
+        <h5>Cài Power BI Desktop</h5>
+        <ul class="prep-steps">
+          <li>Yêu cầu: Windows 10/11 (64-bit)</li>
+          <li>Vào Microsoft Store → tìm "Power BI Desktop"</li>
+          <li>Nhấn Get → chờ cài đặt hoàn tất</li>
+          <li>Mở app — thấy màn hình Welcome là OK</li>
+        </ul>
+      </div>
+      <div class="prep-card">
+        <div class="p-num">2</div>
+        <h5>Tải file dữ liệu mẫu</h5>
+        <ul class="prep-steps">
+          <li>File: <b class="mono">Financial Sample.xlsx</b></li>
+          <li>Microsoft phát miễn phí — GV chia sẻ link</li>
+          <li>Lưu vào Desktop để dễ tìm</li>
+          <li>Không cần mở Excel — Power BI đọc trực tiếp</li>
+        </ul>
+      </div>
+      <div class="prep-card">
+        <div class="p-num">3</div>
+        <h5>Tài khoản đăng nhập</h5>
+        <ul class="prep-steps">
+          <li>Cần: <b>email công ty / tổ chức</b></li>
+          <li>Gmail, Yahoo → không dùng được Service</li>
+          <li>Chưa có? Làm trên Desktop trước vẫn ổn</li>
+          <li>Desktop không bắt buộc đăng nhập ngay</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout tip" style="margin-top:22px;">
+      <span class="c-emoji">🧠</span>
+      <div><div class="c-title">Tư duy quan trọng nhất trước buổi học</div><p>Power BI <b>không phải Excel phức tạp hơn</b>. Đây là tư duy khác: thay vì "cố tính đúng công thức", bạn sẽ <b>mô tả câu hỏi muốn trả lời rồi kéo-thả để Power BI vẽ câu trả lời đó</b>. Mang tư duy này vào và bạn sẽ tiến nhanh hơn rất nhiều.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MỤC TIÊU ================= -->
+<section id="muc-tieu">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--blue-deep);">🎯 01 · Mục tiêu buổi học</div>
+      <h2>Kết thúc buổi 1, bạn sẽ làm được 4 điều</h2>
+      <p>Đây là "định nghĩa hoàn thành" của buổi học — hãy dùng nó để tự kiểm tra trước khi sang Buổi 2.</p>
+    </div>
+    <div class="obj-grid">
+      <div class="obj-card"><div class="num">💡</div><h4>Hiểu Power BI là gì</h4><p>Nắm được vì sao công cụ này đáng học và khác Excel ở điểm nào.</p></div>
+      <div class="obj-card"><div class="num">⚙️</div><h4>Cài đặt thành công</h4><p>Power BI Desktop chạy được trên máy, đăng nhập đúng loại tài khoản.</p></div>
+      <div class="obj-card"><div class="num">🧭</div><h4>Nhận diện giao diện</h4><p>Chỉ đúng tên và chức năng của 7 khu vực chính trên màn hình làm việc.</p></div>
+      <div class="obj-card"><div class="num">📊</div><h4>Tạo báo cáo đầu tiên</h4><p>Tự tay dựng Card, biểu đồ cột, biểu đồ tròn và slicer từ dữ liệu mẫu.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= GIỚI THIỆU ================= -->
+<section id="gioi-thieu" class="tint-blue">
+  <div class="blob drift" style="width:340px;height:340px;background:var(--blue);top:-100px;right:-100px;"></div>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--blue-deep);">💡 02 · Power BI là gì</div>
+      <h2>Từ bảng số liệu khô khan đến báo cáo tương tác</h2>
+    </div>
+    <div class="intro-grid">
+      <div>
+        <p style="color:var(--ink-soft);font-size:1rem;">Power BI là nền tảng phân tích & trực quan hóa dữ liệu (Business Intelligence) của Microsoft. Nó biến dữ liệu từ Excel, cơ sở dữ liệu hay dịch vụ web thành báo cáo và dashboard tương tác — chỉ cần nhìn là hiểu ngay tình hình.</p>
+        <ul class="bullet-list">
+          <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Không cần lập trình</b> — thao tác chính là kéo–thả, giống Excel.</span></li>
+          <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Miễn phí để bắt đầu</b> — Power BI Desktop tải và dùng hoàn toàn miễn phí.</span></li>
+          <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Tiết kiệm thời gian</b> — báo cáo tự cập nhật khi dữ liệu đổi, không cần làm lại thủ công.</span></li>
+          <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Kỹ năng được săn đón</b> — một trong những kỹ năng phân tích dữ liệu tuyển dụng nhiều nhất hiện nay.</span></li>
+        </ul>
+      </div>
+      <div class="compare-card">
+        <div class="compare-head"><div>📗 Excel</div><div>📊 Power BI</div></div>
+        <div class="compare-row"><div><b>Quy mô dữ liệu</b>Mạnh với bảng nhỏ, tính theo ô</div><div><b>Quy mô dữ liệu</b>Xử lý tốt dữ liệu lớn, nhiều bảng</div></div>
+        <div class="compare-row"><div><b>Cập nhật</b>Sửa thủ công mỗi lần có số mới</div><div><b>Cập nhật</b>Tự làm mới (refresh) theo lịch</div></div>
+        <div class="compare-row"><div><b>Chia sẻ</b>Gửi file, dễ lệch phiên bản</div><div><b>Chia sẻ</b>Xuất bản online, luôn 1 bản duy nhất</div></div>
+        <div class="compare-row"><div><b>Tương tác</b>Hạn chế, tĩnh</div><div><b>Tương tác</b>Lọc chéo, khám phá theo thời gian thực</div></div>
+      </div>
+    </div>
+
+    <h4 style="margin:36px 0 6px;">🌐 Power BI nằm ở đâu trong bức tranh Dữ liệu — AI?</h4>
+    <p style="color:var(--ink-soft);font-size:.95rem;max-width:720px;">Bạn có thể đã nghe nhiều thuật ngữ nghe na ná nhau: AI, Data Science, Data Analytics, Business Intelligence... Trước khi đi sâu vào Power BI, hãy dành 2 phút để định vị nó trong bức tranh lớn hơn của ngành dữ liệu.</p>
+
+    <div class="obj-grid" style="margin-top:18px;">
+      <div class="obj-card"><div class="num">📈</div><h4>Data Analytics</h4><p>Tổ chức, xử lý và phân tích dữ liệu để trả lời câu hỏi, tìm insight và xu hướng — một phần quan trọng của Data Science.</p></div>
+      <div class="obj-card"><div class="num">🔬</div><h4>Data Science</h4><p>Lĩnh vực liên ngành kết hợp toán học, khoa học và lập trình để khai thác dữ liệu, giúp ra quyết định tốt hơn.</p></div>
+      <div class="obj-card"><div class="num">📊</div><h4>Business Intelligence</h4><p>Áp dụng công cụ phân tích dữ liệu vào bối cảnh doanh nghiệp, đặc biệt nhấn mạnh <b>descriptive analytics</b>. <b>Power BI thuộc nhóm này.</b></p></div>
+      <div class="obj-card"><div class="num">🤖</div><h4>AI / Machine Learning</h4><p>Công nghệ học từ dữ liệu để dự đoán và tự động hoá quyết định — thường thuộc tầng phân tích cao hơn (predictive/prescriptive).</p></div>
+    </div>
+
+    <div class="compare-card" style="margin-top:22px;max-width:720px;">
+      <div class="compare-head"><div>📈 Data Analytics</div><div>🔬 Data Science</div></div>
+      <div class="compare-row"><div><b>Phạm vi</b>Micro — tập trung một bài toán cụ thể</div><div><b>Phạm vi</b>Macro — khám phá cả bức tranh rộng hơn</div></div>
+      <div class="compare-row"><div><b>Mục tiêu</b>Tìm giải pháp cho vấn đề <i>đã biết</i> ("câu hỏi ta biết ta không biết")</div><div><b>Mục tiêu</b>Tìm & định nghĩa vấn đề <i>mới</i>, dẫn tới đổi mới ("câu hỏi ta không biết ta không biết")</div></div>
+    </div>
+
+    <h4 style="margin:32px 0 14px;">🪜 5 cấp độ phân tích dữ liệu</h4>
+    <p style="color:var(--ink-soft);font-size:.95rem;margin-bottom:4px;">Càng lên cao, mức độ "tận dụng dữ liệu" và độ phức tạp càng tăng — Power BI làm chủ tầng nền.</p>
+    <div class="pyramid-wrap">
+      <div class="pyr-row">
+        <div class="pyr-label">Phức tạp nhất</div>
+        <div class="pyr-block" style="background:linear-gradient(135deg,#6D28D9,#4C1D95);width:155px;">
+          <div class="pyr-icon">🧠</div><h5>Cognitive</h5><span>Nếu hoàn cảnh đổi?</span>
+        </div>
+        <div class="pyr-label-right">AI nâng cao</div>
+      </div>
+      <div class="pyr-row">
+        <div class="pyr-label"></div>
+        <div class="pyr-block" style="background:linear-gradient(135deg,#BE185D,#9D174D);width:215px;">
+          <div class="pyr-icon">🎯</div><h5>Prescriptive</h5><span>Nên làm gì?</span>
+        </div>
+        <div class="pyr-label-right">ML / Optimization</div>
+      </div>
+      <div class="pyr-row">
+        <div class="pyr-label"></div>
+        <div class="pyr-block" style="background:linear-gradient(135deg,var(--amber),var(--amber-deep));width:275px;">
+          <div class="pyr-icon">🔮</div><h5>Predictive</h5><span>Điều gì sẽ xảy ra?</span>
+        </div>
+        <div class="pyr-label-right">Python / R</div>
+      </div>
+      <div class="pyr-row">
+        <div class="pyr-label"></div>
+        <div class="pyr-block" style="background:linear-gradient(135deg,var(--teal),var(--teal-deep));width:335px;">
+          <div class="pyr-icon">🔍</div><h5>Diagnostic</h5><span>Vì sao nó xảy ra?</span>
+        </div>
+        <div class="pyr-label-right">Power BI (một phần)</div>
+      </div>
+      <div class="pyr-row">
+        <div class="pyr-label">Nền tảng</div>
+        <div class="pyr-block" style="background:linear-gradient(135deg,var(--blue),var(--blue-deep));width:395px;position:relative;">
+          <span class="pyr-badge" style="color:var(--blue-deep);">⭐ Power BI chủ yếu ở đây</span>
+          <div class="pyr-icon">👁️</div><h5>Descriptive</h5><span>Điều gì đã xảy ra?</span>
+        </div>
+        <div class="pyr-label-right">Power BI / BI Tools</div>
+      </div>
+    </div>
+    <div class="callout note" style="margin-top:20px;">
+      <span class="c-emoji">📍</span>
+      <div><div class="c-title">Power BI đứng ở đâu?</div><p>Power BI phục vụ chủ yếu tầng <b>Descriptive</b> (và một phần Diagnostic) — đây chính là "sân nhà" của BI: cho bạn thấy rõ <b>điều gì đã và đang xảy ra</b>. Muốn tiến lên Predictive/Prescriptive (dự đoán, tối ưu hoá), bạn sẽ cần thêm các công cụ như Python, R hay Machine Learning — đó là phạm vi của Data Science/AI. Biết rõ ranh giới này giúp bạn dùng đúng công cụ, đúng lúc.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= AI & DATA LANDSCAPE ================= -->
+<section id="ai-overview" class="tint-violet">
+  <div class="blob drift" style="width:340px;height:340px;background:var(--violet);top:-100px;right:-80px;"></div>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--violet-deep);">🤖 02b · Bức tranh AI &amp; Data</div>
+      <h2>AI — Data Science — Power BI: nằm ở đâu trong bức tranh lớn?</h2>
+      <p>Trước khi đi sâu vào Power BI, hãy hiểu rõ cấu trúc của ngành. Biết mình đứng ở đâu giúp bạn học đúng thứ đúng lúc.</p>
+    </div>
+
+    <!-- AI Family Tree -->
+    <h4 style="margin:0 0 16px;">🌳 Cây họ hàng của AI — từ gốc đến lá</h4>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:32px;">
+      <div style="background:var(--bg-panel);border:2px solid var(--violet);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);">
+        <div style="font-size:1.6rem;margin-bottom:8px;">🤖</div>
+        <h5 style="font-size:.95rem;margin:0 0 6px;color:var(--violet-deep);">AI (Artificial Intelligence)</h5>
+        <p style="font-size:.82rem;color:var(--ink-soft);margin:0;">Khoa học tạo ra máy tính có khả năng thực hiện các tác vụ thường đòi hỏi trí tuệ người. Đây là <b>lĩnh vực bao trùm lớn nhất</b>.</p>
+      </div>
+      <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);">
+        <div style="font-size:1.6rem;margin-bottom:8px;">📐</div>
+        <h5 style="font-size:.95rem;margin:0 0 6px;">ML (Machine Learning)</h5>
+        <p style="font-size:.82rem;color:var(--ink-soft);margin:0;">Nhánh con của AI — <b>máy tự học từ dữ liệu</b> mà không cần lập trình cứng từng quy tắc. Bao gồm Supervised, Unsupervised, Reinforcement Learning.</p>
+      </div>
+      <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);">
+        <div style="font-size:1.6rem;margin-bottom:8px;">🧠</div>
+        <h5 style="font-size:.95rem;margin:0 0 6px;">DL (Deep Learning)</h5>
+        <p style="font-size:.82rem;color:var(--ink-soft);margin:0;">Nhánh con của ML — dùng <b>mạng nơ-ron nhiều lớp</b> (neural networks), mạnh với ảnh, âm thanh, văn bản. Nền tảng của ChatGPT, DALL-E.</p>
+      </div>
+    </div>
+
+    <!-- DL Specializations -->
+    <h4 style="margin:0 0 14px;">🔬 Các lĩnh vực chuyên biệt trong Deep Learning</h4>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px;">
+      <div class="obj-card">
+        <div class="num">👁️</div>
+        <h4>CV</h4>
+        <p><b>Computer Vision</b> — máy nhìn và hiểu ảnh/video. Nhận diện khuôn mặt, xe tự lái, phát hiện lỗi sản xuất.</p>
+      </div>
+      <div class="obj-card">
+        <div class="num">💬</div>
+        <h4>NLP</h4>
+        <p><b>Natural Language Processing</b> — xử lý ngôn ngữ tự nhiên. Chatbot, dịch thuật, phân tích cảm xúc, tóm tắt văn bản.</p>
+      </div>
+      <div class="obj-card">
+        <div class="num">✨</div>
+        <h4>LLM</h4>
+        <p><b>Large Language Model</b> — mô hình ngôn ngữ khổng lồ. ChatGPT, Gemini, Claude — nhánh tiên tiến nhất của NLP hiện nay.</p>
+      </div>
+      <div class="obj-card">
+        <div class="num">🎨</div>
+        <h4>Gen AI</h4>
+        <p><b>Generative AI</b> — AI tạo sinh nội dung mới: ảnh (DALL-E, Midjourney), âm nhạc, code, video từ mô tả văn bản.</p>
+      </div>
+    </div>
+
+    <!-- Career Paths -->
+    <h4 style="margin:0 0 14px;">👔 Nghề nghiệp trong ngành Data &amp; AI</h4>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:28px;">
+      <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--blue),var(--violet));"></div>
+        <div style="font-size:1.5rem;margin-bottom:8px;">📊</div>
+        <h5 style="font-size:.95rem;margin:0 0 4px;color:var(--blue-deep);">Data Analyst</h5>
+        <p style="font-size:.8rem;color:var(--ink-soft);margin:0 0 10px;">Phân tích dữ liệu hiện có, tạo báo cáo &amp; dashboard, trả lời câu hỏi kinh doanh cụ thể.</p>
+        <div style="font-size:.75rem;color:var(--ink-faint);border-top:1px solid var(--border);padding-top:8px;"><b style="color:var(--ink);">Công cụ chính:</b> <span style="color:var(--blue-deep);font-weight:600;">Power BI</span>, Excel, SQL, Tableau</div>
+      </div>
+      <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--teal),var(--blue));"></div>
+        <div style="font-size:1.5rem;margin-bottom:8px;">🔬</div>
+        <h5 style="font-size:.95rem;margin:0 0 4px;color:var(--teal-deep);">Data Scientist</h5>
+        <p style="font-size:.8rem;color:var(--ink-soft);margin:0 0 10px;">Xây dựng mô hình dự đoán (ML), tìm insight ẩn trong dữ liệu lớn, giải bài toán thống kê phức tạp.</p>
+        <div style="font-size:.75rem;color:var(--ink-faint);border-top:1px solid var(--border);padding-top:8px;"><b style="color:var(--ink);">Công cụ chính:</b> <span style="color:var(--teal-deep);font-weight:600;">Python</span>, R, SQL, Jupyter, scikit-learn</div>
+      </div>
+      <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--violet),var(--coral));"></div>
+        <div style="font-size:1.5rem;margin-bottom:8px;">⚙️</div>
+        <h5 style="font-size:.95rem;margin:0 0 4px;color:var(--violet-deep);">AI Engineer</h5>
+        <p style="font-size:.8rem;color:var(--ink-soft);margin:0 0 10px;">Triển khai và vận hành mô hình AI vào sản phẩm thực tế (production), xây dựng hạ tầng ML, fine-tune LLM.</p>
+        <div style="font-size:.75rem;color:var(--ink-faint);border-top:1px solid var(--border);padding-top:8px;"><b style="color:var(--ink);">Công cụ chính:</b> <span style="color:var(--violet-deep);font-weight:600;">Python</span>, PyTorch, Docker, Cloud (AWS/Azure/GCP)</div>
+      </div>
+    </div>
+
+    <!-- Python vs Power BI -->
+    <h4 style="margin:0 0 14px;">🔧 Công cụ chính: Python vs Power BI — dùng gì khi nào?</h4>
+    <div class="compare-card" style="max-width:100%;">
+      <div class="compare-head"><div>🐍 Python</div><div>📊 Power BI</div></div>
+      <div class="compare-row"><div><b>Bản chất</b>Ngôn ngữ lập trình đa năng — phải viết code</div><div><b>Bản chất</b>Công cụ BI trực quan — chủ yếu kéo-thả, không code</div></div>
+      <div class="compare-row"><div><b>Thế mạnh</b>ML/AI, xử lý dữ liệu phức tạp, tự động hóa, thống kê nâng cao</div><div><b>Thế mạnh</b>Dashboard tương tác đẹp, báo cáo kinh doanh, chia sẻ nhanh</div></div>
+      <div class="compare-row"><div><b>Người dùng</b>Data Scientist, AI Engineer, Developer</div><div><b>Người dùng</b>Data Analyst, Business Analyst, quản lý, mọi phòng ban</div></div>
+      <div class="compare-row"><div><b>Đường cong học</b>Dốc hơn — cần tư duy lập trình</div><div><b>Đường cong học</b>Thoải hơn — người không biết code vẫn dùng được</div></div>
+      <div class="compare-row"><div><b>Dùng khi</b>Cần xây mô hình dự đoán, xử lý dữ liệu lớn phức tạp</div><div><b>Dùng khi</b>Cần báo cáo đẹp, cập nhật tự động, chia sẻ với sếp</div></div>
+    </div>
+    <div class="callout note" style="margin-top:20px;">
+      <span class="c-emoji">🎯</span>
+      <div><div class="c-title">Không phải OR — mà là AND</div><p>Python và Power BI <b>bổ sung cho nhau</b>, không cạnh tranh. Nhiều Data Analyst dùng Python để làm sạch &amp; phân tích dữ liệu, rồi dùng Power BI để trình bày kết quả. Khóa học này tập trung Power BI — một kỹ năng độc lập hoàn chỉnh, không cần Python để bắt đầu.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HỆ SINH THÁI ================= -->
+<section id="he-sinh-thai">
+  <div class="blob drift" style="width:300px;height:300px;background:var(--amber);bottom:-80px;left:-80px;"></div>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--amber-deep);">🖥️ 03 · Hệ sinh thái</div>
+      <h2>3 thành phần cốt lõi bạn cần biết</h2>
+      <p>Power BI không phải một phần mềm đơn lẻ mà là bộ ba công cụ phối hợp với nhau.</p>
+    </div>
+    <div class="eco-grid">
+      <div class="eco-card main">
+        <span class="eco-badge">⭐ Công cụ chính khóa học</span>
+        <div class="eco-icon"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="4" width="20" height="13" rx="3"/><rect x="9" y="19" width="6" height="2.4" rx="1" fill="currentColor"/></svg></div>
+        <h4>Power BI Desktop</h4>
+        <p>Miễn phí, chỉ chạy trên Windows. Nơi bạn kết nối dữ liệu, làm sạch, mô hình hóa và thiết kế báo cáo.</p>
+      </div>
+      <div class="eco-card">
+        <div class="eco-icon">
+          <svg viewBox="0 0 64 44" fill="currentColor"><ellipse cx="20" cy="26" rx="16" ry="14"/><ellipse cx="34" cy="18" rx="14" ry="14"/><ellipse cx="46" cy="27" rx="14" ry="12"/><rect x="10" y="26" width="44" height="14" rx="7"/></svg>
+        </div>
+        <h4>Power BI Service</h4>
+        <p>Nền tảng đám mây (app.powerbi.com) — nơi xuất bản, chia sẻ báo cáo và tạo dashboard cho cả nhóm.</p>
+      </div>
+      <div class="eco-card">
+        <div class="eco-icon"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="1.5" width="12" height="21" rx="3"/><rect x="10" y="18.5" width="4" height="1.6" rx="0.8" fill="#8B5CF6"/></svg></div>
+        <h4>Power BI Mobile</h4>
+        <p>Ứng dụng điện thoại/máy tính bảng — chủ yếu để xem báo cáo mọi lúc, mọi nơi.</p>
+      </div>
+    </div>
+    <div class="callout warn">
+      <span class="c-emoji">⚠️</span>
+      <div><div class="c-title">Lưu ý quan trọng</div><p>Power BI Desktop chỉ chạy trên Windows. Nếu dùng macOS, hãy cài máy ảo Windows hoặc làm việc trực tiếp trên Power BI Service (bản web).</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ỨNG DỤNG THỰC TẾ ================= -->
+<section id="ung-dung">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--teal-deep);">💼 03b · Ứng dụng thực tế</div>
+      <h2>Ai đang dùng Power BI — và giải quyết bài toán gì?</h2>
+      <p>Power BI không chỉ dành cho "data team" — hầu hết phòng ban trong doanh nghiệp đều có thể ứng dụng ngay.</p>
+    </div>
+    <div class="uc-grid">
+      <div class="uc-card">
+        <span class="uc-tag" style="background:var(--blue-soft);color:var(--blue-deep);">📈 Kinh doanh / Sales</span>
+        <h5>Theo dõi doanh thu theo kênh &amp; nhân viên</h5>
+        <p>Dashboard tự động cập nhật theo nhân viên, khu vực, sản phẩm — sếp xem ngay trên điện thoại mà không cần chờ report cuối tuần.</p>
+        <div class="uc-metric" style="background:var(--blue-soft);color:var(--blue-deep);">⚡ Thời gian làm báo cáo: 4h → 15 phút</div>
+      </div>
+      <div class="uc-card">
+        <span class="uc-tag" style="background:var(--amber-soft);color:var(--amber-deep);">💰 Tài chính / Kế toán</span>
+        <h5>Phân tích chi phí &amp; so sánh ngân sách</h5>
+        <p>So sánh thực tế vs kế hoạch theo tháng/quý, phát hiện khoản chi bất thường trước khi quá muộn để điều chỉnh.</p>
+        <div class="uc-metric" style="background:var(--amber-soft);color:var(--amber-deep);">🔍 Phát hiện sai lệch ngân sách nhanh hơn 3×</div>
+      </div>
+      <div class="uc-card">
+        <span class="uc-tag" style="background:var(--teal-soft);color:var(--teal-deep);">📣 Marketing</span>
+        <h5>Hiệu quả chiến dịch theo từng channel</h5>
+        <p>Kết hợp data từ Facebook Ads, Google Analytics, CRM vào một màn hình — so sánh ROI từng kênh, tắt kênh kém ngay.</p>
+        <div class="uc-metric" style="background:var(--teal-soft);color:var(--teal-deep);">🎯 Tối ưu ngân sách ads dựa trên insight thực</div>
+      </div>
+      <div class="uc-card">
+        <span class="uc-tag" style="background:var(--coral-soft);color:var(--coral-deep);">👥 Nhân sự / HR</span>
+        <h5>Phân tích nhân lực và tuyển dụng</h5>
+        <p>Tỷ lệ nghỉ việc, thời gian tuyển dụng trung bình, chi phí đào tạo — visualize rõ ràng để HR báo cáo lên ban giám đốc.</p>
+        <div class="uc-metric" style="background:var(--coral-soft);color:var(--coral-deep);">📊 Rút ngắn chu trình báo cáo nhân sự hàng tháng</div>
+      </div>
+      <div class="uc-card">
+        <span class="uc-tag" style="background:var(--violet-soft);color:var(--violet-deep);">⚙️ Vận hành / Operations</span>
+        <h5>Giám sát KPI sản xuất theo thời gian thực</h5>
+        <p>Tỷ lệ lỗi sản phẩm, năng suất dây chuyền, tồn kho — kết nối thẳng từ ERP, cảnh báo ngay khi KPI vượt ngưỡng.</p>
+        <div class="uc-metric" style="background:var(--violet-soft);color:var(--violet-deep);">⚙️ Phát hiện sự cố sớm hơn, giảm thiệt hại</div>
+      </div>
+      <div class="uc-card">
+        <span class="uc-tag" style="background:#F0FFF4;color:#16803C;">🚀 Cá nhân / Fresher</span>
+        <h5>Xây dựng portfolio phân tích dữ liệu</h5>
+        <p>Dashboard Power BI đẹp đăng lên LinkedIn — kỹ năng Power BI trong CV tăng cơ hội được gọi phỏng vấn rõ rệt.</p>
+        <div class="uc-metric" style="background:#F0FFF4;color:#16803C;">🌟 Power BI trong CV = điểm cộng lớn khi ứng tuyển</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= QUY TRÌNH 6 BƯỚC ================= -->
+<section id="quy-trinh">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--coral-deep);">🔄 04 · Quy trình chuẩn</div>
+      <h2>6 bước — cũng là lộ trình của cả khóa học</h2>
+      <p>Buổi 1 thực hành trọn vẹn Bước 1 và Bước 5 để có ngay báo cáo đầu tiên. Các bước còn lại sẽ đào sâu ở những buổi sau.</p>
+    </div>
+    <div class="flow">
+      <div class="flow-step done"><div class="fnum">📥</div><h5>Lấy dữ liệu</h5><span class="flow-tag">Học buổi này</span></div>
+      <div class="flow-step"><div class="fnum">🧹</div><h5>Làm sạch</h5><span class="flow-tag">Buổi 2</span></div>
+      <div class="flow-step"><div class="fnum">🧩</div><h5>Mô hình hóa</h5><span class="flow-tag">Buổi 3</span></div>
+      <div class="flow-step"><div class="fnum">🧮</div><h5>Tính toán</h5><span class="flow-tag">Buổi 3-4</span></div>
+      <div class="flow-step done"><div class="fnum">📊</div><h5>Trực quan hóa</h5><span class="flow-tag">Học buổi này</span></div>
+      <div class="flow-step"><div class="fnum">🚀</div><h5>Xuất bản</h5><span class="flow-tag">Buổi sau</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CÀI ĐẶT ================= -->
+<section id="cai-dat" class="tint-coral">
+  <div class="blob drift" style="width:320px;height:320px;background:var(--coral);top:-90px;right:-60px;"></div>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--coral-deep);">⚙️ 05 · Cài đặt Power BI Desktop</div>
+      <h2>Chuẩn bị máy trước khi bắt đầu</h2>
+    </div>
+    <div class="install-grid">
+      <div class="install-illustration">
+        <svg viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="cloudg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3D8BFD"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient></defs>
+          <g fill="url(#cloudg)">
+            <ellipse cx="70" cy="80" rx="46" ry="38"/>
+            <ellipse cx="118" cy="58" rx="40" ry="40"/>
+            <ellipse cx="160" cy="82" rx="40" ry="34"/>
+            <rect x="40" y="80" width="150" height="42" rx="21"/>
+          </g>
+          <path d="M110 108 v52 M92 138 l18 24 l18 -24" stroke="#FFB627" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <circle cx="30" cy="150" r="14" fill="#17C3B2"/>
+          <path d="M24 150 l4 4 l8 -9" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <circle cx="196" cy="152" r="12" fill="#FF6F61"/>
+          <path d="M191 152 l3.5 3.5 l7 -7.5" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+        <table class="req-table" style="position:relative;z-index:1;">
+          <tr><th colspan="2">Yêu cầu hệ thống tối thiểu</th></tr>
+          <tr><td>Hệ điều hành</td><td>Windows 10/11 (64-bit)</td></tr>
+          <tr><td>RAM</td><td>Tối thiểu 2GB, khuyến nghị 4GB+</td></tr>
+          <tr><td>Màn hình</td><td>Tối thiểu 1440×900</td></tr>
+          <tr><td>CPU</td><td>64-bit (x64), 1GHz trở lên</td></tr>
+          <tr><td>Thành phần kèm</td><td>WebView2 (tự cài kèm)</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="method-card">
+          <div class="m-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 10l9-7 9 7v10a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1z"/></svg></div>
+          <div><h4>Microsoft Store <span class="rec-tag">Khuyến nghị</span></h4><p>Tìm "Power BI Desktop" → Get/Cài đặt. Ưu điểm: tự động cập nhật phiên bản mới.</p></div>
+        </div>
+        <div class="method-card">
+          <div class="m-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a1 1 0 011 1v9.6l3-3a1 1 0 111.4 1.4l-4.7 4.7a1 1 0 01-1.4 0L6.6 12a1 1 0 111.4-1.4l3 3V4a1 1 0 011-1zM5 19a1 1 0 011 1v0a1 1 0 001 1h10a1 1 0 001-1v0a1 1 0 112 0 3 3 0 01-3 3H7a3 3 0 01-3-3 1 1 0 011-1z"/></svg></div>
+          <div><h4>Trung tâm tải Microsoft</h4><p>Tải "PBIDesktopSetup_x64.exe" từ trang Download chính thức và chạy theo hướng dẫn.</p></div>
+        </div>
+        <div class="method-card">
+          <div class="m-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 5a2 2 0 012-2h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2zm3.7 3.3a1 1 0 000 1.4L9.6 12l-1.9 2.3a1 1 0 101.5 1.3l2.4-3a1 1 0 000-1.3l-2.4-3a1 1 0 00-1.5 0zM13 15a1 1 0 100 2h4a1 1 0 100-2z"/></svg></div>
+          <div><h4>Dòng lệnh (nâng cao)</h4><p class="mono">winget install Microsoft.PowerBI</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="callout tip">
+      <span class="c-emoji">💡</span>
+      <div><div class="c-title">Mẹo đăng nhập</div><p>Sau khi cài, đăng nhập bằng <b>email công ty/tổ chức</b> để dùng được Power BI Service. Email cá nhân (Gmail, Yahoo...) thường không đăng ký được.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= GIAO DIỆN ================= -->
+<section id="giao-dien">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--violet-deep);">🧭 06 · Tham quan giao diện</div>
+      <h2>7 khu vực bạn cần nhận diện ngay</h2>
+    </div>
+    <div class="zones-wrap">
+      <div class="pbi-window">
+        <div class="pbi-ribbon">
+          <span class="zbadge" style="position:absolute;top:-9px;left:14px;">1</span>
+          <span style="margin-left:20px;">Trang chủ · Chèn · Xem · Mô hình hóa</span>
+          <span>⚙️</span>
+        </div>
+        <div class="pbi-main">
+          <div class="pbi-viewswitch">
+            <span class="zbadge" style="position:absolute;top:6px;left:-9px;">2</span>
+            <div class="vs-dot on"></div><div class="vs-dot"></div><div class="vs-dot"></div>
+          </div>
+          <div class="pbi-canvas">
+            <span class="zbadge" style="position:absolute;top:6px;left:6px;">3</span>
+            <div class="fake-chart">Report canvas</div>
+          </div>
+          <div class="pbi-side">
+            <div class="side-block" style="flex:.7;position:relative;"><span class="zbadge" style="position:absolute;top:6px;right:6px;">4</span>Filters</div>
+            <div class="side-block" style="flex:1.2;position:relative;"><span class="zbadge" style="position:absolute;top:6px;right:6px;">5</span>Visualizations</div>
+            <div class="side-block" style="position:relative;border-bottom:none;"><span class="zbadge" style="position:absolute;top:6px;right:6px;">6</span>Fields</div>
+          </div>
+        </div>
+        <div class="pbi-pages">
+          <span class="zbadge" style="position:absolute;top:-9px;left:14px;">7</span>
+          <span class="ptab">Trang 1</span><span class="ptab">Trang 2</span><span style="color:var(--blue-deep);font-size:.68rem;">+</span>
+        </div>
+      </div>
+      <ul class="zone-legend">
+        <li><span class="zbadge">1</span><div><b>Ribbon (Dải lệnh)</b><span>Chứa các tab Trang đầu, Chèn, Lập mô hình... với hầu hết công cụ bạn cần.</span></div></li>
+        <li><span class="zbadge">2</span><div><b>Khung xem (Views)</b><span>Ba biểu tượng bên trái để chuyển giữa Báo cáo, Dữ liệu và Mô hình.</span></div></li>
+        <li><span class="zbadge">3</span><div><b>Vùng Canvas</b><span>Khu vực trung tâm — nơi bạn sắp xếp và thiết kế các biểu đồ.</span></div></li>
+        <li><span class="zbadge">4</span><div><b>Khung Bộ lọc (Filters)</b><span>Kéo trường vào đây để lọc dữ liệu cho từng visual, từng trang hoặc cả báo cáo.</span></div></li>
+        <li><span class="zbadge">5</span><div><b>Khung Trực quan hóa</b><span>Danh sách các loại biểu đồ và nơi gán trường vào trục X, trục Y, chú giải...</span></div></li>
+        <li><span class="zbadge">6</span><div><b>Khung Dữ liệu/Trường (Fields)</b><span>Liệt kê các bảng và cột trong mô hình; tích chọn hoặc kéo-thả lên biểu đồ.</span></div></li>
+        <li><span class="zbadge">7</span><div><b>Thanh trang (Pages)</b><span>Thêm/đổi tên các trang báo cáo, tương tự các sheet trong Excel.</span></div></li>
+      </ul>
+    </div>
+    <div class="callout note" style="margin-top:28px;">
+      <span class="c-emoji">📝</span>
+      <div><div class="c-title">Ghi nhớ</div><p>Mỗi visual là <b>độc lập</b>. Hãy nhấp chọn đúng visual trước, rồi mới chỉnh trường hoặc định dạng cho nó.</p></div>
+    </div>
+    <div class="img-frame">
+      <img src="https://learn.microsoft.com/en-us/power-bi/create-reports/media/desktop-report-view/report-view-blank-canvas.png"
+           alt="Giao diện Power BI Desktop — canvas trắng khi mới mở ứng dụng" loading="lazy">
+      <div class="img-cap">📸 Giao diện Power BI Desktop — canvas làm việc chính (ảnh: Microsoft Learn). Đối chiếu với sơ đồ 7 khu vực bên trên.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= KẾT NỐI DỮ LIỆU ================= -->
+<section id="ket-noi" class="tint-blue">
+  <div class="blob drift" style="width:280px;height:280px;background:var(--violet);top:-70px;left:40%;"></div>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--blue-deep);">🔌 07 · Kết nối dữ liệu</div>
+      <h2>Power BI đọc được rất nhiều nguồn dữ liệu</h2>
+      <p>Người mới nên bắt đầu với Excel hoặc CSV — đơn giản, quen thuộc và đủ dùng cho hầu hết báo cáo cá nhân/phòng ban.</p>
+    </div>
+    <div class="source-grid">
+      <div class="source-card"><div class="src-ico">📗</div><h5>Excel Workbook</h5><p>Nguồn phổ biến nhất — mở luôn các sheet có sẵn.</p></div>
+      <div class="source-card"><div class="src-ico">📄</div><h5>Văn bản/CSV</h5><p>File .csv/.txt xuất ra từ hệ thống khác.</p></div>
+      <div class="source-card"><div class="src-ico">🌐</div><h5>Web</h5><p>Lấy bảng dữ liệu trực tiếp từ một trang web.</p></div>
+      <div class="source-card"><div class="src-ico">🗄️</div><h5>Cơ sở dữ liệu</h5><p>SQL Server và nhiều database khác (nâng cao).</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THỰC HÀNH ================= -->
+<section id="thuc-hanh" class="tint-teal">
+  <div class="blob drift" style="width:320px;height:320px;background:var(--teal);bottom:-100px;right:-80px;"></div>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--teal-deep);">✋ 08 · Thực hành</div>
+      <h2>Tạo báo cáo đầu tiên — từng bước một</h2>
+      <p>Thử ngay demo tương tác bên phải để cảm nhận trước "cross-filter" — điều bạn sẽ tự làm được trên Power BI thật.</p>
+    </div>
+
+    <div class="callout tip" style="margin-bottom:28px;">
+      <span class="c-emoji">📥</span>
+      <div><div class="c-title">File dữ liệu đã có sẵn</div>
+      <p>File <b class="mono">Financial_Sample.xlsx</b> đã được tải về thư mục bài giảng. Mở Power BI Desktop → làm theo các bước bên dưới để nhập file này vào.</p></div>
+    </div>
+
+    <h4 style="margin-bottom:14px;">🅰️ Thực hành 1 — Nhập dữ liệu mẫu "Financial Sample"</h4>
+    <div class="practice-grid" style="margin-bottom:12px;">
+      <ol class="steps">
+        <li><span class="semoji">🖥️</span><h5>Mở Power BI Desktop</h5><p>Đóng màn hình chào (Welcome) nếu nó hiện ra.</p></li>
+        <li><span class="semoji">📥</span><h5>Nhấn Get Data</h5><p>Trên Ribbon <b>Trang đầu</b>, nhấn nút <b>Lấy dữ liệu (Get Data)</b>.</p></li>
+        <li><span class="semoji">📗</span><h5>Chọn nguồn Excel</h5><p>Chọn <b>Excel workbook</b> (hoặc "Văn bản/CSV" nếu là .csv) → nhấn <b>Kết nối</b>.</p></li>
+        <li><span class="semoji">📂</span><h5>Mở file</h5><p>Tìm tới tệp <b>Financial Sample.xlsx</b> và nhấn <b>Mở</b>.</p></li>
+        <li><span class="semoji">🔎</span><h5>Chọn bảng trong Navigator</h5><p>Tích chọn bảng <b>financials</b> — phần xem trước hiện bên phải.</p></li>
+        <li><span class="semoji">✅</span><h5>Nhấn Tải (Load)</h5><p>Lần đầu cứ chọn <b>Tải</b>. Nút <i>Transform Data</i> (mở Power Query) sẽ học ở Buổi 2.</p></li>
+      </ol>
+      <div class="img-frame" style="margin-top:0;">
+        <img src="https://learn.microsoft.com/en-us/power-bi/create-reports/media/desktop-excel-stunning-report/power-bi-financial-navigator.png"
+             alt="Cửa sổ Navigator trong Power BI Desktop — tích chọn bảng financials" loading="lazy">
+        <div class="img-cap">📸 Cửa sổ Navigator: tích chọn bảng <b>financials</b> → nhấn Transform Data hoặc Load (ảnh: Microsoft Learn).</div>
+      </div>
+    </div>
+    <p style="font-weight:700;font-size:.9rem;color:var(--ink-soft);margin:18px 0 10px;">📸 Ảnh thực tế — Bước 2 đến 5:</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px;">
+      <div class="img-frame" style="margin:0;">
+        <img src="https://learn.microsoft.com/en-us/power-bi/connect-data/media/desktop-data-sources/data-sources-01.png"
+             alt="Hộp thoại Get Data — danh mục các nguồn dữ liệu" loading="lazy">
+        <div class="img-cap">📍 Bước 2–3: Nhấn <b>Get Data</b> → hộp thoại mở ra, chọn <b>Excel Workbook</b></div>
+      </div>
+      <div class="img-frame" style="margin:0;">
+        <img src="https://learn.microsoft.com/en-us/power-bi/connect-data/media/desktop-data-sources/datasources-fromnavigatordialog.png"
+             alt="Cửa sổ Navigator chọn bảng dữ liệu" loading="lazy">
+        <div class="img-cap">📍 Bước 5: Cửa sổ <b>Navigator</b> — tích chọn bảng, xem trước dữ liệu bên phải</div>
+      </div>
+    </div>
+
+    <div class="callout tip" style="margin-bottom:40px;">
+      <span class="c-emoji">💡</span>
+      <div><div class="c-title">Mẹo gọn gàng</div><p>Luôn đổi tên bảng/truy vấn cho dễ hiểu (ví dụ <b>"financials" → "DoanhThu"</b>) để quản lý ngăn nắp khi báo cáo có nhiều bảng.</p></div>
+    </div>
+
+    <h4 style="margin-bottom:14px;">🅱️ Thực hành 2 — Tạo báo cáo đầu tiên</h4>
+    <div class="practice-grid">
+      <ol class="steps">
+        <li><span class="semoji">🔢</span><h5>Tạo Thẻ số (Card)</h5><p>Nhấp vùng trống → chọn Card → kéo trường <b>Sales</b> vào để hiện tổng doanh thu.</p></li>
+        <li><span class="semoji">📶</span><h5>Tạo biểu đồ cột</h5><p>Tích chọn <b>Sales</b> và <b>Month</b>, đổi sang dạng Clustered column.</p></li>
+        <li><span class="semoji">🥧</span><h5>Thêm Legend</h5><p>Kéo trường <b>Country</b> vào ô Legend để tách doanh thu theo quốc gia.</p></li>
+        <li><span class="semoji">🎚️</span><h5>Thêm Slicer</h5><p>Chọn biểu tượng Slicer → kéo <b>Year</b> vào để lọc nhanh theo năm.</p></li>
+        <li><span class="semoji">🖱️</span><h5>Trải nghiệm tương tác</h5><p>Nhấp vào cột hoặc lát biểu đồ — các visual khác tự lọc theo (cross-filter).</p></li>
+        <li><span class="semoji">🎨</span><h5>(Nâng cao) Đổi màu</h5><p>Chọn visual → tab Định dạng trong khung Trực quan hóa → đổi màu theo ý thích.</p></li>
+        <li><span class="semoji">💾</span><h5>Lưu file</h5><p>Ctrl+S, đặt tên <b>BaiTap_Buoi1.pbix</b>.</p></li>
+      </ol>
+
+      <div class="demo-card">
+        <div class="demo-head"><h4>Demo tương tác — thử Slicer</h4><span class="live">LIVE</span></div>
+        <p class="demo-hint">Nhấp một năm bên dưới để xem "cross-filter" hoạt động thế nào — Card và biểu đồ tự đổi số theo lựa chọn.</p>
+        <div class="rm-cards">
+          <div class="rm-card"><div class="lbl">Tổng Sales</div><div class="val" id="demoSales">$32.4M</div></div>
+          <div class="rm-card"><div class="lbl">Số đơn hàng</div><div class="val" id="demoOrders">1,204</div></div>
+        </div>
+        <div class="rm-panel" style="margin-bottom:14px;">
+          <div class="lbl">Sales theo Month</div>
+          <div class="bars" id="demoBars">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          </div>
+        </div>
+        <div class="rm-slicers" id="demoSlicers">
+          <span class="rm-chip active" data-year="2017">2017</span>
+          <span class="rm-chip" data-year="2018">2018</span>
+          <span class="rm-chip" data-year="2019">2019</span>
+        </div>
+      </div>
+    </div>
+    <div class="img-frame">
+      <img src="https://learn.microsoft.com/en-us/power-bi/create-reports/media/desktop-excel-stunning-report/power-bi-excel-report-service.png"
+           alt="Báo cáo Financial Sample hoàn chỉnh trên Power BI Service" loading="lazy">
+      <div class="img-cap">📸 Báo cáo Financial Sample hoàn chỉnh trên Power BI Service (ảnh: Microsoft Learn) — đây là kết quả tham khảo cho bài tập về nhà.</div>
+    </div>
+
+    <p style="font-weight:700;font-size:.9rem;color:var(--ink-soft);margin:36px 0 12px;">📸 Kết quả từng bước — đối chiếu khi tự thực hành:</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px;">
+      <div class="img-frame" style="margin:0;">
+        <img src="https://learn.microsoft.com/en-us/power-bi/create-reports/media/desktop-excel-stunning-report/power-bi-column-chart-date.png"
+             alt="Biểu đồ cột Sales theo tháng" loading="lazy">
+        <div class="img-cap">📍 Bước 2–3: Biểu đồ cột <b>Sales theo tháng</b>, thêm Legend quốc gia</div>
+      </div>
+      <div class="img-frame" style="margin:0;">
+        <img src="https://learn.microsoft.com/en-us/power-bi/create-reports/media/desktop-excel-stunning-report/power-bi-hierarchy-date-slicer.png"
+             alt="Slicer Year mở rộng theo tháng" loading="lazy">
+        <div class="img-cap">📍 Bước 4: <b>Slicer Year</b> — mở rộng để lọc từng tháng cụ thể</div>
+      </div>
+      <div class="img-frame" style="margin:0;">
+        <img src="https://learn.microsoft.com/en-us/power-bi/create-reports/media/desktop-excel-stunning-report/power-bi-report-by-numbers.png"
+             alt="Sơ đồ báo cáo hoàn chỉnh với các visual được đánh số" loading="lazy">
+        <div class="img-cap">📍 Sơ đồ tổng thể báo cáo — các visual được đánh số thứ tự tạo</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div class="img-frame" style="margin:0;">
+        <img src="https://learn.microsoft.com/en-us/power-bi/create-reports/media/desktop-excel-stunning-report/power-bi-line-column-chart-inline.png"
+             alt="Báo cáo mid-build với line chart và column chart" loading="lazy">
+        <div class="img-cap">📍 Bước 5: Cross-filter — nhấp vào một visual, các visual khác tự lọc theo</div>
+      </div>
+      <div class="img-frame" style="margin:0;">
+        <img src="https://learn.microsoft.com/en-us/power-bi/create-reports/media/desktop-excel-stunning-report/power-bi-map-visual.png"
+             alt="Biểu đồ bản đồ Profit theo quốc gia" loading="lazy">
+        <div class="img-cap">📍 (Tham khảo nâng cao) Map visual — Profit theo Country/Region</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LỖI THƯỜNG GẶP ================= -->
+<section id="loi-thuong-gap">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--coral-deep);">🚧 09 · Xử lý sự cố</div>
+      <h2>Lỗi thường gặp và cách xử lý</h2>
+    </div>
+    <table class="err-table">
+      <tr><th>Tình huống</th><th>Cách xử lý</th></tr>
+      <tr><td>Không cài được trên máy Mac</td><td>Dùng máy ảo Windows hoặc làm việc trên Power BI Service (bản web).</td></tr>
+      <tr><td>Không đăng nhập được bằng Gmail</td><td>Cần dùng email công ty/tổ chức; email cá nhân không đăng ký được.</td></tr>
+      <tr><td>Tiếng Việt bị lỗi font/dấu khi nhập</td><td>Trong Power Query, đặt mã hóa tệp là 65001: Unicode (UTF-8).</td></tr>
+      <tr><td>Số hiển thị sai định dạng</td><td>Chọn cột → đặt lại Kiểu dữ liệu: số thập phân, ngày tháng...</td></tr>
+      <tr><td>Biểu đồ trống không có dữ liệu</td><td>Kiểm tra đã kéo đúng trường vào trục, và bộ lọc không loại hết dữ liệu.</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ================= TÓM TẮT ================= -->
+<section id="tom-tat" class="tint-violet">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--violet-deep);">✅ 10 · Tóm tắt</div>
+      <h2>Những gì bạn đã đạt được</h2>
+    </div>
+    <ul class="summary-list">
+      <li><span class="s-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Hiểu Power BI là công cụ BI của Microsoft, biến dữ liệu thô thành báo cáo tương tác.</li>
+      <li><span class="s-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Phân biệt được Desktop (tạo báo cáo), Service (chia sẻ) và Mobile (xem).</li>
+      <li><span class="s-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Nắm quy trình chuẩn 6 bước, biết mình đang ở Bước 1 và Bước 5.</li>
+      <li><span class="s-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Cài đặt Power BI Desktop, nhận diện 7 khu vực giao diện.</li>
+      <li><span class="s-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Tự tay tạo Card, biểu đồ cột, biểu đồ tròn và Slicer đầu tiên.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= TRẮC NGHIỆM ================= -->
+<section id="trac-nghiem">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--coral-deep);">🧠 11 · Ôn tập nhanh</div>
+      <h2>Trắc nghiệm 5 câu — thử ngay</h2>
+      <p>Nhấp vào một đáp án để kiểm tra ngay lập tức.</p>
+    </div>
+    <div class="quiz-score">
+      <span class="qs-num">🏆 <span id="qScore">0</span>/8</span>
+      <div class="qs-bar"><div class="qs-fill" id="qFill"></div></div>
+      <span style="font-size:.82rem;color:var(--ink-faint);">câu đúng</span>
+    </div>
+
+    <div class="q-card" data-answer="1">
+      <div class="q-title"><span class="qn">Q1.</span> Power BI Desktop chạy chính thức trên hệ điều hành nào?</div>
+      <div class="q-opts">
+        <div class="q-opt" data-i="0">macOS</div>
+        <div class="q-opt" data-i="1">Windows</div>
+        <div class="q-opt" data-i="2">Linux</div>
+        <div class="q-opt" data-i="3">Cả 3 hệ điều hành</div>
+      </div>
+      <div class="q-explain">Power BI Desktop chỉ chạy chính thức trên Windows 10/11 (64-bit).</div>
+    </div>
+
+    <div class="q-card" data-answer="1">
+      <div class="q-title"><span class="qn">Q2.</span> Thành phần nào dùng để xuất bản và chia sẻ báo cáo online?</div>
+      <div class="q-opts">
+        <div class="q-opt" data-i="0">Power BI Desktop</div>
+        <div class="q-opt" data-i="1">Power BI Service</div>
+        <div class="q-opt" data-i="2">Power BI Mobile</div>
+        <div class="q-opt" data-i="3">Excel</div>
+      </div>
+      <div class="q-explain">Power BI Service (app.powerbi.com) là nền tảng đám mây để xuất bản & chia sẻ.</div>
+    </div>
+
+    <div class="q-card" data-answer="1">
+      <div class="q-title"><span class="qn">Q3.</span> Bước đầu tiên trong quy trình 6 bước của Power BI là gì?</div>
+      <div class="q-opts">
+        <div class="q-opt" data-i="0">Trực quan hóa</div>
+        <div class="q-opt" data-i="1">Lấy dữ liệu</div>
+        <div class="q-opt" data-i="2">Mô hình hóa</div>
+        <div class="q-opt" data-i="3">Xuất bản</div>
+      </div>
+      <div class="q-explain">Quy trình chuẩn: Lấy dữ liệu → Làm sạch → Mô hình hóa → Tính toán → Trực quan hóa → Xuất bản.</div>
+    </div>
+
+    <div class="q-card" data-answer="2">
+      <div class="q-title"><span class="qn">Q4.</span> File Power BI Desktop có đuôi mở rộng là gì?</div>
+      <div class="q-opts">
+        <div class="q-opt" data-i="0">.xlsx</div>
+        <div class="q-opt" data-i="1">.pbit</div>
+        <div class="q-opt" data-i="2">.pbix</div>
+        <div class="q-opt" data-i="3">.pptx</div>
+      </div>
+      <div class="q-explain">.pbix là định dạng tệp chuẩn của Power BI Desktop.</div>
+    </div>
+
+    <div class="q-card" data-answer="2">
+      <div class="q-title"><span class="qn">Q5.</span> Muốn đăng nhập để dùng Power BI Service, nên dùng loại email nào?</div>
+      <div class="q-opts">
+        <div class="q-opt" data-i="0">Gmail cá nhân</div>
+        <div class="q-opt" data-i="1">Yahoo</div>
+        <div class="q-opt" data-i="2">Email công ty/tổ chức</div>
+        <div class="q-opt" data-i="3">Bất kỳ email nào</div>
+      </div>
+      <div class="q-explain">Email cá nhân (Gmail, Yahoo...) thường không đăng ký được tài khoản Power BI Service.</div>
+    </div>
+
+    <div class="q-card" data-answer="1">
+      <div class="q-title"><span class="qn">Q6.</span> "Cross-filter" trong Power BI có nghĩa là gì?</div>
+      <div class="q-opts">
+        <div class="q-opt" data-i="0">Lọc dữ liệu chéo từ file Excel sang Power BI</div>
+        <div class="q-opt" data-i="1">Nhấp một visual thì các visual khác trên trang tự lọc theo</div>
+        <div class="q-opt" data-i="2">Kết nối hai file .pbix với nhau</div>
+        <div class="q-opt" data-i="3">Tạo bộ lọc trong Power Query Editor</div>
+      </div>
+      <div class="q-explain">Cross-filter (lọc chéo) là khi bạn nhấp vào một điểm dữ liệu trong biểu đồ, các biểu đồ khác trên cùng trang tự lọc dữ liệu theo lựa chọn đó — đây là sức mạnh tương tác đặc trưng của Power BI.</div>
+    </div>
+
+    <div class="q-card" data-answer="2">
+      <div class="q-title"><span class="qn">Q7.</span> Khu vực nào trên giao diện Power BI cho phép bạn kéo trường vào trục X, Y của biểu đồ?</div>
+      <div class="q-opts">
+        <div class="q-opt" data-i="0">Ribbon (Dải lệnh)</div>
+        <div class="q-opt" data-i="1">Khung Bộ lọc (Filters)</div>
+        <div class="q-opt" data-i="2">Khung Trực quan hóa (Visualizations)</div>
+        <div class="q-opt" data-i="3">Thanh trang (Pages)</div>
+      </div>
+      <div class="q-explain">Khung Trực quan hóa (Visualizations) chứa danh sách các loại biểu đồ và các giếng trường (Field wells) để bạn gán dữ liệu vào trục X, Y, Legend, Values...</div>
+    </div>
+
+    <div class="q-card" data-answer="0">
+      <div class="q-title"><span class="qn">Q8.</span> Trong quy trình 6 bước của Power BI, bước nào sẽ được học chuyên sâu ở Buổi 2?</div>
+      <div class="q-opts">
+        <div class="q-opt" data-i="0">Làm sạch dữ liệu (Power Query)</div>
+        <div class="q-opt" data-i="1">Lấy dữ liệu (Get Data)</div>
+        <div class="q-opt" data-i="2">Xuất bản (Publish)</div>
+        <div class="q-opt" data-i="3">Trực quan hóa (Visualization)</div>
+      </div>
+      <div class="q-explain">Buổi 2 tập trung vào bước Làm sạch dữ liệu bằng Power Query Editor — xử lý dữ liệu "bẩn", chuẩn hóa kiểu dữ liệu, tách/gộp cột trước khi đưa vào báo cáo.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BÀI TẬP VỀ NHÀ ================= -->
+<section id="btvn" class="tint-amber">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--amber-deep);">📌 12 · Bài tập về nhà</div>
+      <h2>Hoàn thành trước khi sang Buổi 2</h2>
+    </div>
+    <div class="hw-card">
+      <div class="hw-progress">
+        <span class="hp-label"><span id="hwDone">0</span>/5 hoàn thành</span>
+        <div class="hp-bar"><div class="hp-fill" id="hwFill"></div></div>
+      </div>
+      <ul class="hw-list" id="hwList">
+        <li class="hw-item"><span class="hw-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span class="hw-text">Cài đặt Power BI Desktop và đăng nhập thành công.</span></li>
+        <li class="hw-item"><span class="hw-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span class="hw-text">Tải bộ dữ liệu Financial Sample và nhập vào Power BI.</span></li>
+        <li class="hw-item"><span class="hw-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span class="hw-text">Tạo trang báo cáo gồm: 1 Card (tổng Sales), 1 biểu đồ cột (Sales theo Month), 1 biểu đồ tròn (Sales theo Country), 1 Slicer (Year).</span></li>
+        <li class="hw-item"><span class="hw-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span class="hw-text">(Nâng cao) Thử đổi màu biểu đồ trong tab Định dạng của khung Trực quan hóa.</span></li>
+        <li class="hw-item"><span class="hw-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span class="hw-text">Lưu file đúng tên quy định bên dưới.</span></li>
+      </ul>
+      <div class="hw-filename"><span>📁 Tên file nộp bài</span><b class="mono">BaiTap_Buoi1.pbix</b></div>
+      <div class="celebrate" id="celebrate">🎉 Xuất sắc! Bạn đã sẵn sàng cho Buổi 2 — Power Query.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THUẬT NGỮ ================= -->
+<section id="thuat-ngu">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--ink-soft);">📖 13 · Thuật ngữ</div>
+      <h2>Bảng thuật ngữ Anh – Việt</h2>
+    </div>
+    <div class="glossary">
+      <div class="g-item"><b>Business Intelligence (BI)</b><span>Phân tích thông tin kinh doanh để hỗ trợ ra quyết định.</span></div>
+      <div class="g-item"><b>Dataset / Semantic model</b><span>Bộ dữ liệu / mô hình mà báo cáo dựa vào.</span></div>
+      <div class="g-item"><b>Power Query</b><span>Công cụ làm sạch và biến đổi dữ liệu.</span></div>
+      <div class="g-item"><b>DAX</b><span>Ngôn ngữ công thức để tạo phép tính, measure, KPI.</span></div>
+      <div class="g-item"><b>Measure</b><span>Phép đo — công thức tính toán động.</span></div>
+      <div class="g-item"><b>Visual</b><span>Biểu đồ, bảng, thẻ số... trên canvas.</span></div>
+      <div class="g-item"><b>Report</b><span>Báo cáo, gồm một hoặc nhiều trang chứa visual.</span></div>
+      <div class="g-item"><b>Dashboard</b><span>Bảng điều khiển tổng hợp trên Power BI Service.</span></div>
+      <div class="g-item"><b>Slicer</b><span>Bộ cắt/lọc dữ liệu đặt trực tiếp trên canvas.</span></div>
+      <div class="g-item"><b>Publish</b><span>Xuất bản báo cáo lên Power BI Service.</span></div>
+      <div class="g-item"><b>.pbix</b><span>Định dạng tệp của Power BI Desktop.</span></div>
+      <div class="g-item"><b>Refresh</b><span>Làm mới để cập nhật dữ liệu mới nhất.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BUỔI SAU ================= -->
+<section id="buoi-sau">
+  <div class="wrap">
+    <div class="next-card">
+      <div class="blob" style="width:260px;height:260px;background:var(--violet);top:-60px;right:10%;opacity:.4;"></div>
+      <div style="position:relative;z-index:1;">
+        <div class="eyebrow">👉 Xem trước · Buổi 2</div>
+        <h3>Power Query — Làm sạch & biến đổi dữ liệu</h3>
+        <p>Bạn sẽ dùng Power Query Editor để xử lý dữ liệu "bẩn": xóa cột thừa, tách/gộp cột, đổi kiểu dữ liệu, lọc dòng lỗi và nối nhiều bảng — bước nền tảng giúp báo cáo luôn chính xác.</p>
+      </div>
+      <div class="progress-dots" aria-hidden="true" style="margin-top:0;position:relative;z-index:1;">
+        <span class="on"></span><span class="on" style="opacity:.4;"></span><span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Power BI Cho Người Đi Làm · Chuỗi 5 buổi dành cho beginner · Buổi 1 / 5
+</footer>
+
+<script>
+(function(){
+  var sections = document.querySelectorAll('section[id]');
+  var links = document.querySelectorAll('.nav-links a');
+  if('IntersectionObserver' in window){
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          links.forEach(function(l){l.classList.remove('active');});
+          var link = document.querySelector('.nav-links a[href="#'+e.target.id+'"]');
+          if(link) link.classList.add('active');
+        }
+      });
+    },{rootMargin:'-40% 0px -50% 0px'});
+    sections.forEach(function(s){obs.observe(s);});
+  }
+
+  var YEAR_DATA = {
+    2017:{sales:'$27.1M',orders:'1,042',bars:[45,60,38,72,55,80]},
+    2018:{sales:'$32.4M',orders:'1,204',bars:[55,70,50,85,65,95]},
+    2019:{sales:'$38.9M',orders:'1,389',bars:[65,82,60,90,78,100]}
+  };
+  function paintBars(container, arr){
+    var bars = container.querySelectorAll('.bar');
+    bars.forEach(function(b,i){ b.style.height = (arr[i]||40)+'%'; });
+  }
+  window.addEventListener('load', function(){
+    setTimeout(function(){ paintBars(document.getElementById('demoBars'), YEAR_DATA[2017].bars); }, 250);
+  });
+
+  document.querySelectorAll('#demoSlicers .rm-chip').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      document.querySelectorAll('#demoSlicers .rm-chip').forEach(function(c){c.classList.remove('active');});
+      chip.classList.add('active');
+      var y = chip.getAttribute('data-year');
+      document.getElementById('demoSales').textContent = YEAR_DATA[y].sales;
+      document.getElementById('demoOrders').textContent = YEAR_DATA[y].orders;
+      paintBars(document.getElementById('demoBars'), YEAR_DATA[y].bars);
+    });
+  });
+
+  var score = 0;
+  var totalQ = document.querySelectorAll('.q-card').length;
+  document.querySelectorAll('.q-card').forEach(function(card){
+    var answer = card.getAttribute('data-answer');
+    var opts = card.querySelectorAll('.q-opt');
+    var explain = card.querySelector('.q-explain');
+    opts.forEach(function(opt){
+      opt.addEventListener('click', function(){
+        if(card.classList.contains('answered')) return;
+        card.classList.add('answered');
+        var chosen = opt.getAttribute('data-i');
+        opts.forEach(function(o){ o.classList.add('disabled'); });
+        if(chosen === answer){ opt.classList.add('correct'); score++; }
+        else { opt.classList.add('wrong'); opts[parseInt(answer)].classList.add('correct'); }
+        explain.classList.add('show');
+        document.getElementById('qScore').textContent = score;
+        document.getElementById('qFill').style.width = (score/totalQ*100)+'%';
+      });
+    });
+  });
+
+  // Pain cards interactive
+  var painCards = document.querySelectorAll('.pain-card');
+  var painResult = document.getElementById('painResult');
+  function updatePainResult(){
+    if(!painResult) return;
+    var checked = document.querySelectorAll('.pain-card.checked').length;
+    if(checked === 0){ painResult.style.display='none'; return; }
+    painResult.style.display='block';
+    if(checked <= 2) painResult.innerHTML='<b>'+checked+' tình huống</b> — Power BI có thể giúp bạn giải quyết những điểm đau này! 💡';
+    else if(checked <= 4) painResult.innerHTML='<b>'+checked+' tình huống</b> — Bạn đang gặp khá nhiều vấn đề với báo cáo truyền thống. Power BI sẽ là bước ngoặt lớn! 🚀';
+    else painResult.innerHTML='<b>'+checked+'/6 tình huống</b> — Bạn cần Power BI ngay bây giờ! Đây là quyết định đúng đắn nhất của bạn hôm nay. 🎯';
+  }
+  painCards.forEach(function(card){
+    card.addEventListener('click', function(){
+      card.classList.toggle('checked');
+      updatePainResult();
+    });
+  });
+
+  var hwItems = document.querySelectorAll('.hw-item');
+  hwItems.forEach(function(item){
+    item.addEventListener('click', function(){
+      item.classList.toggle('checked');
+      var done = document.querySelectorAll('.hw-item.checked').length;
+      document.getElementById('hwDone').textContent = done;
+      document.getElementById('hwFill').style.width = (done/hwItems.length*100)+'%';
+      var cele = document.getElementById('celebrate');
+      if(done === hwItems.length){ cele.classList.add('show'); }
+      else { cele.classList.remove('show'); }
+    });
+  });
+})();
+</script>
+</body>
+</html>

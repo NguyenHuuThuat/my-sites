@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code chuyên sâu — Toàn bộ kiến thức &amp; kinh nghiệm vận hành</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F1EDE3; --paper-2:#E9E2D3; --panel:#F7F3EB;
+  --ink:#17150F; --ink-2:#4C473B; --ink-3:#736B59;
+  --clay:#C2552F; --clay-deep:#9C3E1E;
+  --teal:#1E443D; --teal-2:#2F6356;
+  --line:#D2C5AC; --line-soft:#E1D7C3;
+  --ok:#2E6B4F; --warn:#A66416;
+  --term:#1b1913; --term-green:#8fbf7f; --term-clay:#e89a72;
+  --maxw:1280px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Newsreader",Georgia,serif;font-size:18px;line-height:1.62;-webkit-font-smoothing:antialiased;font-optical-sizing:auto}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+h1,h2,h3,h4{font-family:"Space Grotesk",sans-serif;font-weight:600;line-height:1.1;letter-spacing:-.01em}
+a{color:var(--clay-deep);text-underline-offset:3px}
+
+/* masthead */
+.masthead{position:sticky;top:0;z-index:60;background:var(--ink);color:#EDE6D6;border-bottom:1px solid #000}
+.masthead .row{max-width:var(--maxw);margin:0 auto;padding:7px 22px;display:flex;gap:16px;align-items:center;justify-content:space-between;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.masthead b{color:var(--clay)} .masthead .dots{color:#7d7460}
+.menu-btn{display:none;background:none;border:1px solid #4b463a;color:#EDE6D6;border-radius:6px;padding:5px 10px;font-family:inherit;font-size:11px;letter-spacing:.1em;cursor:pointer}
+
+/* shell */
+.shell{max-width:var(--maxw);margin:0 auto;display:grid;grid-template-columns:262px 1fr}
+nav.index{position:sticky;top:34px;align-self:start;height:calc(100vh - 34px);overflow-y:auto;border-right:1px solid var(--line);padding:30px 20px 60px}
+nav.index .ix-title{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);margin:0 0 14px}
+nav.index ol{list-style:none;margin:0;padding:0;counter-reset:ix}
+nav.index li{counter-increment:ix}
+nav.index a{display:grid;grid-template-columns:26px 1fr;gap:8px;align-items:baseline;padding:6px 8px;border-radius:7px;text-decoration:none;color:var(--ink-2);font-family:"Space Grotesk",sans-serif;font-size:13.5px;line-height:1.25;transition:background .15s,color .15s}
+nav.index a::before{content:counter(ix,decimal-leading-zero);font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--clay);padding-top:1px}
+nav.index a:hover{background:var(--paper-2);color:var(--ink)}
+nav.index a.active{background:var(--ink);color:#F4EEE0}
+nav.index a.active::before{color:#E9A07E}
+
+main{min-width:0;padding:0 0 100px}
+.wrap{padding:0 48px}
+section{scroll-margin-top:48px;border-bottom:1px solid var(--line-soft)}
+
+/* hero */
+.hero{padding:58px 48px 46px;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--clay-deep);margin:0 0 16px}
+.hero h1{font-size:clamp(36px,5.4vw,64px);font-weight:700;margin:0;letter-spacing:-.02em}
+.hero h1 .sub{display:block;font-weight:400;font-size:clamp(17px,2vw,22px);color:var(--ink-2);font-family:"Newsreader",serif;margin-top:14px;line-height:1.4;max-width:48ch}
+.hero-lede{max-width:62ch;color:var(--ink-2);margin:22px 0 0;font-size:19px}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.chip{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.05em;border:1px solid var(--line);background:var(--panel);padding:6px 11px;border-radius:999px;color:var(--ink-2)}
+.chip b{color:var(--clay-deep)}
+
+/* terminal window */
+.term{margin-top:38px;border-radius:12px;overflow:hidden;border:1px solid #000;box-shadow:0 18px 50px -24px rgba(0,0,0,.5)}
+.term-bar{background:#2a2720;display:flex;align-items:center;gap:7px;padding:10px 14px;font-family:"JetBrains Mono",monospace;font-size:11px;color:#9a8f76;letter-spacing:.08em}
+.term-bar i{width:11px;height:11px;border-radius:50%;display:inline-block}
+.term-bar .t{margin-left:10px}
+.term-body{background:var(--term);color:#ece4d2;font-family:"JetBrains Mono",monospace;font-size:13.5px;line-height:1.7;padding:18px 20px}
+.term-body .p{color:var(--term-green)} .term-body .u{color:#9a8f76} .term-body .o{color:#cdbca7}
+.term-body .cl{color:var(--term-clay)} .term-body .gr{color:#8fbf7f}
+.cursor{display:inline-block;width:8px;height:16px;background:var(--term-green);vertical-align:-2px;animation:blink 1.1s steps(2,start) infinite}
+@keyframes blink{to{opacity:0}}
+
+/* schematic */
+.schematic{margin-top:34px;border:1px solid var(--line);border-radius:14px;background:
+  repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(30,68,61,.05) 27px,rgba(30,68,61,.05) 28px),
+  repeating-linear-gradient(90deg,transparent,transparent 27px,rgba(30,68,61,.05) 27px,rgba(30,68,61,.05) 28px),
+  var(--panel);padding:8px;overflow:hidden}
+.schematic figcaption{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);padding:8px 10px 2px;display:flex;justify-content:space-between}
+
+/* section heads */
+.sec-head{display:flex;gap:18px;align-items:flex-start;padding:54px 0 6px}
+.sec-num{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--clay);border:1px solid var(--clay);border-radius:8px;padding:4px 9px;white-space:nowrap;margin-top:6px}
+.sec-head h2{font-size:clamp(25px,3.3vw,37px);margin:0;font-weight:700}
+.sec-head .kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin:0 0 8px}
+.lead{font-size:19.5px;color:var(--ink-2);max-width:68ch;margin:14px 0 8px}
+p{max-width:72ch}
+.wrap h3{font-size:20px;margin:34px 0 6px}
+.wrap h4{font-size:15px;font-family:"Space Grotesk";font-weight:600;margin:22px 0 4px}
+
+/* grid + cards */
+.grid{display:grid;gap:16px;margin:22px 0}
+.g2{grid-template-columns:1fr 1fr} .g3{grid-template-columns:repeat(3,1fr)}
+.card{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:18px 20px}
+.card .tag{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--clay-deep);display:block;margin-bottom:7px}
+.card h4{margin:0 0 6px;font-size:16.5px}
+.card p{font-size:15px;color:var(--ink-2);margin:0;max-width:none;line-height:1.5}
+.card ul{margin:8px 0 0;padding-left:18px;font-size:14.5px;color:var(--ink-2)} .card ul li{margin:3px 0}
+.card code{font-size:12.5px}
+
+/* feature rows */
+.frow{border:1px solid var(--line);border-radius:12px;background:var(--panel);margin:14px 0;padding:18px 20px;display:grid;grid-template-columns:160px 1fr;gap:18px}
+.frow .fk{font-family:"Space Grotesk";font-weight:600;font-size:16px}
+.frow .fk .mini{display:block;font-family:"JetBrains Mono",monospace;font-weight:400;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:6px}
+.frow .fv{font-size:15.5px;color:var(--ink-2);line-height:1.5}
+.frow .fv b{color:var(--ink)} .frow .fv code{font-size:13px}
+
+/* callouts */
+.note{border-left:3px solid var(--teal-2);background:rgba(47,99,86,.07);padding:14px 18px;border-radius:0 10px 10px 0;margin:20px 0;font-size:15.5px;color:var(--ink-2)}
+.note.tip{border-left-color:var(--ok);background:rgba(46,107,79,.08)}
+.note.warn{border-left-color:var(--warn);background:rgba(166,100,22,.08)}
+.note b{color:var(--ink)}
+.note .lbl{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal-2);display:block;margin-bottom:5px}
+.note.tip .lbl{color:var(--ok)} .note.warn .lbl{color:var(--warn)}
+
+/* code */
+pre{background:var(--term);color:#ece4d2;border-radius:11px;padding:16px 18px;overflow-x:auto;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.62;margin:16px 0;border:1px solid #000}
+pre .c{color:#9a8f76} pre .k{color:#e89a72} pre .s{color:#9bbf8f} pre .y{color:#d8c277} pre .p{color:#8fbf7f}
+code{font-family:"JetBrains Mono",monospace;background:var(--paper-2);padding:1.5px 6px;border-radius:5px;font-size:14px;color:var(--clay-deep)}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;margin:22px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:600px}
+th,td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+thead th{font-family:"Space Grotesk";font-size:12.5px;color:var(--ink);border-bottom:1.5px solid var(--ink);text-transform:uppercase;letter-spacing:.03em}
+tbody tr:hover{background:var(--panel)}
+td.mono,th.mono{font-family:"JetBrains Mono",monospace;font-size:12.5px}
+
+/* steps */
+.steps{counter-reset:st;margin:22px 0;display:grid;gap:12px}
+.steps .st{counter-increment:st;display:grid;grid-template-columns:34px 1fr;gap:14px;align-items:start}
+.steps .st::before{content:counter(st);font-family:"Space Grotesk";font-weight:600;font-size:15px;color:var(--paper);background:var(--teal);width:30px;height:30px;border-radius:8px;display:grid;place-items:center}
+.steps .st p{margin:3px 0 0;font-size:15.5px;color:var(--ink-2)} .steps .st b{color:var(--ink);font-family:"Space Grotesk";font-weight:600}
+
+.marg{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-3);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0;margin:18px 0;line-height:1.5}
+.marg b{color:var(--clay-deep)}
+
+footer{padding:40px 48px;color:var(--ink-3);font-family:"JetBrains Mono",monospace;font-size:12px;line-height:1.7} footer b{color:var(--ink-2)}
+
+/* svg */
+.s-node{fill:var(--panel);stroke:var(--ink);stroke-width:1.4}
+.s-core{fill:var(--ink)}
+.s-lbl{font-family:"Space Grotesk",sans-serif;font-weight:600;fill:var(--ink)}
+.s-lbl-w{font-family:"Space Grotesk",sans-serif;font-weight:600;fill:#F4EEE0}
+.s-sub{font-family:"JetBrains Mono",monospace;fill:var(--ink-3)}
+.s-line{stroke:var(--teal-2);stroke-width:1.6;fill:none}
+.s-arrow{stroke:var(--clay);stroke-width:1.8;fill:none}
+.pulse{stroke-dasharray:5 9;animation:flow 2.6s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-28}}
+
+@media (max-width:960px){
+  .shell{grid-template-columns:1fr}
+  nav.index{position:fixed;inset:34px auto 0 0;width:272px;background:var(--paper);z-index:50;transform:translateX(-105%);transition:transform .25s;box-shadow:6px 0 30px rgba(0,0,0,.12)}
+  nav.index.open{transform:none}
+  .menu-btn{display:inline-block}
+  .wrap,.hero,footer{padding-left:24px;padding-right:24px}
+  .g2,.g3{grid-template-columns:1fr}
+  .frow{grid-template-columns:1fr;gap:6px}
+  body{font-size:17px}
+}
+@media (prefers-reduced-motion:reduce){.pulse,.cursor{animation:none}}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="row">
+    <span><b>CLAUDE&nbsp;CODE</b> <span class="dots">//</span> chuyên sâu · tập II</span>
+    <span class="dots">toàn bộ kiến thức &amp; kinh nghiệm · 06·2026</span>
+    <button class="menu-btn" id="menuBtn">☰ MỤC LỤC</button>
+  </div>
+</div>
+
+<div class="shell">
+  <nav class="index" id="index">
+    <p class="ix-title">Mục lục</p>
+    <ol>
+      <li><a href="#mental">Mô hình tư duy &amp; vòng lặp agent</a></li>
+      <li><a href="#setup">Cài đặt &amp; các bề mặt</a></li>
+      <li><a href="#workflow">Vòng lặp làm việc chuẩn</a></li>
+      <li><a href="#context">Ngữ cảnh — tài nguyên số 1</a></li>
+      <li><a href="#memory">CLAUDE.md &amp; bộ nhớ</a></li>
+      <li><a href="#extend">Lớp mở rộng</a></li>
+      <li><a href="#perms">Quyền &amp; an toàn</a></li>
+      <li><a href="#headless">Headless · scripting · CI</a></li>
+      <li><a href="#automate">Tự động hoá &amp; chạy nền</a></li>
+      <li><a href="#cost">Chi phí &amp; chọn mô hình</a></li>
+      <li><a href="#playbook">Playbook theo nghề</a></li>
+      <li><a href="#cheat">Cạm bẫy &amp; tra cứu lệnh</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <!-- HERO -->
+    <header class="hero">
+      <p class="eyebrow">Tập II · tiếp nối Bách khoa Claude</p>
+      <h1>Claude Code, từ A đến vận hành thật
+        <span class="sub">Toàn bộ kiến thức và kinh nghiệm cần thiết để dùng agent lập trình của Anthropic ở mức thành thạo — cho Data Scientist, AI engineer và web developer.</span>
+      </h1>
+      <p class="hero-lede">Claude Code không phải autocomplete. Nó là một <b>môi trường agentic</b>: đọc cả codebase, lập kế hoạch xuyên nhiều file, chạy lệnh, tự kiểm tra và lặp lại trong khi bạn quan sát, chỉnh hướng, hoặc rời đi. Cuốn này đi sâu vào cơ chế và những thói quen tạo nên khác biệt giữa "thử cho biết" và "giao việc thật".</p>
+      <div class="hero-meta">
+        <span class="chip">terminal · IDE · desktop · web</span>
+        <span class="chip"><b>CLAUDE.md</b> · skills · subagents · hooks · MCP</span>
+        <span class="chip">nguồn: <b>docs chính thức</b> 06/2026</span>
+      </div>
+
+      <div class="term">
+        <div class="term-bar"><i style="background:#e06c5b"></i><i style="background:#e0b34b"></i><i style="background:#7fbf6b"></i><span class="t">~/projects/payments — claude</span></div>
+        <div class="term-body">
+<span class="u">$</span> <span class="o">cd payments &amp;&amp;</span> <span class="gr">claude</span><br>
+<span class="cl">●</span> <span class="o">Đã đọc CLAUDE.md, 3 skills, 1 MCP server. Sẵn sàng.</span><br>
+<span class="p">&gt;</span> <span class="o">thêm Google OAuth. đọc src/auth trước, lập kế hoạch, rồi hỏi tôi.</span><br>
+<span class="cl">●</span> <span class="u">plan mode</span> <span class="o">· đọc 7 file · soạn kế hoạch 5 bước → chờ bạn duyệt</span><br>
+<span class="p">&gt;</span> <span class="cursor"></span>
+        </div>
+      </div>
+      <p class="marg"><b>Cách đọc:</b> 12 mục, đi từ mô hình tư duy → cơ chế → cấu hình → tự động hoá. Mọi đoạn code đều copy chạy được. Cột trái là mục lục cố định.</p>
+    </header>
+
+    <!-- 01 MENTAL -->
+    <section id="mental">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">01</span><div><p class="kicker">Nền tảng</p><h2>Mô hình tư duy &amp; vòng lặp agent</h2></div></div>
+        <p class="lead">Hiểu một câu này là hiểu 80% còn lại: <b>Claude Code chạy một vòng lặp đọc → lập kế hoạch → hành động → kiểm tra → lặp lại</b>, và mọi best practice đều xoay quanh một ràng buộc duy nhất — <b>cửa sổ ngữ cảnh đầy nhanh, và hiệu năng giảm khi nó đầy.</b></p>
+
+        <figure class="schematic">
+          <figcaption><span>SƠ ĐỒ 01 — Vòng lặp agentic</span><span>bạn ở vòng ngoài</span></figcaption>
+          <svg viewBox="0 0 920 320" width="100%" role="img" aria-label="Vòng lặp agentic của Claude Code: đọc, lập kế hoạch, hành động, kiểm tra, lặp lại">
+            <!-- center -->
+            <circle cx="460" cy="160" r="52" class="s-core"/>
+            <text x="460" y="155" text-anchor="middle" class="s-lbl-w" font-size="13">VÒNG LẶP</text>
+            <text x="460" y="173" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#E9A07E">agentic</text>
+            <!-- four nodes -->
+            <g>
+              <rect x="350" y="20" width="220" height="48" rx="10" class="s-node"/><text x="460" y="49" text-anchor="middle" class="s-lbl" font-size="15">① Đọc codebase &amp; ngữ cảnh</text>
+              <rect x="700" y="135" width="200" height="48" rx="10" class="s-node"/><text x="800" y="164" text-anchor="middle" class="s-lbl" font-size="15">② Lập kế hoạch</text>
+              <rect x="350" y="252" width="220" height="48" rx="10" class="s-node"/><text x="460" y="281" text-anchor="middle" class="s-lbl" font-size="15">③ Hành động (sửa · chạy)</text>
+              <rect x="20" y="135" width="200" height="48" rx="10" class="s-node"/><text x="120" y="158" text-anchor="middle" class="s-lbl" font-size="15">④ Kiểm tra</text><text x="120" y="174" text-anchor="middle" class="s-sub" font-size="10">test · build · screenshot</text>
+            </g>
+            <!-- arrows around -->
+            <g class="s-arrow">
+              <path d="M512 44 Q700 70 770 135" marker-end="url(#a)"/>
+              <path d="M790 183 Q650 250 565 270" marker-end="url(#a)"/>
+              <path d="M350 280 Q200 250 150 183" marker-end="url(#a)"/>
+              <path d="M130 135 Q200 70 360 48" marker-end="url(#a)"/>
+            </g>
+            <defs><marker id="a" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="var(--clay)"/></marker></defs>
+            <text x="460" y="318" text-anchor="middle" class="s-sub" font-size="11">Bạn cấp một "check" để Claude tự đóng vòng — nếu không, BẠN trở thành vòng kiểm tra.</text>
+          </svg>
+        </figure>
+
+        <h3>Hai hệ quả phải thuộc lòng</h3>
+        <div class="grid g2">
+          <div class="card"><span class="tag">hệ quả 1</span><h4>Cho Claude cách tự kiểm tra</h4><p>Claude dừng khi việc "trông có vẻ xong". Nếu không có thứ trả về pass/fail (test, build exit code, linter, screenshot so với design), bạn chính là vòng kiểm tra — mỗi lỗi phải chờ bạn phát hiện. Có "check", vòng lặp tự đóng: Claude làm → chạy check → đọc kết quả → lặp tới khi đạt.</p></div>
+          <div class="card"><span class="tag">hệ quả 2</span><h4>Ngữ cảnh là tài nguyên khan hiếm</h4><p>Cửa sổ ngữ cảnh chứa cả hội thoại: mỗi tin nhắn, mỗi file đã đọc, mỗi output lệnh. Một phiên debug có thể ngốn hàng chục nghìn token. Khi ngữ cảnh đầy, Claude bắt đầu "quên" chỉ dẫn cũ và mắc lỗi nhiều hơn. Quản lý ngữ cảnh là kỹ năng quan trọng nhất (xem mục 04).</p></div>
+        </div>
+        <div class="note"><span class="lbl">Đổi cách làm việc</span>Thay vì <b>bạn viết code rồi nhờ Claude review</b>, bạn <b>mô tả điều muốn và Claude tự khám phá–lập kế hoạch–hiện thực</b>. Bạn chuyển vai từ người gõ phím sang người định hướng và duyệt kết quả. Điều này cần một đường cong học — phần còn lại của cuốn này là đường cong đó.</div>
+      </div>
+    </section>
+
+    <!-- 02 SETUP -->
+    <section id="setup">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">02</span><div><p class="kicker">Bắt đầu</p><h2>Cài đặt &amp; các bề mặt</h2></div></div>
+        <p class="lead">Một engine, nhiều nơi chạy. Cài CLI một lần, rồi dùng ở terminal, IDE, desktop, hoặc cloud tùy ngữ cảnh.</p>
+
+        <h3>Cài đặt (khuyến nghị: native installer)</h3>
+        <pre><span class="c"># macOS · Linux · WSL</span>
+curl -fsSL https://claude.ai/install.sh | bash
+
+<span class="c"># Windows PowerShell</span>
+irm https://claude.ai/install.ps1 | iex
+
+<span class="c"># Homebrew (không tự cập nhật → brew upgrade claude-code)</span>
+brew install --cask claude-code
+
+<span class="c"># Windows winget · hoặc apt/dnf/apk trên Debian/Fedora/RHEL/Alpine</span>
+winget install Anthropic.ClaudeCode
+
+<span class="c"># Khởi động trong bất kỳ project nào</span>
+cd your-project &amp;&amp; claude   <span class="c"># lần đầu sẽ yêu cầu đăng nhập</span></pre>
+        <div class="note tip"><span class="lbl">Lưu ý nền tảng</span>Bản <b>native tự cập nhật nền</b>. Trên Windows: dấu nhắc <code>PS C:\</code> là PowerShell, <code>C:\</code> là CMD — dùng đúng lệnh. Nên cài <b>Git for Windows</b> để Claude dùng được Bash tool (WSL thì không cần). Gặp lỗi cài → xem trang Troubleshoot install.</div>
+
+        <h3>Các bề mặt chạy</h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Bề mặt</th><th>Dùng khi</th><th>Điểm mạnh riêng</th></tr></thead>
+          <tbody>
+            <tr><td><b>Terminal CLI</b></td><td>Mặc định, mạnh nhất</td><td>Đầy đủ lệnh &amp; cờ; pipe/script được</td></tr>
+            <tr><td><b>VS Code / Cursor</b></td><td>Làm trong editor</td><td>Diff nội tuyến, @-mention, review plan, lịch sử hội thoại</td></tr>
+            <tr><td><b>JetBrains</b></td><td>IntelliJ/PyCharm/WebStorm…</td><td>Xem diff, chia sẻ context vùng chọn (chạy CLI trong terminal IDE)</td></tr>
+            <tr><td><b>Desktop app</b></td><td>Ngoài IDE/terminal</td><td>Nhiều phiên song song, review diff trực quan, lịch lặp, phiên cloud</td></tr>
+            <tr><td><b>Web</b> <span class="mono">claude.ai/code</span></td><td>Không cài gì, việc dài hơi</td><td>Chạy bất đồng bộ trên cloud; làm trên repo không có sẵn ở máy; iOS</td></tr>
+            <tr><td><b>GitHub · GitLab · Slack</b></td><td>CI &amp; cộng tác</td><td>Tag <code>@claude</code>, review PR &amp; triage issue tự động, giao việc từ Slack</td></tr>
+            <tr><td><b>Chrome (beta)</b></td><td>Test web app</td><td>Đọc console log, điền form, trích dữ liệu, screenshot để so design</td></tr>
+          </tbody>
+        </table></div>
+        <p class="marg"><b>Di động giữa các bề mặt:</b> phiên không bị khoá vào một nơi — bắt việc trên web/iOS rồi kéo về terminal bằng <code>claude --teleport</code>; bàn giao sang Desktop bằng <code>/desktop</code>; tiếp tục từ điện thoại qua Remote Control.</p>
+      </div>
+    </section>
+
+    <!-- 03 WORKFLOW -->
+    <section id="workflow">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">03</span><div><p class="kicker">Quy trình lõi</p><h2>Vòng lặp làm việc chuẩn: Khám phá → Lập kế hoạch → Hiện thực → Commit</h2></div></div>
+        <p class="lead">Để Claude nhảy thẳng vào code dễ tạo ra code giải sai bài toán. Tách <b>nghiên cứu/lập kế hoạch</b> khỏi <b>hiện thực</b> là thói quen có giá trị nhất.</p>
+
+        <div class="steps">
+          <div class="st"><p><b>Khám phá (plan mode).</b> Vào plan mode (<code>Shift+Tab</code>). Claude đọc file, trả lời câu hỏi, <b>không sửa gì</b>. <i>"đọc /src/auth, hiểu cách quản session và login; xem cách quản biến môi trường cho secret."</i></p></div>
+          <div class="st"><p><b>Lập kế hoạch.</b> Yêu cầu kế hoạch chi tiết. <i>"tôi muốn thêm Google OAuth. file nào cần đổi? luồng session ra sao? tạo kế hoạch."</i> Nhấn <code>Ctrl+G</code> để mở kế hoạch trong editor và sửa trước khi chạy.</p></div>
+          <div class="st"><p><b>Hiện thực.</b> Rời plan mode, để Claude code và đối chiếu kế hoạch. <i>"hiện thực luồng OAuth từ kế hoạch của bạn. viết test cho callback handler, chạy test suite và sửa lỗi."</i></p></div>
+          <div class="st"><p><b>Commit.</b> <i>"commit với message mô tả rõ và mở PR."</i> Claude làm việc trực tiếp với git: stage, viết message, tạo branch, mở PR.</p></div>
+        </div>
+        <div class="note"><span class="lbl">Khi nào bỏ qua plan</span>Plan mode có chi phí phụ. Việc nhỏ scope rõ (sửa typo, thêm log, đổi tên biến) → bảo Claude làm thẳng. Lập kế hoạch đáng giá khi: bạn chưa chắc hướng đi, thay đổi nhiều file, hoặc bạn lạ vùng code đó. <b>Nếu mô tả được diff trong một câu, bỏ plan.</b></div>
+
+        <h3>Cho Claude một "check" để tự đóng vòng</h3>
+        <p>Đây là đòn bẩy lớn nhất để biến "phiên phải ngồi canh" thành "phiên giao xong rồi đi". Check là bất cứ thứ gì trả về tín hiệu Claude đọc được:</p>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Mức siết</th><th>Cơ chế</th><th>Khi dùng</th></tr></thead>
+          <tbody>
+            <tr><td>Trong 1 prompt</td><td>"viết test, chạy, sửa tới khi xanh" ngay trong câu lệnh</td><td>Mọi việc, dùng được ngay hôm nay</td></tr>
+            <tr><td>Cả phiên</td><td><code>/goal</code> đặt điều kiện; bộ đánh giá re-check sau mỗi lượt</td><td>Để phiên không giám sát tự kết thúc đúng</td></tr>
+            <tr><td>Cổng cứng</td><td><b>Stop hook</b> chạy script, chặn kết thúc lượt tới khi pass</td><td>Bắt buộc tuyệt đối (gate xác định)</td></tr>
+            <tr><td>Ý kiến thứ hai</td><td>Subagent kiểm chứng / model khác cố bác bỏ kết quả</td><td>Người làm không phải người tự chấm</td></tr>
+          </tbody>
+        </table></div>
+        <div class="note tip"><span class="lbl">Mẹo</span>Yêu cầu Claude <b>trưng bằng chứng</b> thay vì khẳng định "đã xong": output test, lệnh đã chạy &amp; kết quả, hoặc screenshot. Đọc bằng chứng nhanh hơn tự chạy lại — và áp dụng được cho cả phiên bạn không ngồi xem.</div>
+
+        <h3>Prompt cụ thể — càng chính xác càng ít phải sửa</h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Yếu</th><th>Mạnh</th></tr></thead>
+          <tbody>
+            <tr><td>"thêm test cho foo.py"</td><td>"viết test cho foo.py, phủ ca biên người dùng đã logout. tránh mock."</td></tr>
+            <tr><td>"sửa bug login"</td><td>"user báo login fail sau khi session timeout. kiểm tra src/auth/, nhất là token refresh. viết test fail tái hiện lỗi, rồi sửa."</td></tr>
+            <tr><td>"thêm calendar widget"</td><td>"xem widget hiện có ở home page để hiểu pattern; HotDogWidget.php là ví dụ tốt. theo pattern đó, build calendar widget, không thêm thư viện ngoài cái đã có."</td></tr>
+          </tbody>
+        </table></div>
+        <p>Cấp dữ liệu giàu: tham chiếu file bằng <code>@file</code> (Claude đọc trước khi trả lời), dán/kéo-thả ảnh, đưa URL tài liệu (allowlist domain hay dùng qua <code>/permissions</code>), hoặc pipe: <code>cat error.log | claude</code>.</p>
+
+        <h3>Để Claude phỏng vấn bạn (cho tính năng lớn)</h3>
+        <pre>Tôi muốn xây [mô tả ngắn]. Hãy phỏng vấn tôi kỹ bằng AskUserQuestion.
+Hỏi về hiện thực kỹ thuật, UI/UX, ca biên, đánh đổi. Đừng hỏi hiển nhiên,
+đào vào phần khó tôi có thể chưa nghĩ tới. Hỏi tới khi đủ, rồi viết spec đầy đủ vào SPEC.md.</pre>
+        <p>Khi spec xong, <b>mở phiên mới</b> để thực thi — context sạch, tập trung hoàn toàn vào hiện thực, lại có spec viết sẵn để đối chiếu. Spec tốt là spec tự đủ: nêu tên file/interface liên quan, ghi rõ cái gì ngoài phạm vi, và kết bằng một bước xác minh end-to-end.</p>
+      </div>
+    </section>
+
+    <!-- 04 CONTEXT -->
+    <section id="context">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">04</span><div><p class="kicker">Kỹ năng quan trọng nhất</p><h2>Ngữ cảnh — quản lý quyết liệt</h2></div></div>
+        <p class="lead">Phiên dài làm ngữ cảnh đầy file/lệnh/hội thoại không liên quan, làm giảm hiệu năng và đánh lạc hướng Claude. Chủ động dọn là việc bạn phải làm thường xuyên.</p>
+
+        <div class="grid g2">
+          <div class="card"><span class="tag">/clear</span><h4>Reset giữa các việc</h4><p>Dùng <code>/clear</code> thường xuyên khi chuyển sang việc không liên quan. Một phiên sạch với prompt tốt hơn gần như luôn thắng một phiên dài chất đầy sửa chữa.</p></div>
+          <div class="card"><span class="tag">/compact</span><h4>Nén có chủ đích</h4><p>Tự động nén khi gần đầy (giữ code &amp; quyết định quan trọng). Chủ động: <code>/compact Focus on the API changes</code>. Tinh chỉnh trong CLAUDE.md: "khi nén, luôn giữ danh sách file đã sửa và lệnh test".</p></div>
+          <div class="card"><span class="tag">Esc · /rewind</span><h4>Sửa hướng sớm</h4><p><code>Esc</code> dừng giữa chừng (giữ context để chỉnh). <code>Esc Esc</code> hoặc <code>/rewind</code> mở menu khôi phục hội thoại &amp; code về mốc trước, hoặc tóm tắt từ một điểm chọn. "Undo that" để hoàn tác.</p></div>
+          <div class="card"><span class="tag">/btw</span><h4>Hỏi vặt không tốn context</h4><p>Dùng <code>/btw</code> cho câu hỏi nhanh không cần lưu — câu trả lời hiện ở lớp phủ, không vào lịch sử hội thoại, nên không phình ngữ cảnh.</p></div>
+        </div>
+
+        <div class="note warn"><span class="lbl">Quy tắc kinh nghiệm</span>Nếu bạn đã <b>sửa Claude hơn 2 lần về cùng một vấn đề</b> trong một phiên, ngữ cảnh đã bị chất đầy các hướng đi sai. Hãy <code>/clear</code> và bắt đầu lại với prompt cụ thể hơn (gói cả những gì bạn vừa học). Đừng cố kéo dài.</div>
+
+        <h3>Dùng subagent để điều tra</h3>
+        <p>Giao việc đọc-nhiều-file cho subagent: <i>"dùng subagent để điều tra X"</i>. Nó khám phá trong context riêng và chỉ trả về tóm tắt — giữ hội thoại chính sạch. Theo dõi mức dùng context liên tục bằng <b>status line</b> tùy biến.</p>
+      </div>
+    </section>
+
+    <!-- 05 MEMORY -->
+    <section id="memory">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">05</span><div><p class="kicker">Ngữ cảnh bền vững</p><h2>CLAUDE.md &amp; bộ nhớ</h2></div></div>
+        <p class="lead">CLAUDE.md là file Claude đọc đầu <b>mỗi</b> phiên — nơi đặt ngữ cảnh nó không thể suy ra từ code. Chạy <code>/init</code> để sinh bản khởi đầu (tự dò build system, test framework, pattern), rồi tinh chỉnh dần.</p>
+
+        <pre><span class="c"># CLAUDE.md — ngắn, người-đọc-được</span>
+# Code style
+- Dùng ES modules (import/export), không CommonJS (require)
+- Destructure import khi có thể
+
+# Workflow
+- Typecheck sau mỗi loạt thay đổi
+- Ưu tiên chạy test đơn lẻ, không chạy cả suite (cho nhanh)
+
+<span class="c"># Import file khác bằng @path</span>
+See @README.md for overview and @package.json for npm commands.
+- Git workflow: @docs/git-instructions.md</pre>
+
+        <h3>Nên &amp; không nên đưa vào</h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>✅ Nên</th><th>❌ Không</th></tr></thead>
+          <tbody>
+            <tr><td>Lệnh Bash Claude không đoán được</td><td>Thứ Claude tự đọc code là biết</td></tr>
+            <tr><td>Quy tắc style khác mặc định</td><td>Quy ước ngôn ngữ phổ thông Claude đã biết</td></tr>
+            <tr><td>Hướng dẫn test &amp; test runner ưu tiên</td><td>Tài liệu API chi tiết (hãy link tới docs)</td></tr>
+            <tr><td>Quy ước repo (đặt tên branch, PR)</td><td>Thông tin thay đổi thường xuyên</td></tr>
+            <tr><td>Quyết định kiến trúc đặc thù dự án</td><td>Mô tả từng file của codebase</td></tr>
+            <tr><td>Quirk môi trường (env var bắt buộc)</td><td>Câu hiển nhiên kiểu "viết code sạch"</td></tr>
+          </tbody>
+        </table></div>
+        <div class="note warn"><span class="lbl">Bẫy phổ biến</span><b>CLAUDE.md phình to khiến Claude bỏ qua chính chỉ dẫn của bạn.</b> Với mỗi dòng, tự hỏi: "bỏ dòng này có làm Claude mắc lỗi không?" — không thì cắt. Giữ dưới ~200 dòng. Nếu Claude cứ làm sai dù đã có rule, file có lẽ quá dài và rule bị lạc. Có thể nhấn mạnh bằng "IMPORTANT"/"YOU MUST". Coi CLAUDE.md như code: review khi có sự cố, prune định kỳ.</div>
+
+        <h3>Vị trí đặt file (phân cấp)</h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th class="mono">Vị trí</th><th>Phạm vi</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">~/.claude/CLAUDE.md</td><td>Mọi phiên Claude của bạn</td></tr>
+            <tr><td class="mono">./CLAUDE.md</td><td>Gốc project — check vào git để chia sẻ team</td></tr>
+            <tr><td class="mono">./CLAUDE.local.md</td><td>Ghi chú cá nhân — thêm vào .gitignore</td></tr>
+            <tr><td class="mono">parent / child dirs</td><td>Monorepo: cha &amp; con đều được kéo vào (con: theo nhu cầu)</td></tr>
+            <tr><td class="mono">.claude/rules/*.md</td><td>Rule theo path (frontmatter <code>paths</code>) — chỉ nạp khi đụng file khớp</td></tr>
+          </tbody>
+        </table></div>
+        <div class="note tip"><span class="lbl">Auto memory</span>Ngoài CLAUDE.md bạn viết tay, Claude tự xây <b>auto memory</b> khi làm việc: lưu lệnh build, insight debug… qua các phiên mà bạn không phải viết gì. Dùng <code>.claude/rules/</code> để giữ CLAUDE.md gọn — rule có <code>paths</code> chỉ nạp khi liên quan, tiết kiệm ngữ cảnh.</div>
+      </div>
+    </section>
+
+    <!-- 06 EXTEND -->
+    <section id="extend">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">06</span><div><p class="kicker">Tuỳ biến &amp; mở rộng</p><h2>Lớp mở rộng: chọn đúng công cụ</h2></div></div>
+        <p class="lead">Built-in tools đã lo phần lớn việc code. Lớp mở rộng là cách bạn cho Claude thêm hiểu biết, nối dịch vụ ngoài, và tự động hoá. Mấu chốt là <b>chọn đúng cơ chế cho đúng mục tiêu.</b></p>
+
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Cơ chế</th><th>Là gì</th><th>Dùng khi</th></tr></thead>
+          <tbody>
+            <tr><td><b>CLAUDE.md</b></td><td>Ngữ cảnh bền vững, nạp mỗi phiên</td><td>Quy ước dự án, rule "luôn làm X"</td></tr>
+            <tr><td><b>Skill</b></td><td>Kiến thức/quy trình tái dùng, nạp theo nhu cầu</td><td>Tài liệu tham chiếu, workflow gọi bằng <code>/tên</code></td></tr>
+            <tr><td><b>Subagent</b></td><td>Worker trong context riêng, chỉ trả tóm tắt</td><td>Cô lập context, đọc nhiều file, việc song song</td></tr>
+            <tr><td><b>Agent team</b></td><td>Nhiều phiên độc lập, nhắn nhau, task chung</td><td>Nghiên cứu giả thuyết cạnh tranh, review song song (thử nghiệm)</td></tr>
+            <tr><td><b>Code intelligence</b></td><td>Nối language server (LSP)</td><td>Ngôn ngữ có kiểu, codebase lớn — nhảy tới định nghĩa symbol</td></tr>
+            <tr><td><b>MCP</b></td><td>Nối dịch vụ ngoài</td><td>Query DB, post Slack, điều khiển browser, Jira/Figma</td></tr>
+            <tr><td><b>Hook</b></td><td>Script/HTTP/prompt/subagent kích theo sự kiện</td><td>Việc <b>phải</b> chạy mỗi lần khớp sự kiện</td></tr>
+            <tr><td><b>Plugin</b></td><td>Đóng gói skills+hooks+subagents+MCP</td><td>Tái dùng cùng setup qua nhiều repo / chia sẻ</td></tr>
+          </tbody>
+        </table></div>
+
+        <h3>Xây dần theo "trigger" — đừng cấu hình hết một lúc</h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Khi bạn thấy…</th><th>Thì thêm</th></tr></thead>
+          <tbody>
+            <tr><td>Claude làm sai một quy ước/lệnh 2 lần</td><td>Thêm vào <b>CLAUDE.md</b></td></tr>
+            <tr><td>Bạn gõ lại cùng một prompt để bắt đầu việc</td><td>Lưu thành <b>skill</b> gọi tay</td></tr>
+            <tr><td>Dán cùng một playbook nhiều bước lần thứ 3</td><td>Gói thành <b>skill</b></td></tr>
+            <tr><td>Cứ copy dữ liệu từ tab/hệ thống Claude không thấy</td><td>Nối <b>MCP server</b></td></tr>
+            <tr><td>Claude đọc nhiều file chỉ để tìm nơi định nghĩa symbol</td><td>Cài <b>code intelligence plugin</b></td></tr>
+            <tr><td>Một việc phụ làm tràn output bạn không dùng lại</td><td>Đẩy qua <b>subagent</b></td></tr>
+            <tr><td>Bạn muốn điều gì đó chạy mỗi lần, không cần hỏi</td><td>Viết <b>hook</b></td></tr>
+            <tr><td>Repo thứ hai cần cùng setup</td><td>Đóng gói thành <b>plugin</b></td></tr>
+          </tbody>
+        </table></div>
+
+        <h3>Skills — đơn vị linh hoạt nhất</h3>
+        <p>Một skill là file markdown chứa kiến thức/workflow. Đặt trong <code>.claude/skills/&lt;tên&gt;/SKILL.md</code>. Claude tự nạp khi liên quan, hoặc bạn gọi <code>/&lt;tên&gt;</code>. Hai loại: <b>reference</b> (kiến thức dùng suốt phiên) và <b>action</b> (làm việc cụ thể).</p>
+        <pre><span class="c"># .claude/skills/fix-issue/SKILL.md</span>
+---
+name: fix-issue
+description: Sửa một GitHub issue
+disable-model-invocation: true   <span class="c"># chỉ gọi tay (việc có side-effect)</span>
+---
+Phân tích và sửa issue: $ARGUMENTS.
+1. gh issue view để lấy chi tiết
+2. tìm file liên quan trong codebase
+3. sửa, viết &amp; chạy test
+4. đảm bảo qua lint &amp; typecheck
+5. tạo commit message mô tả, push, mở PR</pre>
+        <p>Gọi: <code>/fix-issue 1234</code>. Dùng <code>disable-model-invocation: true</code> cho workflow có side-effect mà bạn muốn tự kích.</p>
+
+        <h3>Subagents — cô lập ngữ cảnh</h3>
+        <p>Subagent chạy trong context &amp; bộ tool riêng; hữu ích cho việc đọc nhiều file hoặc cần tập trung chuyên môn mà không làm rối hội thoại chính. Đặt ở <code>.claude/agents/&lt;tên&gt;.md</code>:</p>
+        <pre><span class="c"># .claude/agents/security-reviewer.md</span>
+---
+name: security-reviewer
+description: Review code tìm lỗ hổng bảo mật
+tools: Read, Grep, Glob, Bash
+model: opus
+---
+Bạn là senior security engineer. Soát:
+- Injection (SQL, XSS, command)
+- Lỗi xác thực/phân quyền
+- Secret/credential lộ trong code
+Đưa tham chiếu dòng cụ thể + cách sửa.</pre>
+        <p>Gọi rõ: <i>"dùng subagent review code này về bảo mật."</i> Khác với <b>agent team</b> (nhiều phiên độc lập nhắn nhau, tốn token hơn) — subagent rẻ hơn vì chỉ tóm tắt trả về context chính.</p>
+
+        <h3>Hooks — xác định, không phải khuyến nghị</h3>
+        <p>Khác CLAUDE.md (mang tính khuyên), <b>hook đảm bảo hành động luôn xảy ra</b>. Cấu hình trong <code>.claude/settings.json</code>; xem bằng <code>/hooks</code> (chỉ-đọc). Sự kiện chính: <code>PreToolUse</code>, <code>PostToolUse</code>, <code>Notification</code>, <code>Stop</code>, <code>SessionStart</code>, nén ngữ cảnh…</p>
+        <pre><span class="c"># Tự format sau mỗi lần sửa file</span>
+{
+  "hooks": {
+    "PostToolUse": [{
+      "matcher": "Edit|Write",
+      "hooks": [{ "type": "command",
+        "command": "jq -r '.tool_input.file_path' | xargs npx prettier --write" }]
+    }]
+  }
+}</pre>
+        <pre><span class="c"># Chặn sửa file nhạy cảm — .claude/hooks/protect-files.sh</span>
+#!/bin/bash
+INPUT=$(cat); FILE=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+for p in ".env" "package-lock.json" ".git/"; do
+  if [[ "$FILE" == *"$p"* ]]; then
+    echo "Blocked: $FILE khớp pattern bảo vệ '$p'" &gt;&amp;2
+    exit 2          <span class="c"># exit 2 = chặn, Claude nhận phản hồi để đổi hướng</span>
+  fi
+done
+exit 0</pre>
+        <div class="note tip"><span class="lbl">Mẹo</span>Claude tự viết được hook/skill/subagent cho bạn: <i>"viết hook chạy eslint sau mỗi lần sửa file"</i>, <i>"viết hook chặn ghi vào thư mục migrations"</i>. <b>MCP</b>: <code>claude mcp add</code> để nối Notion, Figma, database. <b>Plugin</b>: <code>/plugin</code> duyệt marketplace; cài <b>code intelligence plugin</b> cho ngôn ngữ có kiểu để Claude điều hướng symbol chính xác.</div>
+      </div>
+    </section>
+
+    <!-- 07 PERMS -->
+    <section id="perms">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">07</span><div><p class="kicker">Kiểm soát</p><h2>Quyền &amp; an toàn</h2></div></div>
+        <p class="lead">Mặc định Claude Code hỏi trước mỗi hành động có thể đổi hệ thống (ghi file, lệnh Bash, tool MCP). An toàn nhưng phiền. Permission mode điều chỉnh tần suất hỏi đó.</p>
+
+        <div class="tbl-wrap"><table>
+          <thead><tr><th class="mono">Mode</th><th>Chạy không hỏi</th><th>Hợp với</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">default</td><td>Chỉ đọc</td><td>Bắt đầu, việc nhạy cảm</td></tr>
+            <tr><td class="mono">acceptEdits</td><td>Đọc + sửa file + lệnh fs phổ thông (mkdir, mv, cp…)</td><td>Lặp trên code bạn đang review</td></tr>
+            <tr><td class="mono">plan</td><td>Chỉ đọc (không sửa source)</td><td>Khám phá codebase trước khi đổi</td></tr>
+            <tr><td class="mono">auto</td><td>Mọi thứ, có classifier an toàn nền</td><td>Việc dài, giảm mệt vì prompt</td></tr>
+            <tr><td class="mono">dontAsk</td><td>Chỉ tool đã pre-approve</td><td>CI &amp; script khoá chặt</td></tr>
+            <tr><td class="mono">bypassPermissions</td><td>Mọi thứ (bỏ qua lớp quyền)</td><td><b>Chỉ</b> trong container/VM cô lập</td></tr>
+          </tbody>
+        </table></div>
+
+        <p>Đổi mode: <code>Shift+Tab</code> để xoay (default → acceptEdits → plan), hoặc cờ <code>--permission-mode plan</code> khi khởi động, hoặc đặt mặc định trong settings:</p>
+        <pre>{ "permissions": { "defaultMode": "acceptEdits" } }</pre>
+        <p>Phủ lên mode bằng <b>permission rules</b>: allowlist tool an toàn (<code>npm run lint</code>, <code>git commit</code>) qua <code>/permissions</code>, hoặc bật cô lập OS bằng <code>/sandbox</code>. Trong mọi mode trừ <code>bypassPermissions</code>, ghi vào <b>protected paths</b> không bao giờ tự duyệt — bảo vệ trạng thái repo và cấu hình của chính Claude.</p>
+
+        <div class="note warn"><span class="lbl">Lưu ý về auto mode</span>Auto mode là <b>research preview</b>: một model classifier soát hành động, chặn cái leo thang ngoài yêu cầu / nhắm hạ tầng lạ / bị nội dung độc điều khiển. Nó <b>giảm hỏi nhưng không đảm bảo an toàn</b> — dùng cho việc bạn tin hướng đi, không thay cho review ở thao tác nhạy cảm. Yêu cầu model đủ mới (Sonnet 4.6 / Opus 4.6+), Anthropic API, và admin bật (Team/Enterprise). Claude Code cố tình <b>bỏ qua</b> <code>defaultMode:"auto"</code> trong settings của project để repo không tự cấp quyền cho mình.</div>
+        <div class="note warn"><span class="lbl">Nguy hiểm</span><code>--dangerously-skip-permissions</code> (bypass) bỏ toàn bộ kiểm tra — chỉ dùng trong môi trường cô lập, không có dữ liệu/khóa thật. Đừng chạy với quyền truy cập internet trên máy chứa secret.</div>
+      </div>
+    </section>
+
+    <!-- 08 HEADLESS -->
+    <section id="headless">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">08</span><div><p class="kicker">Lập trình hoá</p><h2>Headless · scripting · CI</h2></div></div>
+        <p class="lead">Cùng tool, agent loop và quản lý ngữ cảnh của Claude Code — nhưng chạy không tương tác. Nền tảng cho script, CI/CD, và Agent SDK.</p>
+
+        <pre><span class="c"># -p (--print): chạy không tương tác; mọi cờ CLI đều dùng được</span>
+claude -p "tìm và sửa bug trong auth.py" --allowedTools "Read,Edit,Bash"
+
+<span class="c"># --bare: bỏ auto-discovery (hooks/skills/MCP/CLAUDE.md) → kết quả nhất quán mọi máy</span>
+claude --bare -p "Tóm tắt file này" --allowedTools "Read"
+
+<span class="c"># Pipe vào / chuyển ra như mọi công cụ CLI</span>
+cat build-error.txt | claude -p 'giải thích gọn nguyên nhân gốc lỗi build' &gt; out.txt
+
+<span class="c"># Output có cấu trúc + JSON Schema để parse an toàn</span>
+claude -p "trích tên các hàm trong auth.py" \
+  --output-format json \
+  --json-schema '{"type":"object","properties":{"functions":{"type":"array","items":{"type":"string"}}},"required":["functions"]}' \
+  | jq '.structured_output'</pre>
+        <div class="grid g2">
+          <div class="card"><span class="tag">--output-format</span><h4>3 dạng ra</h4><p><code>text</code> (mặc định) · <code>json</code> (kèm result, session id, metadata, <code>total_cost_usd</code>) · <code>stream-json</code> (NDJSON realtime, dùng với <code>--verbose --include-partial-messages</code>).</p></div>
+          <div class="card"><span class="tag">--bare</span><h4>Cho CI &amp; SDK</h4><p>Bỏ qua hooks/MCP/CLAUDE.md của máy → tránh "chạy máy tôi thì khác". Chỉ cờ bạn truyền mới có tác dụng. Auth qua <code>ANTHROPIC_API_KEY</code>. Sẽ thành mặc định của <code>-p</code> tương lai.</p></div>
+        </div>
+
+        <h4>Claude như linter trong package.json</h4>
+        <pre>{
+  "scripts": {
+    "lint:claude": "git diff main | claude -p \"bạn là typo linter. với mỗi typo trong diff, in filename:line rồi dòng sau là vấn đề. không gì khác.\""
+  }
+}</pre>
+        <p>Để kiểm soát đầy đủ (structured output, callback duyệt tool, message object), dùng <b>Agent SDK</b> bản <b>Python</b> hoặc <b>TypeScript</b>. CI: <b>GitHub Actions</b> / <b>GitLab CI/CD</b> để tự review PR &amp; triage issue; tag <code>@claude</code> trong PR/issue.</p>
+        <div class="note"><span class="lbl">Thư mục .claude/</span>Nơi Claude Code đọc cấu hình: <code>CLAUDE.md</code>, <code>settings.json</code>, <code>hooks/</code>, <code>skills/</code>, <code>commands/</code>, <code>agents/</code>, <code>rules/</code>, auto memory — ở cả gốc project (<code>.claude/</code>) lẫn home (<code>~/.claude/</code>). Check phần dùng chung vào git để cả team thừa hưởng.</div>
+      </div>
+    </section>
+
+    <!-- 09 AUTOMATE -->
+    <section id="automate">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">09</span><div><p class="kicker">Chạy nền &amp; theo lịch</p><h2>Tự động hoá &amp; song song</h2></div></div>
+        <p class="lead">Việc lặp lại không cần bạn ngồi canh: chạy theo lịch, kích theo sự kiện, hoặc bung nhiều agent song song.</p>
+        <div class="grid g2">
+          <div class="card"><span class="tag">Routines</span><h4>Lịch trên hạ tầng Anthropic</h4><p>Review PR mỗi sáng, phân tích CI fail ban đêm, audit phụ thuộc hàng tuần. <b>Chạy cả khi máy bạn tắt</b>; kích được theo lịch, API call, hoặc GitHub event. Tạo từ web/Desktop hoặc <code>/schedule</code>.</p></div>
+          <div class="card"><span class="tag">Desktop tasks · /loop</span><h4>Lịch trên máy bạn</h4><p>Desktop scheduled tasks chạy local, truy cập file/tool của bạn. <code>/loop</code> lặp một prompt trong phiên CLI để poll trạng thái nhanh.</p></div>
+          <div class="card"><span class="tag">Subagents · Agent teams</span><h4>Song song</h4><p>Bung nhiều subagent làm các phần khác nhau cùng lúc; agent lead điều phối &amp; gộp kết quả. <b>Agent teams</b> (thử nghiệm): nhiều phiên độc lập nhắn nhau, hợp cho giả thuyết cạnh tranh / review song song.</p></div>
+          <div class="card"><span class="tag">Làm từ bất cứ đâu</span><h4>Di động phiên</h4><p>Bắt việc dài trên <b>web/iOS</b> rồi kéo về terminal bằng <code>claude --teleport</code>; tiếp tục từ điện thoại qua <b>Remote Control</b>; giao việc qua <b>Dispatch</b>; bàn giao sang Desktop bằng <code>/desktop</code> để review diff trực quan.</p></div>
+        </div>
+        <div class="note tip"><span class="lbl">Mô hình "đi pha cà phê"</span>Ghép <b>check tự động</b> (mục 03) + <b>auto/acceptEdits mode</b> (mục 07) + <b>routine/agent nền</b> = giao một task có tiêu chí pass/fail rõ rồi rời đi; Claude lặp tới khi đạt và báo lại. Đây là đỉnh cao hiệu quả của Claude Code.</div>
+      </div>
+    </section>
+
+    <!-- 10 COST -->
+    <section id="cost">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">10</span><div><p class="kicker">Tối ưu</p><h2>Chi phí &amp; chọn mô hình</h2></div></div>
+        <p class="lead">Token = tiền (qua API) và = hạn mức (qua subscription). Ngữ cảnh càng đầy càng tốn — nên quản context cũng là quản chi phí.</p>
+        <div class="grid g2">
+          <div class="card"><span class="tag">chọn mô hình</span><h4>Đúng việc đúng model</h4><p><b>Sonnet 4.6</b> cho phần lớn việc; <b>Opus 4.8</b> cho bài khó/kiến trúc/agent dài; <b>Haiku</b> cho việc nhẹ khối lượng lớn. Alias <code>opusplan</code>: lập kế hoạch bằng Opus rồi hiện thực bằng model rẻ hơn. Đặt qua <code>/model</code> hoặc model-config.</p></div>
+          <div class="card"><span class="tag">giảm token</span><h4>Đòn bẩy chính</h4><p><code>/clear</code> &amp; <code>/compact</code> giữ context gọn; subagent để output nặng không vào context chính; pipe diff thay vì cho Claude tự đọc; tránh CLAUDE.md phình. Theo dõi bằng status line; <code>--output-format json</code> trả <code>total_cost_usd</code> mỗi lần gọi.</p></div>
+          <div class="card"><span class="tag">tốc độ</span><h4>Fast mode</h4><p>Bật fast mode để phản hồi nhanh hơn cho phiên cần tốc độ hơn chi phí. Cân nhắc khi đang dev tương tác cường độ cao.</p></div>
+          <div class="card"><span class="tag">tổ chức</span><h4>Trần chi tiêu &amp; ZDR</h4><p>Team/Enterprise đặt <b>spend limit</b> theo người; bật analytics theo dõi adoption &amp; velocity. <b>Zero Data Retention</b> khả dụng cho Claude for Enterprise (một số tính năng bị tắt khi bật).</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 PLAYBOOK -->
+    <section id="playbook">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">11</span><div><p class="kicker">Theo nghề</p><h2>Playbook cho DS/AI engineer &amp; Web dev</h2></div></div>
+        <p class="lead">Cùng một bộ cơ chế, ghép khác nhau theo loại việc.</p>
+        <h3>Data Scientist / AI engineer</h3>
+        <div class="grid g2">
+          <div class="card"><span class="tag">onboarding</span><h4>Hiểu codebase mới</h4><p>Hỏi Claude như hỏi senior: "logging hoạt động ra sao?", "tạo API endpoint mới thế nào?", "dòng 134 foo.rs làm gì?". Không cần prompt đặc biệt — rút ngắn thời gian ramp-up.</p></div>
+          <div class="card"><span class="tag">pipeline ML</span><h4>Cắm vào repo thật</h4><p>Để Claude Code đọc repo training/eval, thêm metric (F1 theo lớp, specificity/sensitivity), <b>viết test cho data loader</b>, chạy &amp; sửa. Đặt "luôn typecheck + chạy test lớp" trong CLAUDE.md.</p></div>
+          <div class="card"><span class="tag">eval &amp; verify</span><h4>Cho nó cách tự chấm</h4><p>Đặt một script eval làm "check": Claude sửa model/feature → chạy eval → đọc số → lặp tới khi đạt ngưỡng. Dùng subagent kiểm chứng để model khác soát lại kết quả.</p></div>
+          <div class="card"><span class="tag">data ops</span><h4>Làm sạch &amp; sinh</h4><p>Script làm sạch/chuyển định dạng, sinh dữ liệu cân bằng lớp hiếm, vẽ biểu đồ chẩn đoán — chạy headless trong pipeline (<code>claude -p --bare</code>) để tái lập được.</p></div>
+        </div>
+        <h3>Web developer</h3>
+        <div class="grid g2">
+          <div class="card"><span class="tag">feature</span><h4>Explore→Plan→Code→Commit</h4><p>Tính năng lớn: để Claude phỏng vấn → SPEC.md → phiên mới thực thi. Tham chiếu pattern sẵn có ("xem cách widget X làm") để code khớp codebase.</p></div>
+          <div class="card"><span class="tag">debug</span><h4>Test fail trước, sửa sau</h4><p>"viết test fail tái hiện bug, rồi sửa, address nguyên nhân gốc, đừng suppress lỗi." Dán stack trace + mô tả triệu chứng + nơi nghi ngờ.</p></div>
+          <div class="card"><span class="tag">chất lượng</span><h4>Hook + CLAUDE.md</h4><p>Hook auto-format/lint sau mỗi edit (xác định, không lệ thuộc LLM nhớ); checklist review trong CLAUDE.md để chuẩn hoá cả team; code intelligence plugin cho TS/typed.</p></div>
+          <div class="card"><span class="tag">UI</span><h4>Screenshot làm check</h4><p>"[dán screenshot] hiện thực design này, chụp lại kết quả, liệt kê khác biệt và sửa." Dùng Chrome (beta) để đọc console &amp; so sánh trực quan.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 CHEAT -->
+    <section id="cheat">
+      <div class="wrap">
+        <div class="sec-head"><span class="sec-num">12</span><div><p class="kicker">Tra cứu</p><h2>Cạm bẫy &amp; bảng lệnh</h2></div></div>
+
+        <h3>Năm cạm bẫy hay gặp</h3>
+        <div class="grid g2">
+          <div class="card"><span class="tag">01</span><h4>CLAUDE.md phình to</h4><p>Rule bị lạc, Claude bỏ qua chỉ dẫn. → Giữ &lt;200 dòng, đẩy phần thi thoảng cần sang skills/rules.</p></div>
+          <div class="card"><span class="tag">02</span><h4>Không cấp "check"</h4><p>Bạn thành vòng kiểm tra thủ công. → Luôn cho test/build/screenshot để Claude tự đóng vòng.</p></div>
+          <div class="card"><span class="tag">03</span><h4>Phiên dài lê thê</h4><p>Context bẩn, hiệu năng tụt. → <code>/clear</code> giữa các việc; sửa &gt;2 lần thì restart sạch.</p></div>
+          <div class="card"><span class="tag">04</span><h4>Prompt mơ hồ cho việc lớn</h4><p>Giải sai bài toán. → Plan mode + prompt cụ thể (file, ràng buộc, định nghĩa "xong").</p></div>
+          <div class="card"><span class="tag">05</span><h4>Lạm quyền</h4><p>bypass trên máy có secret = rủi ro. → Mặc định default/plan; auto/acceptEdits khi tin hướng; bypass chỉ trong VM.</p></div>
+          <div class="card"><span class="tag">06</span><h4>Bỏ qua tool CLI</h4><p>Claude hết rate limit khi gọi API trần. → Cài <code>gh</code>, <code>aws</code>, <code>gcloud</code>; bảo Claude dùng chúng.</p></div>
+        </div>
+
+        <h3>Lệnh &amp; phím hay dùng</h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th class="mono">Lệnh / phím</th><th>Tác dụng</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">/init</td><td>Sinh CLAUDE.md khởi đầu từ cấu trúc project</td></tr>
+            <tr><td class="mono">Shift+Tab</td><td>Xoay permission mode (default → acceptEdits → plan)</td></tr>
+            <tr><td class="mono">/plan</td><td>Tiền tố một prompt để chạy trong plan mode</td></tr>
+            <tr><td class="mono">Esc / Esc Esc / /rewind</td><td>Dừng / khôi phục hội thoại &amp; code về mốc trước</td></tr>
+            <tr><td class="mono">/clear · /compact [hint]</td><td>Reset / nén ngữ cảnh có chủ đích</td></tr>
+            <tr><td class="mono">/btw</td><td>Hỏi vặt không lưu vào context</td></tr>
+            <tr><td class="mono">@file · /permissions</td><td>Tham chiếu file · quản allowlist tool/domain</td></tr>
+            <tr><td class="mono">/hooks · /skill · /agents</td><td>Xem hooks · gọi/skill · quản subagent</td></tr>
+            <tr><td class="mono">/mcp · claude mcp add</td><td>Quản · thêm MCP server</td></tr>
+            <tr><td class="mono">/model · /sandbox · /goal</td><td>Đổi model · cô lập OS · đặt điều kiện kết thúc</td></tr>
+            <tr><td class="mono">claude -p · --bare · --output-format</td><td>Chạy không tương tác · cho CI · dạng đầu ra</td></tr>
+            <tr><td class="mono">--teleport · /desktop · /schedule</td><td>Kéo phiên về terminal · sang Desktop · đặt routine</td></tr>
+          </tbody>
+        </table></div>
+
+        <div class="note tip"><span class="lbl">Tóm gọn cả cuốn trong 5 câu</span>① Tách <b>khám phá/kế hoạch</b> khỏi <b>hiện thực</b>. ② Luôn cho Claude một <b>check tự chạy</b>. ③ <b>Quản ngữ cảnh quyết liệt</b> (clear/compact, restart khi rối). ④ Đầu tư vào <b>CLAUDE.md gọn</b> + skills/hooks/subagents đúng chỗ. ⑤ Chọn <b>permission mode</b> theo độ tin, và đẩy việc lặp sang <b>headless/routine</b>.</div>
+      </div>
+    </section>
+
+    <footer>
+      <div><b>CLAUDE CODE CHUYÊN SÂU — TẬP II</b> · biên soạn 06/2026 cho DS/AI engineer &amp; web developer.</div>
+      <div>Nội dung đối chiếu tài liệu chính thức tại code.claude.com/docs. Tính năng, lệnh và cờ thay đổi theo phiên bản — xác nhận ở docs và <code>/changelog</code>. Sơ đồ là minh hoạ gốc.</div>
+    </footer>
+  </main>
+</div>
+
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('nav.index a'));
+  var secs=links.map(function(a){return document.querySelector(a.getAttribute('href'));});
+  var idx=document.getElementById('index'),btn=document.getElementById('menuBtn');
+  btn.addEventListener('click',function(){idx.classList.toggle('open');});
+  idx.addEventListener('click',function(e){if(e.target.tagName==='A')idx.classList.remove('open');});
+  function onScroll(){var y=window.scrollY+130,cur=0;for(var i=0;i<secs.length;i++){if(secs[i]&&secs[i].offsetTop<=y)cur=i;}links.forEach(function(l,i){l.classList.toggle('active',i===cur);});}
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+})();
+</script>
+</body>
+</html>

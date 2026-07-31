@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nhận diện Khuôn mặt — Thị giác Máy tính</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<style>
+:root{
+  --paper:#f3f6f4;
+  --paper-deep:#eaefec;
+  --ink:#132036;
+  --ink-soft:#42506a;
+  --ink-faint:#7c8aa0;
+  --line:#d9e0da;
+  --forward:#0f8b8d;
+  --forward-soft:#e1f3f2;
+  --forward-ink:#0a5f60;
+  --backward:#d1495b;
+  --backward-soft:#fbe7ea;
+  --backward-ink:#9c2f3d;
+  --signal:#e8940f;
+  --signal-soft:#fdf0da;
+  --signal-ink:#a86608;
+  --panel:#ffffff;
+  --code-bg:#101c2c;
+  --code-text:#d7e2ee;
+  --radius:14px;
+  --serif-display:'Be Vietnam Pro', sans-serif;
+  --sans-body:'Inter', sans-serif;
+  --mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--paper); color:var(--ink-soft); font-family:var(--sans-body);
+  font-size:16px; line-height:1.7;
+  background-image:
+    linear-gradient(var(--paper) 0%, var(--paper) 100%),
+    repeating-linear-gradient(0deg, rgba(19,32,54,0.025) 0px, rgba(19,32,54,0.025) 1px, transparent 1px, transparent 28px),
+    repeating-linear-gradient(90deg, rgba(19,32,54,0.025) 0px, rgba(19,32,54,0.025) 1px, transparent 1px, transparent 28px);
+}
+h1,h2,h3,h4{font-family:var(--serif-display); color:var(--ink); margin:0 0 .5em 0; letter-spacing:-0.01em;}
+p{margin:0 0 1em 0;}
+a{color:var(--forward-ink);}
+strong{color:var(--ink);}
+code{font-family:var(--mono);}
+.layout{display:grid; grid-template-columns:272px minmax(0,1fr); max-width:1280px; margin:0 auto;}
+.rail{position:sticky; top:0; align-self:start; height:100vh; padding:32px 18px 32px 28px; border-right:1px solid var(--line); overflow-y:auto;}
+.rail-brand{font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--forward-ink); margin-bottom:22px; display:block;}
+.rail-list{list-style:none; margin:0; padding:0 0 0 18px; position:relative; border-left:2px solid var(--line);}
+.rail-item{position:relative; margin:0 0 4px 0;}
+.rail-item::before{content:''; position:absolute; left:-24px; top:13px; width:8px;height:8px; border-radius:50%; background:var(--paper); border:2px solid var(--ink-faint); transition:.2s;}
+.rail-item.active::before{background:var(--forward); border-color:var(--forward); box-shadow:0 0 0 4px var(--forward-soft);}
+.rail-link{display:block; padding:9px 10px; font-size:13.5px; color:var(--ink-soft); text-decoration:none; border-radius:8px; font-weight:500;}
+.rail-link .rail-num{font-family:var(--mono); color:var(--ink-faint); font-size:11px; display:block;}
+.rail-item.active .rail-link{color:var(--forward-ink); background:var(--forward-soft); font-weight:600;}
+.rail-item.active .rail-link .rail-num{color:var(--forward-ink);}
+.content{padding:0 0 40px 0; min-width:0;}
+.wrap{max-width:760px; margin:0 auto; padding:0 40px;}
+.hero{padding:70px 0 20px 0;}
+.hero-eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--forward-ink); background:var(--forward-soft); display:inline-block; padding:5px 12px; border-radius:20px; margin-bottom:20px;}
+.hero-title{font-size:clamp(34px,5vw,54px); font-weight:800; line-height:1.06;}
+.hero-title em{font-style:normal; color:var(--forward); position:relative;}
+.hero-sub{font-size:19px; color:var(--ink-soft); font-weight:500; max-width:600px; margin-bottom:26px;}
+.hero-lede{font-size:16px; max-width:640px;}
+.section{padding:64px 0; border-top:1px solid var(--line);}
+.section-eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:10px; display:flex; align-items:center; gap:10px;}
+.section-eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--forward);}
+.section-title{font-size:30px; margin-bottom:14px;}
+.section-lead{font-size:16.5px; color:var(--ink-soft); max-width:640px;}
+.subsection{margin-top:38px;}
+.subsection h3{font-size:21px; margin-bottom:10px;}
+.subsection h3 .tag{font-family:var(--mono); font-size:12px; color:var(--forward-ink); background:var(--forward-soft); padding:2px 8px; border-radius:6px; margin-right:8px; vertical-align:middle;}
+ul.plain, ol.plain{padding-left:22px; margin:0 0 1em 0;}
+ul.plain li, ol.plain li{margin-bottom:8px;}
+.callout{border-radius:var(--radius); padding:18px 20px; margin:22px 0; border:1px solid var(--line); background:var(--panel); font-size:15px;}
+.callout-head{font-weight:700; color:var(--ink); display:block; margin-bottom:6px; font-size:14px; text-transform:uppercase; letter-spacing:.04em;}
+.callout-note{border-left:4px solid var(--signal); background:var(--signal-soft);}
+.callout-note .callout-head{color:var(--signal-ink);}
+.callout-warn{border-left:4px solid var(--backward); background:var(--backward-soft);}
+.callout-warn .callout-head{color:var(--backward-ink);}
+.callout-result{border-left:4px solid var(--forward); background:var(--forward-soft);}
+.callout-result .callout-head{color:var(--forward-ink);}
+.figure{margin:26px 0; border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:24px;}
+.figure-caption{font-size:13.5px; color:var(--ink-faint); margin-top:14px; padding-top:12px; border-top:1px dashed var(--line);}
+.figure-caption b{color:var(--ink-soft);}
+.check{margin:26px 0; border-radius:var(--radius); border:1.5px dashed var(--forward); background:#fff; padding:18px 20px;}
+.check-tag{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#fff; background:var(--forward); padding:3px 9px; border-radius:6px; margin-right:8px;}
+.check-q{font-weight:600; color:var(--ink); font-size:15.5px;}
+.reveal-btn{margin-top:12px; border:1px solid var(--forward); color:var(--forward-ink); background:var(--forward-soft); font-family:var(--sans-body); font-weight:600; font-size:13.5px; padding:8px 16px; border-radius:8px; cursor:pointer; transition:.15s;}
+.reveal-btn:hover{background:var(--forward); color:#fff;}
+.reveal-content{display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); font-size:15px;}
+.reveal-content.show{display:block;}
+.code-window{margin:22px 0; border-radius:var(--radius); overflow:hidden; background:var(--code-bg); box-shadow:0 8px 24px -12px rgba(16,28,44,.5);}
+.code-titlebar{display:flex; align-items:center; gap:8px; padding:11px 16px; background:#0a1522; border-bottom:1px solid rgba(255,255,255,.06);}
+.code-dot{width:10px;height:10px;border-radius:50%;}
+.code-dot:nth-child(1){background:#e8594f;}
+.code-dot:nth-child(2){background:#e8b13f;}
+.code-dot:nth-child(3){background:#3fb556;}
+.code-filename{font-family:var(--mono); font-size:12.5px; color:#8fa2bd; margin-left:8px;}
+.code-window pre{margin:0 !important; padding:18px 20px !important; background:var(--code-bg) !important; font-size:13.3px !important; line-height:1.65 !important; overflow-x:auto;}
+.code-window code.hljs{background:var(--code-bg) !important;}
+.ref-table{width:100%; border-collapse:collapse; margin:20px 0; font-size:14.5px;}
+.ref-table th{text-align:left; font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); padding:10px 12px; border-bottom:2px solid var(--ink);}
+.ref-table td{padding:11px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+.ref-table code{background:var(--forward-soft); color:var(--forward-ink); padding:2px 6px; border-radius:5px; font-size:13px;}
+.footer{padding:50px 0 70px 0; border-top:1px solid var(--line); font-size:13.5px; color:var(--ink-faint);}
+.widget{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:26px; margin:26px 0;}
+.widget-label{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--forward-ink); margin-bottom:16px; display:block;}
+.btn{font-family:var(--sans-body); font-weight:600; font-size:13.5px; border-radius:8px; padding:9px 16px; border:1px solid var(--ink); background:var(--ink); color:#fff; cursor:pointer; transition:.15s;}
+.btn:hover{opacity:.85;}
+.btn:disabled{opacity:.35; cursor:not-allowed;}
+.btn-ghost{background:#fff; color:var(--ink); border:1px solid var(--line);}
+.btn-ghost:hover{border-color:var(--ink); opacity:1;}
+.btn-forward{background:var(--forward); border-color:var(--forward);}
+.btn-row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:16px;}
+.chart-row{display:flex; gap:24px; flex-wrap:wrap;}
+.chart-col{flex:1 1 260px;}
+.chart-title{font-size:13.5px; font-weight:700; margin-bottom:8px; color:var(--ink);}
+.chart-legend{display:flex; gap:16px; margin-top:8px; font-size:12.5px; color:var(--ink-soft);}
+.chart-legend span{display:inline-flex; align-items:center; gap:6px;}
+.legend-dot{width:10px; height:10px; border-radius:2px; display:inline-block;}
+.aug-grid{display:flex; gap:16px; flex-wrap:wrap;}
+.aug-item{display:flex; flex-direction:column; align-items:center; gap:8px;}
+.aug-box{width:72px; height:72px; border-radius:10px; background:#eef2f0; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:32px;}
+.aug-label{font-size:11.5px; color:var(--ink-faint); text-align:center; max-width:80px;}
+.tip-list{list-style:none; padding:0; margin:20px 0;}
+.tip-list li{display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); font-size:15px;}
+.tip-list li:last-child{border-bottom:none;}
+.tip-check{flex:0 0 auto; width:22px; height:22px; border-radius:50%; background:var(--forward-soft); color:var(--forward-ink); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;}
+.task-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:14px; margin:22px 0;}
+.task-card{border:1px solid var(--line); border-radius:12px; padding:16px; background:var(--panel);}
+.task-num{font-family:var(--mono); font-size:11px; color:var(--forward-ink); font-weight:700;}
+.task-card p{margin:8px 0 0 0; font-size:14.5px;}
+.task-card.advanced{border-color:var(--signal); background:var(--signal-soft);}
+.quiz-item{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:20px 22px; margin:18px 0;}
+.quiz-q{font-weight:700; color:var(--ink); font-size:15.5px; margin-bottom:14px;}
+.quiz-q .qnum{font-family:var(--mono); color:var(--forward-ink); margin-right:8px;}
+.quiz-options{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.quiz-opt{text-align:left; font-family:var(--sans-body); font-size:14px; padding:11px 14px; border-radius:9px; border:1px solid var(--line); background:#fff; cursor:pointer; color:var(--ink-soft); transition:.12s;}
+.quiz-opt:hover:not(:disabled){border-color:var(--forward); background:var(--forward-soft);}
+.quiz-opt:disabled{cursor:default;}
+.quiz-opt.correct{background:var(--forward-soft); border-color:var(--forward); color:var(--forward-ink); font-weight:700;}
+.quiz-opt.incorrect{background:var(--backward-soft); border-color:var(--backward); color:var(--backward-ink); font-weight:700;}
+.quiz-foot{display:flex; align-items:center; gap:12px; margin-top:14px; flex-wrap:wrap;}
+.hint-btn{font-family:var(--mono); font-size:12px; color:var(--signal-ink); background:var(--signal-soft); border:1px solid var(--signal); padding:6px 12px; border-radius:7px; cursor:pointer; font-weight:600;}
+.quiz-hint{display:none; font-size:13.5px; color:var(--signal-ink); background:var(--signal-soft); padding:10px 12px; border-radius:8px; width:100%; margin-top:10px;}
+.quiz-hint.show{display:block;}
+.quiz-explain{display:none; font-size:14px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); color:var(--ink-soft);}
+.quiz-explain.show{display:block;}
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr;}
+  .rail{position:sticky; height:auto; top:0; padding:12px 16px; border-right:none; border-bottom:1px solid var(--line); background:var(--paper); z-index:50; display:flex; align-items:center;}
+  .rail-brand{display:none;}
+  .rail-list{display:flex; gap:4px; overflow-x:auto; border-left:none; padding-left:0; -ms-overflow-style:none; scrollbar-width:none;}
+  .rail-list::-webkit-scrollbar{display:none;}
+  .rail-item{flex:0 0 auto; margin:0;}
+  .rail-item::before{display:none;}
+  .rail-link{white-space:nowrap; padding:8px 12px; font-size:12.5px;}
+  .rail-link .rail-num{display:none;}
+  .wrap{padding:0 20px;}
+}
+@media (max-width:640px){
+  .quiz-options{grid-template-columns:1fr;}
+}
+
+
+
+
+/* ============ CSS RIÊNG CHO WIDGET BÀI 10 ============ */
+
+/* --- Widget hero: khong gian embedding --- */
+.embed-space-demo svg{background:var(--paper-deep); border-radius:10px; display:block; width:100%; max-width:420px; margin:0 auto; cursor:crosshair;}
+.embed-point{transition:.2s;}
+.embed-cluster-label{font-family:var(--mono); font-size:10px; font-weight:700; pointer-events:none;}
+.embed-readout{margin-top:16px; border-radius:var(--radius); background:var(--panel); border:1px solid var(--line); padding:16px 18px; font-size:14.5px; color:var(--ink-soft); min-height:26px;}
+.embed-readout.matched{background:var(--forward-soft); border-color:var(--forward); color:var(--forward-ink); font-weight:600;}
+.embed-readout.nomatch{background:var(--backward-soft); border-color:var(--backward); color:var(--backward-ink); font-weight:600;}
+.embed-hint{font-size:12.5px; color:var(--ink-faint); margin-top:10px; font-style:italic;}
+
+/* --- Widget L1: Xac minh vs Nhan dien --- */
+.vi-demo svg{background:var(--paper-deep); border-radius:10px; display:block; width:100%; max-width:340px; margin:0 auto;}
+.vi-desc{margin-top:14px; font-size:14.5px; color:var(--ink-soft); min-height:40px;}
+.vi-meta{margin-top:10px; font-size:13.5px; color:var(--ink-soft); background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:9px 12px;}
+.vi-meta b{color:var(--forward-ink);}
+
+/* --- Widget L5: nguong FAR/FRR (tai dung kieu Bai 4) --- */
+.thresh-scale{position:relative; height:74px; margin:18px 0 8px 0;}
+.thresh-track{position:absolute; top:30px; left:10px; right:10px; height:4px; background:var(--line); border-radius:2px;}
+.thresh-dot{
+  position:absolute; top:18px; width:14px; height:14px; border-radius:50%;
+  transform:translateX(-50%); border:2px solid #fff; box-shadow:0 0 0 1px rgba(0,0,0,.08);
+}
+.thresh-dot.pos{background:var(--forward);}
+.thresh-dot.neg{background:var(--backward);}
+.thresh-line{
+  position:absolute; top:6px; bottom:-14px; width:2px; background:var(--ink); transform:translateX(-50%); z-index:3;
+}
+.thresh-line::after{
+  content:'ngưỡng'; position:absolute; top:-20px; left:50%; transform:translateX(-50%);
+  font-family:var(--mono); font-size:10.5px; color:var(--ink); white-space:nowrap;
+}
+.thresh-eer-marker{
+  position:absolute; top:10px; bottom:-10px; width:2px; background:var(--signal); transform:translateX(-50%);
+  border-left:2px dashed var(--signal); background:none; z-index:2;
+}
+.thresh-eer-marker::after{
+  content:'~EER'; position:absolute; bottom:-18px; left:50%; transform:translateX(-50%);
+  font-family:var(--mono); font-size:9.5px; color:var(--signal-ink); white-space:nowrap;
+}
+.thresh-controls{margin-top:30px;}
+.thresh-controls input[type=range]{width:100%; accent-color:var(--ink);}
+.thresh-legend{display:flex; gap:18px; font-size:12.5px; color:var(--ink-soft); margin-top:6px; flex-wrap:wrap;}
+.thresh-legend span{display:inline-flex; align-items:center; gap:6px;}
+.thresh-metrics{display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:20px;}
+.thresh-metric{background:var(--signal-soft); border:1px solid var(--signal); border-radius:10px; padding:12px; text-align:center;}
+.thresh-metric .num{font-family:var(--mono); font-size:22px; font-weight:700; color:var(--signal-ink);}
+.thresh-metric .lbl{font-size:11.5px; color:var(--signal-ink); margin-top:2px; font-weight:600;}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="rail">
+  <span class="rail-brand">Thị giác máy tính · Bài giảng 10</span>
+  <ul class="rail-list" id="railList">
+    <li class="rail-item"><a class="rail-link" href="#top"><span class="rail-num">Mở đầu</span>Ở đâu vs Là ai</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l1"><span class="rail-num">Lớp 01</span>Từ phát hiện đến nhận diện</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l2"><span class="rail-num">Lớp 02</span>Ý tưởng cốt lõi: Embedding</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l3"><span class="rail-num">Lớp 03</span>Học khoảng cách</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l4"><span class="rail-num">Lớp 04</span>Thực nghiệm thật</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l5"><span class="rail-num">Lớp 05</span>Đánh giá</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l6"><span class="rail-num">Lớp 06</span>Quy trình &amp; thách thức</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l7"><span class="rail-num">Lớp 07</span>Sử dụng có trách nhiệm</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l8"><span class="rail-num">Bài tập</span>Thực hành</a></li>
+    <li class="rail-item"><a class="rail-link" href="#quiz"><span class="rail-num">Lớp ra</span>Trắc nghiệm tổng kết</a></li>
+  </ul>
+</nav>
+<main class="content">
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <span class="hero-eyebrow">Bài giảng Tutorial · Phần 10 · Tiếp nối Bài 9</span>
+    <h1 class="hero-title">Nhận diện<br><em>Khuôn mặt</em></h1>
+    <p class="hero-sub">Từ "khuôn mặt ở đâu" đến câu hỏi nhạy cảm hơn nhiều: "đây là ai".</p>
+    <p class="hero-lede">Ở Bài 9, ta tìm được khuôn mặt <strong>ở đâu</strong> — một thao tác hoàn toàn ẩn danh. Bài này trả lời câu hỏi tiếp theo, và <strong>nhạy cảm hơn nhiều</strong>: khuôn mặt đó là <strong>của ai</strong>. Nhận diện khuôn mặt gồm hai bài toán — <strong>xác minh (1:1)</strong> và <strong>nhận diện (1:N)</strong> — cả hai đều dựa trên <strong>embedding</strong>: biến mỗi khuôn mặt thành một vector sao cho ảnh cùng người thì nằm gần nhau. Bài này trình bày ý tưởng đó, kỹ thuật <strong>học khoảng cách (metric learning)</strong> với triplet loss (kèm một mô hình <strong>huấn luyện thật</strong>), cách đánh giá, và — đặc biệt quan trọng với công nghệ này — một phần <strong>sử dụng có trách nhiệm</strong> được mở rộng hơn cả Bài 9, vì đây là bài có tỉ trọng đạo đức cao nhất trong cả series.</p>
+
+    <div class="widget embed-space-demo">
+      <span class="widget-label">Thử ngay · Bấm vào một điểm bất kỳ để "truy vấn" không gian embedding</span>
+      <svg id="embedSvg" viewBox="0 0 480 460" xmlns="http://www.w3.org/2000/svg">
+        <g id="embedClusters">
+<circle class="embed-point" cx="237.7" cy="92.9" r="7" fill="#0f8b8d" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="260.4" cy="88.4" r="7" fill="#0f8b8d" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="240.4" cy="94.2" r="7" fill="#0f8b8d" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="224.9" cy="90.6" r="7" fill="#0f8b8d" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="246.2" cy="104.1" r="7" fill="#0f8b8d" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="220.5" cy="80.6" r="7" fill="#0f8b8d" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<text class="embed-cluster-label" x="240" y="58" text-anchor="middle" fill="#0f8b8d">Người 1</text>
+<circle class="embed-point" cx="77.4" cy="208.9" r="7" fill="#e8940f" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="106.3" cy="172.0" r="7" fill="#e8940f" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="120.1" cy="216.3" r="7" fill="#e8940f" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="104.4" cy="199.5" r="7" fill="#e8940f" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="80.6" cy="170.7" r="7" fill="#e8940f" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="98.4" cy="172.9" r="7" fill="#e8940f" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<text class="embed-cluster-label" x="97" y="162" text-anchor="middle" fill="#e8940f">Người 2</text>
+<circle class="embed-point" cx="137.1" cy="348.6" r="7" fill="#d1495b" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="129.4" cy="359.3" r="7" fill="#d1495b" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="149.1" cy="377.4" r="7" fill="#d1495b" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="152.9" cy="367.7" r="7" fill="#d1495b" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="152.0" cy="368.8" r="7" fill="#d1495b" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="150.0" cy="350.4" r="7" fill="#d1495b" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<text class="embed-cluster-label" x="152" y="329" text-anchor="middle" fill="#d1495b">Người 3</text>
+<circle class="embed-point" cx="351.9" cy="384.8" r="7" fill="#6a4c93" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="344.3" cy="371.0" r="7" fill="#6a4c93" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="319.1" cy="348.0" r="7" fill="#6a4c93" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="317.9" cy="340.4" r="7" fill="#6a4c93" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="340.8" cy="356.2" r="7" fill="#6a4c93" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="344.6" cy="355.6" r="7" fill="#6a4c93" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<text class="embed-cluster-label" x="328" y="329" text-anchor="middle" fill="#6a4c93">Người 4</text>
+<circle class="embed-point" cx="405.0" cy="210.7" r="7" fill="#c9184a" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="359.0" cy="180.1" r="7" fill="#c9184a" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="402.7" cy="192.6" r="7" fill="#c9184a" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="406.1" cy="189.1" r="7" fill="#c9184a" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="362.5" cy="200.2" r="7" fill="#c9184a" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<circle class="embed-point" cx="396.4" cy="182.9" r="7" fill="#c9184a" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"></circle>
+<text class="embed-cluster-label" x="383" y="162" text-anchor="middle" fill="#c9184a">Người 5</text>        </g>
+        <circle id="embedQuery" cx="-100" cy="-100" r="9" fill="#132036" stroke="#fff" stroke-width="2"></circle>
+      </svg>
+      <div class="embed-readout" id="embedReadout">Bấm vào không gian phía trên để thử "truy vấn" — xem embedding của bạn khớp với người nào.</div>
+      <p class="embed-hint">Mỗi màu là một người (nhiều ảnh/embedding khác nhau của cùng người tụ thành một cụm). Điểm đen là embedding bạn vừa "truy vấn".</p>
+    </div>
+  </div>
+</section>
+<section class="section" id="l1">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 01 · Nhập môn</span>
+    <h2 class="section-title">Từ phát hiện đến nhận diện</h2>
+    <p class="section-lead">Trước khi vào kỹ thuật, cần hiểu rõ bước nhảy vừa xảy ra: từ một thao tác ẩn danh sang một thao tác gắn liền với danh tính cụ thể.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">1.1</span>"Ở đâu" so với "là ai"</h3>
+      <p>Phát hiện (Bài 9) định vị khuôn mặt — một thao tác <strong>ẩn danh</strong>. Nhận diện đi xa hơn: gắn khuôn mặt với một <strong>danh tính</strong>. Đây là một bước nhảy lớn về cả kỹ thuật lẫn <strong>mức độ ảnh hưởng tới quyền riêng tư</strong>, nên cần được tiếp cận cẩn trọng.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Một hệ thống chỉ đếm "có bao nhiêu khuôn mặt trong ảnh" rồi dừng lại, so với một hệ thống đi xa hơn để xác định "đây là ai trong số này" — hệ thống nào có mức độ ảnh hưởng tới quyền riêng tư lớn hơn?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Hệ thống thứ hai (xác định danh tính).</strong> Vì nó gắn hình ảnh với một con người <strong>cụ thể</strong>, có thể dùng để lần ra thông tin cá nhân, theo dõi, hay xây dựng hồ sơ về người đó. Hệ thống chỉ đếm/phát hiện (Bài 9) hoàn toàn ẩn danh, không tạo ra rủi ro này.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">1.2</span>Hai bài toán: xác minh &amp; nhận diện</h3>
+      <div class="figure">
+        <div class="chart-row">
+          <div class="chart-col">
+            <svg viewBox="0 0 220 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <rect x="10" y="10" width="200" height="120" rx="8" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+              <circle cx="65" cy="65" r="28" fill="#f0d9b5" stroke="#7c8aa0" stroke-width="1.5"></circle>
+              <circle cx="57" cy="58" r="3" fill="#132036"></circle><circle cx="73" cy="58" r="3" fill="#132036"></circle>
+              <path d="M55,75 Q65,82 75,75" stroke="#132036" stroke-width="2" fill="none"></path>
+              <text x="110" y="70" text-anchor="middle" font-family="Inter" font-size="16" font-weight="700" fill="#0a5f60">=?</text>
+              <circle cx="155" cy="65" r="28" fill="#e0c39a" stroke="#7c8aa0" stroke-width="1.5"></circle>
+              <circle cx="147" cy="58" r="3" fill="#132036"></circle><circle cx="163" cy="58" r="3" fill="#132036"></circle>
+              <path d="M145,75 Q155,82 165,75" stroke="#132036" stroke-width="2" fill="none"></path>
+              <text x="110" y="145" text-anchor="middle" font-family="Inter" font-size="11.5" font-weight="700" fill="#0a5f60">Xác minh (1:1)</text>
+            </svg>
+          </div>
+          <div class="chart-col">
+            <svg viewBox="0 0 220 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <rect x="10" y="10" width="200" height="120" rx="8" fill="#fbe7ea" stroke="#d1495b" stroke-width="1.5"></rect>
+              <circle cx="45" cy="65" r="26" fill="#c99b6b" stroke="#7c8aa0" stroke-width="1.5"></circle>
+              <circle cx="38" cy="58" r="3" fill="#132036"></circle><circle cx="52" cy="58" r="3" fill="#132036"></circle>
+              <path d="M36,75 Q45,81 54,75" stroke="#132036" stroke-width="2" fill="none"></path>
+              <line x1="75" y1="65" x2="105" y2="65" stroke="#9c2f3d" stroke-width="2" marker-end="url(#arrH1nd)"></line>
+              <defs><marker id="arrH1nd" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#9c2f3d"></path></marker></defs>
+              <g>
+                <circle cx="130" cy="40" r="15" fill="#f0d9b5" stroke="#9c2f3d" stroke-width="1.2"></circle>
+                <circle cx="168" cy="40" r="15" fill="#e0c39a" stroke="#9c2f3d" stroke-width="1.2"></circle>
+                <circle cx="130" cy="80" r="15" fill="#c99b6b" stroke="#9c2f3d" stroke-width="1.2"></circle>
+                <circle cx="168" cy="80" r="15" fill="#d9b98a" stroke="#9c2f3d" stroke-width="1.2"></circle>
+              </g>
+              <text x="110" y="145" text-anchor="middle" font-family="Inter" font-size="11.5" font-weight="700" fill="#9c2f3d">Nhận diện (1:N)</text>
+            </svg>
+          </div>
+        </div>
+        <div class="figure-caption"><b>Hình 1.</b> Xác minh (1:1): hai ảnh có phải cùng một người? Nhận diện (1:N): khuôn mặt này là ai trong cơ sở dữ liệu?</div>
+      </div>
+
+      <ul class="plain">
+        <li><strong>Xác minh (Verification, 1:1):</strong> so hai khuôn mặt — <em>có phải cùng một người không?</em> (vd mở khoá điện thoại đối chiếu với ảnh đã đăng ký).</li>
+        <li><strong>Nhận diện (Identification, 1:N):</strong> so một khuôn mặt với <strong>N</strong> người trong cơ sở dữ liệu để tìm <em>đó là ai</em> (hoặc "không có trong danh sách").</li>
+      </ul>
+
+      <div class="widget vi-demo">
+        <span class="widget-label">Thử ngay · Bấm để so sánh hai bài toán</span>
+        <div class="btn-row">
+          <button class="btn" id="viBtnVerif">Xác minh (1:1)</button>
+          <button class="btn btn-ghost" id="viBtnIdent">Nhận diện (1:N)</button>
+        </div>
+        <p class="vi-desc" id="viDesc">Câu hỏi: "Hai ảnh này có phải cùng một người không?" — chỉ so sánh MỘT cặp embedding.</p>
+        <div class="vi-meta" id="viMeta">Ví dụ: mở khoá điện thoại (so ảnh camera với ảnh đã đăng ký). Chỉ số đánh giá: <b>ROC, AUC, TAR@FAR, EER</b> (Lớp 05).</div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">1.3</span>Vì sao không dùng phân loại thường?</h3>
+      <p>Có thể nghĩ: cứ huấn luyện một bộ phân loại N lớp cho N người? Nhưng nhận diện là bài toán <strong>tập mở (open-set)</strong>: người mới <strong>liên tục xuất hiện</strong> ở thời điểm sử dụng, và ta <strong>không thể huấn luyện lại</strong> mô hình mỗi lần thêm một người. Giải pháp là học một <strong>embedding</strong> dùng chung.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao không thể chỉ huấn luyện MỘT bộ phân loại N-lớp (mỗi lớp là một người) cho bài toán nhận diện khuôn mặt trong thực tế?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì nhận diện là bài toán <strong>tập mở (open-set)</strong>: người dùng mới liên tục xuất hiện <em>sau khi</em> hệ thống đã được triển khai, và ta không thể huấn luyện lại toàn bộ mô hình mỗi lần có người mới đăng ký — tốn kém, chậm, không thực tế. Một bộ phân loại N-lớp cố định chỉ nhận diện được đúng N người đã biết trước lúc huấn luyện; không thể thêm người thứ N+1 mà không huấn luyện lại từ đầu.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l2">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 02 · Cốt lõi</span>
+    <h2 class="section-title">Ý tưởng cốt lõi: Embedding</h2>
+    <p class="section-lead">Toàn bộ nhận diện khuôn mặt hiện đại đứng trên MỘT ý tưởng duy nhất. Nắm chắc ý tưởng này, mọi kỹ thuật ở các Lớp sau chỉ là cách hiện thực hoá nó.</p>
+
+    <p>Thay vì phân loại trực tiếp, ta huấn luyện một mạng biến mỗi khuôn mặt thành một <strong>vector đặc trưng (embedding)</strong> trong một không gian, sao cho <strong>khoảng cách</strong> phản ánh sự giống nhau: ảnh <strong>cùng người thì gần</strong>, <strong>khác người thì xa</strong>.</p>
+
+    <div class="figure">
+      <svg viewBox="0 0 620 150" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:0 auto;">
+        <g font-family="Inter" font-size="11" font-weight="700">
+          <rect x="0" y="30" width="140" height="60" rx="8" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+          <circle cx="45" cy="60" r="16" fill="#f0d9b5" stroke="#0a5f60" stroke-width="1"></circle>
+          <text x="90" y="55" text-anchor="middle" fill="#0a5f60" font-size="10">Ảnh</text>
+          <text x="90" y="68" text-anchor="middle" fill="#0a5f60" font-size="10">khuôn mặt</text>
+          <rect x="240" y="30" width="140" height="60" rx="8" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"></rect>
+          <text x="310" y="55" text-anchor="middle" fill="#a86608">Mạng CNN</text>
+          <text x="310" y="70" text-anchor="middle" fill="#a86608" font-size="9.5" font-weight="500">(embedding)</text>
+        </g>
+        <g stroke="#b7c2c8" stroke-width="1.5" fill="none" marker-end="url(#arrH2emb)">
+          <line x1="140" y1="60" x2="238" y2="60"></line>
+          <line x1="380" y1="60" x2="478" y2="60"></line>
+        </g>
+        <defs><marker id="arrH2emb" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#b7c2c8"></path></marker></defs>
+        <rect x="480" y="10" width="140" height="130" rx="8" fill="#fff" stroke="#d9e0da" stroke-width="1.5"></rect>
+        <text x="550" y="26" text-anchor="middle" font-family="JetBrains Mono" font-size="9.5" fill="#7c8aa0">không gian vector</text>
+        <circle cx="520" cy="60" r="6" fill="#0f8b8d"></circle>
+        <circle cx="535" cy="72" r="6" fill="#0f8b8d"></circle>
+        <text x="527" y="95" text-anchor="middle" font-family="Inter" font-size="9" fill="#0a5f60" font-weight="700">cùng người</text>
+        <circle cx="590" cy="105" r="6" fill="#d1495b"></circle>
+        <text x="590" y="125" text-anchor="middle" font-family="Inter" font-size="9" fill="#9c2f3d" font-weight="700">khác người</text>
+      </svg>
+      <div class="figure-caption"><b>Hình 2.</b> Embedding: một mạng CNN biến khuôn mặt thành vector trong không gian, nơi ảnh cùng người tụ lại thành cụm.</div>
+    </div>
+
+    <p>Khi đã có embedding tốt, mọi việc trở nên đơn giản: <strong>xác minh</strong> = kiểm tra khoảng cách giữa hai embedding có <strong>nhỏ hơn ngưỡng</strong> không; <strong>nhận diện</strong> = tìm embedding <strong>gần nhất</strong> trong cơ sở dữ liệu. So sánh thường dùng <strong>khoảng cách Euclid</strong> hoặc <strong>độ tương đồng cosine</strong>.</p>
+
+    <div class="callout callout-result">
+      <span class="callout-head">Ưu điểm then chốt</span>
+      <p>Thêm một người mới chỉ cần <strong>tính embedding</strong> cho vài ảnh của họ và lưu lại — <strong>không phải huấn luyện lại</strong> mô hình. Đây là lý do embedding giải quyết được bài toán tập mở.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Một hệ thống đã triển khai muốn thêm một nhân viên mới vào danh sách được nhận diện. Với cách tiếp cận dựa trên embedding, cần làm gì?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Chỉ cần chụp vài ảnh của nhân viên mới, <strong>tính embedding</strong> cho các ảnh đó bằng mạng đã được huấn luyện sẵn (giữ nguyên, không đổi), rồi <strong>lưu</strong> các embedding này vào cơ sở dữ liệu — hoàn toàn <strong>không cần huấn luyện lại</strong> mô hình. Đây chính xác là ưu điểm giải quyết bài toán tập mở: mạng embedding dùng chung cho mọi người, kể cả người chưa từng xuất hiện lúc huấn luyện.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l3">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 03 · Metric Learning</span>
+    <h2 class="section-title">Học khoảng cách (Metric Learning)</h2>
+    <p class="section-lead">Làm sao huấn luyện một mạng cho ra embedding có tính chất "cùng người thì gần"? Câu trả lời là <strong>metric learning</strong> — học trực tiếp trên <em>khoảng cách</em> giữa các mẫu.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">3.1</span>Mạng Siamese &amp; Contrastive loss</h3>
+      <p><strong>Mạng Siamese</strong> dùng <strong>hai nhánh chia sẻ trọng số</strong> để nhúng hai ảnh, rồi tính khoảng cách giữa chúng. <strong>Contrastive loss</strong> huấn luyện: nếu <strong>cùng người</strong> thì kéo khoảng cách <strong>nhỏ lại</strong>, nếu <strong>khác người</strong> thì đẩy ra <strong>lớn hơn một lề (margin)</strong>:</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 520 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:0 auto;">
+          <g font-family="Inter" font-size="10.5" font-weight="700">
+            <rect x="0" y="15" width="100" height="50" rx="7" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="50" y="45" text-anchor="middle" fill="#0a5f60">Ảnh A</text>
+            <rect x="140" y="15" width="120" height="50" rx="7" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"></rect>
+            <text x="200" y="45" text-anchor="middle" fill="#a86608">Mạng CNN</text>
+            <rect x="300" y="15" width="90" height="50" rx="7" fill="#eae6f5" stroke="#7c5cbf" stroke-width="1.5"></rect>
+            <text x="345" y="45" text-anchor="middle" fill="#513a87">Emb A</text>
+
+            <rect x="0" y="150" width="100" height="50" rx="7" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="50" y="180" text-anchor="middle" fill="#0a5f60">Ảnh B</text>
+            <rect x="140" y="150" width="120" height="50" rx="7" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"></rect>
+            <text x="200" y="180" text-anchor="middle" fill="#a86608">Mạng CNN</text>
+            <rect x="300" y="150" width="90" height="50" rx="7" fill="#eae6f5" stroke="#7c5cbf" stroke-width="1.5"></rect>
+            <text x="345" y="180" text-anchor="middle" fill="#513a87">Emb B</text>
+
+            <rect x="420" y="82" width="95" height="55" rx="7" fill="#fbe7ea" stroke="#d1495b" stroke-width="1.5"></rect>
+            <text x="467" y="106" text-anchor="middle" fill="#9c2f3d" font-size="10">Khoảng</text>
+            <text x="467" y="119" text-anchor="middle" fill="#9c2f3d" font-size="10">cách</text>
+          </g>
+          <g stroke="#b7c2c8" stroke-width="1.5" fill="none" marker-end="url(#arrH3sia)">
+            <line x1="100" y1="40" x2="138" y2="40"></line>
+            <line x1="260" y1="40" x2="298" y2="40"></line>
+            <line x1="100" y1="175" x2="138" y2="175"></line>
+            <line x1="260" y1="175" x2="298" y2="175"></line>
+            <line x1="390" y1="40" x2="440" y2="82"></line>
+            <line x1="390" y1="175" x2="440" y2="137"></line>
+          </g>
+          <defs><marker id="arrH3sia" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#b7c2c8"></path></marker></defs>
+          <line x1="200" y1="65" x2="200" y2="150" stroke="#e8940f" stroke-width="1.5" stroke-dasharray="4 3"></line>
+          <text x="205" y="110" font-family="JetBrains Mono" font-size="9.5" fill="#a86608">chia sẻ trọng số</text>
+        </svg>
+        <div class="figure-caption"><b>Hình 3.</b> Mạng Siamese: hai nhánh chung trọng số nhúng hai ảnh; contrastive loss kéo cặp cùng người lại gần, đẩy cặp khác người ra xa.</div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao hai nhánh của mạng Siamese phải CHIA SẺ CÙNG một bộ trọng số, thay vì mỗi nhánh học trọng số riêng?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì mục tiêu là để <strong>cùng một khuôn mặt</strong> luôn cho ra <strong>cùng một embedding</strong>, bất kể nó xuất hiện ở nhánh nào (ảnh A hay ảnh B). Nếu hai nhánh có trọng số khác nhau, cùng một khuôn mặt đưa vào nhánh 1 và nhánh 2 có thể cho ra hai vector khác nhau — phá vỡ toàn bộ ý nghĩa "khoảng cách phản ánh sự giống nhau". Chia sẻ trọng số đảm bảo hàm ánh xạ ảnh→vector là <strong>duy nhất và nhất quán</strong>.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.2</span>Triplet loss</h3>
+      <p><strong>Triplet loss</strong> (nổi tiếng qua <strong>FaceNet, 2015</strong>) tinh tế hơn: mỗi lần học trên một <strong>bộ ba</strong> — <strong>anchor</strong> (mỏ neo), <strong>positive</strong> (cùng người với anchor) và <strong>negative</strong> (khác người). Mục tiêu: khoảng cách anchor–positive <strong>nhỏ hơn</strong> anchor–negative ít nhất một <strong>margin</strong>:</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:0 auto;">
+          <circle cx="200" cy="110" r="24" fill="#0f8b8d"></circle>
+          <text x="200" y="115" text-anchor="middle" fill="#fff" font-family="Inter" font-size="10.5" font-weight="700">Anchor</text>
+
+          <circle cx="240" cy="60" r="20" fill="#5a9c56"></circle>
+          <text x="240" y="65" text-anchor="middle" fill="#fff" font-family="Inter" font-size="9.5" font-weight="700">Positive</text>
+          <line x1="222" y1="90" x2="235" y2="75" stroke="#3d6b3a" stroke-width="2" marker-end="url(#arrH4a)"></line>
+          <text x="255" y="90" text-anchor="middle" fill="#3d6b3a" font-family="Inter" font-size="9.5" font-weight="700">kéo gần</text>
+
+          <circle cx="330" cy="170" r="20" fill="#d1495b"></circle>
+          <text x="330" y="175" text-anchor="middle" fill="#fff" font-family="Inter" font-size="9.5" font-weight="700">Negative</text>
+          <line x1="222" y1="130" x2="308" y2="160" stroke="#9c2f3d" stroke-width="2" marker-end="url(#arrH4b)"></line>
+          <text x="290" y="145" text-anchor="middle" fill="#9c2f3d" font-family="Inter" font-size="9.5" font-weight="700">đẩy xa ≥ margin</text>
+
+          <defs>
+            <marker id="arrH4a" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#3d6b3a"></path></marker>
+            <marker id="arrH4b" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#9c2f3d"></path></marker>
+          </defs>
+        </svg>
+        <div class="figure-caption"><b>Hình 4.</b> Triplet loss: kéo Positive (cùng người) lại gần Anchor, đồng thời đẩy Negative (khác người) ra xa, cách nhau một lề margin.</div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Trong triplet loss, vai trò của <code>margin</code> là gì? Nếu <code>margin=0</code>, điều gì có thể xảy ra?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><code>margin</code> đảm bảo khoảng cách anchor–negative không chỉ lớn hơn anchor–positive một chút, mà lớn hơn một khoảng <strong>an toàn</strong> nhất định — tạo ra một <strong>vùng đệm</strong> rõ ràng giữa các cụm danh tính khác nhau, giúp việc phân biệt bền vững hơn khi có nhiễu. Nếu <code>margin=0</code>, mạng chỉ cần học d(A,P) &lt; d(A,N) một chút xíu là đủ để loss=0, dẫn tới các cụm nằm sát nhau, dễ nhầm lẫn khi gặp dữ liệu mới hoặc nhiễu nhỏ.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.3</span>ArcFace &amp; các hàm hiện đại</h3>
+      <p>Các phương pháp tân tiến như <strong>ArcFace</strong> dùng một biến thể softmax có <strong>lề góc (angular margin)</strong> để các lớp tách bạch hơn trên một mặt cầu đơn vị, cho độ chính xác hàng đầu hiện nay. Dù chi tiết khác nhau, tất cả đều hướng tới cùng mục tiêu: một <strong>embedding phân biệt tốt danh tính</strong>.</p>
+    </div>
+  </div>
+</section>
+<section class="section" id="l4">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 04 · Thực nghiệm</span>
+    <h2 class="section-title">Thực nghiệm thật: huấn luyện một embedding</h2>
+    <p class="section-lead">Lý thuyết là một chuyện — hãy xem embedding thực sự học được gì khi huấn luyện thật bằng triplet loss.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">4.1</span>Dữ liệu minh hoạ</h3>
+      <p>Để minh hoạ cơ chế <strong>hoàn toàn offline</strong>, ta tạo một bộ <strong>danh tính tổng hợp</strong>: mỗi "người" là một khuôn mặt đặc trưng riêng, kèm nhiều <strong>biến thể</strong> (nhiễu, dịch chuyển, thay đổi độ sáng) — mô phỏng việc cùng một người có nhiều ảnh khác nhau:</p>
+      <div class="figure">
+        <svg viewBox="0 0 480 270" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:0 auto;">
+<text x="20" y="30" font-family="JetBrains Mono" font-size="11" fill="#7c8aa0" font-weight="700">Người 1</text>
+<g transform="translate(-1.3,0.8)">
+<ellipse cx="110" cy="35" rx="26" ry="30" fill="#e8c9a0"></ellipse>
+<circle cx="101" cy="31" r="3" fill="#2a2016"></circle>
+<circle cx="119" cy="31" r="3" fill="#2a2016"></circle>
+<ellipse cx="110" cy="45" rx="8" ry="3" fill="#6b4a3a"></ellipse>
+</g>
+<g transform="translate(0.5,-0.1)">
+<ellipse cx="220" cy="35" rx="26" ry="30" fill="#e8c9a0"></ellipse>
+<circle cx="211" cy="31" r="3" fill="#2a2016"></circle>
+<circle cx="229" cy="31" r="3" fill="#2a2016"></circle>
+<ellipse cx="220" cy="45" rx="8" ry="3" fill="#6b4a3a"></ellipse>
+</g>
+<g transform="translate(-1.1,1.2)">
+<ellipse cx="330" cy="35" rx="26" ry="30" fill="#e8c9a0"></ellipse>
+<circle cx="321" cy="31" r="3" fill="#2a2016"></circle>
+<circle cx="339" cy="31" r="3" fill="#2a2016"></circle>
+<ellipse cx="330" cy="45" rx="8" ry="3" fill="#6b4a3a"></ellipse>
+</g>
+<g transform="translate(1.2,0.0)">
+<ellipse cx="440" cy="35" rx="26" ry="30" fill="#e8c9a0"></ellipse>
+<circle cx="431" cy="31" r="3" fill="#2a2016"></circle>
+<circle cx="449" cy="31" r="3" fill="#2a2016"></circle>
+<ellipse cx="440" cy="45" rx="8" ry="3" fill="#6b4a3a"></ellipse>
+</g>
+<text x="20" y="120" font-family="JetBrains Mono" font-size="11" fill="#7c8aa0" font-weight="700">Người 2</text>
+<g transform="translate(0.0,-1.1)">
+<ellipse cx="110" cy="125" rx="26" ry="30" fill="#c99b6b"></ellipse>
+<circle cx="99.5" cy="120" r="3" fill="#2a2016"></circle>
+<circle cx="120.5" cy="120" r="3" fill="#2a2016"></circle>
+<ellipse cx="110" cy="136" rx="9.5" ry="3" fill="#6b4a3a"></ellipse>
+</g>
+<g transform="translate(-2.0,-0.5)">
+<ellipse cx="220" cy="125" rx="26" ry="30" fill="#c99b6b"></ellipse>
+<circle cx="209.5" cy="120" r="3" fill="#2a2016"></circle>
+<circle cx="230.5" cy="120" r="3" fill="#2a2016"></circle>
+<ellipse cx="220" cy="136" rx="9.5" ry="3" fill="#6b4a3a"></ellipse>
+</g>
+<g transform="translate(0.3,-1.7)">
+<ellipse cx="330" cy="125" rx="26" ry="30" fill="#c99b6b"></ellipse>
+<circle cx="319.5" cy="120" r="3" fill="#2a2016"></circle>
+<circle cx="340.5" cy="120" r="3" fill="#2a2016"></circle>
+<ellipse cx="330" cy="136" rx="9.5" ry="3" fill="#6b4a3a"></ellipse>
+</g>
+<g transform="translate(1.2,-1.1)">
+<ellipse cx="440" cy="125" rx="26" ry="30" fill="#c99b6b"></ellipse>
+<circle cx="429.5" cy="120" r="3" fill="#2a2016"></circle>
+<circle cx="450.5" cy="120" r="3" fill="#2a2016"></circle>
+<ellipse cx="440" cy="136" rx="9.5" ry="3" fill="#6b4a3a"></ellipse>
+</g>
+<text x="20" y="210" font-family="JetBrains Mono" font-size="11" fill="#7c8aa0" font-weight="700">Người 3</text>
+<g transform="translate(-1.1,-1.8)">
+<ellipse cx="110" cy="215" rx="26" ry="30" fill="#7a5a3f"></ellipse>
+<circle cx="102" cy="212" r="3" fill="#2a2016"></circle>
+<circle cx="118" cy="212" r="3" fill="#2a2016"></circle>
+<ellipse cx="110" cy="224" rx="7" ry="3" fill="#6b4a3a"></ellipse>
+</g>
+<g transform="translate(2.0,1.0)">
+<ellipse cx="220" cy="215" rx="26" ry="30" fill="#7a5a3f"></ellipse>
+<circle cx="212" cy="212" r="3" fill="#2a2016"></circle>
+<circle cx="228" cy="212" r="3" fill="#2a2016"></circle>
+<ellipse cx="220" cy="224" rx="7" ry="3" fill="#6b4a3a"></ellipse>
+</g>
+<g transform="translate(1.5,0.5)">
+<ellipse cx="330" cy="215" rx="26" ry="30" fill="#7a5a3f"></ellipse>
+<circle cx="322" cy="212" r="3" fill="#2a2016"></circle>
+<circle cx="338" cy="212" r="3" fill="#2a2016"></circle>
+<ellipse cx="330" cy="224" rx="7" ry="3" fill="#6b4a3a"></ellipse>
+</g>
+<g transform="translate(-1.9,-0.7)">
+<ellipse cx="440" cy="215" rx="26" ry="30" fill="#7a5a3f"></ellipse>
+<circle cx="432" cy="212" r="3" fill="#2a2016"></circle>
+<circle cx="448" cy="212" r="3" fill="#2a2016"></circle>
+<ellipse cx="440" cy="224" rx="7" ry="3" fill="#6b4a3a"></ellipse>
+</g>        </svg>
+        <div class="figure-caption"><b>Hình 5.</b> Dữ liệu tổng hợp: mỗi hàng là một "người" với khuôn mặt đặc trưng và các biến thể khác nhau (nhiễu, dịch chuyển nhẹ, độ sáng).</div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao thí nghiệm huấn luyện embedding trong bài này dùng DANH TÍNH TỔNG HỢP thay vì ảnh khuôn mặt thật?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì môi trường biên soạn tài liệu này không tải được các bộ dữ liệu khuôn mặt thật (thường rất lớn, cần internet) — dùng dữ liệu tổng hợp giúp minh hoạ <strong>đúng cơ chế</strong> (embedding + triplet loss hoạt động thế nào) một cách hoàn toàn offline, có kiểm soát. Điều này không thay đổi bản chất thuật toán, chỉ đơn giản hoá dữ liệu đầu vào để thí nghiệm chạy được ngay.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">4.2</span>Huấn luyện &amp; kết quả</h3>
+      <p>Ta huấn luyện một mạng embedding nhỏ (<strong>~171.000 tham số</strong>) bằng <strong>triplet loss</strong>, rồi chiếu các embedding của tập kiểm định (những biến thể chưa thấy) xuống 2D. Kết quả rất rõ — <strong>mỗi người tụ thành một cụm riêng</strong>:</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 300 210" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px;display:block;margin:0 auto;">
+          <line x1="30" y1="185" x2="290" y2="185" stroke="#d9e0da"></line>
+          <line x1="30" y1="10" x2="30" y2="185" stroke="#d9e0da"></line>
+          <text x="160" y="202" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#7c8aa0">t-SNE 1</text>
+          <text x="14" y="100" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#7c8aa0" transform="rotate(-90,14,100)">t-SNE 2</text>
+          <g transform="translate(30,20)">
+<circle cx="92.0" cy="83.7" r="5" fill="#0f8b8d" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="98.9" cy="73.8" r="5" fill="#0f8b8d" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="94.3" cy="90.9" r="5" fill="#0f8b8d" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="101.4" cy="71.2" r="5" fill="#0f8b8d" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="94.2" cy="83.3" r="5" fill="#0f8b8d" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="90.1" cy="93.1" r="5" fill="#0f8b8d" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="220.8" cy="58.5" r="5" fill="#e8940f" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="232.4" cy="63.8" r="5" fill="#e8940f" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="214.4" cy="54.7" r="5" fill="#e8940f" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="219.9" cy="47.5" r="5" fill="#e8940f" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="223.0" cy="66.6" r="5" fill="#e8940f" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="217.9" cy="69.7" r="5" fill="#e8940f" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="162.0" cy="171.6" r="5" fill="#d1495b" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="155.1" cy="159.3" r="5" fill="#d1495b" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="137.6" cy="183.4" r="5" fill="#d1495b" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="144.0" cy="162.0" r="5" fill="#d1495b" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="161.1" cy="177.0" r="5" fill="#d1495b" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="139.4" cy="165.0" r="5" fill="#d1495b" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="252.8" cy="173.6" r="5" fill="#6a4c93" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="246.2" cy="180.7" r="5" fill="#6a4c93" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="254.5" cy="177.0" r="5" fill="#6a4c93" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="251.2" cy="169.1" r="5" fill="#6a4c93" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="246.9" cy="190.4" r="5" fill="#6a4c93" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>
+<circle cx="266.9" cy="181.7" r="5" fill="#6a4c93" fill-opacity="0.8" stroke="#fff" stroke-width="1"></circle>          </g>
+        </svg>
+        <div class="figure-caption"><b>Hình 6.</b> Kết quả thật (t-SNE của embedding học được): ảnh cùng người gom thành cụm, người khác tách xa nhau. (4 trong số 12 danh tính được vẽ minh hoạ.)</div>
+      </div>
+
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">embed_model.py</span></div>
+        <pre><code class="language-python">import torch, torch.nn as nn, torch.nn.functional as F
+
+class Embed(nn.Module):
+    """Mang chieu anh khuon mat thanh vector embedding chuan hoa L2."""
+    def __init__(self, dim=64):
+        super().__init__()
+        def block(ci, co):
+            return nn.Sequential(
+                nn.Conv2d(ci, co, 3, padding=1), nn.BatchNorm2d(co), nn.ReLU(), nn.MaxPool2d(2)
+            )
+        # kich thuoc giam dan qua 3 khoi: 48, roi 24, roi 12, con 6
+        self.f  = nn.Sequential(block(1, 16), block(16, 32), block(32, 64))
+        self.fc = nn.Linear(64*6*6, dim)
+
+    def forward(self, x):
+        feat = self.f(x).flatten(1)                # trich dac trung, lam phang thanh vector
+        return F.normalize(self.fc(feat), dim=1)   # chuan hoa L2, dua vector len mat cau don vi</code></pre>
+      </div>
+
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">triplet_loss.py</span></div>
+        <pre><code class="language-python"># Triplet loss: keo positive lai gan, day negative ra xa
+def triplet_loss(anchor, positive, negative, margin=0.3):
+    d_pos = (anchor - positive).pow(2).sum(1)
+    d_neg = (anchor - negative).pow(2).sum(1)
+    return F.relu(d_pos - d_neg + margin).mean()</code></pre>
+      </div>
+
+      <div class="callout callout-warn">
+        <span class="callout-head">Đọc kết quả cho đúng</span>
+        <p>Danh tính tổng hợp ở đây <strong>sạch và dễ tách</strong>, nên embedding học rất nhanh và gần như hoàn hảo. Trên khuôn mặt thật (đa dạng tư thế, tuổi, ánh sáng), bài toán <strong>khó hơn nhiều</strong> và cần mô hình lớn cùng dữ liệu khổng lồ. Mục đích thí nghiệm là minh hoạ <strong>cơ chế</strong>, không phải con số.</p>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Kết quả t-SNE cho thấy các cụm danh tính tách biệt gần như hoàn hảo. Điều này có nghĩa bất kỳ mạng embedding nào cũng sẽ đạt kết quả tương tự trên khuôn mặt người thật không?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Không.</strong> Danh tính tổng hợp ở đây rất sạch và dễ tách (mỗi người có tham số khuôn mặt cố định, chỉ thêm nhiễu nhỏ), nên embedding học rất nhanh và gần như hoàn hảo. Trên khuôn mặt người thật — với biến thiên lớn về tư thế, tuổi tác, ánh sáng — bài toán khó hơn nhiều, cần mô hình lớn hơn và dữ liệu khổng lồ hơn rất nhiều. Mục đích thí nghiệm là minh hoạ <strong>cơ chế</strong>, không phải khoe con số.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l5">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 05 · Đánh giá</span>
+    <h2 class="section-title">Đánh giá xác minh &amp; nhận diện</h2>
+    <p class="section-lead">Hai bài toán khác nhau (Lớp 01) cần hai bộ chỉ số đánh giá khác nhau.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">5.1</span>Đánh giá xác minh (1:1)</h3>
+      <p>Với xác minh, ta nhìn <strong>phân bố khoảng cách</strong> của các cặp "cùng người" so với "khác người". Một embedding tốt cho hai phân bố <strong>tách biệt rõ</strong>, để có thể đặt một <strong>ngưỡng</strong> phân tách:</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 320 165" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:360px;display:block;margin:0 auto;">
+          <line x1="20" y1="140" x2="300" y2="140" stroke="#d9e0da"></line>
+          <path d="M20,140 Q60,35 100,140 Z" fill="#3d9c56" fill-opacity="0.45" stroke="#2c7a41" stroke-width="1.5"></path>
+          <path d="M170,140 Q220,50 270,140 Z" fill="#d1495b" fill-opacity="0.45" stroke="#9c2f3d" stroke-width="1.5"></path>
+          <text x="60" y="157" text-anchor="middle" fill="#2c7a41" font-family="Inter" font-size="10.5" font-weight="700">cùng người</text>
+          <text x="220" y="157" text-anchor="middle" fill="#9c2f3d" font-family="Inter" font-size="10.5" font-weight="700">khác người</text>
+          <text x="160" y="18" text-anchor="middle" fill="#42506a" font-family="JetBrains Mono" font-size="10">khoảng cách embedding →</text>
+        </svg>
+        <div class="figure-caption"><b>Hình 7.</b> Kết quả thật: khoảng cách cặp "cùng người" (xanh) nhỏ, "khác người" (đỏ) lớn — tách biệt rõ quanh một ngưỡng.</div>
+      </div>
+
+      <p>Quét ngưỡng cho ta đường <strong>ROC</strong>, với hai chỉ số quan trọng: <strong>TAR@FAR</strong> (tỉ lệ chấp nhận đúng tại một tỉ lệ chấp nhận sai cho trước) và <strong>EER</strong> (Equal Error Rate — điểm mà tỉ lệ sai hai loại bằng nhau; càng thấp càng tốt):</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:240px;display:block;margin:0 auto;">
+          <line x1="30" y1="170" x2="200" y2="170" stroke="#d9e0da"></line>
+          <line x1="30" y1="20" x2="30" y2="170" stroke="#d9e0da"></line>
+          <path d="M30,170 L36,35 L200,20" fill="none" stroke="#0f8b8d" stroke-width="2.5"></path>
+          <line x1="30" y1="170" x2="200" y2="20" stroke="#d9e0da" stroke-width="1" stroke-dasharray="3 3"></line>
+          <text x="115" y="188" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#7c8aa0">FAR (tỉ lệ chấp nhận sai)</text>
+          <text x="14" y="95" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#7c8aa0" transform="rotate(-90,14,95)">TAR</text>
+          <text x="120" y="45" text-anchor="middle" font-family="JetBrains Mono" font-size="13" font-weight="700" fill="#0a5f60">AUC ≈ 0.997</text>
+        </svg>
+        <div class="figure-caption"><b>Hình 8.</b> Kết quả thật: đường ROC của xác minh với AUC ≈ 0.997 và EER ≈ 2% (trên danh tính tổng hợp).</div>
+      </div>
+
+      <div class="widget">
+        <span class="widget-label">Thử ngay · Kéo ngưỡng khoảng cách và xem FAR/FRR đổi ngược chiều nhau</span>
+        <div class="thresh-scale" id="threshScale"></div>
+        <div class="thresh-controls">
+          <input type="range" id="threshSlider" min="0" max="100" value="50">
+        </div>
+        <div class="thresh-legend">
+          <span><span class="legend-dot" style="background:#0f8b8d;border-radius:50%;"></span>Khoảng cách cặp cùng người</span>
+          <span><span class="legend-dot" style="background:#d1495b;border-radius:50%;"></span>Khoảng cách cặp khác người</span>
+        </div>
+        <div class="thresh-metrics">
+          <div class="thresh-metric"><div class="num" id="metricFAR">–</div><div class="lbl">FAR (chấp nhận sai)</div></div>
+          <div class="thresh-metric"><div class="num" id="metricFRR">–</div><div class="lbl">FRR (từ chối nhầm)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Tại điểm EER (Equal Error Rate), điều gì đúng về FAR và FRR?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Tại EER, <strong>FAR và FRR bằng nhau</strong>. Đây là một điểm tham chiếu tiện lợi để so sánh các hệ thống xác minh với nhau bằng một con số duy nhất — EER càng thấp, hệ thống càng tốt. Với thí nghiệm trong bài, <strong>EER ≈ 2%</strong> (trên danh tính tổng hợp). Kéo thử thanh trượt ở widget trên tới gần vạch "~EER" để thấy FAR và FRR tiến sát lại gần nhau.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.2</span>Đánh giá nhận diện (1:N) &amp; benchmark</h3>
+      <p>Với nhận diện, ta dùng <strong>rank-1 accuracy</strong> (tỉ lệ người đúng là lân cận gần nhất) và đường <strong>CMC</strong> (độ chính xác khi xét top-k). Bộ benchmark kinh điển cho xác minh khuôn mặt là <strong>LFW (Labeled Faces in the Wild)</strong>; các bộ lớn hơn (vd MegaFace) thử thách ở quy mô hàng triệu danh tính.</p>
+
+      <table class="ref-table">
+        <tr><th>Bài toán</th><th>Chỉ số chính</th></tr>
+        <tr><td><strong>Xác minh (1:1)</strong></td><td>ROC, AUC, <code>TAR@FAR</code>, <code>EER</code>; ngưỡng khoảng cách.</td></tr>
+        <tr><td><strong>Nhận diện (1:N)</strong></td><td><code>Rank-1 accuracy</code>, đường <code>CMC</code> (top-k).</td></tr>
+      </table>
+
+      <p>Trong thực hành, xác minh chỉ là so embedding với một ngưỡng:</p>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">verify.py</span></div>
+        <pre><code class="language-python">import numpy as np
+
+def verify(emb1, emb2, threshold):
+    dist = np.linalg.norm(emb1 - emb2)         # khoang cach Euclid giua 2 embedding
+    return dist &lt; threshold, dist              # True neu duoc coi la cung mot nguoi</code></pre>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao một mô hình đạt rank-1 accuracy rất cao trên LFW chưa chắc giữ được phong độ tương tự trên MegaFace?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì LFW và MegaFace khác nhau rất nhiều về <strong>quy mô</strong>: MegaFace thử thách ở mức <strong>hàng triệu danh tính</strong>, lớn hơn nhiều so với LFW. Khi tìm "lân cận gần nhất" trong một cơ sở dữ liệu hàng triệu người, khả năng nhầm lẫn với một người trông giống tăng lên đáng kể so với chỉ so khớp trong một tập nhỏ hơn. Đây là lý do phải luôn đối chiếu kết quả trên <strong>cùng một benchmark/quy mô</strong> — đúng tinh thần đã học ở Bài 6.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l6">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 06 · Thực tế</span>
+    <h2 class="section-title">Quy trình đầu-cuối &amp; thách thức thực tế</h2>
+
+    <div class="subsection">
+      <h3><span class="tag">6.1</span>Quy trình hoàn chỉnh</h3>
+      <p>Ghép tất cả các bài lại, một hệ thống nhận diện khuôn mặt thực tế gồm chuỗi: <strong>phát hiện</strong> (Bài 9) → <strong>căn chỉnh</strong> → <strong>embedding</strong> → <strong>so khớp</strong> (xác minh hoặc nhận diện):</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 620 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:0 auto;">
+          <g font-family="Inter" font-size="11" font-weight="700">
+            <rect x="0" y="30" width="140" height="60" rx="8" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="70" y="55" text-anchor="middle" fill="#0a5f60">Phát hiện</text>
+            <text x="70" y="70" text-anchor="middle" fill="#0a5f60" font-size="9" font-weight="500">(Bài 9)</text>
+            <rect x="153" y="30" width="140" height="60" rx="8" fill="#e7f0e6" stroke="#5a9c56" stroke-width="1.5"></rect>
+            <text x="223" y="65" text-anchor="middle" fill="#3d6b3a">Căn chỉnh</text>
+            <rect x="306" y="30" width="140" height="60" rx="8" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"></rect>
+            <text x="376" y="65" text-anchor="middle" fill="#a86608">Embedding</text>
+            <rect x="459" y="30" width="140" height="60" rx="8" fill="#fbe7ea" stroke="#d1495b" stroke-width="1.5"></rect>
+            <text x="529" y="52" text-anchor="middle" fill="#9c2f3d">So khớp</text>
+            <text x="529" y="67" text-anchor="middle" fill="#9c2f3d" font-size="9" font-weight="500">(xác minh/nhận diện)</text>
+          </g>
+          <g stroke="#b7c2c8" stroke-width="1.5" fill="none" marker-end="url(#arrH9pipe)">
+            <line x1="140" y1="60" x2="151" y2="60"></line>
+            <line x1="293" y1="60" x2="304" y2="60"></line>
+            <line x1="446" y1="60" x2="457" y2="60"></line>
+          </g>
+          <defs><marker id="arrH9pipe" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7c2c8"></path></marker></defs>
+        </svg>
+        <div class="figure-caption"><b>Hình 9.</b> Quy trình đầu-cuối: phát hiện → căn chỉnh → embedding → so khớp (xác minh: khoảng cách &lt; ngưỡng; nhận diện: lân cận gần nhất).</div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">6.2</span>Những thách thức thực tế</h3>
+      <ul class="plain">
+        <li><strong>Biến đổi lớn:</strong> cùng người trông khác nhau theo <strong>tuổi, tư thế, ánh sáng, kính/khẩu trang</strong> — embedding phải bền vững.</li>
+        <li><strong>Chống giả mạo (anti-spoofing / liveness):</strong> phân biệt <strong>mặt thật</strong> với ảnh in, video phát lại hay mặt nạ — thiết yếu cho bảo mật (mở khoá, thanh toán).</li>
+        <li><strong>Thiên lệch (bias):</strong> độ chính xác có thể <strong>chênh lệch giữa các nhóm</strong> nhân khẩu — một vấn đề công bằng nghiêm trọng (xem Lớp 07).</li>
+      </ul>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Một hệ thống mở khoá chỉ kiểm tra "khuôn mặt trong camera có khớp embedding đã đăng ký không", mà KHÔNG kiểm tra đó có phải một khuôn mặt SỐNG hay không. Kẻ tấn công có thể khai thác lỗ hổng này thế nào?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Kẻ tấn công có thể dùng một <strong>bức ảnh in</strong> hoặc <strong>video phát lại</strong> khuôn mặt của nạn nhân để đánh lừa hệ thống — vì hệ thống chỉ so khớp <strong>embedding</strong> (đặc trưng thị giác) mà không xác minh "đây có phải một người thật, đang có mặt trực tiếp không". Đây chính là lý do <strong>chống giả mạo (anti-spoofing / liveness detection)</strong> là một lớp bảo mật thiết yếu, tách biệt với bước so khớp embedding, đặc biệt trong các ứng dụng nhạy cảm như mở khoá hoặc thanh toán.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l7">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 07 · Đạo đức &amp; pháp lý</span>
+    <h2 class="section-title">Sử dụng có trách nhiệm</h2>
+    <p class="section-lead">Nhận diện khuôn mặt là một trong những công nghệ thị giác <strong>nhạy cảm nhất về đạo đức</strong>. Vì nó gắn hình ảnh với <strong>danh tính cụ thể</strong>, mức rủi ro cao hơn hẳn so với chỉ phát hiện (Bài 9). Là kỹ sư, bạn có trách nhiệm cân nhắc kỹ trước khi xây dựng và triển khai — phần này vì vậy được trình bày kỹ hơn cả phần đạo đức ở Bài 9.</p>
+
+    <div class="callout callout-warn">
+      <span class="callout-head">Dữ liệu sinh trắc học &amp; pháp luật</span>
+      <p>Khuôn mặt là <strong>dữ liệu sinh trắc học không thể thay đổi</strong> (khác mật khẩu). Nhiều khung pháp lý quản chặt: <strong>GDPR</strong> (châu Âu), <strong>BIPA</strong> (Illinois, Hoa Kỳ), và <strong>một số thành phố đã cấm</strong> cơ quan công quyền dùng nhận diện khuôn mặt. Luôn nắm quy định nơi bạn triển khai.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao "template" (vector embedding của khuôn mặt) cũng cần được bảo vệ nghiêm ngặt như chính ảnh khuôn mặt gốc, dù nó chỉ là một dãy số?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì embedding <strong>vẫn là</strong> một biểu diễn cô đọng nhưng đủ đặc trưng của khuôn mặt — nó có thể dùng để <strong>so khớp xác định danh tính</strong>, giống hệt như ảnh gốc. Nếu một embedding bị rò rỉ, kẻ xấu có thể dùng nó để mạo danh, hoặc so khớp chéo qua nhiều hệ thống để lần ra một người ngay cả khi không có ảnh gốc. Về bản chất, embedding vẫn là <strong>dữ liệu sinh trắc học</strong> nhạy cảm — và khác với mật khẩu, bạn <strong>không thể "đổi"</strong> khuôn mặt của mình nếu embedding bị lộ.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">7.1</span>Những nguyên tắc cốt lõi</h3>
+
+      <div class="callout callout-note">
+        <span class="callout-head">Sự đồng thuận &amp; giới hạn mục đích</span>
+        <p>Chỉ nhận diện khi có <strong>sự đồng thuận rõ ràng</strong> và cho <strong>đúng mục đích đã nêu</strong>; không tái sử dụng dữ liệu cho mục đích khác.</p>
+      </div>
+
+      <div class="callout callout-warn">
+        <span class="callout-head">Giám sát hàng loạt</span>
+        <p>Nhận diện <strong>bí mật, diện rộng, không có sự đồng thuận</strong> gây "hiệu ứng ớn lạnh" lên tự do và quyền riêng tư — một <strong>ranh giới đỏ</strong> ở nhiều nơi. Tôn trọng <strong>quyền không bị theo dõi</strong>.</p>
+      </div>
+
+      <div class="callout callout-warn">
+        <span class="callout-head">Công bằng</span>
+        <p><strong>Kiểm thử và công bố</strong> chênh lệch độ chính xác giữa các nhóm (sắc tộc, giới, tuổi); nhận diện sai có thể gây hậu quả nghiêm trọng (vd bắt nhầm người).</p>
+      </div>
+
+      <ul class="tip-list">
+        <li><span class="tip-check">✓</span><span><strong>Bảo mật &amp; giảm thiểu:</strong> bảo vệ <strong>template</strong> (vector embedding cũng là dữ liệu nhạy cảm); ưu tiên xử lý <strong>trên thiết bị</strong>; lưu trữ tối thiểu; có cơ chế <strong>chống giả mạo</strong> và <strong>chọn không tham gia (opt-out)</strong>.</span></li>
+        <li><span class="tip-check">✓</span><span><strong>Minh bạch:</strong> cho người dùng biết <strong>khi nào, vì sao</strong> khuôn mặt của họ được nhận diện, và <strong>ai chịu trách nhiệm</strong>.</span></li>
+      </ul>
+
+      <p>Hãy phân biệt rạch ròi ứng dụng <strong>chính đáng, có đồng thuận</strong> (mở khoá thiết bị của chính bạn, sắp xếp ảnh cá nhân, kiểm soát ra vào có đăng ký) với ứng dụng <strong>xâm phạm</strong> (theo dõi cá nhân bí mật, lập hồ sơ không xin phép). Cùng một công nghệ, nhưng <strong>bối cảnh và sự đồng thuận</strong> quyết định nó đúng hay sai.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Một thành phố triển khai camera nhận diện khuôn mặt trên diện rộng tại nơi công cộng, quét mọi người qua lại mà không có cách nào để từ chối hay biết được, vì mục đích chưa công bố rõ. Đây có phải ứng dụng chính đáng không?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Không.</strong> Đây chính xác là kiểu "giám sát hàng loạt bí mật, không có sự đồng thuận" mà nguyên tắc cốt lõi ở trên cảnh báo. Thiếu ít nhất ba yếu tố quan trọng: (1) <strong>sự đồng thuận</strong> — người dân không được hỏi ý kiến; (2) <strong>giới hạn mục đích</strong> — mục đích chưa công bố rõ; (3) <strong>minh bạch</strong> — không ai biết khi nào/vì sao mình bị quét. Đây là loại ứng dụng mà nhiều nơi coi là "ranh giới đỏ", và một số thành phố đã cấm hẳn cơ quan công quyền sử dụng.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l8">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Bài tập · Thực hành</span>
+    <h2 class="section-title">Bài tập thực hành</h2>
+    <p class="section-lead">Năm bài đầu rèn kỹ thuật. Bài cuối là <strong>bắt buộc</strong>, không phải tuỳ chọn — hãy dành thời gian thật sự suy nghĩ, đừng viết cho có.</p>
+
+    <div class="task-grid">
+      <div class="task-card"><span class="task-num">Bài tập 01</span><p>Giải thích bằng lời vì sao nhận diện là bài toán <strong>tập mở</strong> và vì sao <strong>embedding</strong> giải quyết được điều mà phân loại N lớp không làm được.</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 02</span><p>Cho hai ứng dụng: mở khoá điện thoại (1:1) và tìm người trong thư viện ảnh (1:N). Mỗi cái là <strong>xác minh</strong> hay <strong>nhận diện</strong>? Cần chỉ số đánh giá nào?</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 03</span><p>Mô tả cách <strong>triplet loss</strong> hoạt động qua một bộ ba (anchor/positive/negative). Vai trò của <strong>margin</strong> là gì?</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 04</span><p>Với một hệ xác minh, giải thích đánh đổi khi <strong>hạ ngưỡng khoảng cách</strong>: ảnh hưởng tới FAR (chấp nhận sai) và FRR (từ chối nhầm) ra sao?</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 05</span><p>Vì sao <strong>chống giả mạo (liveness)</strong> lại thiết yếu cho một hệ mở khoá bằng khuôn mặt? Nêu vài cách tấn công cần phòng.</p></div>
+      <div class="task-card advanced"><span class="task-num">Suy ngẫm bắt buộc</span><p>Chọn một ứng dụng nhận diện khuôn mặt. Phân tích: <strong>ai được lợi, ai chịu rủi ro</strong>, cần <strong>sự đồng thuận</strong> và biện pháp bảo vệ nào để triển khai có trách nhiệm? Khi nào thì <strong>không nên</strong> xây dựng nó?</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="quiz">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp ra · Trắc nghiệm tổng kết</span>
+    <h2 class="section-title">Kiểm tra lại toàn bài</h2>
+    <p class="section-lead">10 câu trắc nghiệm rải đều qua các Lớp 01–07 — bao gồm cả kỹ thuật lẫn đạo đức/pháp lý. Chọn một đáp án để xem giải thích.</p>
+
+    <div class="quiz-item" data-answer="A">
+      <p class="quiz-q"><span class="qnum">Câu 1.</span>Xác minh (verification) và nhận diện (identification) khác nhau ở điểm nào?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Xác minh so sánh 1:1 (có phải cùng một người không); nhận diện so sánh 1:N (đây là ai trong cơ sở dữ liệu).</button>
+        <button class="quiz-opt" data-key="B">B. Xác minh dùng ảnh màu; nhận diện dùng ảnh xám.</button>
+        <button class="quiz-opt" data-key="C">C. Xác minh cần học sâu; nhận diện dùng phương pháp cổ điển.</button>
+        <button class="quiz-opt" data-key="D">D. Hai khái niệm này là một, chỉ khác tên gọi.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại Hình 1 và mục 1.2.</p>
+      <p class="quiz-explain">Xác minh (1:1) trả lời "có phải cùng một người không" bằng cách so sánh hai embedding. Nhận diện (1:N) trả lời "đây là ai" bằng cách so một embedding với N người trong cơ sở dữ liệu, tìm người gần nhất.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="D">
+      <p class="quiz-q"><span class="qnum">Câu 2.</span>Vì sao nhận diện khuôn mặt không thể giải quyết bằng một bộ phân loại N-lớp cố định?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Vì phân loại N-lớp chạy quá chậm.</button>
+        <button class="quiz-opt" data-key="B">B. Vì phân loại N-lớp chỉ hoạt động trên ảnh xám.</button>
+        <button class="quiz-opt" data-key="C">C. Vì phân loại N-lớp cần nhiều GPU hơn.</button>
+        <button class="quiz-opt" data-key="D">D. Vì đây là bài toán tập mở — người mới liên tục xuất hiện, không thể huấn luyện lại mô hình mỗi lần thêm người.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại mục 1.3.</p>
+      <p class="quiz-explain">Nhận diện là bài toán tập mở (open-set): người dùng mới liên tục xuất hiện sau khi hệ thống đã triển khai. Một bộ phân loại N-lớp cố định chỉ nhận diện được đúng N người đã biết lúc huấn luyện — muốn thêm người thứ N+1 phải huấn luyện lại từ đầu, không thực tế.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="C">
+      <p class="quiz-q"><span class="qnum">Câu 3.</span>Ý tưởng cốt lõi của embedding trong nhận diện khuôn mặt là gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Biến khuôn mặt thành một nhãn phân loại duy nhất.</button>
+        <button class="quiz-opt" data-key="B">B. Biến khuôn mặt thành ảnh có độ phân giải cao hơn.</button>
+        <button class="quiz-opt" data-key="C">C. Biến khuôn mặt thành một vector sao cho ảnh cùng người thì nằm gần nhau, khác người thì xa nhau.</button>
+        <button class="quiz-opt" data-key="D">D. Biến khuôn mặt thành văn bản mô tả.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại Hình 2 ở Lớp 02 và widget đầu bài.</p>
+      <p class="quiz-explain">Embedding biến mỗi khuôn mặt thành một vector trong một không gian, sao cho khoảng cách giữa các vector phản ánh sự giống nhau: ảnh cùng người thì gần nhau, khác người thì xa nhau — đây là nền tảng cho cả xác minh lẫn nhận diện.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 4.</span>Trong triplet loss, "negative" là gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Ảnh bị nhiễu nặng nhất trong tập huấn luyện.</button>
+        <button class="quiz-opt" data-key="B">B. Một ảnh của người KHÁC với anchor.</button>
+        <button class="quiz-opt" data-key="C">C. Ảnh có độ phân giải thấp nhất.</button>
+        <button class="quiz-opt" data-key="D">D. Ảnh chưa được gán nhãn.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại Hình 4 ở mục 3.2.</p>
+      <p class="quiz-explain">Trong bộ ba anchor/positive/negative, negative là ảnh của một người khác với anchor. Mục tiêu huấn luyện là đẩy negative ra xa anchor hơn positive (cùng người) ít nhất một khoảng margin.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="A">
+      <p class="quiz-q"><span class="qnum">Câu 5.</span>Margin trong triplet loss có vai trò gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Tạo một vùng đệm an toàn, đảm bảo khoảng cách anchor-negative lớn hơn anchor-positive một khoảng tối thiểu, giúp các cụm danh tính tách bạch bền vững hơn.</button>
+        <button class="quiz-opt" data-key="B">B. Giới hạn số lượng ảnh tối đa trong một batch huấn luyện.</button>
+        <button class="quiz-opt" data-key="C">C. Xác định tốc độ học (learning rate) của mô hình.</button>
+        <button class="quiz-opt" data-key="D">D. Quy định kích thước ảnh đầu vào.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Nhớ lại ô kiểm tra nhanh ở mục 3.2.</p>
+      <p class="quiz-explain">Margin tạo ra một vùng đệm an toàn, buộc khoảng cách anchor-negative phải lớn hơn anchor-positive một khoảng tối thiểu nhất định — không chỉ lớn hơn một chút. Điều này giúp các cụm danh tính khác nhau tách bạch rõ ràng và bền vững hơn khi gặp nhiễu.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="D">
+      <p class="quiz-q"><span class="qnum">Câu 6.</span>Thí nghiệm huấn luyện embedding trong bài dùng danh tính TỔNG HỢP. Điều gì KHÔNG đúng khi diễn giải kết quả này?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Danh tính tổng hợp giúp minh hoạ cơ chế một cách hoàn toàn offline, có kiểm soát.</button>
+        <button class="quiz-opt" data-key="B">B. Trên khuôn mặt thật, bài toán khó hơn nhiều do biến thiên lớn về tư thế/tuổi/ánh sáng.</button>
+        <button class="quiz-opt" data-key="C">C. Mục đích thí nghiệm là minh hoạ cơ chế, không phải khoe con số tuyệt đối.</button>
+        <button class="quiz-opt" data-key="D">D. Kết quả gần như hoàn hảo trên dữ liệu tổng hợp chứng tỏ mô hình sẽ đạt độ chính xác tương tự trên mọi bộ dữ liệu khuôn mặt thật.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại callout "Đọc kết quả cho đúng" ở mục 4.2.</p>
+      <p class="quiz-explain">Danh tính tổng hợp rất sạch và dễ tách nên embedding học gần như hoàn hảo — điều này KHÔNG đảm bảo kết quả tương tự trên khuôn mặt thật, vốn phức tạp hơn nhiều. Mục đích thí nghiệm là minh hoạ cơ chế hoạt động đúng, không phải chứng minh một con số sẽ lặp lại ở mọi bối cảnh.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="C">
+      <p class="quiz-q"><span class="qnum">Câu 7.</span>Tại điểm EER (Equal Error Rate) của một hệ xác minh, điều gì đúng?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. FAR luôn bằng 0.</button>
+        <button class="quiz-opt" data-key="B">B. FRR luôn bằng 100%.</button>
+        <button class="quiz-opt" data-key="C">C. FAR và FRR bằng nhau.</button>
+        <button class="quiz-opt" data-key="D">D. Ngưỡng khoảng cách không còn ý nghĩa.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại mục 5.1 và widget FAR/FRR.</p>
+      <p class="quiz-explain">Tại EER, tỉ lệ chấp nhận sai (FAR) và tỉ lệ từ chối nhầm (FRR) bằng nhau — đây là một điểm tham chiếu chuẩn để so sánh các hệ xác minh bằng một con số duy nhất. Với thí nghiệm trong bài, EER ≈ 2%.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 8.</span>Vì sao "thiên lệch (bias)" — độ chính xác chênh lệch giữa các nhóm nhân khẩu — được xem là một vấn đề công bằng nghiêm trọng, không chỉ là một hạn chế kỹ thuật đơn thuần?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Vì nó khiến mô hình chạy chậm hơn trên một số nhóm.</button>
+        <button class="quiz-opt" data-key="B">B. Vì nhận diện sai lệch theo nhóm có thể gây hậu quả thực (vd bắt nhầm người), tạo ra bất công có hệ thống với các nhóm bị ảnh hưởng.</button>
+        <button class="quiz-opt" data-key="C">C. Vì nó chỉ ảnh hưởng tới tốc độ suy luận, không ảnh hưởng tới người dùng.</button>
+        <button class="quiz-opt" data-key="D">D. Vì đây là vấn đề chỉ xảy ra với dữ liệu tổng hợp, không xảy ra trong thực tế.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại mục 6.2 và callout "Công bằng" ở Lớp 07.</p>
+      <p class="quiz-explain">Trong các ứng dụng có hậu quả thực (xác thực danh tính, an ninh), sai sót lệch theo nhóm nhân khẩu không đơn thuần là một con số kỹ thuật kém — nó tạo ra rủi ro và gánh nặng không đều giữa các nhóm người, một dạng bất công có hệ thống. Đây là lý do kiểm thử công bằng và công bố chênh lệch là trách nhiệm nghề nghiệp.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="A">
+      <p class="quiz-q"><span class="qnum">Câu 9.</span>Vì sao khuôn mặt được xem là loại dữ liệu sinh trắc học đặc biệt nhạy cảm, khác với mật khẩu?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Vì khuôn mặt không thể "đổi" được nếu bị lộ/rò rỉ, trong khi mật khẩu có thể thay đổi bất cứ lúc nào.</button>
+        <button class="quiz-opt" data-key="B">B. Vì khuôn mặt luôn được mã hoá an toàn hơn mật khẩu.</button>
+        <button class="quiz-opt" data-key="C">C. Vì khuôn mặt không được luật pháp ở bất kỳ nơi nào bảo vệ.</button>
+        <button class="quiz-opt" data-key="D">D. Vì khuôn mặt dễ đoán hơn mật khẩu.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại callout "Dữ liệu sinh trắc học &amp; pháp luật" ở Lớp 07.</p>
+      <p class="quiz-explain">Khuôn mặt là dữ liệu sinh trắc học gắn liền với cơ thể bạn — không như mật khẩu, bạn không thể "đổi" khuôn mặt nếu dữ liệu (hoặc embedding của nó) bị rò rỉ hay lạm dụng. Đây là lý do nhiều khung pháp lý như GDPR, BIPA quản lý rất chặt loại dữ liệu này.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="C">
+      <p class="quiz-q"><span class="qnum">Câu 10.</span>Camera nhận diện khuôn mặt giám sát diện rộng tại nơi công cộng, không có cách để từ chối hay biết được, vì mục đích chưa công bố — ứng dụng này có chính đáng không?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Có, vì công nghệ nhận diện khuôn mặt luôn hợp pháp ở mọi nơi.</button>
+        <button class="quiz-opt" data-key="B">B. Có, miễn là hệ thống đạt độ chính xác cao.</button>
+        <button class="quiz-opt" data-key="C">C. Không — thiếu sự đồng thuận, giới hạn mục đích rõ ràng và minh bạch, đúng kiểu "giám sát hàng loạt" mà nhiều nơi coi là ranh giới đỏ.</button>
+        <button class="quiz-opt" data-key="D">D. Không thể đánh giá vì mọi ứng dụng nhận diện khuôn mặt đều có mức rủi ro như nhau.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại callout "Giám sát hàng loạt" ở Lớp 07.</p>
+      <p class="quiz-explain">Ứng dụng này thiếu ba yếu tố cốt lõi: sự đồng thuận (không ai được hỏi ý kiến), giới hạn mục đích (chưa công bố rõ), và minh bạch (không ai biết mình bị quét khi nào/vì sao). Đây đúng là kiểu giám sát hàng loạt bí mật mà nhiều nơi coi là ranh giới đỏ, và một số thành phố đã cấm hẳn.</p>
+    </div>
+  </div>
+</section>
+<section class="section" id="end">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Tổng kết</span>
+    <h2 class="section-title">Câu trả lời cho "đây là ai" — và trách nhiệm đi kèm</h2>
+    <p>Bạn vừa hiểu cách máy tính trả lời câu hỏi "đây là ai". <strong>Nhận diện khuôn mặt</strong> gồm <strong>xác minh (1:1)</strong> và <strong>nhận diện (1:N)</strong>, và cả hai đều dựa trên <strong>embedding</strong> — biến khuôn mặt thành vector mà cùng người thì gần nhau. Bạn đã nắm <strong>metric learning</strong> (Siamese/contrastive, triplet loss, ArcFace), tự huấn luyện thật một embedding khiến các danh tính <strong>tách thành cụm rõ</strong>, biết <strong>đánh giá</strong> bằng ROC/EER và rank-1, và hiểu quy trình đầu-cuối cùng các thách thức như chống giả mạo và thiên lệch.</p>
+    <p>Quan trọng không kém phần kỹ thuật, bạn đã dành sự chú ý đúng mức cho <strong>đạo đức</strong>: nhận diện danh tính là công nghệ mạnh nhưng nhạy cảm, đòi hỏi <strong>sự đồng thuận, minh bạch, công bằng và tuân thủ pháp luật</strong>. Đây là bài có tỉ trọng đạo đức lớn nhất trong cả series — và đó là điều có chủ đích.</p>
+    <p>Nhìn lại cả hành trình — từ pixel đầu tiên (Bài 1) đến nhận diện khuôn mặt (Bài 10) — bạn đã đi qua gần trọn bản đồ thị giác máy tính hiện đại. Chỉ còn một điểm đến cuối cùng: <strong>Bài 11 — OCR</strong> (nhận dạng ký tự quang học), nơi thị giác máy tính học <strong>đọc chữ viết</strong> trong ảnh — một bài toán tưởng chừng khác hẳn nhưng vẫn đứng trên đúng những nền tảng bạn đã xây dựng suốt series: CNN, phát hiện, và giờ đây cả ý tưởng embedding. Một người làm AI giỏi không chỉ biết <strong>xây dựng</strong> hệ thống chính xác, mà còn biết cân nhắc <strong>nên hay không nên</strong> xây dựng, và xây dựng nó một cách <strong>có trách nhiệm</strong>.</p>
+  </div>
+</section>
+
+<div class="footer">
+  <div class="wrap">
+    Học sâu cho Thị giác Máy tính — Bài giảng Tutorial 10 · Nhận diện Khuôn mặt
+  </div>
+</div>
+
+</main>
+</div>
+<script>
+/* ---------- Reveal / Hint toggles ---------- */
+function toggleReveal(btn){
+  const box = btn.nextElementSibling;
+  box.classList.toggle('show');
+  btn.textContent = box.classList.contains('show') ? 'Ẩn đáp án' : 'Hiện đáp án';
+}
+function toggleHint(btn){
+  const hint = btn.closest('.quiz-item').querySelector('.quiz-hint');
+  hint.classList.toggle('show');
+  btn.textContent = hint.classList.contains('show') ? 'Ẩn gợi ý' : 'Gợi ý';
+}
+
+/* ---------- Quiz logic (giữ nguyên cho mọi bài) ---------- */
+document.querySelectorAll('.quiz-item').forEach(item=>{
+  const answer = item.dataset.answer;
+  const opts = item.querySelectorAll('.quiz-opt');
+  const explain = item.querySelector('.quiz-explain');
+  opts.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(item.classList.contains('answered')) return;
+      item.classList.add('answered');
+      opts.forEach(o=>o.disabled=true);
+      if(opt.dataset.key === answer){
+        opt.classList.add('correct');
+      } else {
+        opt.classList.add('incorrect');
+        const correctBtn = item.querySelector('.quiz-opt[data-key="'+answer+'"]');
+        if(correctBtn) correctBtn.classList.add('correct');
+      }
+      if(explain) explain.classList.add('show');
+    });
+  });
+});
+
+/* ---------- Rail scrollspy (giữ nguyên cho mọi bài) ---------- */
+(function railScrollSpy(){
+  const map={};
+  document.querySelectorAll('.rail-item').forEach(item=>{
+    const a=item.querySelector('a');
+    if(a){ map[a.getAttribute('href').slice(1)] = item; }
+  });
+  const targets=Object.keys(map).map(id=>document.getElementById(id)).filter(Boolean);
+  const observer=new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        Object.values(map).forEach(it=>it.classList.remove('active'));
+        const item=map[entry.target.id];
+        if(item) item.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-35% 0px -55% 0px', threshold:0});
+  targets.forEach(t=>observer.observe(t));
+})();
+
+/* ---------- Syntax highlighting (giữ nguyên cho mọi bài) ---------- */
+if(window.hljs){ hljs.highlightAll(); }
+
+/* ---------- BÊN DƯỚI: JS riêng cho widget của bài này ---------- */
+
+/* ---------- Widget 1 (hero): Khong gian embedding ---------- */
+(function(){
+  const svg = document.getElementById('embedSvg');
+  if(!svg) return;
+  const query = document.getElementById('embedQuery');
+  const readout = document.getElementById('embedReadout');
+
+  const CLUSTERS = [
+    {name:'Người 1', color:'#0f8b8d', cx:240, cy:90},
+    {name:'Người 2', color:'#e8940f', cx:97,  cy:194},
+    {name:'Người 3', color:'#d1495b', cx:152, cy:361},
+    {name:'Người 4', color:'#6a4c93', cx:328, cy:361},
+    {name:'Người 5', color:'#c9184a', cx:383, cy:194}
+  ];
+  const THRESHOLD = 65;
+  const SCALE = 150;
+
+  svg.addEventListener('click', (e)=>{
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX; pt.y = e.clientY;
+    const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
+    const x = loc.x, y = loc.y;
+
+    query.setAttribute('cx', x);
+    query.setAttribute('cy', y);
+
+    let nearest = null, minDist = Infinity;
+    CLUSTERS.forEach(c=>{
+      const d = Math.sqrt(Math.pow(x-c.cx,2) + Math.pow(y-c.cy,2));
+      if(d < minDist){ minDist = d; nearest = c; }
+    });
+
+    const distNorm = (minDist / SCALE).toFixed(2);
+    if(minDist < THRESHOLD){
+      readout.className = 'embed-readout matched';
+      readout.textContent = 'Khớp với: ' + nearest.name + ' (khoảng cách ' + distNorm + ')';
+    } else {
+      readout.className = 'embed-readout nomatch';
+      readout.textContent = 'Không khớp ai (khoảng cách quá xa: ' + distNorm + ')';
+    }
+  });
+})();
+
+/* ---------- Widget 2 (L1): Xac minh vs Nhan dien ---------- */
+(function(){
+  const btnVerif = document.getElementById('viBtnVerif');
+  if(!btnVerif) return;
+  const btnIdent = document.getElementById('viBtnIdent');
+  const desc = document.getElementById('viDesc');
+  const meta = document.getElementById('viMeta');
+
+  const MODES = {
+    verif: {
+      desc: 'Câu hỏi: "Hai ảnh này có phải cùng một người không?" — chỉ so sánh MỘT cặp embedding.',
+      meta: 'Ví dụ: mở khoá điện thoại (so ảnh camera với ảnh đã đăng ký). Chỉ số đánh giá: <b>ROC, AUC, TAR@FAR, EER</b> (Lớp 05).'
+    },
+    ident: {
+      desc: 'Câu hỏi: "Khuôn mặt này là ai trong N người đã biết?" — so với TẤT CẢ N người trong cơ sở dữ liệu.',
+      meta: 'Ví dụ: tìm một người trong thư viện ảnh (so với toàn bộ ảnh đã lưu). Chỉ số đánh giá: <b>Rank-1 accuracy, đường CMC</b> (Lớp 05).'
+    }
+  };
+
+  function setMode(mode){
+    const cfg = MODES[mode];
+    desc.textContent = cfg.desc;
+    meta.innerHTML = cfg.meta;
+    btnVerif.className = (mode==='verif') ? 'btn' : 'btn btn-ghost';
+    btnIdent.className = (mode==='ident') ? 'btn' : 'btn btn-ghost';
+  }
+
+  btnVerif.addEventListener('click', ()=> setMode('verif'));
+  btnIdent.addEventListener('click', ()=> setMode('ident'));
+  setMode('verif');
+})();
+
+/* ---------- Widget 3 (L5): Nguong FAR/FRR ---------- */
+(function(){
+  const same = [8,12,15,18,20,22,24,26,28,30,33,36,40,45,52];
+  const diff = [35,42,48,55,58,62,65,68,70,72,75,78,82,86,92];
+
+  function buildThreshScale(){
+    const scale = document.getElementById('threshScale');
+    if(!scale) return;
+    scale.innerHTML = '<div class="thresh-track"></div>';
+    same.forEach(s=>{
+      const d = document.createElement('div');
+      d.className = 'thresh-dot pos';
+      d.style.left = s + '%';
+      scale.appendChild(d);
+    });
+    diff.forEach(s=>{
+      const d = document.createElement('div');
+      d.className = 'thresh-dot neg';
+      d.style.left = s + '%';
+      scale.appendChild(d);
+    });
+    const eerMarker = document.createElement('div');
+    eerMarker.className = 'thresh-eer-marker';
+    eerMarker.style.left = '45%';
+    scale.appendChild(eerMarker);
+    const line = document.createElement('div');
+    line.className = 'thresh-line';
+    line.id = 'threshLineEl';
+    scale.appendChild(line);
+  }
+
+  function updateThresh(){
+    const slider = document.getElementById('threshSlider');
+    if(!slider) return;
+    const t = parseFloat(slider.value);
+    const line = document.getElementById('threshLineEl');
+    if(line) line.style.left = t + '%';
+
+    const farCount = diff.filter(d=> d < t).length;
+    const frrCount = same.filter(d=> d >= t).length;
+    const far = farCount / diff.length;
+    const frr = frrCount / same.length;
+
+    const farEl = document.getElementById('metricFAR');
+    const frrEl = document.getElementById('metricFRR');
+    if(farEl) farEl.textContent = (far*100).toFixed(0) + '%';
+    if(frrEl) frrEl.textContent = (frr*100).toFixed(0) + '%';
+  }
+
+  buildThreshScale();
+  updateThresh();
+  const sliderEl = document.getElementById('threshSlider');
+  if(sliderEl) sliderEl.addEventListener('input', updateThresh);
+})();
+</script>
+</body>
+</html>

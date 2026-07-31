@@ -1,0 +1,2001 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buổi 2 · Power Query nâng cao · Python · Nhập môn AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FDFEFF;
+    --bg-panel:#FFFFFF;
+    --ink:#1E2547;
+    --ink-soft:#5B6486;
+    --ink-faint:#9AA2BE;
+    --border:#E8ECF7;
+
+    --blue:#3D8BFD;    --blue-soft:#EAF2FF;   --blue-deep:#1F6FE0;
+    --amber:#FFB627;   --amber-soft:#FFF6E2;  --amber-deep:#E0970A;
+    --coral:#FF6F61;   --coral-soft:#FFECE8;  --coral-deep:#E24B3B;
+    --teal:#17C3B2;    --teal-soft:#E3FBF6;   --teal-deep:#0C9E8E;
+    --violet:#8B5CF6;  --violet-soft:#F1EBFF; --violet-deep:#6D3FE0;
+
+    --radius:20px;
+    --shadow: 0 12px 32px -14px rgba(30,37,71,0.16);
+    --maxw:1120px;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Inter',sans-serif;font-size:16px;line-height:1.65;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  h1,h2,h3,h4,h5,.display{font-family:'Be Vietnam Pro',sans-serif;color:var(--ink);margin:0 0 .5em 0;line-height:1.2;}
+  code,.mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;} img{max-width:100%;display:block;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;position:relative;z-index:1;}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;display:flex;align-items:center;gap:8px;}
+  section{padding:84px 0;position:relative;}
+  .section-head{max-width:680px;margin-bottom:44px;position:relative;z-index:1;}
+  .section-head h2{font-size:clamp(1.6rem,3vw,2.2rem);}
+  .section-head p{color:var(--ink-soft);font-size:1.03rem;margin:0;}
+  h3{font-size:1.22rem;margin-top:44px;display:flex;align-items:center;gap:10px;}
+  h3 .h3-tag{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;padding:4px 9px;border-radius:8px;flex:none;}
+  h4{font-size:1.02rem;margin-top:26px;}
+  p{margin:0 0 14px;}
+  .lead{color:var(--ink-soft);}
+
+  .tint-blue{background:var(--blue-soft);}
+  .tint-amber{background:var(--amber-soft);}
+  .tint-violet{background:var(--violet-soft);}
+  .tint-soft{background:#F6F8FE;}
+
+  .blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.4;pointer-events:none;z-index:0;}
+  @media (prefers-reduced-motion: no-preference){ .blob.drift{animation:drift 16s ease-in-out infinite alternate;} }
+  @keyframes drift{ from{transform:translate(0,0);} to{transform:translate(26px,-18px);} }
+  @keyframes floaty{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+  @media (prefers-reduced-motion: reduce){ *{animation:none !important;transition:none !important;} html{scroll-behavior:auto;} }
+  :focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:6px;}
+
+  /* ---------- NAV ---------- */
+  .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(253,254,255,0.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
+  .nav-inner{max-width:var(--maxw);margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
+  .nav-brand{display:flex;align-items:center;gap:10px;color:var(--ink);font-weight:700;white-space:nowrap;font-size:.95rem;}
+  .nav-brand .mark{width:28px;height:28px;flex:none;}
+  .nav-brand .session-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;color:#fff;background:linear-gradient(120deg,var(--amber-deep),var(--violet));padding:3px 9px;border-radius:20px;letter-spacing:.03em;}
+  .nav-links{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;}
+  .nav-links::-webkit-scrollbar{display:none;}
+  .nav-links a{color:var(--ink-soft);text-decoration:none;font-size:.82rem;font-weight:600;padding:8px 12px;border-radius:8px;white-space:nowrap;transition:.2s;}
+  .nav-links a:hover{color:var(--ink);background:#EEF2FB;}
+  .nav-links a.active{color:#fff;background:var(--ink);}
+  .nav-links a.p1.active{background:var(--amber-deep);}
+  .nav-links a.p2.active{background:var(--blue-deep);}
+  .nav-links a.p3.active{background:var(--violet-deep);}
+  .readbar{position:fixed;top:64px;left:0;height:3px;width:0;z-index:101;background:linear-gradient(90deg,var(--amber),var(--blue),var(--violet));transition:width .1s linear;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background:
+      radial-gradient(980px 520px at 88% -8%, rgba(255,182,39,.30), transparent 60%),
+      radial-gradient(760px 460px at 8% 2%, rgba(61,139,253,.22), transparent 58%),
+      radial-gradient(760px 440px at 52% 118%, rgba(139,92,246,.20), transparent 60%),
+      #F3F7FF;
+    padding:130px 0 0;overflow:hidden;
+  }
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center;padding-bottom:64px;}
+  .hero h1{font-size:clamp(1.9rem,3.8vw,2.7rem);letter-spacing:-0.01em;}
+  .hero h1 .accent{background:linear-gradient(100deg,var(--amber-deep),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .hero .lede{color:var(--ink-soft);font-size:1.06rem;max-width:520px;}
+  .hero .eyebrow{color:var(--amber-deep);}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0 28px;}
+  .pill{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--border);color:var(--ink-soft);padding:7px 14px;border-radius:30px;font-size:.82rem;box-shadow:var(--shadow);}
+  .cta-row{display:flex;gap:12px;flex-wrap:wrap;}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:12px;font-weight:700;font-size:.9rem;text-decoration:none;border:1px solid transparent;transition:.2s;cursor:pointer;}
+  .btn-primary{background:linear-gradient(100deg,var(--amber-deep),var(--violet));color:#fff;box-shadow:0 10px 24px -10px rgba(139,92,246,0.6);}
+  .btn-primary:hover{transform:translateY(-1px);}
+  .btn-ghost{border-color:var(--border);color:var(--ink);background:#fff;}
+  .btn-ghost:hover{background:#fff;border-color:var(--violet);}
+  .progress-dots{display:flex;gap:7px;margin-top:30px;align-items:center;}
+  .progress-dots span{width:26px;height:6px;border-radius:3px;background:#DCE3F3;}
+  .progress-dots span.done{background:var(--teal);}
+  .progress-dots span.on{background:linear-gradient(90deg,var(--amber),var(--violet));}
+  .progress-dots small{color:var(--ink-faint);font-size:.75rem;margin-left:8px;font-family:'JetBrains Mono',monospace;}
+
+  /* hero 3-part stack */
+  .stack{display:flex;flex-direction:column;gap:14px;}
+  .stack-card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:18px 20px;box-shadow:var(--shadow);display:flex;gap:16px;align-items:center;transition:.25s;text-decoration:none;}
+  .stack-card:hover{transform:translateX(6px);}
+  .stack-card .sc-ico{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.35rem;flex:none;}
+  .stack-card h4{margin:0 0 2px;font-size:.98rem;}
+  .stack-card p{margin:0;font-size:.82rem;color:var(--ink-soft);}
+  .stack-card .sc-time{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--ink-faint);white-space:nowrap;}
+  .sc-1 .sc-ico{background:var(--amber-soft);} .sc-1{border-left:4px solid var(--amber);}
+  .sc-2 .sc-ico{background:var(--blue-soft);}  .sc-2{border-left:4px solid var(--blue);}
+  .sc-3 .sc-ico{background:var(--violet-soft);} .sc-3{border-left:4px solid var(--violet);}
+
+  .wave{display:block;width:100%;height:80px;margin-top:-2px;}
+
+  /* ---------- PART BANNER ---------- */
+  .part-banner{border-radius:22px;padding:30px 34px;color:#fff;margin-bottom:40px;position:relative;overflow:hidden;box-shadow:var(--shadow);}
+  .part-banner .pb-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.16em;opacity:.85;font-weight:700;}
+  .part-banner h2{color:#fff;font-size:clamp(1.5rem,2.8vw,2.05rem);margin:6px 0 8px;}
+  .part-banner p{color:rgba(255,255,255,.9);margin:0;max-width:640px;font-size:.98rem;}
+  .part-banner .pb-time{position:absolute;top:26px;right:30px;background:rgba(255,255,255,.2);padding:6px 14px;border-radius:20px;font-size:.76rem;font-weight:700;}
+  .pb-amber{background:linear-gradient(115deg,#E0970A,#FFB627 70%);}
+  .pb-blue{background:linear-gradient(115deg,#1F6FE0,#3D8BFD 70%);}
+  .pb-violet{background:linear-gradient(115deg,#6D3FE0,#A78BFA 70%);}
+
+  /* objectives */
+  .goal-box{background:#fff;border:1px solid var(--border);border-radius:18px;padding:22px 24px;box-shadow:var(--shadow);margin-bottom:8px;}
+  .goal-box h4{margin:0 0 12px;font-size:.95rem;display:flex;align-items:center;gap:8px;}
+  .goal-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;}
+  .goal-list li{display:flex;gap:10px;align-items:flex-start;color:var(--ink-soft);font-size:.92rem;}
+  .goal-list .chk{width:20px;height:20px;border-radius:6px;color:#fff;display:flex;align-items:center;justify-content:center;flex:none;margin-top:3px;font-size:.7rem;font-weight:700;}
+  .c-amber{background:var(--amber-deep);} .c-blue{background:var(--blue-deep);} .c-violet{background:var(--violet-deep);} .c-teal{background:var(--teal-deep);}
+
+  /* ---------- CALLOUTS ---------- */
+  .callout{display:flex;gap:14px;border-radius:16px;padding:16px 20px;margin:22px 0;border:1px solid;position:relative;z-index:1;}
+  .callout .c-emoji{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex:none;background:#fff;}
+  .callout .c-title{font-weight:700;font-size:.85rem;margin-bottom:3px;}
+  .callout p{margin:0;font-size:.9rem;color:var(--ink-soft);}
+  .callout p + p{margin-top:8px;}
+  .callout.tip{background:var(--teal-soft);border-color:#BFEFE9;} .callout.tip .c-title{color:#0B8A7C;}
+  .callout.warn{background:var(--coral-soft);border-color:#FFD3CA;} .callout.warn .c-title{color:var(--coral-deep);}
+  .callout.note{background:var(--violet-soft);border-color:#DBD3FF;} .callout.note .c-title{color:var(--violet-deep);}
+  .callout.key{background:var(--amber-soft);border-color:#FFE3A8;} .callout.key .c-title{color:var(--amber-deep);}
+
+  /* ---------- IMAGES ---------- */
+  .img-frame{border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);margin:20px 0;background:#fff;}
+  .img-frame img{width:100%;height:auto;display:block;background:#FAFBFF;}
+  .img-frame .img-cap{padding:9px 16px 11px;font-size:.78rem;color:var(--ink-soft);border-top:1px solid var(--border);background:#FAFBFF;}
+  .img-frame.failed img{display:none;}
+  .img-frame.failed::before{content:'🖼️ Ảnh minh hoạ không tải được (cần kết nối Internet)';display:block;padding:26px 16px;text-align:center;font-size:.82rem;color:var(--ink-faint);background:repeating-linear-gradient(45deg,#F7F9FF,#F7F9FF 10px,#F1F4FC 10px,#F1F4FC 20px);}
+  .img-duo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;}
+  .img-duo .img-frame{margin:0;}
+  .img-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0;}
+  .img-trio .img-frame{margin:0;}
+  .logo-row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:18px 0 6px;}
+  .logo-chip{background:#fff;border:1px solid var(--border);border-radius:14px;padding:12px 18px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);}
+  .logo-chip img{height:30px;width:auto;}
+  .logo-chip span{font-size:.82rem;color:var(--ink-soft);font-weight:600;}
+
+  /* ---------- STEPS ---------- */
+  .steps{list-style:none;counter-reset:st;margin:22px 0;padding:0;}
+  .steps > li{position:relative;padding:0 0 22px 54px;counter-increment:st;}
+  .steps > li::before{content:counter(st);position:absolute;left:0;top:0;width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.85rem;color:#fff;}
+  .steps > li::after{content:'';position:absolute;left:17px;top:38px;bottom:2px;width:2px;background:var(--border);}
+  .steps > li:last-child::after{display:none;}
+  .steps.amber > li::before{background:var(--amber-deep);}
+  .steps.blue > li::before{background:var(--blue-deep);}
+  .steps.violet > li::before{background:var(--violet-deep);}
+  .steps h5{margin:4px 0 5px;font-size:.98rem;}
+  .steps p{margin:0;font-size:.92rem;color:var(--ink-soft);}
+  .steps .path{font-family:'JetBrains Mono',monospace;font-size:.82rem;background:#F1F4FC;border:1px solid var(--border);padding:2px 8px;border-radius:7px;color:var(--ink);white-space:nowrap;display:inline-block;margin:4px 0;}
+
+  /* ---------- TABLES ---------- */
+  .tbl-wrap{overflow-x:auto;margin:20px 0;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);background:#fff;}
+  table.tbl{width:100%;border-collapse:collapse;font-size:.88rem;min-width:560px;}
+  table.tbl th{background:#F4F7FE;text-align:left;padding:12px 16px;font-weight:700;font-size:.8rem;color:var(--ink);border-bottom:2px solid var(--border);white-space:nowrap;}
+  table.tbl td{padding:11px 16px;border-bottom:1px solid var(--border);color:var(--ink-soft);vertical-align:top;}
+  table.tbl tr:last-child td{border-bottom:none;}
+  table.tbl tbody tr:hover{background:#FAFCFF;}
+  table.tbl td b,table.tbl td strong{color:var(--ink);}
+  table.tbl code{font-size:.82rem;background:#F1F4FC;padding:1px 6px;border-radius:6px;color:var(--ink);}
+  .tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+  .tag-fact{background:var(--coral-soft);color:var(--coral-deep);}
+  .tag-dim{background:var(--teal-soft);color:var(--teal-deep);}
+  .tag-bridge{background:var(--amber-soft);color:var(--amber-deep);}
+
+  /* ---------- CODE ---------- */
+  .code-block{background:#1B2140;border-radius:16px;overflow:hidden;margin:18px 0;box-shadow:var(--shadow);}
+  .code-head{display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.08);}
+  .code-head .dot{width:9px;height:9px;border-radius:50%;}
+  .code-head .d1{background:#FF6F61;} .code-head .d2{background:#FFB627;} .code-head .d3{background:#17C3B2;}
+  .code-head .fname{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:rgba(255,255,255,.55);margin-left:6px;}
+  .code-head .copy{margin-left:auto;background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.7);font-size:.7rem;padding:5px 11px;border-radius:7px;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:.2s;}
+  .code-head .copy:hover{background:rgba(255,255,255,.18);color:#fff;}
+  pre.code{margin:0;padding:18px 20px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.83rem;line-height:1.75;color:#E4E8F7;}
+  pre.code .kw{color:#FF9BC8;} pre.code .str{color:#9BE7B0;} pre.code .num{color:#FFC46B;}
+  pre.code .cm{color:#7E88B0;font-style:italic;} pre.code .fn{color:#7FD5FF;} pre.code .out{color:#8A93BC;}
+  .code-out{background:#141936;border-top:1px solid rgba(255,255,255,.08);padding:12px 20px;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#93E0B9;white-space:pre-wrap;}
+  .code-out .lbl{display:block;color:#5C668F;font-size:.68rem;letter-spacing:.1em;margin-bottom:5px;}
+  code.inl{background:#F1F4FC;border:1px solid var(--border);padding:1px 7px;border-radius:6px;font-size:.85em;color:var(--ink);font-family:'JetBrains Mono',monospace;}
+
+  /* ---------- GRIDS / CARDS ---------- */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:22px;box-shadow:var(--shadow);}
+  .card h4{margin:0 0 8px;font-size:1rem;}
+  .card p{margin:0;font-size:.9rem;color:var(--ink-soft);}
+  .card .c-ico{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;margin-bottom:12px;}
+  .card .c-eg{margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);font-size:.84rem;color:var(--ink-soft);}
+  .card .c-eg b{color:var(--ink);}
+
+  /* practice box */
+  .practice{border:2px dashed;border-radius:20px;padding:26px 28px;margin:28px 0;background:#fff;}
+  .practice.amber{border-color:#FFD98A;background:linear-gradient(180deg,#FFFBF1,#fff);}
+  .practice.blue{border-color:#B7D4FF;background:linear-gradient(180deg,#F4F8FF,#fff);}
+  .practice.violet{border-color:#D6C9FF;background:linear-gradient(180deg,#F8F5FF,#fff);}
+  .practice h4{margin:0 0 4px;display:flex;align-items:center;gap:9px;font-size:1.05rem;}
+  .practice .p-sub{color:var(--ink-soft);font-size:.88rem;margin-bottom:16px;}
+  .task-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
+  .task-list li{display:flex;gap:11px;align-items:flex-start;font-size:.92rem;color:var(--ink-soft);}
+  .task-list .box{width:19px;height:19px;border-radius:6px;border:2px solid var(--ink-faint);flex:none;margin-top:3px;}
+  .task-list b{color:var(--ink);}
+
+  /* summary strip */
+  .sum-strip{background:#fff;border:1px solid var(--border);border-left:5px solid;border-radius:16px;padding:20px 24px;margin-top:30px;box-shadow:var(--shadow);}
+  .sum-strip.amber{border-left-color:var(--amber);}
+  .sum-strip.blue{border-left-color:var(--blue);}
+  .sum-strip.violet{border-left-color:var(--violet);}
+  .sum-strip h4{margin:0 0 10px;font-size:.95rem;display:flex;align-items:center;gap:8px;}
+  .sum-strip ul{margin:0;padding-left:20px;color:var(--ink-soft);font-size:.9rem;}
+  .sum-strip li{margin-bottom:6px;}
+
+  /* KNN demo */
+  .knn-demo{background:#fff;border:1px solid var(--border);border-radius:20px;padding:22px;box-shadow:var(--shadow);margin:22px 0;}
+  .knn-top{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-bottom:14px;}
+  .knn-top label{font-size:.85rem;font-weight:700;display:flex;align-items:center;gap:10px;}
+  .knn-top input[type=range]{width:190px;accent-color:var(--violet);}
+  .kbadge{font-family:'JetBrains Mono',monospace;background:var(--violet);color:#fff;padding:3px 11px;border-radius:20px;font-size:.8rem;}
+  .knn-verdict{margin-left:auto;font-size:.86rem;background:var(--violet-soft);border:1px solid #DBD3FF;padding:8px 16px;border-radius:12px;font-weight:600;color:var(--violet-deep);}
+  .knn-body{display:grid;grid-template-columns:1.25fr .75fr;gap:20px;align-items:center;}
+  .knn-stage{background:#FAFBFF;border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+  .knn-stage svg{display:block;width:100%;height:auto;touch-action:none;cursor:grab;}
+  .knn-info h5{margin:0 0 8px;font-size:.9rem;}
+  .knn-info p{font-size:.85rem;color:var(--ink-soft);margin:0 0 12px;}
+  .vote-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:.84rem;}
+  .vote-dot{width:13px;height:13px;border-radius:50%;flex:none;}
+  .vote-bar{flex:1;height:9px;background:#EDF0FA;border-radius:5px;overflow:hidden;}
+  .vote-bar i{display:block;height:100%;border-radius:5px;transition:width .3s ease;}
+  .vote-n{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--ink-faint);width:22px;text-align:right;}
+
+  /* venn */
+  .venn-wrap{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center;}
+  .venn-legend{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;}
+  .venn-legend li{display:flex;gap:12px;align-items:flex-start;}
+  .venn-legend .vl-dot{width:16px;height:16px;border-radius:5px;flex:none;margin-top:4px;}
+  .venn-legend b{display:block;font-size:.92rem;}
+  .venn-legend span{font-size:.85rem;color:var(--ink-soft);}
+
+  /* compare 2col */
+  .cmp{background:#fff;border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);margin:20px 0;}
+  .cmp-head{display:grid;grid-template-columns:.7fr 1fr 1fr;}
+  .cmp-head div{padding:13px 16px;font-weight:700;font-size:.85rem;color:#fff;text-align:center;}
+  .cmp-head div:first-child{background:var(--ink-faint);text-align:left;}
+  .cmp-head .h-pq{background:var(--amber-deep);}
+  .cmp-head .h-py{background:var(--blue-deep);}
+  .cmp-row{display:grid;grid-template-columns:.7fr 1fr 1fr;border-top:1px solid var(--border);}
+  .cmp-row div{padding:12px 16px;font-size:.85rem;color:var(--ink-soft);}
+  .cmp-row div:first-child{font-weight:700;color:var(--ink);background:#FAFBFF;}
+  .cmp-row div + div{border-left:1px solid var(--border);}
+
+  /* homework */
+  .hw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .hw-card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:22px;box-shadow:var(--shadow);border-top:4px solid;}
+  .hw-card.a{border-top-color:var(--amber);} .hw-card.b{border-top-color:var(--blue);} .hw-card.c{border-top-color:var(--violet);}
+  .hw-card h4{margin:0 0 14px;font-size:.95rem;}
+  .hw-item{display:flex;gap:11px;align-items:flex-start;margin-bottom:13px;font-size:.88rem;color:var(--ink-soft);}
+  .hw-item .n{width:22px;height:22px;border-radius:7px;background:#F1F4FC;color:var(--ink-soft);font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;margin-top:1px;font-family:'JetBrains Mono',monospace;}
+  .hw-item b{color:var(--ink);}
+
+  /* glossary */
+  .gl-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+  .gl-btn{border:1px solid var(--border);background:#fff;padding:7px 15px;border-radius:20px;font-size:.8rem;font-weight:600;color:var(--ink-soft);cursor:pointer;transition:.2s;font-family:inherit;}
+  .gl-btn:hover{border-color:var(--ink-faint);}
+  .gl-btn.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+  /* footer */
+  footer{background:#171C36;color:rgba(255,255,255,.7);padding:52px 0 40px;}
+  footer h4{color:#fff;font-size:1.05rem;margin-bottom:8px;}
+  footer p{font-size:.87rem;margin:0;}
+  .foot-grid{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;align-items:flex-end;}
+  .foot-next{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 20px;font-size:.85rem;}
+  .foot-next b{color:#fff;}
+  .totop{position:fixed;right:22px;bottom:22px;width:44px;height:44px;border-radius:14px;background:var(--ink);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.25s;z-index:99;}
+  .totop.show{opacity:1;pointer-events:auto;}
+
+  /* responsive */
+  @media (max-width:1000px){
+    .hero-grid{grid-template-columns:1fr;gap:36px;}
+    .knn-body{grid-template-columns:1fr;}
+    .venn-wrap{grid-template-columns:1fr;}
+    .grid-3,.hw-grid{grid-template-columns:1fr 1fr;}
+    .img-trio{grid-template-columns:1fr 1fr;}
+  }
+  @media (max-width:760px){
+    section{padding:60px 0;}
+    .goal-list{grid-template-columns:1fr;}
+    .grid-2,.grid-3,.hw-grid,.img-duo,.img-trio{grid-template-columns:1fr;}
+    .part-banner{padding:24px 22px;}
+    .part-banner .pb-time{position:static;display:inline-block;margin-bottom:10px;}
+    .cmp-head,.cmp-row{grid-template-columns:1fr;}
+    .cmp-row div + div{border-left:none;border-top:1px solid var(--border);}
+    .cmp-head div{text-align:left;}
+    .nav-brand span.full{display:none;}
+    .practice{padding:20px 18px;}
+    .knn-verdict{margin-left:0;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <svg class="mark" viewBox="0 0 28 28" fill="none"><defs><linearGradient id="navg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFB627"/><stop offset=".5" stop-color="#3D8BFD"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient></defs><rect width="28" height="28" rx="8" fill="url(#navg)"/><rect x="7" y="15" width="3.4" height="6" rx="1.2" fill="#fff"/><rect x="12.3" y="11" width="3.4" height="10" rx="1.2" fill="#fff"/><rect x="17.6" y="7" width="3.4" height="14" rx="1.2" fill="#fff"/></svg>
+      <span class="full">Power BI cho người đi làm</span>
+      <span class="session-tag">BUỔI 2</span>
+    </div>
+    <div class="nav-links" id="navLinks">
+      <a href="#tongquan">Tổng quan</a>
+      <a href="#phan1" class="p1">1 · Power Query</a>
+      <a href="#phan2" class="p2">2 · Python</a>
+      <a href="#phan3" class="p3">3 · AI &amp; KNN</a>
+      <a href="#tongket">Tổng kết</a>
+      <a href="#baitap">Bài tập</a>
+      <a href="#thuatngu">Thuật ngữ</a>
+    </div>
+  </div>
+</nav>
+<div class="readbar" id="readbar"></div>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">● Buổi 2 · 90 phút</div>
+        <h1>Nối dữ liệu, viết dòng code đầu tiên<br>và <span class="accent">chạm vào AI</span></h1>
+        <p class="lede">Ba mảng kỹ năng trong một buổi: hoàn thiện dữ liệu AdventureWorks bằng Power Query, làm quen Python trên trình duyệt, và hiểu trực giác của thuật toán KNN — không cần cài đặt gì thêm.</p>
+        <div class="meta-row">
+          <span class="pill">🎯 3 phần độc lập</span>
+          <span class="pill">💻 Không cần cài đặt cho phần 2–3</span>
+          <span class="pill">📂 7 file CSV AdventureWorks</span>
+        </div>
+        <div class="cta-row">
+          <a href="#phan1" class="btn btn-primary">Bắt đầu Phần 1 →</a>
+          <a href="#baitap" class="btn btn-ghost">Xem bài tập về nhà</a>
+        </div>
+        <div class="progress-dots">
+          <span class="done"></span><span class="on"></span><span></span><span></span>
+          <small>Buổi 1 ✓ → Buổi 2 (đang học)</small>
+        </div>
+      </div>
+      <div class="stack">
+        <a href="#phan1" class="stack-card sc-1">
+          <div class="sc-ico">📊</div>
+          <div><h4>Phần 1 · Power Query &amp; AdventureWorks</h4><p>Nạp 7 bảng, làm sạch, Merge Queries</p></div>
+          <div class="sc-time">30–35′</div>
+        </a>
+        <a href="#phan2" class="stack-card sc-2">
+          <div class="sc-ico">🐍</div>
+          <div><h4>Phần 2 · Làm quen Python</h4><p>Google Colab, cú pháp nền tảng, pandas</p></div>
+          <div class="sc-time">30–35′</div>
+        </a>
+        <a href="#phan3" class="stack-card sc-3">
+          <div class="sc-ico">🤖</div>
+          <div><h4>Phần 3 · Nhập môn AI &amp; KNN</h4><p>AI/ML/DL, 3 dạng bài toán, thuật toán KNN</p></div>
+          <div class="sc-time">25–30′</div>
+        </a>
+      </div>
+    </div>
+  </div>
+  <svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0,40 C240,80 480,0 720,26 C960,52 1200,80 1440,44 L1440,80 L0,80 Z" fill="#FDFEFF"/></svg>
+</header>
+
+<!-- ================= TỔNG QUAN ================= -->
+<section id="tongquan">
+  <div class="blob drift" style="width:340px;height:340px;background:#FFB627;top:-40px;right:-60px;"></div>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--teal-deep)">◆ Trước khi bắt đầu</div>
+      <h2>Buổi 1 để lại gì, buổi 2 đi tiếp thế nào</h2>
+      <p>Buổi 2 không bắt đầu lại từ đầu. Bạn dùng chính Power BI Desktop đã cài, chính tư duy làm sạch dữ liệu đã học — rồi mở rộng sang hai công cụ mới.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="goal-box">
+        <h4>✅ Bạn đã có sau buổi 1</h4>
+        <ul class="goal-list" style="grid-template-columns:1fr;">
+          <li><span class="chk c-teal">✓</span> Power BI Desktop đã cài và chạy được</li>
+          <li><span class="chk c-teal">✓</span> Biết đường đi <b>Get Data → Transform Data → Close &amp; Apply</b></li>
+          <li><span class="chk c-teal">✓</span> Đã tạo biểu đồ, card, slicer đầu tiên</li>
+          <li><span class="chk c-teal">✓</span> Quen với khái niệm bảng, cột, kiểu dữ liệu</li>
+        </ul>
+      </div>
+      <div class="goal-box">
+        <h4>🎯 Sau buổi 2 bạn sẽ làm được</h4>
+        <ul class="goal-list" style="grid-template-columns:1fr;">
+          <li><span class="chk c-amber">1</span> Nạp và làm sạch bộ 7 bảng AdventureWorks, nối bảng bằng <b>Merge Queries</b></li>
+          <li><span class="chk c-blue">2</span> Viết và chạy được đoạn Python cơ bản trên Google Colab</li>
+          <li><span class="chk c-blue">2</span> Đọc file CSV và tính tổng theo nhóm bằng <b>pandas</b></li>
+          <li><span class="chk c-violet">3</span> Giải thích được AI/ML/DL và cách thuật toán <b>KNN</b> ra quyết định</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="c-emoji">🧭</div>
+      <div>
+        <div class="c-title">Ba phần độc lập — học lệch một chút cũng không sao</div>
+        <p>Nếu lớp chậm ở Phần 1, Phần 2 và 3 vẫn học được bình thường vì không phụ thuộc kết quả file .pbix. Ngược lại, ví dụ ở Phần 2 và 3 đều lấy lại dữ liệu bán hàng của Phần 1 nên ba phần vẫn "dính" nhau về mặt tư duy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PHẦN 1 ================= -->
+<section id="phan1" class="tint-amber">
+  <div class="wrap">
+    <div class="part-banner pb-amber">
+      <div class="pb-time">⏱ 30–35 phút</div>
+      <div class="pb-num">PHẦN 1 · POWER BI</div>
+      <h2>Tiếp tục Power Query với dữ liệu AdventureWorks</h2>
+      <p>Từ 7 file CSV rời rạc trong một thư mục → một mô hình dữ liệu sạch sẽ, sẵn sàng để tạo quan hệ ở buổi sau.</p>
+    </div>
+
+    <div class="goal-box">
+      <h4>🎯 Mục tiêu phần 1</h4>
+      <ul class="goal-list">
+        <li><span class="chk c-amber">1</span> Nhận diện được đâu là bảng <b>Fact</b>, đâu là bảng <b>Dimension</b></li>
+        <li><span class="chk c-amber">2</span> Nạp nhiều file CSV vào Power BI đúng cách</li>
+        <li><span class="chk c-amber">3</span> Áp dụng lại 4 thao tác làm sạch đã học ở buổi 1</li>
+        <li><span class="chk c-amber">4</span> Dùng <b>Merge Queries</b> để lấy tên sản phẩm và tên đại lý vào bảng Sales</li>
+      </ul>
+    </div>
+
+    <!-- 1.1 -->
+    <h3><span class="h3-tag" style="background:var(--amber-soft);color:var(--amber-deep)">1.1</span> Làm quen 7 bảng dữ liệu</h3>
+    <p class="lead">AdventureWorks là bộ dữ liệu mẫu kinh điển của Microsoft: một công ty bán xe đạp và phụ kiện. Bảy file CSV bạn đã tải mô tả mảng bán hàng qua <b>đại lý (Reseller)</b> — công ty bán sỉ cho các cửa hàng, chứ không bán lẻ trực tiếp.</p>
+
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead>
+          <tr><th>File CSV</th><th>Vai trò</th><th>Nội dung</th><th>Cột khoá quan trọng</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><b>Sales.csv</b><br><span style="font-size:.78rem;color:var(--ink-faint)">bảng lớn nhất</span></td><td><span class="tag tag-fact">FACT</span></td><td>Mỗi dòng là một giao dịch bán hàng: bán sản phẩm nào, cho đại lý nào, ngày nào, bao nhiêu tiền.</td><td><code>ProductKey</code>, <code>ResellerKey</code>, <code>EmployeeKey</code>, <code>SalesTerritoryKey</code></td></tr>
+          <tr><td><b>Targets.csv</b></td><td><span class="tag tag-fact">FACT</span></td><td>Chỉ tiêu doanh số giao cho từng nhân viên theo từng kỳ.</td><td><code>EmployeeID</code>, <code>TargetMonth</code></td></tr>
+          <tr><td><b>Product.csv</b></td><td><span class="tag tag-dim">DIMENSION</span></td><td>Danh mục sản phẩm: tên, mã SKU, màu sắc, nhóm hàng, giá niêm yết.</td><td><code>ProductKey</code></td></tr>
+          <tr><td><b>Reseller.csv</b></td><td><span class="tag tag-dim">DIMENSION</span></td><td>Danh sách đại lý: tên, loại hình kinh doanh, thành phố, quốc gia.</td><td><code>ResellerKey</code></td></tr>
+          <tr><td><b>Salesperson.csv</b></td><td><span class="tag tag-dim">DIMENSION</span></td><td>Nhân viên kinh doanh: tên, chức danh, email.</td><td><code>EmployeeKey</code>, <code>EmployeeID</code></td></tr>
+          <tr><td><b>Region.csv</b></td><td><span class="tag tag-dim">DIMENSION</span></td><td>Vùng bán hàng: khu vực, quốc gia, nhóm vùng.</td><td><code>SalesTerritoryKey</code></td></tr>
+          <tr><td><b>SalespersonRegion.csv</b></td><td><span class="tag tag-bridge">BRIDGE</span></td><td>Bảng nối: một nhân viên có thể phụ trách nhiều vùng, một vùng có nhiều nhân viên.</td><td><code>EmployeeKey</code> + <code>SalesTerritoryKey</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout key">
+      <div class="c-emoji">🔑</div>
+      <div>
+        <div class="c-title">Cách phân biệt Fact và Dimension trong 5 giây</div>
+        <p><b>Fact (bảng sự kiện)</b> = "chuyện gì đã xảy ra" — có ngày tháng, có số tiền, có số lượng, và <b>rất nhiều dòng</b>. Bạn <i>cộng</i> các cột của nó.<br>
+        <b>Dimension (bảng chiều)</b> = "ai / cái gì / ở đâu" — danh sách ít dòng, mỗi dòng là một đối tượng duy nhất. Bạn <i>lọc và nhóm</i> theo nó.</p>
+        <p><b>Câu hỏi kiểm tra:</b> "Tổng doanh thu <i>theo</i> quốc gia" → doanh thu nằm ở Fact, quốc gia nằm ở Dimension. Chữ "theo" luôn dẫn tới một bảng Dimension.</p>
+      </div>
+    </div>
+
+    <h4>Đích đến của cả buổi sau: mô hình hình sao (star schema)</h4>
+    <p class="lead">Khi các bảng được nối đúng, sơ đồ mô hình trông như một ngôi sao: bảng Fact ở giữa, các Dimension toả ra xung quanh. Đây là lý do chúng ta phân loại bảng ngay từ bây giờ.</p>
+
+    <div class="img-duo">
+      <div class="img-frame">
+        <img src="https://learn.microsoft.com/en-us/power-bi/guidance/media/star-schema/star-schema-example-1.svg"
+             alt="Sơ đồ star schema: bảng Fact ở trung tâm nối với các bảng Dimension xung quanh" loading="lazy"
+             onerror="this.closest('.img-frame').classList.add('failed')">
+        <div class="img-cap">📐 Mô hình hình sao: Fact ở giữa, Dimension bao quanh <i>(ảnh: Microsoft Learn)</i></div>
+      </div>
+      <div class="img-frame">
+        <img src="https://learn.microsoft.com/en-us/power-bi/guidance/media/star-schema/star-schema-example-2.svg"
+             alt="Sơ đồ star schema với chiều lọc từ Dimension sang Fact" loading="lazy"
+             onerror="this.closest('.img-frame').classList.add('failed')">
+        <div class="img-cap">➡️ Bộ lọc luôn chảy từ Dimension → Fact <i>(ảnh: Microsoft Learn)</i></div>
+      </div>
+    </div>
+
+    <div class="img-frame">
+      <svg viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg" style="background:#fff">
+        <defs>
+          <style>
+            .tname{font-family:'Be Vietnam Pro',sans-serif;font-size:14px;font-weight:700;fill:#1E2547}
+            .tsub{font-family:'JetBrains Mono',monospace;font-size:10px;fill:#9AA2BE}
+            .lnk{stroke:#C9D3EA;stroke-width:2;stroke-dasharray:5 5}
+          </style>
+        </defs>
+        <line class="lnk" x1="450" y1="190" x2="180" y2="80"/>
+        <line class="lnk" x1="450" y1="190" x2="720" y2="80"/>
+        <line class="lnk" x1="450" y1="190" x2="150" y2="300"/>
+        <line class="lnk" x1="450" y1="190" x2="750" y2="300"/>
+        <line class="lnk" x1="450" y1="190" x2="450" y2="330"/>
+        <rect x="360" y="150" width="180" height="80" rx="14" fill="#FFECE8" stroke="#FF6F61" stroke-width="2"/>
+        <text class="tname" x="450" y="182" text-anchor="middle">Sales</text>
+        <text class="tsub" x="450" y="202" text-anchor="middle">FACT · nhiều dòng nhất</text>
+        <g>
+          <rect x="80" y="42" width="200" height="66" rx="12" fill="#E3FBF6" stroke="#17C3B2" stroke-width="1.6"/>
+          <text class="tname" x="180" y="70" text-anchor="middle">Product</text>
+          <text class="tsub" x="180" y="90" text-anchor="middle">ProductKey</text>
+        </g>
+        <g>
+          <rect x="620" y="42" width="200" height="66" rx="12" fill="#E3FBF6" stroke="#17C3B2" stroke-width="1.6"/>
+          <text class="tname" x="720" y="70" text-anchor="middle">Reseller</text>
+          <text class="tsub" x="720" y="90" text-anchor="middle">ResellerKey</text>
+        </g>
+        <g>
+          <rect x="50" y="266" width="200" height="66" rx="12" fill="#E3FBF6" stroke="#17C3B2" stroke-width="1.6"/>
+          <text class="tname" x="150" y="294" text-anchor="middle">Salesperson</text>
+          <text class="tsub" x="150" y="314" text-anchor="middle">EmployeeKey</text>
+        </g>
+        <g>
+          <rect x="650" y="266" width="200" height="66" rx="12" fill="#E3FBF6" stroke="#17C3B2" stroke-width="1.6"/>
+          <text class="tname" x="750" y="294" text-anchor="middle">Region</text>
+          <text class="tsub" x="750" y="314" text-anchor="middle">SalesTerritoryKey</text>
+        </g>
+        <g>
+          <rect x="350" y="300" width="200" height="62" rx="12" fill="#FFF6E2" stroke="#FFB627" stroke-width="1.6"/>
+          <text class="tname" x="450" y="326" text-anchor="middle">SalespersonRegion</text>
+          <text class="tsub" x="450" y="346" text-anchor="middle">bảng nối (bridge)</text>
+        </g>
+        <g>
+          <rect x="360" y="30" width="180" height="62" rx="12" fill="#FFECE8" stroke="#FF6F61" stroke-width="1.6"/>
+          <text class="tname" x="450" y="56" text-anchor="middle">Targets</text>
+          <text class="tsub" x="450" y="76" text-anchor="middle">FACT · chỉ tiêu</text>
+        </g>
+      </svg>
+      <div class="img-cap">🗺️ Bộ AdventureWorks của chúng ta khi xếp theo tư duy star schema — buổi sau sẽ nối các đường nét đứt này thành quan hệ thật.</div>
+    </div>
+
+    <!-- 1.2 -->
+    <h3><span class="h3-tag" style="background:var(--amber-soft);color:var(--amber-deep)">1.2</span> Nạp dữ liệu: Get Data → Folder hay từng file?</h3>
+    <p class="lead">Power BI có hai đường đi. Chọn đúng ngay từ đầu sẽ tiết kiệm cho bạn 20 phút gỡ rối.</p>
+
+    <div class="grid-2">
+      <div class="card" style="border-top:4px solid var(--teal)">
+        <div class="c-ico" style="background:var(--teal-soft)">📄</div>
+        <h4>Cách A — Nhập từng file CSV <span class="tag tag-dim" style="margin-left:6px">NÊN DÙNG</span></h4>
+        <p><b>Get Data → Text/CSV</b>, lặp lại 7 lần. Mỗi file thành một query riêng, giữ nguyên cấu trúc riêng của nó.</p>
+        <div class="c-eg"><b>Vì sao?</b> 7 file của chúng ta có <b>cấu trúc khác nhau hoàn toàn</b> (Product có cột màu sắc, Reseller có cột thành phố…). Đây chính là trường hợp cần import riêng.</div>
+      </div>
+      <div class="card" style="border-top:4px solid var(--ink-faint)">
+        <div class="c-ico" style="background:#F1F4FC">📁</div>
+        <h4>Cách B — Get Data → Folder</h4>
+        <p><b>Folder</b> nạp cả thư mục một lần, rồi bấm <b>Combine</b> để gộp các file lại thành một bảng duy nhất.</p>
+        <div class="c-eg"><b>Chỉ hợp khi</b> tất cả file có <b>cùng cấu trúc cột</b> — ví dụ 12 file <code>Sales_01.csv … Sales_12.csv</code> của 12 tháng. Với bộ AdventureWorks thì <b>không</b> dùng nút Combine.</div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <div class="c-emoji">⚠️</div>
+      <div>
+        <div class="c-title">Bẫy hay gặp nhất của người mới</div>
+        <p>Thấy 7 file nằm chung thư mục, học viên thường chọn Folder rồi bấm <b>Combine</b> — kết quả là 7 bảng khác nhau bị chồng lên nhau, hàng loạt cột trống và lỗi. Nếu bạn vẫn muốn dùng Folder, hãy bấm <b>Transform Data</b> (không phải Combine) rồi mở từng file bằng cột <code>Content</code>.</p>
+      </div>
+    </div>
+
+    <h4>Các bước cụ thể (Cách A)</h4>
+    <ol class="steps amber">
+      <li>
+        <h5>Mở Power BI Desktop và bấm Get Data</h5>
+        <p>Từ tab <b>Home</b> → <span class="path">Get Data → Text/CSV</span> → chọn file <code class="inl">Product.csv</code>.</p>
+      </li>
+      <li>
+        <h5>Xem trước rồi bấm Transform Data</h5>
+        <p>Cửa sổ xem trước hiện ra. <b>Đừng bấm Load</b> — luôn bấm <b>Transform Data</b> để vào Power Query Editor kiểm tra dữ liệu trước. Đây là thói quen tốt của người làm dữ liệu.</p>
+      </li>
+      <li>
+        <h5>Trong Power Query Editor, nạp tiếp các file còn lại</h5>
+        <p>Không cần thoát ra: bấm <span class="path">New Source → Text/CSV</span> ngay trong editor để thêm lần lượt 6 file còn lại.</p>
+      </li>
+      <li>
+        <h5>Đổi tên query cho gọn</h5>
+        <p>Ở khung <b>Queries</b> bên trái, bấm đúp vào tên query để đổi: <code class="inl">Product</code>, <code class="inl">Reseller</code>, <code class="inl">Sales</code>… (bỏ đuôi <code class="inl">.csv</code>). Tên query sẽ thành tên bảng trong báo cáo — đặt gọn ngay từ đầu.</p>
+      </li>
+    </ol>
+
+    <div class="img-frame">
+      <img src="https://learn.microsoft.com/en-us/power-bi/transform-model/media/desktop-query-overview/query-overview-transform.png"
+           alt="Nút Transform Data trên tab Home của Power BI Desktop" loading="lazy"
+           onerror="this.closest('.img-frame').classList.add('failed')">
+      <div class="img-cap">📸 Bước 2: nút <b>Transform Data</b> trên tab Home — cửa vào Power Query Editor <i>(ảnh: Microsoft Learn)</i></div>
+    </div>
+
+    <div class="img-frame">
+      <img src="https://learn.microsoft.com/en-us/power-bi/transform-model/media/desktop-query-overview/query-overview-with-data-connection.png"
+           alt="Giao diện Power Query Editor với khung Queries bên trái, dữ liệu ở giữa và Query Settings bên phải" loading="lazy"
+           onerror="this.closest('.img-frame').classList.add('failed')">
+      <div class="img-cap">📸 Ba khu vực bạn cần nhớ trong Power Query Editor: <b>Queries</b> (trái) · <b>dữ liệu</b> (giữa) · <b>Query Settings / Applied Steps</b> (phải) <i>(ảnh: Microsoft Learn)</i></div>
+    </div>
+
+    <div class="callout note">
+      <div class="c-emoji">📁</div>
+      <div>
+        <div class="c-title">Nếu lớp muốn thử Cách B cho biết</div>
+        <p><span class="path">Get Data → More → Folder → Browse…</span> → chọn thư mục chứa 7 file → bấm <b>Transform Data</b>. Bạn sẽ thấy một bảng liệt kê <i>thông tin về các file</i> (tên, ngày sửa, cột <code class="inl">Content</code> chứa nội dung) chứ không phải dữ liệu bên trong. Đó là cách Power Query nhìn một thư mục.</p>
+      </div>
+    </div>
+
+    <div class="img-duo">
+      <div class="img-frame">
+        <img src="https://learn.microsoft.com/en-us/power-query/connectors/media/folder/combine-folder-files.png"
+             alt="Hộp thoại Folder connector với các nút Combine, Transform Data và Load" loading="lazy"
+             onerror="this.closest('.img-frame').classList.add('failed')">
+        <div class="img-cap">📸 Folder connector: chú ý ba nút <b>Combine &amp; Transform</b> / <b>Combine &amp; Load</b> / <b>Transform Data</b> <i>(ảnh: Microsoft Learn)</i></div>
+      </div>
+      <div class="img-frame">
+        <img src="https://learn.microsoft.com/en-us/power-query/media/combine-files-csv/combine-files-csv-files-list.png"
+             alt="Bảng xem trước danh sách file trong thư mục với cột Content, Name, Extension" loading="lazy"
+             onerror="this.closest('.img-frame').classList.add('failed')">
+        <div class="img-cap">📸 Khi nạp bằng Folder, Power Query hiện <b>danh sách file</b> chứ chưa phải dữ liệu <i>(ảnh: Microsoft Learn)</i></div>
+      </div>
+    </div>
+
+    <!-- 1.3 -->
+    <h3><span class="h3-tag" style="background:var(--amber-soft);color:var(--amber-deep)">1.3</span> Ôn lại 4 thao tác làm sạch</h3>
+    <p class="lead">Bốn thao tác này bạn đã làm ở buổi 1 với dữ liệu Financial Sample. Giờ áp dụng lại trên dữ liệu thật, phức tạp hơn.</p>
+
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Thao tác</th><th>Ở đâu trong Power Query</th><th>Áp dụng vào bảng nào</th><th>Vì sao cần</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><b>Change Type</b><br><span style="font-size:.78rem;color:var(--ink-faint)">Đổi kiểu dữ liệu</span></td>
+            <td>Bấm vào <b>biểu tượng kiểu</b> bên trái tên cột, hoặc <span class="path">Transform → Data Type</span></td>
+            <td><code>Sales</code>: cột tiền → <b>Decimal Number</b>, cột ngày → <b>Date</b>, cột số lượng → <b>Whole Number</b></td>
+            <td>Cột tiền để kiểu Text thì không cộng được. Đây là lỗi số 1 khiến biểu đồ ra sai.</td>
+          </tr>
+          <tr>
+            <td><b>Trim</b><br><span style="font-size:.78rem;color:var(--ink-faint)">Cắt khoảng trắng thừa</span></td>
+            <td><span class="path">Transform → Format → Trim</span></td>
+            <td><code>Reseller</code>: cột tên đại lý, thành phố</td>
+            <td><code class="inl">"Bike Store "</code> và <code class="inl">"Bike Store"</code> là hai giá trị khác nhau với máy tính — nối bảng sẽ trượt.</td>
+          </tr>
+          <tr>
+            <td><b>Remove Duplicates</b><br><span style="font-size:.78rem;color:var(--ink-faint)">Xoá dòng trùng</span></td>
+            <td>Chọn cột khoá → chuột phải → <b>Remove Duplicates</b></td>
+            <td><code>Product</code> theo <code>ProductKey</code>, <code>Reseller</code> theo <code>ResellerKey</code></td>
+            <td>Bảng Dimension bắt buộc mỗi khoá chỉ xuất hiện <b>một lần</b>, nếu không sẽ không tạo được quan hệ ở buổi sau.</td>
+          </tr>
+          <tr>
+            <td><b>Replace Values</b><br><span style="font-size:.78rem;color:var(--ink-faint)">Thay giá trị</span></td>
+            <td>Chuột phải lên cột → <b>Replace Values…</b></td>
+            <td><code>Product</code>: ô trống ở cột màu sắc → thay bằng <code class="inl">"Không xác định"</code></td>
+            <td>Biểu đồ hiển thị "(Blank)" trông thiếu chuyên nghiệp; thay bằng nhãn rõ ràng.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="img-duo">
+      <div class="img-frame">
+        <img src="https://learn.microsoft.com/en-us/power-bi/transform-model/media/desktop-query-overview/query-overview-transform-ribbon.png"
+             alt="Tab Transform trên thanh ribbon của Power Query Editor" loading="lazy"
+             onerror="this.closest('.img-frame').classList.add('failed')">
+        <div class="img-cap">📸 Tab <b>Transform</b> — nơi có Data Type, Format → Trim, Replace Values <i>(ảnh: Microsoft Learn)</i></div>
+      </div>
+      <div class="img-frame">
+        <img src="https://learn.microsoft.com/en-us/power-bi/transform-model/media/desktop-query-overview/query-overview-query-settings-pane.png"
+             alt="Khung Query Settings với danh sách Applied Steps" loading="lazy"
+             onerror="this.closest('.img-frame').classList.add('failed')">
+        <div class="img-cap">📸 <b>Applied Steps</b> ghi lại mọi thao tác — bấm chữ ✕ để xoá một bước làm sai <i>(ảnh: Microsoft Learn)</i></div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="c-emoji">💡</div>
+      <div>
+        <div class="c-title">Applied Steps là "lịch sử undo" vĩnh viễn của bạn</div>
+        <p>Khác với Excel, mọi thao tác ở Power Query đều được ghi thành một bước có tên. Làm sai bước 5? Xoá đúng bước 5, các bước sau vẫn giữ nguyên. Đây là lý do dữ liệu gốc không bao giờ bị hỏng — Power Query chỉ ghi <i>công thức biến đổi</i>, không sửa file CSV của bạn.</p>
+      </div>
+    </div>
+
+    <!-- 1.4 -->
+    <h3><span class="h3-tag" style="background:var(--amber-soft);color:var(--amber-deep)">1.4</span> Merge Queries — nối bảng Sales với Product và Reseller</h3>
+    <p class="lead">Bảng <code class="inl">Sales</code> chỉ có mã: <code class="inl">ProductKey = 310</code>, <code class="inl">ResellerKey = 45</code>. Người đọc báo cáo cần <b>tên</b>: "Mountain-200 Black" bán cho "Vigorous Sports Store". Merge Queries chính là cầu nối đó.</p>
+
+    <h4>Merge Queries làm gì? Nhìn hình là hiểu</h4>
+    <div class="img-frame">
+      <img src="https://learn.microsoft.com/en-us/power-query/media/merge-queries-left-outer/left-outer-join-operation.png"
+           alt="Sơ đồ phép nối left outer join: bảng trái giữ nguyên mọi dòng, lấy thêm cột từ bảng phải khi khớp khoá" loading="lazy"
+           onerror="this.closest('.img-frame').classList.add('failed')">
+      <div class="img-cap">📐 <b>Left Outer Join</b>: giữ <b>toàn bộ</b> dòng của bảng trái (Sales), lấy thêm cột từ bảng phải khi khoá khớp. Không khớp → ô đó là <code>null</code> <i>(ảnh: Microsoft Learn)</i></div>
+    </div>
+
+    <div class="callout key">
+      <div class="c-emoji">🧩</div>
+      <div>
+        <div class="c-title">Nếu bạn quen Excel: Merge Queries ≈ VLOOKUP, nhưng khoẻ hơn nhiều</div>
+        <p>VLOOKUP kéo về <b>một cột</b> mỗi lần và chậm dần khi dữ liệu lớn. Merge Queries kéo về <b>bao nhiêu cột cũng được</b> trong một lần, chạy nhanh với hàng trăm nghìn dòng, và tự chạy lại khi bạn Refresh dữ liệu.</p>
+      </div>
+    </div>
+
+    <h4>Thực hành A — Nối Sales với Product</h4>
+    <ol class="steps amber">
+      <li>
+        <h5>Chọn query Sales rồi mở hộp thoại Merge</h5>
+        <p>Ở khung Queries bên trái, bấm vào <code class="inl">Sales</code>. Sau đó <span class="path">Home → Merge Queries</span> (giữ mặc định, đừng chọn "Merge Queries as New").</p>
+      </li>
+      <li>
+        <h5>Chọn bảng phải là Product</h5>
+        <p>Bảng trên là <code class="inl">Sales</code> (đang chọn sẵn), ô danh sách phía dưới chọn <code class="inl">Product</code>.</p>
+      </li>
+      <li>
+        <h5>Bấm chọn cột khoá ở CẢ HAI bảng</h5>
+        <p>Bấm vào tiêu đề cột <code class="inl">ProductKey</code> ở bảng Sales, rồi bấm tiêu đề cột <code class="inl">ProductKey</code> ở bảng Product. Cột được chọn sẽ đổi màu xanh.</p>
+      </li>
+      <li>
+        <h5>Join Kind: chọn Left Outer</h5>
+        <p>Đây là lựa chọn mặc định và cũng là lựa chọn đúng: giữ mọi giao dịch bán hàng, kể cả giao dịch có mã sản phẩm lạ.</p>
+      </li>
+      <li>
+        <h5>Đọc dòng chữ nhỏ dưới hộp thoại trước khi bấm OK</h5>
+        <p>Power Query báo <i>"The selection matches N of M rows"</i>. Nếu số khớp thấp bất thường → khoá sai kiểu dữ liệu hoặc còn khoảng trắng (quay lại Trim ở mục 1.3).</p>
+      </li>
+    </ol>
+
+    <div class="img-frame">
+      <img src="https://learn.microsoft.com/en-us/power-query/media/merge-queries-left-outer/left-outer-merge-window.png"
+           alt="Hộp thoại Merge với cột khoá được chọn ở hai bảng và Join Kind Left Outer" loading="lazy"
+           onerror="this.closest('.img-frame').classList.add('failed')">
+      <div class="img-cap">📸 Hộp thoại <b>Merge</b>: cột khoá được bôi xanh ở cả hai bảng, mục <b>Join Kind</b> để <b>Left Outer</b>, và dòng thông báo số dòng khớp ở dưới cùng <i>(ảnh: Microsoft Learn)</i></div>
+    </div>
+
+    <ol class="steps amber" start="6" style="counter-reset:st 5">
+      <li>
+        <h5>Mở rộng cột kết quả (bước hay bị quên nhất!)</h5>
+        <p>Sau khi bấm OK, cuối bảng Sales xuất hiện một cột mới tên <code class="inl">Product</code> chứa toàn chữ <code class="inl">Table</code>. Bấm biểu tượng <b>hai mũi tên ⇔</b> ở tiêu đề cột đó.</p>
+      </li>
+      <li>
+        <h5>Chỉ tick những cột thật sự cần</h5>
+        <p>Bỏ tick <b>(Select All Columns)</b>, chỉ tick <code class="inl">Product</code> (tên sản phẩm) và <code class="inl">Category</code>. <b>Bỏ tick</b> ô <i>"Use original column name as prefix"</i> để tên cột không bị dài dòng kiểu <code class="inl">Product.Product</code>.</p>
+      </li>
+      <li>
+        <h5>Kiểm tra kết quả</h5>
+        <p>Bảng Sales giờ có thêm cột tên sản phẩm ngay cạnh cột mã. Đây chính là thứ người đọc báo cáo cần nhìn thấy.</p>
+      </li>
+    </ol>
+
+    <div class="img-duo">
+      <div class="img-frame">
+        <img src="https://learn.microsoft.com/en-us/power-query/media/merge-queries-left-outer/left-outer-expand-field.png"
+             alt="Menu mở rộng cột sau khi merge, chọn các cột cần lấy" loading="lazy"
+             onerror="this.closest('.img-frame').classList.add('failed')">
+        <div class="img-cap">📸 Bước 7: menu <b>Expand ⇔</b> — chỉ tick cột cần, bỏ tick "Use original column name as prefix" <i>(ảnh: Microsoft Learn)</i></div>
+      </div>
+      <div class="img-frame">
+        <img src="https://learn.microsoft.com/en-us/power-query/media/merge-queries-left-outer/left-outer-final-table-2.png"
+             alt="Bảng kết quả sau khi merge và mở rộng, có thêm cột lấy từ bảng phải" loading="lazy"
+             onerror="this.closest('.img-frame').classList.add('failed')">
+        <div class="img-cap">📸 Bước 8: kết quả — cột mới đã nằm gọn trong bảng trái <i>(ảnh: Microsoft Learn)</i></div>
+      </div>
+    </div>
+
+    <h4>Thực hành B — Nối tiếp Sales với Reseller</h4>
+    <p class="lead">Lặp lại y hệt 8 bước trên, chỉ đổi ba chỗ:</p>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Bước</th><th>Với Product</th><th>Với Reseller</th></tr></thead>
+        <tbody>
+          <tr><td>Bảng phải</td><td><code>Product</code></td><td><code>Reseller</code></td></tr>
+          <tr><td>Cột khoá</td><td><code>ProductKey</code> ↔ <code>ProductKey</code></td><td><code>ResellerKey</code> ↔ <code>ResellerKey</code></td></tr>
+          <tr><td>Cột cần mở rộng</td><td><code>Product</code>, <code>Category</code></td><td><code>Reseller</code> (tên đại lý), <code>Country-Region</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <div class="c-emoji">🛟</div>
+      <div>
+        <div class="c-title">Ba lỗi thường gặp khi Merge và cách xử lý</div>
+        <p><b>1. Số dòng khớp = 0</b> → hai cột khoá khác kiểu dữ liệu (một bên Text, một bên Whole Number). Đổi cho giống nhau rồi merge lại.</p>
+        <p><b>2. Sau khi merge, số dòng Sales tăng vọt</b> → bảng phải bị trùng khoá. Quay về bảng Dimension làm <b>Remove Duplicates</b> trên cột khoá.</p>
+        <p><b>3. Cột mới toàn null</b> → sai cột khoá, hoặc còn khoảng trắng. Dùng <b>Trim</b> ở cả hai bảng rồi thử lại.</p>
+      </div>
+    </div>
+
+    <div class="callout note">
+      <div class="c-emoji">🤔</div>
+      <div>
+        <div class="c-title">Vậy có phải lúc nào cũng nên Merge không?</div>
+        <p>Không. Trong thực tế, thay vì merge, người ta thường <b>tạo quan hệ (relationship)</b> giữa Sales và Product ở Model view — mô hình gọn nhẹ hơn và file .pbix nhỏ hơn. Hôm nay chúng ta merge để <b>hiểu bản chất phép nối</b>; buổi sau bạn sẽ học cách làm điều tương tự bằng quan hệ và thấy ngay sự khác biệt.</p>
+      </div>
+    </div>
+
+    <!-- 1.5 -->
+    <h3><span class="h3-tag" style="background:var(--amber-soft);color:var(--amber-deep)">1.5</span> Close &amp; Apply và ngó trước Model view</h3>
+    <ol class="steps amber">
+      <li>
+        <h5>Bấm Close &amp; Apply</h5>
+        <p><span class="path">Home → Close &amp; Apply</span> ở góc trái trên. Power BI sẽ chạy lại toàn bộ Applied Steps của 7 query và nạp kết quả vào mô hình. Hộp thoại tiến trình hiện ra — bảng Sales lớn nên chờ vài giây là bình thường.</p>
+      </li>
+      <li>
+        <h5>Chuyển sang Model view</h5>
+        <p>Ở dải biểu tượng dọc bên trái màn hình có 3 chế độ: <b>Report</b> (biểu đồ) · <b>Table</b> (bảng dữ liệu) · <b>Model</b> (sơ đồ quan hệ). Bấm biểu tượng thứ ba.</p>
+      </li>
+      <li>
+        <h5>Quan sát — và đừng làm gì cả</h5>
+        <p>Bạn sẽ thấy 7 hộp bảng nằm rời rạc (hoặc có vài đường nối do Power BI tự đoán). <b>Buổi sau chúng ta sẽ nối chúng đúng cách.</b> Hôm nay chỉ cần biết mình đang đứng ở đâu trên bản đồ.</p>
+      </li>
+      <li>
+        <h5>Lưu file</h5>
+        <p><span class="path">File → Save As</span> → đặt tên <code class="inl">AdventureWorks_Buoi2.pbix</code>. Buổi sau bạn sẽ mở lại đúng file này.</p>
+      </li>
+    </ol>
+
+    <div class="img-duo">
+      <div class="img-frame">
+        <img src="https://learn.microsoft.com/en-us/power-bi/transform-model/media/desktop-query-overview/query-overview-close-nload.png"
+             alt="Nút Close and Apply trong Power Query Editor" loading="lazy"
+             onerror="this.closest('.img-frame').classList.add('failed')">
+        <div class="img-cap">📸 Bước 1: <b>Close &amp; Apply</b> — áp dụng mọi thay đổi và quay về Power BI Desktop <i>(ảnh: Microsoft Learn)</i></div>
+      </div>
+      <div class="img-frame">
+        <img src="https://learn.microsoft.com/en-us/power-bi/transform-model/media/desktop-query-overview/query-overview-view-icons.png"
+             alt="Ba biểu tượng chế độ xem Report, Table, Model ở cạnh trái Power BI Desktop" loading="lazy"
+             onerror="this.closest('.img-frame').classList.add('failed')">
+        <div class="img-cap">📸 Bước 2: ba chế độ xem — biểu tượng dưới cùng là <b>Model view</b> <i>(ảnh: Microsoft Learn)</i></div>
+      </div>
+    </div>
+
+    <div class="practice amber">
+      <h4>🛠️ Thực hành tại lớp — Phần 1 <span style="font-size:.75rem;font-weight:600;color:var(--ink-faint)">(12 phút)</span></h4>
+      <div class="p-sub">Làm theo thứ tự, giơ tay ngay khi kẹt ở bất kỳ ô tick nào.</div>
+      <ul class="task-list">
+        <li><span class="box"></span><span>Nạp đủ <b>7 file CSV</b> vào Power Query, đổi tên query gọn gàng (bỏ đuôi <code class="inl">.csv</code>)</span></li>
+        <li><span class="box"></span><span>Bảng <b>Sales</b>: đặt đúng kiểu dữ liệu cho cột ngày, cột tiền và cột số lượng</span></li>
+        <li><span class="box"></span><span>Bảng <b>Reseller</b>: <b>Trim</b> cột tên đại lý; bảng <b>Product</b>: <b>Remove Duplicates</b> theo <code class="inl">ProductKey</code></span></li>
+        <li><span class="box"></span><span><b>Merge</b> Sales ↔ Product qua <code class="inl">ProductKey</code>, mở rộng lấy <b>tên sản phẩm</b></span></li>
+        <li><span class="box"></span><span><b>Merge</b> Sales ↔ Reseller qua <code class="inl">ResellerKey</code>, mở rộng lấy <b>tên đại lý</b></span></li>
+        <li><span class="box"></span><span><b>Close &amp; Apply</b> → mở <b>Model view</b> → lưu file <code class="inl">AdventureWorks_Buoi2.pbix</code></span></li>
+      </ul>
+    </div>
+
+    <div class="sum-strip amber">
+      <h4>📌 Tóm tắt Phần 1</h4>
+      <ul>
+        <li><b>Fact</b> = sự kiện, có số để cộng, nhiều dòng (Sales, Targets). <b>Dimension</b> = danh mục để lọc và nhóm (Product, Reseller, Salesperson, Region).</li>
+        <li>Nhiều file <b>khác cấu trúc</b> → import từng file bằng Text/CSV. Nhiều file <b>cùng cấu trúc</b> → mới dùng Folder + Combine.</li>
+        <li><b>Merge Queries</b> = VLOOKUP phiên bản khoẻ: chọn hai cột khoá → Left Outer → OK → <b>nhớ bấm ⇔ để Expand</b>.</li>
+        <li>Luôn đọc dòng "matches N of M rows" trước khi bấm OK — đó là cảnh báo sớm cho dữ liệu bẩn.</li>
+        <li><b>Close &amp; Apply</b> đưa dữ liệu vào mô hình; <b>Model view</b> là sân chơi của buổi sau.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PHẦN 2 ================= -->
+<section id="phan2">
+  <div class="blob drift" style="width:360px;height:360px;background:#3D8BFD;top:60px;left:-90px;"></div>
+  <div class="wrap">
+    <div class="part-banner pb-blue">
+      <div class="pb-time">⏱ 30–35 phút</div>
+      <div class="pb-num">PHẦN 2 · PYTHON</div>
+      <h2>Làm quen với Python</h2>
+      <p>Không cài đặt, không cấu hình, không "môi trường ảo". Mở trình duyệt, đăng nhập Google, viết dòng code đầu tiên trong 2 phút.</p>
+    </div>
+
+    <div class="goal-box">
+      <h4>🎯 Mục tiêu phần 2</h4>
+      <ul class="goal-list">
+        <li><span class="chk c-blue">1</span> Hiểu Python là gì và vì sao người làm dữ liệu nên biết</li>
+        <li><span class="chk c-blue">2</span> Tự mở được Google Colab và tạo notebook đầu tiên</li>
+        <li><span class="chk c-blue">3</span> Viết được biến, list, dict, if/else, for, hàm</li>
+        <li><span class="chk c-blue">4</span> Dùng <b>pandas</b> đọc file CSV và tính tổng theo nhóm</li>
+      </ul>
+    </div>
+
+    <!-- 2.1 -->
+    <h3><span class="h3-tag" style="background:var(--blue-soft);color:var(--blue-deep)">2.1</span> Python là gì, và vì sao bạn nên biết?</h3>
+    <p class="lead">Python là một ngôn ngữ lập trình được thiết kế để <b>dễ đọc như tiếng Anh</b>. Nó phổ biến nhất trong giới phân tích dữ liệu và AI — không phải vì mạnh nhất, mà vì <i>dễ học nhất trong nhóm mạnh</i>.</p>
+
+    <div class="logo-row">
+      <div class="logo-chip">
+        <img src="https://www.python.org/static/community_logos/python-logo-generic.svg" alt="Python logo" loading="lazy" onerror="this.style.display='none'">
+        <span>Ngôn ngữ Python</span>
+      </div>
+      <div class="logo-chip">
+        <img src="https://pandas.pydata.org/static/img/pandas.svg" alt="pandas logo" loading="lazy" onerror="this.style.display='none'">
+        <span>Thư viện pandas</span>
+      </div>
+      <div class="logo-chip">
+        <img src="https://colab.research.google.com/img/colab_favicon_256px.png" alt="Google Colab logo" loading="lazy" onerror="this.style.display='none'">
+        <span>Google Colab</span>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="c-ico" style="background:var(--blue-soft)">🧱</div>
+        <h4>Khi Power Query "chịu thua"</h4>
+        <p>Một số phép biến đổi phức tạp (tính toán vòng lặp, gọi API, xử lý văn bản nâng cao) rất khó làm trong Power Query nhưng chỉ vài dòng Python.</p>
+      </div>
+      <div class="card">
+        <div class="c-ico" style="background:var(--blue-soft)">📦</div>
+        <h4>Dữ liệu quá lớn cho Excel</h4>
+        <p>Excel dừng ở khoảng một triệu dòng. Python đọc file vài chục triệu dòng bình thường, miễn máy đủ RAM.</p>
+      </div>
+      <div class="card">
+        <div class="c-ico" style="background:var(--blue-soft)">🔁</div>
+        <h4>Tự động hoá việc lặp lại</h4>
+        <p>Mỗi sáng phải gộp 30 file báo cáo giống nhau? Viết một lần, chạy mỗi ngày trong 3 giây.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="c-emoji">🎯</div>
+      <div>
+        <div class="c-title">Mục tiêu hôm nay rất khiêm tốn — và như thế là đúng</div>
+        <p>Bạn <b>không</b> cần trở thành lập trình viên. Mục tiêu là đọc hiểu một đoạn code người khác đưa, sửa được vài chỗ, và biết Python làm được gì để còn biết khi nào nên nhờ đến nó.</p>
+      </div>
+    </div>
+
+    <!-- 2.2 -->
+    <h3><span class="h3-tag" style="background:var(--blue-soft);color:var(--blue-deep)">2.2</span> Mở Google Colab và tạo notebook đầu tiên</h3>
+    <p class="lead"><b>Google Colab</b> (Colaboratory) là một "quyển sổ tay biết chạy code" chạy ngay trong trình duyệt. Code chạy trên máy chủ của Google, máy bạn chỉ cần trình duyệt và Internet.</p>
+
+    <ol class="steps blue">
+      <li>
+        <h5>Truy cập colab.research.google.com</h5>
+        <p>Gõ <span class="path">colab.research.google.com</span> vào thanh địa chỉ và đăng nhập bằng tài khoản Google.</p>
+      </li>
+      <li>
+        <h5>Tạo notebook mới</h5>
+        <p>Bấm <b>New notebook</b> (hoặc <span class="path">File → New notebook</span>). Một trang trắng có một ô trống hiện ra — ô đó gọi là <b>cell</b>.</p>
+      </li>
+      <li>
+        <h5>Gõ dòng code đầu tiên và chạy</h5>
+        <p>Gõ <code class="inl">print("Xin chào Power BI!")</code> rồi bấm nút ▶ bên trái ô, hoặc nhấn <b>Shift + Enter</b>. Kết quả hiện ngay bên dưới.</p>
+      </li>
+      <li>
+        <h5>Thêm cell mới khi cần</h5>
+        <p><b>+ Code</b> để thêm ô code, <b>+ Text</b> để thêm ô ghi chú. Mỗi ô chạy độc lập nhưng <b>chia sẻ chung bộ nhớ</b>: biến khai báo ở ô 1 vẫn dùng được ở ô 5.</p>
+      </li>
+    </ol>
+
+    <div class="img-frame">
+      <div style="background:#F6F8FE;padding:18px;">
+        <div style="background:#fff;border:1px solid #E3E8F4;border-radius:12px;overflow:hidden;font-family:'Inter',sans-serif;">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #E8ECF7;background:#FAFBFF;">
+            <span style="width:9px;height:9px;border-radius:50%;background:#FF6F61;"></span>
+            <span style="width:9px;height:9px;border-radius:50%;background:#FFB627;"></span>
+            <span style="width:9px;height:9px;border-radius:50%;background:#17C3B2;"></span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:#9AA2BE;margin-left:6px;">Buoi2_LamQuenPython.ipynb — Google Colab</span>
+            <span style="margin-left:auto;font-size:.68rem;background:#E3FBF6;color:#0C9E8E;padding:3px 10px;border-radius:20px;font-weight:700;">● Connected</span>
+          </div>
+          <div style="padding:14px;display:flex;gap:10px;align-items:flex-start;">
+            <span style="width:26px;height:26px;border-radius:50%;background:#EAF2FF;color:#1F6FE0;display:flex;align-items:center;justify-content:center;flex:none;font-size:.7rem;">▶</span>
+            <div style="flex:1;background:#F7F9FF;border:1px solid #E8ECF7;border-radius:8px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#1E2547;">
+              <span style="color:#1F6FE0;">print</span>(<span style="color:#0C9E8E;">"Xin chào Power BI!"</span>)
+            </div>
+          </div>
+          <div style="padding:0 14px 16px 50px;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#5B6486;">Xin chào Power BI!</div>
+        </div>
+      </div>
+      <div class="img-cap">💻 Một cell trong Colab: bấm ▶ bên trái để chạy, kết quả hiện ngay bên dưới. Không cần lưu — Colab tự lưu vào Google Drive của bạn.</div>
+    </div>
+
+    <div class="callout note">
+      <div class="c-emoji">☁️</div>
+      <div>
+        <div class="c-title">Vì sao học Python bằng Colab thay vì cài trên máy?</div>
+        <p>Cài Python trên máy công ty thường vướng quyền quản trị và mất 30 phút cấu hình. Colab miễn phí, có sẵn <b>pandas, scikit-learn</b> và mọi thư viện chúng ta cần, chạy được cả trên máy tính bảng. Khi nào bạn thật sự cần chạy trên dữ liệu nội bộ, hãy tính đến việc cài đặt sau.</p>
+      </div>
+    </div>
+
+    <!-- 2.3 -->
+    <h3><span class="h3-tag" style="background:var(--blue-soft);color:var(--blue-deep)">2.3</span> Cú pháp nền tảng — 5 viên gạch</h3>
+    <p class="lead">Toàn bộ code Python bạn gặp trong công việc phân tích dữ liệu đều được xây từ 5 thứ dưới đây. Hãy gõ lại (đừng copy) từng đoạn vào Colab.</p>
+
+    <h4>① Biến và kiểu dữ liệu</h4>
+    <p class="lead">Biến là cái tên bạn đặt cho một giá trị để dùng lại sau. Python tự đoán kiểu, bạn không phải khai báo.</p>
+    <div class="code-block">
+      <div class="code-head"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="fname">cell_1.py</span><button class="copy">Copy</button></div>
+<pre class="code"># Bốn kiểu dữ liệu cơ bản nhất
+so_luong = 12                 # int   - số nguyên
+doanh_thu = 1250000.50        # float - số thập phân
+ten_dai_ly = "Bike World"     # str   - chuỗi ký tự
+dat_chi_tieu = True           # bool  - đúng/sai
+
+print(ten_dai_ly, "bán", so_luong, "sản phẩm")
+print("Doanh thu:", doanh_thu)
+print("Kiểu của doanh_thu là:", type(doanh_thu))</pre>
+      <div class="code-out"><span class="lbl">KẾT QUẢ</span>Bike World bán 12 sản phẩm
+Doanh thu: 1250000.5
+Kiểu của doanh_thu là: &lt;class 'float'&gt;</div>
+    </div>
+
+    <div class="callout warn">
+      <div class="c-emoji">✍️</div>
+      <div>
+        <div class="c-title">Ba quy tắc gõ code Python cần nhớ ngay</div>
+        <p><b>1.</b> Chuỗi phải nằm trong dấu nháy: <code class="inl">"Hà Nội"</code>, không phải <code class="inl">Hà Nội</code>.<br>
+        <b>2.</b> Dấu <code class="inl">#</code> mở đầu một <b>ghi chú</b> — Python bỏ qua, chỉ người đọc thấy.<br>
+        <b>3.</b> Python <b>phân biệt hoa thường</b>: <code class="inl">Doanh_thu</code> và <code class="inl">doanh_thu</code> là hai biến khác nhau.</p>
+      </div>
+    </div>
+
+    <h4>② List (danh sách) và Dictionary (từ điển)</h4>
+    <p class="lead"><b>List</b> = một cột trong Excel: nhiều giá trị xếp theo thứ tự. <b>Dict</b> = một dòng có tiêu đề: mỗi giá trị gắn với một cái tên.</p>
+    <div class="code-block">
+      <div class="code-head"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="fname">cell_2.py</span><button class="copy">Copy</button></div>
+<pre class="code"># LIST - danh sách có thứ tự, đếm từ 0
+khu_vuc = ["Northwest", "Southwest", "Central", "Northeast"]
+
+print("Phần tử đầu tiên:", khu_vuc[0])
+print("Phần tử cuối cùng:", khu_vuc[-1])
+print("Có tất cả", len(khu_vuc), "khu vực")
+
+khu_vuc.append("Southeast")   # thêm vào cuối danh sách
+print(khu_vuc)
+
+# DICT - mỗi giá trị có một cái tên (key)
+dai_ly = {
+    "ten": "Vigorous Sports Store",
+    "quoc_gia": "United States",
+    "doanh_thu": 458000
+}
+
+print(dai_ly["ten"], "-", dai_ly["quoc_gia"])
+print("Các trường có sẵn:", list(dai_ly.keys()))</pre>
+      <div class="code-out"><span class="lbl">KẾT QUẢ</span>Phần tử đầu tiên: Northwest
+Phần tử cuối cùng: Northeast
+Có tất cả 4 khu vực
+['Northwest', 'Southwest', 'Central', 'Northeast', 'Southeast']
+Vigorous Sports Store - United States
+Các trường có sẵn: ['ten', 'quoc_gia', 'doanh_thu']</div>
+    </div>
+
+    <h4>③ Câu lệnh điều kiện if / else</h4>
+    <p class="lead">Giống hàm <code class="inl">IF()</code> trong Excel, nhưng viết xuống dòng cho dễ đọc.</p>
+    <div class="code-block">
+      <div class="code-head"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="fname">cell_3.py</span><button class="copy">Copy</button></div>
+<pre class="code">doanh_thu = 458000
+chi_tieu = 400000
+
+if doanh_thu >= chi_tieu * 1.2:
+    xep_loai = "Xuất sắc"
+elif doanh_thu >= chi_tieu:
+    xep_loai = "Đạt chỉ tiêu"
+else:
+    xep_loai = "Chưa đạt"
+
+print("Xếp loại:", xep_loai)</pre>
+      <div class="code-out"><span class="lbl">KẾT QUẢ</span>Xếp loại: Đạt chỉ tiêu</div>
+    </div>
+
+    <div class="callout key">
+      <div class="c-emoji">↹</div>
+      <div>
+        <div class="c-title">Thụt đầu dòng KHÔNG phải để cho đẹp</div>
+        <p>Ở hầu hết ngôn ngữ khác, khối lệnh nằm trong <code class="inl">{ }</code>. Python thì dùng <b>khoảng thụt đầu dòng</b> để xác định "dòng này thuộc về if". Thụt sai → báo lỗi <code class="inl">IndentationError</code>. Trong Colab, nhấn phím <b>Tab</b> một lần để thụt vào; giữ đều đặn 4 dấu cách.</p>
+      </div>
+    </div>
+
+    <h4>④ Vòng lặp for</h4>
+    <p class="lead">Làm cùng một việc cho từng phần tử trong danh sách — thứ Excel phải kéo công thức xuống 1000 dòng.</p>
+    <div class="code-block">
+      <div class="code-head"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="fname">cell_4.py</span><button class="copy">Copy</button></div>
+<pre class="code">doanh_thu_theo_vung = {
+    "Northwest": 3200000,
+    "Southwest": 5100000,
+    "Central": 1800000
+}
+
+tong = 0
+for vung, tien in doanh_thu_theo_vung.items():
+    print(vung, "→", tien)
+    tong = tong + tien
+
+print("Tổng cộng:", tong)</pre>
+      <div class="code-out"><span class="lbl">KẾT QUẢ</span>Northwest → 3200000
+Southwest → 5100000
+Central → 1800000
+Tổng cộng: 10100000</div>
+    </div>
+
+    <h4>⑤ Hàm (function)</h4>
+    <p class="lead">Đóng gói một đoạn xử lý để gọi lại nhiều lần — như tạo một hàm Excel của riêng bạn.</p>
+    <div class="code-block">
+      <div class="code-head"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="fname">cell_5.py</span><button class="copy">Copy</button></div>
+<pre class="code">def xep_loai_dai_ly(doanh_thu, chi_tieu):
+    """Trả về xếp loại của một đại lý dựa trên chỉ tiêu."""
+    if doanh_thu >= chi_tieu * 1.2:
+        return "Xuất sắc"
+    elif doanh_thu >= chi_tieu:
+        return "Đạt chỉ tiêu"
+    else:
+        return "Chưa đạt"
+
+# Gọi hàm cho 3 đại lý khác nhau
+print(xep_loai_dai_ly(520000, 400000))
+print(xep_loai_dai_ly(410000, 400000))
+print(xep_loai_dai_ly(250000, 400000))</pre>
+      <div class="code-out"><span class="lbl">KẾT QUẢ</span>Xuất sắc
+Đạt chỉ tiêu
+Chưa đạt</div>
+    </div>
+
+    <!-- 2.4 -->
+    <h3><span class="h3-tag" style="background:var(--blue-soft);color:var(--blue-deep)">2.4</span> pandas — Power Query phiên bản viết bằng code</h3>
+    <p class="lead"><b>pandas</b> là thư viện xử lý bảng dữ liệu của Python. Khái niệm trung tâm là <b>DataFrame</b> — chính là một bảng có dòng và cột, y hệt thứ bạn nhìn thấy trong Power Query Editor.</p>
+
+    <div class="img-frame">
+      <img src="https://pandas.pydata.org/docs/_images/01_table_dataframe.svg"
+           alt="Minh hoạ DataFrame trong pandas: một bảng gồm nhiều dòng và cột" loading="lazy"
+           onerror="this.closest('.img-frame').classList.add('failed')">
+      <div class="img-cap">📐 Một <b>DataFrame</b> chính là một bảng có dòng và cột — mỗi cột là một <i>Series</i> <i>(ảnh: tài liệu pandas)</i></div>
+    </div>
+
+    <h4>Bước 1 — Đưa file Sales.csv lên Colab</h4>
+    <div class="code-block">
+      <div class="code-head"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="fname">cell_6.py</span><button class="copy">Copy</button></div>
+<pre class="code">from google.colab import files
+
+# Chạy ô này, một nút "Choose Files" hiện ra
+# Chọn file Sales.csv trong máy bạn và chờ tải lên xong
+uploaded = files.upload()</pre>
+    </div>
+
+    <div class="callout tip">
+      <div class="c-emoji">📤</div>
+      <div>
+        <div class="c-title">Cách khác, không cần gõ code</div>
+        <p>Bấm biểu tượng <b>📁 Files</b> ở thanh dọc bên trái Colab → kéo thả file <code class="inl">Sales.csv</code> vào đó. Lưu ý: file sẽ bị xoá khi phiên làm việc kết thúc, lần sau phải tải lên lại.</p>
+      </div>
+    </div>
+
+    <h4>Bước 2 — Đọc file và ngó qua dữ liệu</h4>
+    <div class="code-block">
+      <div class="code-head"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="fname">cell_7.py</span><button class="copy">Copy</button></div>
+<pre class="code">import pandas as pd            # pd là tên gọi tắt quy ước của pandas
+
+df = pd.read_csv("Sales.csv")  # df = DataFrame = bảng dữ liệu
+
+print("Bảng có", df.shape[0], "dòng và", df.shape[1], "cột")
+print("Danh sách cột:", list(df.columns))
+
+df.head()                      # xem 5 dòng đầu tiên</pre>
+      <div class="code-out"><span class="lbl">KẾT QUẢ (ví dụ)</span>Bảng có 60855 dòng và 10 cột
+Danh sách cột: ['SalesOrderNumber', 'OrderDate', 'ProductKey', 'ResellerKey', ...]</div>
+    </div>
+
+    <div class="callout warn">
+      <div class="c-emoji">🔍</div>
+      <div>
+        <div class="c-title">Luôn chạy <code class="inl">df.columns</code> trước khi viết tiếp</div>
+        <p>Tên cột trong file của bạn có thể khác chút so với ví dụ (ví dụ <code class="inl">Sales</code>, <code class="inl">Sales Amount</code> hay <code class="inl">SalesAmount</code>). Gõ sai một ký tự là Python báo <code class="inl">KeyError</code>. Hãy copy tên cột đúng từ kết quả <code class="inl">df.columns</code> vào code của bạn.</p>
+      </div>
+    </div>
+
+    <h4>Bước 3 — Ba câu lệnh xem nhanh, dùng suốt đời</h4>
+    <div class="code-block">
+      <div class="code-head"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="fname">cell_8.py</span><button class="copy">Copy</button></div>
+<pre class="code">df.head(10)      # 10 dòng đầu   -> giống khung xem trước của Power Query
+df.info()        # kiểu dữ liệu từng cột, số ô trống -> giống Column Quality
+df.describe()    # min, max, trung bình của các cột số
+
+# Tính tổng một cột (thay "Sales" bằng đúng tên cột tiền trong file của bạn)
+tong_doanh_thu = df["Sales"].sum()
+print("Tổng doanh thu:", tong_doanh_thu)
+print("Số giao dịch:", len(df))</pre>
+      <div class="code-out"><span class="lbl">KẾT QUẢ (ví dụ)</span>Tổng doanh thu: 80450596.98
+Số giao dịch: 60855</div>
+    </div>
+
+    <div class="callout note">
+      <div class="c-emoji">🪄</div>
+      <div>
+        <div class="c-title">Một dòng pandas = nhiều cú bấm chuột trong Power Query</div>
+        <p><code class="inl">df["Sales"].sum()</code> làm đúng việc mà trong Power Query bạn phải: chọn cột → tab Transform → Statistics → Sum. Cả hai đều đúng — khác nhau ở chỗ code <b>lưu lại được</b> và <b>chạy lại được</b> nguyên văn cho file khác.</p>
+      </div>
+    </div>
+
+    <!-- 2.5 -->
+    <h3><span class="h3-tag" style="background:var(--blue-soft);color:var(--blue-deep)">2.5</span> Python hay Power Query — khi nào dùng cái nào?</h3>
+    <div class="cmp">
+      <div class="cmp-head">
+        <div>Tình huống</div>
+        <div class="h-pq">Power Query 🟡</div>
+        <div class="h-py">Python 🔵</div>
+      </div>
+      <div class="cmp-row"><div>Cách làm việc</div><div>Bấm chuột, thấy kết quả ngay từng bước</div><div>Gõ code, chạy, xem kết quả</div></div>
+      <div class="cmp-row"><div>Thời gian học</div><div>Vài buổi là làm được việc</div><div>Vài tuần mới thoải mái</div></div>
+      <div class="cmp-row"><div>Làm sạch dữ liệu thông thường</div><div><b>✔ Ưu tiên</b> — nhanh và trực quan hơn</div><div>Làm được, nhưng chậm hơn cho việc đơn giản</div></div>
+      <div class="cmp-row"><div>Nối bảng, lọc, nhóm</div><div><b>✔ Rất tốt</b> (Merge, Group By)</div><div><b>✔ Rất tốt</b> (merge, groupby)</div></div>
+      <div class="cmp-row"><div>Dữ liệu hàng chục triệu dòng</div><div>Bắt đầu chậm và nặng file</div><div><b>✔ Ưu thế rõ rệt</b></div></div>
+      <div class="cmp-row"><div>Gọi API, xử lý văn bản, ảnh</div><div>Rất khó hoặc không làm được</div><div><b>✔ Sở trường</b></div></div>
+      <div class="cmp-row"><div>Máy học / AI</div><div>Không phải việc của nó</div><div><b>✔ Gần như bắt buộc</b></div></div>
+      <div class="cmp-row"><div>Chia sẻ cho đồng nghiệp không biết code</div><div><b>✔ Dễ</b> — mở file .pbix là xem được</div><div>Người nhận cần biết chạy notebook</div></div>
+    </div>
+
+    <div class="callout key">
+      <div class="c-emoji">⚖️</div>
+      <div>
+        <div class="c-title">Câu trả lời ngắn gọn cho câu hỏi "vậy học cái nào?"</div>
+        <p><b>Cả hai — nhưng theo thứ tự.</b> Power Query lo 80% công việc dữ liệu hằng ngày của bạn. Python xuất hiện khi bạn chạm vào 20% còn lại: dữ liệu quá lớn, xử lý quá đặc thù, hoặc bạn muốn bước sang máy học. Đó cũng đúng là lộ trình của khoá học này.</p>
+      </div>
+    </div>
+
+    <div class="practice blue">
+      <h4>🛠️ Thực hành tại lớp — Phần 2 <span style="font-size:.75rem;font-weight:600;color:var(--ink-faint)">(10 phút)</span></h4>
+      <div class="p-sub">Viết đoạn code tính <b>tổng doanh thu theo từng khu vực (Region)</b> từ file Sales.csv.</div>
+      <ul class="task-list">
+        <li><span class="box"></span><span>Tải <code class="inl">Sales.csv</code> và <code class="inl">Region.csv</code> lên Colab</span></li>
+        <li><span class="box"></span><span>Đọc cả hai file thành hai DataFrame, chạy <code class="inl">.columns</code> để xem tên cột thật</span></li>
+        <li><span class="box"></span><span>Nối hai bảng qua <code class="inl">SalesTerritoryKey</code> — chính là phép <b>Merge</b> bạn vừa làm ở Phần 1!</span></li>
+        <li><span class="box"></span><span>Dùng <code class="inl">.groupby()</code> để nhóm theo tên khu vực, rồi <code class="inl">.sum()</code></span></li>
+        <li><span class="box"></span><span>Sắp xếp giảm dần và trả lời: khu vực nào doanh thu cao nhất?</span></li>
+      </ul>
+
+      <div class="code-block" style="margin-top:20px;">
+        <div class="code-head"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="fname">bai_thuc_hanh.py — gợi ý lời giải</span><button class="copy">Copy</button></div>
+<pre class="code">import pandas as pd
+
+# 1. Đọc hai file
+sales = pd.read_csv("Sales.csv")
+region = pd.read_csv("Region.csv")
+
+print(list(sales.columns))
+print(list(region.columns))
+
+# 2. Nối hai bảng qua khoá chung (giống Merge Queries, how="left" = Left Outer)
+df = sales.merge(region, on="SalesTerritoryKey", how="left")
+
+# 3. Nhóm theo khu vực và cộng doanh thu
+ket_qua = df.groupby("Region")["Sales"].sum()
+
+# 4. Sắp xếp giảm dần
+ket_qua = ket_qua.sort_values(ascending=False)
+
+print(ket_qua)</pre>
+        <div class="code-out"><span class="lbl">KẾT QUẢ (ví dụ)</span>Region
+Southwest      5.71e+06
+Northwest      3.65e+06
+Canada         1.98e+06
+...
+Name: Sales, dtype: float64</div>
+      </div>
+      <div class="callout tip" style="margin-bottom:0;">
+        <div class="c-emoji">🔗</div>
+        <div>
+          <div class="c-title">Nhận ra điều gì chưa?</div>
+          <p>Dòng <code class="inl">sales.merge(region, on=..., how="left")</code> chính là hộp thoại <b>Merge Queries → Left Outer</b> của Phần 1, viết lại bằng chữ. Hai công cụ, một tư duy: <b>chọn khoá chung → nối → nhóm → cộng</b>.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sum-strip blue">
+      <h4>📌 Tóm tắt Phần 2</h4>
+      <ul>
+        <li><b>Colab</b> = Python chạy trên trình duyệt, không cài đặt, tự lưu vào Google Drive.</li>
+        <li>Năm viên gạch: <b>biến</b> · <b>list/dict</b> · <b>if/else</b> · <b>for</b> · <b>hàm</b>. Thụt đầu dòng là bắt buộc, không phải trang trí.</li>
+        <li><b>pandas</b>: <code>pd.read_csv()</code> đọc file → <code>.head()</code> xem thử → <code>.sum()</code> cộng → <code>.groupby()</code> nhóm.</li>
+        <li><code>df.merge(..., how="left")</code> trong pandas = <b>Merge Queries → Left Outer</b> trong Power Query.</li>
+        <li>Power Query cho việc hằng ngày; Python cho dữ liệu lớn, xử lý đặc thù và máy học.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PHẦN 3 ================= -->
+<section id="phan3" class="tint-violet">
+  <div class="wrap">
+    <div class="part-banner pb-violet">
+      <div class="pb-time">⏱ 25–30 phút</div>
+      <div class="pb-num">PHẦN 3 · AI</div>
+      <h2>Giới thiệu AI và thuật toán KNN</h2>
+      <p>Bỏ qua công thức toán. Mục tiêu là hiểu <b>máy học nghĩa là gì</b>, nhận ra ba dạng bài toán quen thuộc trong kinh doanh, và nắm được trực giác của một thuật toán đủ đơn giản để giải thích cho sếp trong 30 giây.</p>
+    </div>
+
+    <div class="goal-box">
+      <h4>🎯 Mục tiêu phần 3</h4>
+      <ul class="goal-list">
+        <li><span class="chk c-violet">1</span> Phân biệt được AI – Machine Learning – Deep Learning</li>
+        <li><span class="chk c-violet">2</span> Nhận diện ba dạng bài toán: phân loại, hồi quy, phân cụm</li>
+        <li><span class="chk c-violet">3</span> Giải thích được KNN bằng ngôn ngữ đời thường</li>
+        <li><span class="chk c-violet">4</span> Biết vì sao dữ liệu sạch quyết định chất lượng mô hình</li>
+      </ul>
+    </div>
+
+    <!-- 3.1 -->
+    <h3><span class="h3-tag" style="background:var(--violet-soft);color:var(--violet-deep)">3.1</span> AI, Machine Learning, Deep Learning khác nhau thế nào?</h3>
+    <p class="lead">Ba từ này bị dùng lẫn lộn khắp nơi. Thực ra chúng lồng vào nhau như những vòng tròn đồng tâm — cái sau là một nhánh của cái trước.</p>
+
+    <div class="venn-wrap">
+      <div class="img-frame" style="margin:0;">
+        <svg viewBox="0 0 420 380" xmlns="http://www.w3.org/2000/svg" style="background:#fff">
+          <circle cx="210" cy="200" r="165" fill="#F1EBFF" stroke="#8B5CF6" stroke-width="2"/>
+          <circle cx="210" cy="225" r="118" fill="#EAF2FF" stroke="#3D8BFD" stroke-width="2"/>
+          <circle cx="210" cy="250" r="70" fill="#E3FBF6" stroke="#17C3B2" stroke-width="2"/>
+          <text x="210" y="62" text-anchor="middle" font-family="Be Vietnam Pro,sans-serif" font-size="16" font-weight="700" fill="#6D3FE0">Artificial Intelligence</text>
+          <text x="210" y="82" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#8B5CF6">Trí tuệ nhân tạo</text>
+          <text x="210" y="140" text-anchor="middle" font-family="Be Vietnam Pro,sans-serif" font-size="15" font-weight="700" fill="#1F6FE0">Machine Learning</text>
+          <text x="210" y="158" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#3D8BFD">Máy học</text>
+          <text x="210" y="248" text-anchor="middle" font-family="Be Vietnam Pro,sans-serif" font-size="14" font-weight="700" fill="#0C9E8E">Deep Learning</text>
+          <text x="210" y="266" text-anchor="middle" font-family="Inter,sans-serif" font-size="10.5" fill="#17C3B2">Học sâu</text>
+          <text x="210" y="292" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#5B6486">ChatGPT, nhận diện ảnh</text>
+          <g font-family="JetBrains Mono,monospace" font-size="10" fill="#9AA2BE">
+            <text x="210" y="345" text-anchor="middle">KNN nằm ở vòng Machine Learning</text>
+          </g>
+        </svg>
+        <div class="img-cap">🎯 Ba vòng tròn lồng nhau: Deep Learning ⊂ Machine Learning ⊂ AI</div>
+      </div>
+      <ul class="venn-legend">
+        <li>
+          <span class="vl-dot" style="background:#8B5CF6"></span>
+          <div><b>AI — Trí tuệ nhân tạo</b><span>Khái niệm rộng nhất: mọi cách làm cho máy tính thực hiện việc vốn cần trí thông minh của con người. Bao gồm cả những hệ thống chỉ chạy theo luật lệ do người viết sẵn, ví dụ bộ quy tắc chấm điểm hồ sơ.</span></div>
+        </li>
+        <li>
+          <span class="vl-dot" style="background:#3D8BFD"></span>
+          <div><b>Machine Learning — Máy học</b><span>Máy <i>tự tìm ra quy luật</i> từ dữ liệu quá khứ thay vì được lập trình từng luật. Bạn không viết "nếu khách hàng &gt; 3 tháng không giao dịch thì…" — bạn đưa dữ liệu và máy tự tìm ngưỡng. <b>KNN thuộc nhóm này.</b></span></div>
+        </li>
+        <li>
+          <span class="vl-dot" style="background:#17C3B2"></span>
+          <div><b>Deep Learning — Học sâu</b><span>Một nhánh của máy học dùng mạng nơ-ron nhiều lớp. Rất mạnh với ảnh, âm thanh, văn bản — nhưng cần lượng dữ liệu và sức tính toán rất lớn. ChatGPT thuộc nhóm này.</span></div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="callout note">
+      <div class="c-emoji">💬</div>
+      <div>
+        <div class="c-title">Một câu để nhớ suốt</div>
+        <p>Lập trình truyền thống: <b>dữ liệu + luật → kết quả</b>. Máy học đảo ngược lại: <b>dữ liệu + kết quả đã biết → máy tìm ra luật</b>. Cái "luật" máy tìm ra chính là thứ ta gọi là <b>mô hình (model)</b>.</p>
+      </div>
+    </div>
+
+    <!-- 3.2 -->
+    <h3><span class="h3-tag" style="background:var(--violet-soft);color:var(--violet-deep)">3.2</span> Ba dạng bài toán bạn sẽ gặp trong công việc</h3>
+    <p class="lead">Nhìn vào <b>thứ cần dự đoán</b> là biết ngay bài toán thuộc dạng nào — và biết được sẽ chọn đúng loại thuật toán.</p>
+
+    <div class="grid-3">
+      <div class="card" style="border-top:4px solid var(--coral)">
+        <div class="c-ico" style="background:var(--coral-soft)">🏷️</div>
+        <h4>Phân loại<br><span style="font-size:.82rem;font-weight:600;color:var(--ink-faint)">Classification</span></h4>
+        <p>Dự đoán một <b>nhãn</b> trong số các lựa chọn có sẵn. Câu trả lời là chữ, không phải số.</p>
+        <svg viewBox="0 0 200 90" style="margin:14px 0 4px;width:100%">
+          <circle cx="45" cy="30" r="7" fill="#FF6F61"/><circle cx="70" cy="52" r="7" fill="#FF6F61"/><circle cx="40" cy="62" r="7" fill="#FF6F61"/>
+          <rect x="128" y="24" width="13" height="13" rx="3" fill="#3D8BFD"/><rect x="152" y="48" width="13" height="13" rx="3" fill="#3D8BFD"/><rect x="120" y="58" width="13" height="13" rx="3" fill="#3D8BFD"/>
+          <line x1="100" y1="8" x2="100" y2="82" stroke="#9AA2BE" stroke-width="2" stroke-dasharray="5 4"/>
+        </svg>
+        <div class="c-eg"><b>Ví dụ:</b> Khách hàng này có khả năng <b>rời bỏ (churn)</b> trong 3 tháng tới hay không? → hai nhãn: <i>Rời bỏ</i> / <i>Ở lại</i>.</div>
+      </div>
+
+      <div class="card" style="border-top:4px solid var(--blue)">
+        <div class="c-ico" style="background:var(--blue-soft)">📈</div>
+        <h4>Hồi quy<br><span style="font-size:.82rem;font-weight:600;color:var(--ink-faint)">Regression</span></h4>
+        <p>Dự đoán một <b>con số</b> liên tục. Câu trả lời có thể là bất kỳ giá trị nào trong một khoảng.</p>
+        <svg viewBox="0 0 200 90" style="margin:14px 0 4px;width:100%">
+          <line x1="20" y1="78" x2="185" y2="78" stroke="#E8ECF7" stroke-width="2"/>
+          <line x1="20" y1="8" x2="20" y2="78" stroke="#E8ECF7" stroke-width="2"/>
+          <line x1="26" y1="70" x2="180" y2="20" stroke="#3D8BFD" stroke-width="2.5"/>
+          <circle cx="45" cy="66" r="4.5" fill="#1F6FE0"/><circle cx="75" cy="52" r="4.5" fill="#1F6FE0"/><circle cx="105" cy="48" r="4.5" fill="#1F6FE0"/><circle cx="135" cy="32" r="4.5" fill="#1F6FE0"/><circle cx="165" cy="28" r="4.5" fill="#1F6FE0"/>
+          <circle cx="178" cy="20" r="6" fill="#fff" stroke="#FF6F61" stroke-width="2.5"/>
+        </svg>
+        <div class="c-eg"><b>Ví dụ:</b> Doanh thu tháng tới của khu vực Southwest là <b>bao nhiêu tiền</b>? → một con số, ví dụ 5,4 tỷ.</div>
+      </div>
+
+      <div class="card" style="border-top:4px solid var(--teal)">
+        <div class="c-ico" style="background:var(--teal-soft)">🎯</div>
+        <h4>Phân cụm<br><span style="font-size:.82rem;font-weight:600;color:var(--ink-faint)">Clustering</span></h4>
+        <p>Tự chia dữ liệu thành các nhóm giống nhau — <b>không cần nhãn có sẵn</b>. Máy tự tìm cấu trúc ẩn.</p>
+        <svg viewBox="0 0 200 90" style="margin:14px 0 4px;width:100%">
+          <ellipse cx="52" cy="32" rx="30" ry="24" fill="#E3FBF6" stroke="#17C3B2" stroke-width="1.6" stroke-dasharray="4 3"/>
+          <circle cx="42" cy="26" r="5" fill="#0C9E8E"/><circle cx="60" cy="34" r="5" fill="#0C9E8E"/><circle cx="50" cy="42" r="5" fill="#0C9E8E"/>
+          <ellipse cx="140" cy="58" rx="34" ry="25" fill="#F1EBFF" stroke="#8B5CF6" stroke-width="1.6" stroke-dasharray="4 3"/>
+          <circle cx="128" cy="52" r="5" fill="#6D3FE0"/><circle cx="150" cy="60" r="5" fill="#6D3FE0"/><circle cx="138" cy="68" r="5" fill="#6D3FE0"/><circle cx="156" cy="46" r="5" fill="#6D3FE0"/>
+        </svg>
+        <div class="c-eg"><b>Ví dụ:</b> Chia 700 đại lý thành các <b>nhóm hành vi mua</b> tương tự nhau, để thiết kế chính sách chiết khấu riêng cho từng nhóm.</div>
+      </div>
+    </div>
+
+    <div class="callout key">
+      <div class="c-emoji">🧭</div>
+      <div>
+        <div class="c-title">Mẹo phân biệt trong 5 giây</div>
+        <p>Câu trả lời cần tìm là <b>một cái nhãn</b> → Phân loại. Là <b>một con số</b> → Hồi quy. <b>Chưa biết cần tìm gì</b>, chỉ muốn xem dữ liệu tự chia nhóm ra sao → Phân cụm.</p>
+      </div>
+    </div>
+
+    <!-- 3.3 -->
+    <h3><span class="h3-tag" style="background:var(--violet-soft);color:var(--violet-deep)">3.3</span> KNN — nhìn K người hàng xóm gần nhất</h3>
+    <p class="lead">KNN (<b>K-Nearest Neighbors</b> — K láng giềng gần nhất) là một trong những thuật toán phân loại dễ hiểu nhất. Trực giác của nó chỉ gói trong một câu:</p>
+
+    <div class="callout note" style="font-size:1.02rem;">
+      <div class="c-emoji">🏘️</div>
+      <div>
+        <div class="c-title">Trực giác của KNN</div>
+        <p style="font-size:1rem;color:var(--ink);"><i>"Muốn biết bạn là người thế nào, hãy nhìn K người hàng xóm gần bạn nhất. Đa số họ thuộc nhóm nào, bạn thuộc nhóm đó."</i></p>
+      </div>
+    </div>
+
+    <p class="lead">Thử ngay bên dưới: <b>kéo chấm tím</b> đến vị trí bất kỳ và <b>đổi giá trị K</b> để xem dự đoán thay đổi thế nào.</p>
+
+    <div class="knn-demo">
+      <div class="knn-top">
+        <label>Số hàng xóm K: <span class="kbadge" id="kVal">K = 3</span></label>
+        <input type="range" id="kRange" min="1" max="11" step="2" value="3" aria-label="Chọn giá trị K">
+        <div class="knn-verdict" id="knnVerdict">Dự đoán: …</div>
+      </div>
+      <div class="knn-body">
+        <div class="knn-stage">
+          <svg id="knnSvg" viewBox="0 0 460 330" xmlns="http://www.w3.org/2000/svg">
+            <g id="knnGrid"></g>
+            <text x="16" y="320" font-family="JetBrains Mono,monospace" font-size="10" fill="#9AA2BE">Số đơn hàng / năm →</text>
+            <text x="14" y="20" font-family="JetBrains Mono,monospace" font-size="10" fill="#9AA2BE">↑ Doanh thu trung bình</text>
+            <circle id="knnCircle" cx="0" cy="0" r="0" fill="rgba(139,92,246,.10)" stroke="#8B5CF6" stroke-width="1.6" stroke-dasharray="5 4"/>
+            <g id="knnLines"></g>
+            <g id="knnPoints"></g>
+            <g id="knnQuery">
+              <circle cx="230" cy="165" r="11" fill="#8B5CF6" stroke="#fff" stroke-width="3"/>
+              <circle cx="230" cy="165" r="17" fill="none" stroke="#8B5CF6" stroke-width="1.4" opacity=".5"/>
+            </g>
+          </svg>
+        </div>
+        <div class="knn-info">
+          <h5>Đại lý mới này thuộc nhóm nào?</h5>
+          <p>Mỗi chấm là một đại lý đã biết kết quả. Chấm tím là đại lý mới chưa có nhãn. KNN đo khoảng cách tới tất cả các chấm, chọn ra K chấm gần nhất, rồi cho chúng "bỏ phiếu".</p>
+          <div class="vote-row">
+            <span class="vote-dot" style="background:#17C3B2"></span>
+            <span style="width:96px">Tiềm năng cao</span>
+            <span class="vote-bar"><i id="barA" style="background:#17C3B2;width:0%"></i></span>
+            <span class="vote-n" id="voteA">0</span>
+          </div>
+          <div class="vote-row">
+            <span class="vote-dot" style="background:#FF6F61"></span>
+            <span style="width:96px">Tiềm năng thấp</span>
+            <span class="vote-bar"><i id="barB" style="background:#FF6F61;width:0%"></i></span>
+            <span class="vote-n" id="voteB">0</span>
+          </div>
+          <p style="margin-top:14px;font-size:.8rem;color:var(--ink-faint)">💡 Kéo chấm tím sang vùng ranh giới giữa hai nhóm rồi đổi K — bạn sẽ thấy dự đoán lật qua lật lại. Đó chính là lý do việc chọn K quan trọng.</p>
+        </div>
+      </div>
+    </div>
+
+    <h4>Các bước KNN làm, viết bằng lời</h4>
+    <ol class="steps violet">
+      <li><h5>Đo khoảng cách</h5><p>Tính khoảng cách từ điểm mới tới <b>từng điểm</b> đã biết nhãn (thường dùng khoảng cách Euclid — đúng thước đo hình học quen thuộc).</p></li>
+      <li><h5>Xếp hạng và lấy K điểm gần nhất</h5><p>Sắp xếp theo khoảng cách tăng dần, giữ lại K điểm đầu tiên.</p></li>
+      <li><h5>Bỏ phiếu</h5><p>Nhãn nào chiếm đa số trong K điểm đó chính là dự đoán cho điểm mới.</p></li>
+    </ol>
+
+    <h4>Chọn K thế nào cho hợp lý?</h4>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Giá trị K</th><th>Điều gì xảy ra</th><th>Rủi ro</th></tr></thead>
+        <tbody>
+          <tr><td><b>K = 1</b></td><td>Chỉ nghe đúng một hàng xóm gần nhất.</td><td>Rất nhạy với dữ liệu nhiễu — một điểm bị gán sai nhãn cũng đủ làm sai dự đoán.</td></tr>
+          <tr><td><b>K quá lớn</b></td><td>Nghe cả một vùng rộng, gần như "lấy nhóm đông nhất trong toàn bộ dữ liệu".</td><td>Bỏ qua đặc thù cục bộ, ranh giới giữa các nhóm bị làm mờ.</td></tr>
+          <tr><td><b>K vừa phải</b><br><span style="font-size:.78rem;color:var(--ink-faint)">thường 3–15</span></td><td>Cân bằng giữa nhạy và ổn định.</td><td>Không có con số đúng cho mọi bài toán — phải <b>thử nhiều giá trị và đo độ chính xác</b>.</td></tr>
+          <tr><td><b>K nên là số lẻ</b></td><td>Với bài toán hai nhóm, K lẻ tránh được tình huống hoà phiếu 50–50.</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid-2">
+      <div class="card" style="border-top:4px solid var(--teal)">
+        <h4>👍 Ưu điểm</h4>
+        <ul style="margin:8px 0 0;padding-left:20px;color:var(--ink-soft);font-size:.9rem;">
+          <li><b>Cực dễ giải thích</b> — bạn vừa giải thích xong cho chính mình trong 1 phút.</li>
+          <li><b>Không có bước huấn luyện phức tạp</b>: thuật toán chỉ ghi nhớ dữ liệu, mọi tính toán diễn ra lúc dự đoán.</li>
+          <li>Dùng được cho cả phân loại lẫn hồi quy.</li>
+          <li>Không giả định gì về hình dạng dữ liệu.</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:4px solid var(--coral)">
+        <h4>👎 Nhược điểm</h4>
+        <ul style="margin:8px 0 0;padding-left:20px;color:var(--ink-soft);font-size:.9rem;">
+          <li><b>Chậm với dữ liệu lớn</b>: mỗi lần dự đoán phải đo khoảng cách tới toàn bộ dữ liệu.</li>
+          <li><b>Nhạy với nhiễu</b> và với các điểm gán sai nhãn.</li>
+          <li><b>Phải chuẩn hoá thang đo</b>: cột "doanh thu" hàng triệu sẽ lấn át cột "số đơn hàng" hàng chục nếu để nguyên.</li>
+          <li>Kém hiệu quả khi có quá nhiều cột đặc trưng.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <div class="c-emoji">⚖️</div>
+      <div>
+        <div class="c-title">Nhược điểm thứ ba là cái bẫy hay gặp nhất</div>
+        <p>Nếu bạn để cột doanh thu (đơn vị triệu đồng) cạnh cột số đơn hàng (đơn vị chục), khoảng cách gần như chỉ phản ánh doanh thu — cột kia coi như bị bỏ qua. Vì vậy bước <b>chuẩn hoá (scaling)</b> gần như luôn đi kèm KNN.</p>
+      </div>
+    </div>
+
+    <h4>Đoạn code minh hoạ với scikit-learn <span style="font-size:.8rem;font-weight:600;color:var(--ink-faint)">(chỉ để xem, không bắt buộc chạy)</span></h4>
+    <div class="code-block">
+      <div class="code-head"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="fname">knn_minh_hoa.py</span><button class="copy">Copy</button></div>
+<pre class="code">from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+
+# X = đặc trưng của từng đại lý: [số đơn hàng/năm, doanh thu trung bình]
+X = [[12, 45], [15, 52], [9, 38], [40, 120], [45, 135], [38, 110]]
+
+# y = nhãn đã biết: 0 = tiềm năng thấp, 1 = tiềm năng cao
+y = [0, 0, 0, 1, 1, 1]
+
+# Chuẩn hoá thang đo rồi mới cho KNN học - hai bước gộp thành một pipeline
+model = Pipeline([
+    ("scaler", StandardScaler()),
+    ("knn", KNeighborsClassifier(n_neighbors=3))
+])
+
+model.fit(X, y)                       # "học" = ghi nhớ dữ liệu
+
+dai_ly_moi = [[36, 105]]
+du_doan = model.predict(dai_ly_moi)
+
+print("Dự đoán:", "Tiềm năng cao" if du_doan[0] == 1 else "Tiềm năng thấp")</pre>
+      <div class="code-out"><span class="lbl">KẾT QUẢ</span>Dự đoán: Tiềm năng cao</div>
+    </div>
+
+    <div class="callout tip">
+      <div class="c-emoji">🧾</div>
+      <div>
+        <div class="c-title">Đọc code trên như đọc một quy trình</div>
+        <p><code class="inl">X</code> là bảng đặc trưng, <code class="inl">y</code> là cột nhãn — đúng hai thứ bạn vẫn quen thấy trong một sheet Excel. <code class="inl">.fit()</code> là "học", <code class="inl">.predict()</code> là "đoán". Gần như mọi mô hình trong scikit-learn đều dùng chung hai lệnh này, đổi thuật toán chỉ là đổi một dòng.</p>
+      </div>
+    </div>
+
+    <div class="img-frame">
+      <img src="https://scikit-learn.org/stable/_images/sphx_glr_plot_classification_001.png"
+           alt="Biểu đồ ranh giới quyết định của KNN trên bộ dữ liệu iris với hai cách tính trọng số" loading="lazy"
+           onerror="this.closest('.img-frame').classList.add('failed')">
+      <div class="img-cap">📸 <b>Ranh giới quyết định</b> của KNN: các vùng màu là "lãnh thổ" của từng nhóm. Điểm mới rơi vào vùng nào thì nhận nhãn đó <i>(ảnh: tài liệu scikit-learn)</i></div>
+    </div>
+
+    <h4>Liên hệ với dữ liệu bạn vừa làm sạch ở Phần 1</h4>
+    <p class="lead">Bảng <code class="inl">Reseller</code> và <code class="inl">Sales</code> vừa nối xong hoàn toàn có thể trở thành dữ liệu huấn luyện cho một mô hình KNN thật:</p>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Thành phần của mô hình</th><th>Lấy từ đâu trong dữ liệu AdventureWorks</th></tr></thead>
+        <tbody>
+          <tr><td><b>Đặc trưng (features)</b></td><td>Tổng doanh thu năm, số đơn hàng, số dòng sản phẩm khác nhau đã mua, quốc gia — nhóm từ bảng <code>Sales</code> theo <code>ResellerKey</code></td></tr>
+          <tr><td><b>Nhãn (label)</b></td><td>Đại lý đó năm sau có <b>tiếp tục mua</b> hay không (1/0), hoặc xếp hạng <b>A/B/C</b> do đội kinh doanh gán</td></tr>
+          <tr><td><b>Câu hỏi mô hình trả lời</b></td><td>"Một đại lý mới ký hợp đồng, dựa trên các đại lý <b>tương tự</b> đã có, khả năng cao thuộc nhóm nào?"</td></tr>
+          <tr><td><b>Ai dùng kết quả</b></td><td>Đội kinh doanh ưu tiên chăm sóc; đội marketing thiết kế chương trình riêng cho từng nhóm</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="practice violet">
+      <h4>🛠️ Thực hành tại lớp — Phần 3 <span style="font-size:.75rem;font-weight:600;color:var(--ink-faint)">(8 phút, làm theo cặp)</span></h4>
+      <div class="p-sub">Không cần máy tính — chỉ cần thảo luận và ghi ra giấy.</div>
+      <ul class="task-list">
+        <li><span class="box"></span><span>Kéo chấm tím ở demo trên vào <b>vùng giữa hai nhóm</b>, thử K = 1 rồi K = 11. Ghi lại hai kết quả và giải thích vì sao khác nhau.</span></li>
+        <li><span class="box"></span><span>Nghĩ ra <b>một bài toán ở công việc của bạn</b> cho mỗi dạng: phân loại, hồi quy, phân cụm.</span></li>
+        <li><span class="box"></span><span>Với bài toán phân loại vừa nghĩ ra: liệt kê <b>3 đặc trưng</b> bạn sẽ dùng, và cho biết <b>nhãn</b> lấy ở đâu.</span></li>
+      </ul>
+    </div>
+
+    <div class="callout key" style="border-width:2px;">
+      <div class="c-emoji">🧱</div>
+      <div>
+        <div class="c-title">Kết phần 3 — AI không thay thế phân tích dữ liệu, AI đứng trên nó</div>
+        <p>Một mô hình KNN chỉ tốt khi khoảng cách giữa các điểm phản ánh đúng thực tế. Mà khoảng cách chỉ đúng khi dữ liệu <b>đúng kiểu, không trùng lặp, không thừa khoảng trắng, các khoá nối khớp nhau</b> — chính xác là những gì bạn làm suốt Phần 1 hôm nay.</p>
+        <p><b>Rác vào thì rác ra.</b> Power Query không phải là bước "chuẩn bị trước khi làm điều thú vị" — nó là phần quyết định điều thú vị đó có đáng tin hay không.</p>
+      </div>
+    </div>
+
+    <div class="sum-strip violet">
+      <h4>📌 Tóm tắt Phần 3</h4>
+      <ul>
+        <li><b>Deep Learning ⊂ Machine Learning ⊂ AI</b>. Máy học = máy tự tìm ra luật từ dữ liệu, thay vì người viết sẵn luật.</li>
+        <li>Ba dạng bài toán: <b>phân loại</b> (ra nhãn) · <b>hồi quy</b> (ra số) · <b>phân cụm</b> (tự chia nhóm, không cần nhãn).</li>
+        <li><b>KNN</b>: đo khoảng cách → lấy K điểm gần nhất → bỏ phiếu đa số. K nhỏ thì nhạy nhiễu, K lớn thì mờ ranh giới; nên chọn số lẻ và thử nhiều giá trị.</li>
+        <li>KNN dễ giải thích nhưng chậm với dữ liệu lớn và <b>bắt buộc phải chuẩn hoá thang đo</b>.</li>
+        <li>Chất lượng mô hình bị chặn trên bởi chất lượng dữ liệu — <b>dữ liệu sạch là nền móng của mọi mô hình AI</b>.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TỔNG KẾT ================= -->
+<section id="tongket" class="tint-soft">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--teal-deep)">◆ Nhìn lại 90 phút</div>
+      <h2>Tổng kết buổi học</h2>
+      <p>Ba phần tưởng như rời rạc, nhưng nối lại thành một mạch tư duy duy nhất.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="c-ico" style="background:var(--amber-soft)">🔗</div>
+        <h4>1. Nối bảng là kỹ năng lõi, không phụ thuộc công cụ</h4>
+        <p>Bạn làm cùng một việc bằng hai cách: <b>Merge Queries</b> trong Power Query và <code class="inl">df.merge()</code> trong pandas. Cùng chọn khoá, cùng chọn kiểu join, cùng ra một kết quả.</p>
+      </div>
+      <div class="card">
+        <div class="c-ico" style="background:var(--amber-soft)">⭐</div>
+        <h4>2. Fact / Dimension là bản đồ của mọi mô hình dữ liệu</h4>
+        <p>Phân biệt được hai loại bảng này, bạn đã sẵn sàng cho buổi sau về quan hệ và star schema — và cũng hiểu vì sao báo cáo hay bị sai số khi mô hình sai.</p>
+      </div>
+      <div class="card">
+        <div class="c-ico" style="background:var(--blue-soft)">🐍</div>
+        <h4>3. Python không thay thế Power BI, nó nối dài Power BI</h4>
+        <p>Power Query lo phần lớn công việc hằng ngày. Python vào cuộc khi dữ liệu quá lớn, xử lý quá đặc thù, hoặc khi bạn cần bước sang máy học.</p>
+      </div>
+      <div class="card">
+        <div class="c-ico" style="background:var(--violet-soft)">🤖</div>
+        <h4>4. AI chỉ là một tầng nữa trên cùng dòng dữ liệu</h4>
+        <p>KNN đo khoảng cách giữa các dòng dữ liệu — chính những dòng bạn vừa làm sạch. Không có bước làm sạch, không có mô hình đáng tin.</p>
+      </div>
+    </div>
+
+    <div class="callout tip" style="margin-top:26px;">
+      <div class="c-emoji">🧵</div>
+      <div>
+        <div class="c-title">Một sợi chỉ xuyên suốt để mang về</div>
+        <p><b>Dữ liệu thô → làm sạch → nối bảng → tổng hợp → trực quan hoá → (nếu cần) mô hình hoá.</b> Hôm nay bạn đi trọn vòng này hai lần: một lần bằng chuột trong Power Query, một lần bằng code trong Python. Buổi sau chúng ta quay lại bước "nối bảng" ở tầng cao hơn — quan hệ và mô hình dữ liệu.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BÀI TẬP VỀ NHÀ ================= -->
+<section id="baitap">
+  <div class="blob drift" style="width:320px;height:320px;background:#8B5CF6;bottom:-60px;right:-70px;"></div>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--coral-deep)">◆ Trước buổi sau</div>
+      <h2>Bài tập về nhà</h2>
+      <p>Khoảng 60–90 phút. Mang kết quả (file .pbix, ảnh chụp màn hình notebook, và ghi chú giấy) tới buổi 3.</p>
+    </div>
+
+    <div class="hw-grid">
+      <div class="hw-card a">
+        <h4>🟡 Phần 1 · Power Query</h4>
+        <div class="hw-item"><span class="n">1</span><span><b>Merge lần thứ ba.</b> Nối bảng <code class="inl">Sales</code> với <code class="inl">Salesperson</code> qua <code class="inl">EmployeeKey</code>, mở rộng lấy cột <b>tên nhân viên kinh doanh</b>. Chụp lại màn hình hộp thoại Merge của bạn.</span></div>
+        <div class="hw-item"><span class="n">2</span><span><b>Làm sạch bảng Targets.</b> Đặt đúng kiểu dữ liệu cho cột kỳ và cột chỉ tiêu, xoá dòng trùng nếu có, rồi <b>Close &amp; Apply</b> và lưu lại file <code class="inl">AdventureWorks_Buoi2.pbix</code>.</span></div>
+      </div>
+
+      <div class="hw-card b">
+        <h4>🔵 Phần 2 · Python</h4>
+        <div class="hw-item"><span class="n">1</span><span><b>Viết một hàm.</b> Hàm <code class="inl">xep_loai_doanh_thu(so_tien)</code> trả về <i>"Cao"</i> nếu ≥ 1 triệu, <i>"Trung bình"</i> nếu ≥ 500 nghìn, còn lại <i>"Thấp"</i>. Gọi thử với 3 giá trị khác nhau.</span></div>
+        <div class="hw-item"><span class="n">2</span><span><b>pandas với Product.csv.</b> Đọc file, in số dòng, rồi dùng <code class="inl">groupby</code> để tính <b>số sản phẩm theo từng nhóm hàng (Category)</b>. Chụp màn hình kết quả.</span></div>
+      </div>
+
+      <div class="hw-card c">
+        <h4>🟣 Phần 3 · AI &amp; KNN</h4>
+        <div class="hw-item"><span class="n">1</span><span><b>Ba bài toán của riêng bạn.</b> Viết ra giấy 3 bài toán tại nơi bạn làm việc — mỗi dạng một bài (phân loại / hồi quy / phân cụm) — kèm dữ liệu bạn nghĩ là cần có.</span></div>
+        <div class="hw-item"><span class="n">2</span><span><b>Giải thích KNN cho một người không làm dữ liệu.</b> Viết 5 câu, không dùng từ "thuật toán", "mô hình", "vector". Nếu người đó hiểu, bạn đã thật sự nắm được.</span></div>
+      </div>
+    </div>
+
+    <div class="callout note" style="margin-top:26px;">
+      <div class="c-emoji">📬</div>
+      <div>
+        <div class="c-title">Nộp bài thế nào</div>
+        <p>Gom file <code class="inl">.pbix</code>, ảnh chụp màn hình notebook Colab (hoặc link chia sẻ notebook) và ảnh chụp trang giấy bài tập phần 3 vào một thư mục, gửi trước buổi 3. Kẹt ở đâu cứ ghi lại câu hỏi — 10 phút đầu buổi sau dành để gỡ.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THUẬT NGỮ ================= -->
+<section id="thuatngu" class="tint-soft">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--ink-faint)">◆ Tra cứu nhanh</div>
+      <h2>Bảng thuật ngữ Anh – Việt</h2>
+      <p>Giữ nguyên thuật ngữ tiếng Anh khi thao tác trên phần mềm; dùng nghĩa tiếng Việt khi giải thích cho đồng nghiệp.</p>
+    </div>
+
+    <div class="gl-filter" id="glFilter">
+      <button class="gl-btn on" data-f="all">Tất cả</button>
+      <button class="gl-btn" data-f="p1">🟡 Power BI</button>
+      <button class="gl-btn" data-f="p2">🔵 Python</button>
+      <button class="gl-btn" data-f="p3">🟣 AI &amp; KNN</button>
+    </div>
+
+    <div class="tbl-wrap">
+      <table class="tbl" id="glTable">
+        <thead><tr><th style="width:210px">Thuật ngữ</th><th style="width:180px">Tiếng Việt</th><th>Giải thích ngắn</th></tr></thead>
+        <tbody>
+          <tr data-p="p1"><td><b>Fact table</b></td><td>Bảng sự kiện</td><td>Bảng ghi các giao dịch/sự kiện, nhiều dòng, có số để cộng. Ví dụ: Sales, Targets.</td></tr>
+          <tr data-p="p1"><td><b>Dimension table</b></td><td>Bảng chiều</td><td>Bảng danh mục dùng để lọc và nhóm. Ví dụ: Product, Reseller, Region.</td></tr>
+          <tr data-p="p1"><td><b>Star schema</b></td><td>Mô hình hình sao</td><td>Cách sắp xếp mô hình: Fact ở giữa, các Dimension toả ra xung quanh.</td></tr>
+          <tr data-p="p1"><td><b>Key / Foreign key</b></td><td>Khoá / khoá ngoại</td><td>Cột mã dùng để nối hai bảng với nhau, ví dụ <code>ProductKey</code>.</td></tr>
+          <tr data-p="p1"><td><b>Get Data</b></td><td>Lấy dữ liệu</td><td>Cửa vào mọi nguồn dữ liệu của Power BI.</td></tr>
+          <tr data-p="p1"><td><b>Folder connector</b></td><td>Kết nối thư mục</td><td>Nạp cả một thư mục file cùng lúc — chỉ nên gộp khi các file cùng cấu trúc.</td></tr>
+          <tr data-p="p1"><td><b>Transform Data</b></td><td>Biến đổi dữ liệu</td><td>Nút mở Power Query Editor trước khi nạp dữ liệu vào mô hình.</td></tr>
+          <tr data-p="p1"><td><b>Power Query Editor</b></td><td>Trình biên tập truy vấn</td><td>Nơi làm sạch và biến đổi dữ liệu bằng thao tác chuột.</td></tr>
+          <tr data-p="p1"><td><b>Query</b></td><td>Truy vấn</td><td>Một chuỗi bước biến đổi áp lên một nguồn dữ liệu; tên query = tên bảng sau này.</td></tr>
+          <tr data-p="p1"><td><b>Applied Steps</b></td><td>Các bước đã áp dụng</td><td>Danh sách mọi thao tác đã làm, xoá/sửa được từng bước.</td></tr>
+          <tr data-p="p1"><td><b>Data type</b></td><td>Kiểu dữ liệu</td><td>Text, Whole Number, Decimal Number, Date… Sai kiểu là sai kết quả.</td></tr>
+          <tr data-p="p1"><td><b>Trim</b></td><td>Cắt khoảng trắng</td><td>Bỏ khoảng trắng thừa ở đầu và cuối chuỗi.</td></tr>
+          <tr data-p="p1"><td><b>Remove Duplicates</b></td><td>Xoá dòng trùng</td><td>Giữ lại một dòng duy nhất cho mỗi giá trị khoá.</td></tr>
+          <tr data-p="p1"><td><b>Replace Values</b></td><td>Thay giá trị</td><td>Đổi một giá trị này thành giá trị khác trong cả cột.</td></tr>
+          <tr data-p="p1"><td><b>Merge Queries</b></td><td>Gộp truy vấn</td><td>Nối hai bảng theo cột khoá chung — tương đương VLOOKUP nhưng mạnh hơn.</td></tr>
+          <tr data-p="p1"><td><b>Append Queries</b></td><td>Nối thêm truy vấn</td><td>Xếp chồng các bảng cùng cấu trúc lên nhau (khác hẳn Merge).</td></tr>
+          <tr data-p="p1"><td><b>Join kind</b></td><td>Kiểu nối</td><td>Cách xử lý dòng không khớp: Left Outer, Inner, Full Outer…</td></tr>
+          <tr data-p="p1"><td><b>Left Outer Join</b></td><td>Nối trái</td><td>Giữ toàn bộ dòng bảng trái, lấy thêm cột bảng phải khi khớp khoá.</td></tr>
+          <tr data-p="p1"><td><b>Expand</b></td><td>Mở rộng cột</td><td>Bấm ⇔ sau khi Merge để chọn các cột muốn lấy từ bảng phải.</td></tr>
+          <tr data-p="p1"><td><b>Close &amp; Apply</b></td><td>Đóng và áp dụng</td><td>Chạy toàn bộ các bước và nạp dữ liệu vào mô hình Power BI.</td></tr>
+          <tr data-p="p1"><td><b>Model view</b></td><td>Khung mô hình</td><td>Sơ đồ các bảng và quan hệ giữa chúng.</td></tr>
+
+          <tr data-p="p2"><td><b>Python</b></td><td>—</td><td>Ngôn ngữ lập trình phổ biến nhất trong phân tích dữ liệu và AI.</td></tr>
+          <tr data-p="p2"><td><b>Google Colab</b></td><td>—</td><td>Môi trường chạy Python miễn phí trên trình duyệt, không cần cài đặt.</td></tr>
+          <tr data-p="p2"><td><b>Notebook</b></td><td>Sổ tay code</td><td>File gồm nhiều ô (cell) code và ghi chú, chạy được từng ô.</td></tr>
+          <tr data-p="p2"><td><b>Cell</b></td><td>Ô lệnh</td><td>Một khối code chạy độc lập bằng ▶ hoặc Shift + Enter.</td></tr>
+          <tr data-p="p2"><td><b>Variable</b></td><td>Biến</td><td>Cái tên gán cho một giá trị để dùng lại.</td></tr>
+          <tr data-p="p2"><td><b>List / Dictionary</b></td><td>Danh sách / từ điển</td><td>List: nhiều giá trị theo thứ tự. Dict: mỗi giá trị gắn với một tên (key).</td></tr>
+          <tr data-p="p2"><td><b>Loop (for)</b></td><td>Vòng lặp</td><td>Lặp lại cùng một việc cho từng phần tử.</td></tr>
+          <tr data-p="p2"><td><b>Function</b></td><td>Hàm</td><td>Đoạn xử lý được đóng gói để gọi lại nhiều lần.</td></tr>
+          <tr data-p="p2"><td><b>Library</b></td><td>Thư viện</td><td>Bộ công cụ viết sẵn, nạp bằng <code>import</code>.</td></tr>
+          <tr data-p="p2"><td><b>pandas</b></td><td>—</td><td>Thư viện xử lý bảng dữ liệu của Python.</td></tr>
+          <tr data-p="p2"><td><b>DataFrame</b></td><td>Khung dữ liệu</td><td>Một bảng có dòng và cột trong pandas — tương đương một query trong Power Query.</td></tr>
+          <tr data-p="p2"><td><b>groupby</b></td><td>Nhóm theo</td><td>Nhóm dữ liệu theo một cột rồi tổng hợp — tương đương Group By của Power Query.</td></tr>
+          <tr data-p="p2"><td><b>merge</b></td><td>Nối bảng</td><td>Lệnh pandas tương đương Merge Queries.</td></tr>
+
+          <tr data-p="p3"><td><b>Artificial Intelligence (AI)</b></td><td>Trí tuệ nhân tạo</td><td>Khái niệm rộng nhất: máy làm việc vốn cần trí thông minh con người.</td></tr>
+          <tr data-p="p3"><td><b>Machine Learning (ML)</b></td><td>Máy học</td><td>Máy tự tìm ra quy luật từ dữ liệu thay vì được lập trình từng luật.</td></tr>
+          <tr data-p="p3"><td><b>Deep Learning</b></td><td>Học sâu</td><td>Nhánh ML dùng mạng nơ-ron nhiều lớp, mạnh với ảnh/âm thanh/văn bản.</td></tr>
+          <tr data-p="p3"><td><b>Model</b></td><td>Mô hình</td><td>"Bộ luật" mà máy học được từ dữ liệu, dùng để dự đoán dữ liệu mới.</td></tr>
+          <tr data-p="p3"><td><b>Classification</b></td><td>Phân loại</td><td>Dự đoán một nhãn, ví dụ khách hàng có rời bỏ hay không.</td></tr>
+          <tr data-p="p3"><td><b>Regression</b></td><td>Hồi quy</td><td>Dự đoán một con số, ví dụ doanh thu tháng tới.</td></tr>
+          <tr data-p="p3"><td><b>Clustering</b></td><td>Phân cụm</td><td>Tự chia dữ liệu thành nhóm tương tự nhau, không cần nhãn có sẵn.</td></tr>
+          <tr data-p="p3"><td><b>Churn</b></td><td>Rời bỏ</td><td>Khách hàng ngừng sử dụng dịch vụ hoặc ngừng mua hàng.</td></tr>
+          <tr data-p="p3"><td><b>Feature</b></td><td>Đặc trưng</td><td>Một cột dữ liệu đầu vào mà mô hình dùng để dự đoán.</td></tr>
+          <tr data-p="p3"><td><b>Label</b></td><td>Nhãn</td><td>Đáp án đã biết trong dữ liệu huấn luyện.</td></tr>
+          <tr data-p="p3"><td><b>KNN (K-Nearest Neighbors)</b></td><td>K láng giềng gần nhất</td><td>Phân loại điểm mới theo đa số nhãn của K điểm gần nhất.</td></tr>
+          <tr data-p="p3"><td><b>Euclidean distance</b></td><td>Khoảng cách Euclid</td><td>Khoảng cách hình học thông thường giữa hai điểm.</td></tr>
+          <tr data-p="p3"><td><b>Scaling / Normalization</b></td><td>Chuẩn hoá thang đo</td><td>Đưa các cột về cùng thang để cột giá trị lớn không lấn át cột khác.</td></tr>
+          <tr data-p="p3"><td><b>Decision boundary</b></td><td>Ranh giới quyết định</td><td>Đường/vùng phân chia lãnh thổ của các nhãn trong không gian dữ liệu.</td></tr>
+          <tr data-p="p3"><td><b>scikit-learn</b></td><td>—</td><td>Thư viện máy học phổ biến nhất của Python.</td></tr>
+          <tr data-p="p3"><td><b>fit / predict</b></td><td>Huấn luyện / dự đoán</td><td>Hai lệnh chuẩn của mọi mô hình trong scikit-learn.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <h4>Buổi 2 hoàn thành 🎉</h4>
+        <p>Power BI cho người đi làm · Power Query nâng cao · Python · Nhập môn AI</p>
+      </div>
+      <div class="foot-next">
+        <b>Buổi 3 sắp tới:</b> Mô hình dữ liệu &amp; quan hệ (relationships) — nối 7 bảng AdventureWorks thành một star schema hoàn chỉnh, rồi bước vào DAX.
+      </div>
+    </div>
+  </div>
+</footer>
+
+<button class="totop" id="toTop" aria-label="Lên đầu trang">↑</button>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ---------- 1. Scroll spy + thanh tiến độ đọc ---------- */
+  var links = Array.prototype.slice.call(document.querySelectorAll('.nav-links a'));
+  var sections = links.map(function(a){ return document.querySelector(a.getAttribute('href')); }).filter(Boolean);
+  var readbar = document.getElementById('readbar');
+  var toTop = document.getElementById('toTop');
+
+  function onScroll(){
+    var y = window.scrollY || document.documentElement.scrollTop;
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    if (readbar) readbar.style.width = (h > 0 ? (y / h) * 100 : 0) + '%';
+    if (toTop) toTop.classList.toggle('show', y > 700);
+
+    var current = null;
+    sections.forEach(function(sec){
+      if (sec.getBoundingClientRect().top <= 120) current = sec.id;
+    });
+    links.forEach(function(a){
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  if (toTop) toTop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+
+  /* ---------- 2. Tô màu cú pháp Python ---------- */
+  var KW = ['from','import','as','def','return','if','elif','else','for','in','while','and','or','not','True','False','None','lambda','with','try','except','class','pass','break','continue','is'];
+  var BUILTIN = ['print','len','list','type','range','sum','sorted','str','int','float','dict','set','abs','round','max','min','enumerate','zip'];
+  var reCode = new RegExp(
+    '(#[^\\n]*)' +                                   // 1: comment
+    '|("""[\\s\\S]*?"""|\'[^\'\\n]*\'|"[^"\\n]*")' + // 2: string
+    '|\\b(' + KW.join('|') + ')\\b' +                // 3: keyword
+    '|\\b(' + BUILTIN.join('|') + ')\\b(?=\\s*\\()' +// 4: builtin call
+    '|\\b(\\d+\\.?\\d*(?:e[+-]?\\d+)?)\\b',          // 5: number
+    'g');
+
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  document.querySelectorAll('pre.code').forEach(function(pre){
+    var html = esc(pre.textContent).replace(reCode, function(m, cm, str, kw, fn, num){
+      if (cm)  return '<span class="cm">'  + cm  + '</span>';
+      if (str) return '<span class="str">' + str + '</span>';
+      if (kw)  return '<span class="kw">'  + kw  + '</span>';
+      if (fn)  return '<span class="fn">'  + fn  + '</span>';
+      if (num) return '<span class="num">' + num + '</span>';
+      return m;
+    });
+    pre.innerHTML = html;
+  });
+
+  /* ---------- 3. Nút Copy code ---------- */
+  document.querySelectorAll('.code-head .copy').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var pre = btn.closest('.code-block').querySelector('pre.code');
+      if (!pre) return;
+      var done = function(){
+        var old = btn.textContent;
+        btn.textContent = 'Đã copy ✓';
+        setTimeout(function(){ btn.textContent = old; }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(pre.textContent).then(done, function(){});
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = pre.textContent;
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  /* ---------- 4. Bộ lọc bảng thuật ngữ ---------- */
+  var glFilter = document.getElementById('glFilter');
+  if (glFilter) {
+    glFilter.addEventListener('click', function(e){
+      var btn = e.target.closest('.gl-btn');
+      if (!btn) return;
+      glFilter.querySelectorAll('.gl-btn').forEach(function(b){ b.classList.toggle('on', b === btn); });
+      var f = btn.getAttribute('data-f');
+      document.querySelectorAll('#glTable tbody tr').forEach(function(tr){
+        tr.style.display = (f === 'all' || tr.getAttribute('data-p') === f) ? '' : 'none';
+      });
+    });
+  }
+
+  /* ---------- 5. Demo KNN tương tác ---------- */
+  var svg = document.getElementById('knnSvg');
+  if (!svg) return;
+
+  var PTS = [
+    // nhóm 1 = tiềm năng cao (teal), phía trên bên phải
+    {x:300,y:70,c:1},{x:340,y:96,c:1},{x:286,y:118,c:1},{x:368,y:60,c:1},{x:330,y:150,c:1},
+    {x:392,y:120,c:1},{x:262,y:78,c:1},{x:356,y:186,c:1},{x:300,y:196,c:1},{x:404,y:172,c:1},
+    {x:244,y:140,c:1},{x:388,y:230,c:1},
+    // nhóm 0 = tiềm năng thấp (coral), phía dưới bên trái
+    {x:96,y:250,c:0},{x:130,y:216,c:0},{x:72,y:196,c:0},{x:158,y:268,c:0},{x:112,y:160,c:0},
+    {x:186,y:224,c:0},{x:60,y:132,c:0},{x:204,y:280,c:0},{x:150,y:150,c:0},{x:80,y:284,c:0},
+    {x:216,y:186,c:0},{x:190,y:118,c:0}
+  ];
+  var COLORS = ['#FF6F61', '#17C3B2'];
+  var LABELS = ['Tiềm năng thấp', 'Tiềm năng cao'];
+  var NS = 'http://www.w3.org/2000/svg';
+
+  var gGrid   = document.getElementById('knnGrid');
+  var gPoints = document.getElementById('knnPoints');
+  var gLines  = document.getElementById('knnLines');
+  var circle  = document.getElementById('knnCircle');
+  var gQuery  = document.getElementById('knnQuery');
+  var kRange  = document.getElementById('kRange');
+  var kVal    = document.getElementById('kVal');
+  var verdict = document.getElementById('knnVerdict');
+  var voteAEl = document.getElementById('voteA');
+  var voteBEl = document.getElementById('voteB');
+  var barA    = document.getElementById('barA');
+  var barB    = document.getElementById('barB');
+
+  // lưới nền
+  for (var gx = 60; gx <= 420; gx += 60) {
+    var l = document.createElementNS(NS,'line');
+    l.setAttribute('x1',gx); l.setAttribute('y1',20); l.setAttribute('x2',gx); l.setAttribute('y2',300);
+    l.setAttribute('stroke','#EDF1FA'); l.setAttribute('stroke-width','1');
+    gGrid.appendChild(l);
+  }
+  for (var gy = 60; gy <= 290; gy += 60) {
+    var l2 = document.createElementNS(NS,'line');
+    l2.setAttribute('x1',30); l2.setAttribute('y1',gy); l2.setAttribute('x2',440); l2.setAttribute('y2',gy);
+    l2.setAttribute('stroke','#EDF1FA'); l2.setAttribute('stroke-width','1');
+    gGrid.appendChild(l2);
+  }
+
+  // vẽ các điểm đã biết nhãn
+  PTS.forEach(function(p){
+    var c = document.createElementNS(NS,'circle');
+    c.setAttribute('cx',p.x); c.setAttribute('cy',p.y); c.setAttribute('r',7);
+    c.setAttribute('fill',COLORS[p.c]); c.setAttribute('stroke','#fff'); c.setAttribute('stroke-width','2');
+    gPoints.appendChild(c);
+    p.el = c;
+  });
+
+  var q = {x:230, y:165};
+
+  function render(){
+    var k = parseInt(kRange.value, 10);
+    kVal.textContent = 'K = ' + k;
+
+    var d = PTS.map(function(p){
+      return {p:p, d:Math.hypot(p.x - q.x, p.y - q.y)};
+    }).sort(function(a,b){ return a.d - b.d; });
+
+    var near = d.slice(0, k);
+    var votes = [0,0];
+    near.forEach(function(n){ votes[n.p.c]++; });
+
+    // đường nối tới K hàng xóm
+    while (gLines.firstChild) gLines.removeChild(gLines.firstChild);
+    near.forEach(function(n){
+      var l = document.createElementNS(NS,'line');
+      l.setAttribute('x1',q.x); l.setAttribute('y1',q.y);
+      l.setAttribute('x2',n.p.x); l.setAttribute('y2',n.p.y);
+      l.setAttribute('stroke',COLORS[n.p.c]); l.setAttribute('stroke-width','2'); l.setAttribute('opacity','.55');
+      gLines.appendChild(l);
+    });
+
+    // vòng tròn bao K hàng xóm
+    circle.setAttribute('cx',q.x); circle.setAttribute('cy',q.y);
+    circle.setAttribute('r', near.length ? near[near.length-1].d + 9 : 0);
+
+    // làm nổi bật các điểm được chọn
+    PTS.forEach(function(p){ p.el.setAttribute('opacity','.32'); p.el.setAttribute('r','7'); });
+    near.forEach(function(n){ n.p.el.setAttribute('opacity','1'); n.p.el.setAttribute('r','8.5'); });
+
+    // vị trí chấm truy vấn
+    gQuery.setAttribute('transform','translate(' + (q.x - 230) + ',' + (q.y - 165) + ')');
+
+    // bảng phiếu
+    voteBEl.textContent = votes[0];
+    voteAEl.textContent = votes[1];
+    barA.style.width = (votes[1] / k * 100) + '%';
+    barB.style.width = (votes[0] / k * 100) + '%';
+
+    var win = votes[1] > votes[0] ? 1 : 0;
+    verdict.textContent = 'Dự đoán: ' + LABELS[win] + ' (' + Math.max(votes[0],votes[1]) + '/' + k + ' phiếu)';
+    verdict.style.background = win ? '#E3FBF6' : '#FFECE8';
+    verdict.style.borderColor = win ? '#BFEFE9' : '#FFD3CA';
+    verdict.style.color = win ? '#0B8A7C' : '#E24B3B';
+  }
+
+  function toLocal(evt){
+    var r = svg.getBoundingClientRect();
+    return {
+      x: (evt.clientX - r.left) / r.width * 460,
+      y: (evt.clientY - r.top) / r.height * 330
+    };
+  }
+  function moveTo(evt){
+    var p = toLocal(evt);
+    q.x = Math.max(30, Math.min(440, p.x));
+    q.y = Math.max(20, Math.min(300, p.y));
+    render();
+  }
+
+  var dragging = false;
+  svg.addEventListener('pointerdown', function(e){
+    dragging = true;
+    svg.setPointerCapture(e.pointerId);
+    svg.style.cursor = 'grabbing';
+    moveTo(e);
+    e.preventDefault();
+  });
+  svg.addEventListener('pointermove', function(e){ if (dragging) moveTo(e); });
+  svg.addEventListener('pointerup', function(e){
+    dragging = false;
+    svg.style.cursor = 'grab';
+    try { svg.releasePointerCapture(e.pointerId); } catch(err){}
+  });
+  svg.addEventListener('pointercancel', function(){ dragging = false; svg.style.cursor = 'grab'; });
+
+  kRange.addEventListener('input', render);
+  render();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTVN – Đường tròn – Tiếp tuyến &amp; Tỉ số lượng giác</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<style>
+  :root{
+    --paper:#F4F5F0; --paper-alt:#ECEEE6; --ink:#1B2624; --ink-soft:#4B5A56; --rule:#D8DBCF;
+    --c1:#B4741C; --c1-bg:#F5EADA; /* Đường tròn - Tiếp tuyến */
+    --c2:#39588F; --c2-bg:#E5EAF3; /* Tỉ số lượng giác */
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.65;font-size:16px;}
+  h1,h2,h3,h4{font-family:Georgia,"Palatino Linotype","Times New Roman",serif;font-weight:700;line-height:1.25;margin:0 0 .5em 0;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 18px 80px;}
+  .top{background:var(--ink);color:var(--paper);padding:34px 18px 28px;}
+  .top .wrap{padding:0;}
+  .eyebrow{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:#B9C4B7;margin-bottom:10px;}
+  .top h1{font-size:clamp(20px,5vw,30px);color:#FBFBF6;margin-bottom:8px;}
+  .top p.sub{color:#C9D0C4;font-size:15px;max-width:58ch;margin:0;}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;}
+  .meta-chip{font-size:12.5px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;border:1px solid #4C5A55;color:#D6DCD1;padding:5px 10px;border-radius:20px;}
+  .toc{display:flex;gap:8px;overflow-x:auto;padding:14px 18px;background:var(--paper-alt);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:50;-webkit-overflow-scrolling:touch;}
+  .toc a{flex:0 0 auto;text-decoration:none;font-size:13px;font-weight:600;padding:8px 13px;border-radius:8px;white-space:nowrap;color:var(--ink);border:1px solid var(--rule);background:var(--paper);}
+  .toc a b{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:700;margin-right:5px;opacity:.55;}
+  .intro{padding:22px 0 6px;}
+  .intro p{color:var(--ink-soft);max-width:64ch;}
+  .part-head{margin-top:44px;scroll-margin-top:70px;border-bottom:2px solid var(--ink);padding-bottom:10px;display:flex;align-items:baseline;gap:10px;}
+  .part-head .tag{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12.5px;text-transform:uppercase;letter-spacing:.1em;background:var(--ink);color:#fff;padding:4px 12px;border-radius:20px;}
+  .part-head h2{font-size:24px;margin:0;}
+  .section-group{margin-top:30px;scroll-margin-top:70px;}
+  .section-tab{display:inline-flex;align-items:baseline;gap:10px;padding:8px 14px 9px;border-radius:10px 10px 0 0;color:#fff;}
+  .section-tab .name{font-family:Georgia,serif;font-weight:700;font-size:17px;}
+  .section-body{border-radius:0 10px 10px 10px;border:1px solid var(--rule);background:#fff;padding:20px 22px 24px;}
+  .problem{border:1px solid var(--rule);border-radius:8px;padding:16px 18px;margin-bottom:14px;background:var(--paper);}
+  .problem-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px;}
+  .problem-num{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:700;color:var(--box-c,var(--ink));font-size:14px;flex:0 0 auto;}
+  .badge{font-size:10.5px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:20px;flex:0 0 auto;border:1px solid currentColor;opacity:.8;}
+  .b-nb{color:#2F7D6B;} .b-th{color:#3E5C9A;} .b-vd{color:#B4741C;} .b-vdc{color:#A83B49;}
+  .problem-text{margin:6px 0 0;}
+  .solution{margin-top:6px;padding:14px 16px;border-radius:6px;background:var(--box-bg,var(--paper-alt));border-left:3px solid var(--box-c,var(--ink));}
+  .solution p{margin:.45em 0;}
+  .solution .lbl{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--box-c,var(--ink));margin-bottom:8px;font-weight:700;}
+  .figure-wrap{margin:14px 0 20px;padding:14px;background:#FCFCF9;border:1px solid var(--rule);border-radius:8px;text-align:center;}
+  .figure-wrap svg{max-width:100%;height:auto;}
+  .figure-wrap figcaption{font-size:12.5px;color:var(--ink-soft);margin-top:6px;}
+  .g1{--box-c:var(--c1);--box-bg:var(--c1-bg);}
+  .g2{--box-c:var(--c2);--box-bg:var(--c2-bg);}
+  .g1 .section-tab{background:var(--c1);}
+  .g2 .section-tab{background:var(--c2);}
+  .divider{margin:52px 0 0;border:none;border-top:3px double var(--rule);}
+  footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--rule);color:var(--ink-soft);font-size:13px;}
+  .backlink{font-size:12.5px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;}
+  @media print{ .toc{display:none !important;} .top{background:#fff !important;color:#000 !important;} .top .eyebrow,.top .sub,.meta-chip{color:#333 !important;} .top h1{color:#000 !important;} }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wrap">
+    <div class="eyebrow">Bài tập về nhà &nbsp;•&nbsp; Toán 9 &nbsp;•&nbsp; Hình học</div>
+    <h1>Đường tròn – Tiếp tuyến &amp; Tỉ số lượng giác</h1>
+    <p class="sub">5 bài về nhà: 3 bài Đường tròn – Tiếp tuyến, 2 bài Tỉ số lượng giác của góc nhọn. Đề bài ở đầu trang, lời giải chi tiết ở cuối trang.</p>
+    <div class="meta-row">
+      <span class="meta-chip">5 bài BTVN</span>
+      <span class="meta-chip">Đề + lời giải trong 1 trang</span>
+    </div>
+  </div>
+</div>
+
+<nav class="toc">
+  <a href="#de-bai"><b>»</b>Đề bài</a>
+  <a href="#de-tron"><b>01</b>Đường tròn – Tiếp tuyến</a>
+  <a href="#de-luonggiac"><b>02</b>Tỉ số lượng giác</a>
+  <a href="#loi-giai"><b>»</b>Lời giải chi tiết</a>
+</nav>
+
+<div class="wrap">
+
+  <div class="intro">
+    <p>Tự làm hết 5 bài trước, ghi ra giấy, rồi mới kéo xuống cuối trang để đối chiếu lời giải. Kí hiệu dùng chung phần đường tròn: tiếp tuyến vuông góc bán kính tại tiếp điểm.</p>
+  </div>
+
+  <!-- ================= ĐỀ BÀI ================= -->
+  <div class="part-head" id="de-bai">
+    <span class="tag">Phần I</span>
+    <h2>Đề bài</h2>
+  </div>
+
+  <div class="section-group g1" id="de-tron">
+    <div class="section-tab"><span class="name">Đường tròn – Tiếp tuyến</span></div>
+    <div class="section-body">
+
+      <div class="figure-wrap">
+        <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="150" cy="100" r="65" fill="none" stroke="#1B2624" stroke-width="2"/>
+          <circle cx="150" cy="100" r="2.5" fill="#1B2624"/>
+          <line x1="150" y1="100" x2="180" y2="42" stroke="#B4741C" stroke-width="1.5" stroke-dasharray="3 2"/>
+          <line x1="180" y1="42" x2="290" y2="100" stroke="#1B2624" stroke-width="2"/>
+          <line x1="150" y1="100" x2="290" y2="100" stroke="#B4741C" stroke-width="1.5" stroke-dasharray="3 2"/>
+          <circle cx="180" cy="42" r="2.5" fill="#B4741C"/>
+          <circle cx="290" cy="100" r="2.5" fill="#1B2624"/>
+          <text x="138" y="118" font-size="14" font-family="Georgia,serif">O</text>
+          <text x="184" y="36" font-size="14" font-family="Georgia,serif">A</text>
+          <text x="296" y="105" font-size="14" font-family="Georgia,serif">M</text>
+        </svg>
+        <figcaption>MA là tiếp tuyến của (O) tại tiếp điểm A: \(MA\perp OA\)</figcaption>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">BTVN 1</span><span class="badge b-nb">Cơ bản</span></div>
+        <div class="problem-text">Cho đường tròn \((O;R=6cm)\) và điểm A cách O một khoảng \(OA=10cm\). Vẽ tiếp tuyến AB (B là tiếp điểm). Tính độ dài AB.</div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">BTVN 2</span><span class="badge b-th">Cơ bản – nâng cao</span></div>
+        <div class="problem-text">Cho đường tròn \((O;R=6cm)\), từ điểm M kẻ tiếp tuyến MA (A là tiếp điểm), biết \(MA=8cm\). Tính độ dài OM.</div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">BTVN 3</span><span class="badge b-vdc">Nâng cao</span></div>
+        <div class="problem-text">Từ điểm A ở ngoài đường tròn \((O;R=6cm)\), kẻ hai tiếp tuyến AB, AC (B, C là tiếp điểm), biết \(AB=8cm\). Tính diện tích tứ giác ABOC.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section-group g2" id="de-luonggiac">
+    <div class="section-tab"><span class="name">Tỉ số lượng giác của góc nhọn</span></div>
+    <div class="section-body">
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">BTVN 4</span><span class="badge b-nb">Cơ bản</span></div>
+        <div class="problem-text">Tam giác ABC vuông tại A, \(AB=5cm,\ AC=12cm\). Tính các tỉ số lượng giác của góc C.</div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">BTVN 5</span><span class="badge b-vd">Nâng cao</span></div>
+        <div class="problem-text">Một chiếc thuyền neo tại một điểm cách chân cầu (theo phương thẳng đứng xuống mặt nước) một khoảng 20m. Từ thuyền nhìn lên đỉnh cầu với góc nâng \(35^\circ\). Tính chiều cao của cầu so với mặt nước (làm tròn đến 0,01m), biết \(\tan35^\circ\approx0{,}7002\).</div>
+      </div>
+
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ================= LỜI GIẢI ================= -->
+  <div class="part-head" id="loi-giai">
+    <span class="tag">Phần II</span>
+    <h2>Lời giải chi tiết</h2>
+  </div>
+
+  <div class="section-group g1">
+    <div class="section-tab"><span class="name">Đường tròn – Tiếp tuyến</span></div>
+    <div class="section-body">
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">BTVN 1</span><span class="badge b-nb">Cơ bản</span></div>
+        <div class="problem-text">Cho đường tròn \((O;R=6cm)\) và điểm A cách O một khoảng \(OA=10cm\). Vẽ tiếp tuyến AB (B là tiếp điểm). Tính độ dài AB.</div>
+        <div class="solution">
+          <p class="lbl">Lời giải</p>
+          <p>Vì AB là tiếp tuyến nên \(AB\perp OB\) tại B, tam giác OBA vuông tại B.</p>
+          <p>\(AB=\sqrt{OA^2-OB^2}=\sqrt{100-36}=\sqrt{64}=8\)cm</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">BTVN 2</span><span class="badge b-th">Cơ bản – nâng cao</span></div>
+        <div class="problem-text">Cho đường tròn \((O;R=6cm)\), từ điểm M kẻ tiếp tuyến MA (A là tiếp điểm), biết \(MA=8cm\). Tính độ dài OM.</div>
+        <div class="solution">
+          <p class="lbl">Lời giải</p>
+          <p>Vì MA là tiếp tuyến nên tam giác OAM vuông tại A.</p>
+          <p>\(OM=\sqrt{OA^2+MA^2}=\sqrt{36+64}=\sqrt{100}=10\)cm</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">BTVN 3</span><span class="badge b-vdc">Nâng cao</span></div>
+        <div class="problem-text">Từ điểm A ở ngoài đường tròn \((O;R=6cm)\), kẻ hai tiếp tuyến AB, AC (B, C là tiếp điểm), biết \(AB=8cm\). Tính diện tích tứ giác ABOC.</div>
+        <div class="solution">
+          <p class="lbl">Lời giải</p>
+          <p>Vì AB, AC là hai tiếp tuyến cắt nhau tại A nên \(AC=AB=8\)cm.</p>
+          <p>Tứ giác ABOC gồm hai tam giác vuông bằng nhau OAB và OAC (vuông tại B và C), có \(OB=OC=6cm,\ AB=AC=8cm\).</p>
+          <p>Diện tích mỗi tam giác vuông: \(S_{OAB}=\dfrac12\cdot AB\cdot OB=\dfrac12\cdot8\cdot6=24\)cm²</p>
+          <p>Diện tích tứ giác: \(S_{ABOC}=2\times24=48\)cm²</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section-group g2">
+    <div class="section-tab"><span class="name">Tỉ số lượng giác của góc nhọn</span></div>
+    <div class="section-body">
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">BTVN 4</span><span class="badge b-nb">Cơ bản</span></div>
+        <div class="problem-text">Tam giác ABC vuông tại A, \(AB=5cm,\ AC=12cm\). Tính các tỉ số lượng giác của góc C.</div>
+        <div class="solution">
+          <p class="lbl">Lời giải</p>
+          <p>\(BC=\sqrt{AB^2+AC^2}=\sqrt{25+144}=\sqrt{169}=13\)cm</p>
+          <p>\(\sin C=\dfrac{AB}{BC}=\dfrac{5}{13};\qquad \cos C=\dfrac{AC}{BC}=\dfrac{12}{13}\)</p>
+          <p>\(\tan C=\dfrac{AB}{AC}=\dfrac{5}{12};\qquad \cot C=\dfrac{AC}{AB}=\dfrac{12}{5}\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">BTVN 5</span><span class="badge b-vd">Nâng cao</span></div>
+        <div class="problem-text">Một chiếc thuyền neo tại một điểm cách chân cầu (theo phương thẳng đứng xuống mặt nước) một khoảng 20m. Từ thuyền nhìn lên đỉnh cầu với góc nâng \(35^\circ\). Tính chiều cao của cầu so với mặt nước (làm tròn đến 0,01m), biết \(\tan35^\circ\approx0{,}7002\).</div>
+        <div class="solution">
+          <p class="lbl">Lời giải</p>
+          <p>Gọi \(h\) là chiều cao cầu. Khoảng cách 20m là cạnh kề với góc nâng \(35^\circ\), \(h\) là cạnh đối.</p>
+          <p>\(\tan35^\circ=\dfrac{h}{20} \Rightarrow h=20\times\tan35^\circ\approx20\times0{,}7002\approx14{,}00\)m</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <p>Phiếu BTVN — Đường tròn – Tiếp tuyến &amp; Tỉ số lượng giác của góc nhọn. <a class="backlink" href="#de-bai">↑ Về đầu trang (đề bài)</a></p>
+  </footer>
+
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function(){
+    if(window.renderMathInElement){
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "\\[", right: "\\]", display: true},
+          {left: "\\(", right: "\\)", display: false}
+        ],
+        throwOnError: false
+      });
+    }
+  });
+</script>
+
+</body>
+</html>

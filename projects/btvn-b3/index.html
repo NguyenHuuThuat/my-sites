@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đề bài — Hàm số & Phương trình bậc hai (10 bài)</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<style>
+  :root{
+    --paper:#F4F5F0; --paper-alt:#ECEEE6; --ink:#1B2624; --ink-soft:#4B5A56; --rule:#D8DBCF;
+    --c2:#39588F; --c2-bg:#E5EAF3;  /* Hàm bậc nhất */
+    --c3:#B4741C; --c3-bg:#F5EADA;  /* Hàm bậc hai  */
+    --c4:#A83B49; --c4-bg:#F5E1E2;  /* PT bậc hai - Vi-ét */
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65;font-size:16px;}
+  h1,h2,h3,h4{font-family:Georgia,"Palatino Linotype","Times New Roman",serif;font-weight:700;line-height:1.25;margin:0 0 .5em 0;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 18px 80px;}
+
+  .top{background:var(--ink);color:var(--paper);padding:38px 18px 30px;}
+  .top .wrap{padding:0;}
+  .eyebrow{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:#B9C4B7;margin-bottom:10px;}
+  .top h1{font-size:clamp(24px,5vw,34px);color:#FBFBF6;margin-bottom:8px;}
+  .top p.sub{color:#C9D0C4;font-size:15.5px;max-width:60ch;margin:0;}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;}
+  .meta-chip{font-size:12.5px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;border:1px solid #4C5A55;color:#D6DCD1;padding:5px 10px;border-radius:20px;}
+
+  .toc{display:flex;gap:8px;overflow-x:auto;padding:14px 18px;background:var(--paper-alt);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:50;-webkit-overflow-scrolling:touch;}
+  .toc a{flex:0 0 auto;text-decoration:none;font-size:13px;font-weight:600;padding:8px 13px;border-radius:8px;white-space:nowrap;color:var(--ink);border:1px solid var(--rule);background:var(--paper);}
+  .toc a b{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:700;margin-right:5px;opacity:.55;}
+
+  .intro{padding:26px 0 6px;}
+  .intro p{color:var(--ink-soft);max-width:66ch;}
+  .note{background:#FFF7E6;border:1px solid #E7D3A1;border-radius:8px;padding:14px 16px;margin:16px 0 4px;font-size:14.5px;color:#5A4A20;}
+  .note b{color:#7a5c12;}
+
+  .chapter{margin-top:52px;scroll-margin-top:70px;}
+  .chapter-tab{display:inline-flex;align-items:baseline;gap:10px;padding:9px 16px 10px;border-radius:10px 10px 0 0;color:#fff;}
+  .chapter-tab .num{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:13px;opacity:.85;}
+  .chapter-tab .name{font-family:Georgia,serif;font-weight:700;font-size:20px;}
+  .chapter-body{border-radius:0 10px 10px 10px;border:1px solid var(--rule);background:#fff;padding:24px 22px 26px;}
+
+  .problem{border:1px solid var(--rule);border-radius:8px;padding:16px 18px;margin-bottom:14px;background:var(--paper);}
+  .problem-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px;}
+  .problem-num{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:700;color:var(--box-c,var(--ink));font-size:14px;flex:0 0 auto;}
+  .badge{font-size:10.5px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:20px;flex:0 0 auto;border:1px solid currentColor;opacity:.85;}
+  .b-nb{color:#2F7D6B;} .b-th{color:#3E5C9A;} .b-vd{color:#B4741C;} .b-vdc{color:#A83B49;}
+  .problem-text{margin:6px 0 4px;}
+  .problem-text .part{margin:.35em 0;}
+  .lead{color:var(--ink-soft);font-size:13.5px;margin-top:10px;font-style:italic;}
+
+  .figure{display:flex;justify-content:center;margin:14px 0 6px;}
+  .figure svg{max-width:100%;height:auto;background:#fff;border:1px solid var(--rule);border-radius:6px;}
+  figcaption{text-align:center;font-size:12.5px;color:var(--ink-soft);font-family:"SFMono-Regular",Consolas,Menlo,monospace;margin-top:4px;}
+
+  #ch2{--box-c:var(--c2);} #ch3{--box-c:var(--c3);} #ch4{--box-c:var(--c4);}
+  #ch2 .chapter-tab{background:var(--c2);} #ch3 .chapter-tab{background:var(--c3);} #ch4 .chapter-tab{background:var(--c4);}
+
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);color:var(--ink-soft);font-size:13px;}
+  .ne{font-family:"Segoe UI Symbol","Cambria Math","DejaVu Sans","Arial Unicode MS",sans-serif;font-style:italic;}
+  @media (max-width:600px){.chapter-tab .name{font-size:17px;}.chapter-body{padding:20px 14px 22px;}}
+  @media print{.toc{display:none !important;}.top{background:#fff !important;color:#000 !important;}.top .eyebrow,.top .sub,.meta-chip{color:#333 !important;}.top h1{color:#000 !important;}}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wrap">
+    <div class="eyebrow">Đề bài &nbsp;•&nbsp; Toán 9 &nbsp;•&nbsp; Tự luyện</div>
+    <h1>Hàm số bậc nhất · Hàm số y = ax² · Phương trình bậc hai &amp; Vi-ét</h1>
+    <p class="sub">Bộ 10 bài tập tự luận. Một số bài đặt dữ kiện trong đồ thị — hãy quan sát hình để lấy số liệu. Làm bài ra giấy trước khi đối chiếu file lời giải.</p>
+    <div class="meta-row">
+      <span class="meta-chip">10 bài — 3 chủ đề</span>
+      <span class="meta-chip">Có đồ thị đọc số liệu</span>
+      <span class="meta-chip">Mức độ tăng dần</span>
+    </div>
+  </div>
+</div>
+
+<nav class="toc">
+  <a href="#ch2"><b>A</b>Hàm số bậc nhất</a>
+  <a href="#ch3"><b>B</b>Hàm số y = ax²</a>
+  <a href="#ch4"><b>C</b>PT bậc hai – Vi-ét</a>
+</nav>
+
+<div class="wrap">
+
+  <div class="intro">
+    <p>Đề gồm ba phần: <b>A. Hàm số bậc nhất</b> (Bài 1–3), <b>B. Hàm số y = ax²</b> (Bài 4–6), <b>C. Phương trình bậc hai &amp; định lí Vi-ét</b> (Bài 7–10).</p>
+    <div class="note"><b>Lưu ý khi làm bài:</b> Các bài có hình vẽ (Bài 1, Bài 4) <b>không ghi số liệu trong đề</b> — em phải tự đọc toạ độ các điểm được đánh dấu trên đồ thị. Với bài “tìm chỗ sai”, phải chỉ rõ sai ở bước nào và giải lại cho đúng, không chỉ ghi đáp số.</div>
+  </div>
+
+  <!-- ============ PHẦN A ============ -->
+  <section class="chapter" id="ch2">
+    <div class="chapter-tab"><span class="num">A</span><span class="name">Hàm số bậc nhất</span></div>
+    <div class="chapter-body">
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Trên cùng một mặt phẳng toạ độ có hai đường thẳng \((d_1)\) và \((d_2)\) như hình vẽ. Mỗi đường thẳng đi qua hai điểm đã được đánh dấu (đọc toạ độ từ hình).</div>
+        <div class="figure">
+          <svg viewBox="0 0 260 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Đồ thị hai đường thẳng d1 và d2">
+            <!-- grid -->
+            <g stroke="#E2E4DA" stroke-width="1">
+              <line x1="30" y1="30" x2="30" y2="270"/><line x1="70" y1="30" x2="70" y2="270"/><line x1="110" y1="30" x2="110" y2="270"/><line x1="150" y1="30" x2="150" y2="270"/><line x1="190" y1="30" x2="190" y2="270"/><line x1="230" y1="30" x2="230" y2="270"/>
+              <line x1="30" y1="30" x2="230" y2="30"/><line x1="30" y1="70" x2="230" y2="70"/><line x1="30" y1="110" x2="230" y2="110"/><line x1="30" y1="150" x2="230" y2="150"/><line x1="30" y1="190" x2="230" y2="190"/><line x1="30" y1="230" x2="230" y2="230"/><line x1="30" y1="270" x2="230" y2="270"/>
+            </g>
+            <!-- axes -->
+            <g stroke="#1B2624" stroke-width="1.4">
+              <line x1="30" y1="230" x2="244" y2="230"/><polygon points="244,230 238,227 238,233" fill="#1B2624" stroke="none"/>
+              <line x1="70" y1="270" x2="70" y2="24"/><polygon points="70,24 67,30 73,30" fill="#1B2624" stroke="none"/>
+            </g>
+            <g font-family="Georgia,serif" font-size="10" fill="#4B5A56">
+              <text x="248" y="234">x</text><text x="58" y="22">y</text><text x="60" y="243">O</text>
+              <text x="106" y="243">1</text><text x="146" y="243">2</text><text x="186" y="243">3</text><text x="226" y="243">4</text>
+              <text x="56" y="194">1</text><text x="56" y="154">2</text><text x="56" y="114">3</text><text x="56" y="74">4</text>
+            </g>
+            <!-- d1: y=2x , from (-0.5,-1) to (2.5,5) -->
+            <line x1="50" y1="270" x2="170" y2="30" stroke="#2f5fa8" stroke-width="2.2"/>
+            <!-- d2: y=-x+3 , from (-1,4) to (4,-1) -->
+            <line x1="30" y1="70" x2="230" y2="270" stroke="#1F8A82" stroke-width="2.2"/>
+            <!-- marked points on d1: (0,0),(2,4) -->
+            <circle cx="70" cy="230" r="3" fill="#2f5fa8"/><circle cx="150" cy="70" r="3" fill="#2f5fa8"/>
+            <text x="152" y="66" font-size="10" fill="#2f5fa8" font-family="Georgia,serif">(2; 4)</text>
+            <!-- marked points on d2: (0,3),(3,0) -->
+            <circle cx="70" cy="110" r="3" fill="#1F8A82"/><circle cx="190" cy="230" r="3" fill="#1F8A82"/>
+            <text x="74" y="106" font-size="10" fill="#1F8A82" font-family="Georgia,serif">(0; 3)</text>
+            <text x="192" y="244" font-size="10" fill="#1F8A82" font-family="Georgia,serif">(3; 0)</text>
+            <text x="52" y="244" font-size="10" fill="#2f5fa8" font-family="Georgia,serif">(0; 0)</text>
+            <!-- labels d1 d2 -->
+            <text x="172" y="40" font-size="11" fill="#2f5fa8" font-family="Georgia,serif" font-style="italic">(d₁)</text>
+            <text x="214" y="266" font-size="11" fill="#1F8A82" font-family="Georgia,serif" font-style="italic">(d₂)</text>
+          </svg>
+        </div>
+        <figcaption>Hình 1 — đọc toạ độ các điểm được đánh dấu để lập phương trình.</figcaption>
+        <div class="problem-text" style="margin-top:12px">
+          <div class="part"><b>a)</b> Viết phương trình đường thẳng \((d_1)\) và \((d_2)\).</div>
+          <div class="part"><b>b)</b> Bằng phép tính, tìm toạ độ giao điểm \(A\) của \((d_1)\) và \((d_2)\).</div>
+          <div class="part"><b>c)</b> Gọi \(B, C\) lần lượt là giao điểm của \((d_1), (d_2)\) với trục \(Ox\). Tính diện tích tam giác \(ABC\).</div>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Cho hàm số bậc nhất \(y = (m-1)x + 2m - 3\) với tham số \(m\) <span class="ne">≠</span> \(1\).</div>
+        <div class="problem-text">
+          <div class="part"><b>a)</b> Tìm \(m\) để đồ thị hàm số đi qua điểm \(P(1;\,2)\).</div>
+          <div class="part"><b>b)</b> Tìm \(m\) để đồ thị hàm số song song với đường thẳng \(y = 3x - 1\).</div>
+          <div class="part"><b>c)</b> Chứng minh rằng khi \(m\) thay đổi, đồ thị hàm số luôn đi qua một điểm cố định. Tìm toạ độ điểm đó.</div>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Một cửa hàng cho thuê xe đạp tính tiền gồm một khoản cố định cộng với phí theo giờ. Bạn An thuê 3 giờ phải trả 65 nghìn đồng; bạn Bình thuê 5 giờ phải trả 95 nghìn đồng. Gọi \(y\) (nghìn đồng) là số tiền phải trả khi thuê \(x\) giờ và giả sử \(y\) là hàm số bậc nhất của \(x\).</div>
+        <div class="problem-text">
+          <div class="part"><b>a)</b> Lập công thức của \(y\) theo \(x\).</div>
+          <div class="part"><b>b)</b> Tính số tiền phải trả khi thuê xe 8 giờ.</div>
+          <div class="part"><b>c)</b> Với 140 nghìn đồng thì thuê được nhiều nhất bao nhiêu giờ?</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ PHẦN B ============ -->
+  <section class="chapter" id="ch3">
+    <div class="chapter-tab"><span class="num">B</span><span class="name">Hàm số y = ax²</span></div>
+    <div class="chapter-body">
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 4</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Hình vẽ là đồ thị của một hàm số dạng \(y = ax^2\) (\(a\) <span class="ne">≠</span> \(0\)). Đồ thị đi qua hai điểm đã được đánh dấu (đọc toạ độ từ hình).</div>
+        <div class="figure">
+          <svg viewBox="0 0 312 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Đồ thị parabol y=ax^2">
+            <!-- grid vertical x=-4..4 -->
+            <g stroke="#E2E4DA" stroke-width="1">
+              <line x1="44" y1="30" x2="44" y2="270"/><line x1="72" y1="30" x2="72" y2="270"/><line x1="100" y1="30" x2="100" y2="270"/><line x1="128" y1="30" x2="128" y2="270"/><line x1="156" y1="30" x2="156" y2="270"/><line x1="184" y1="30" x2="184" y2="270"/><line x1="212" y1="30" x2="212" y2="270"/><line x1="240" y1="30" x2="240" y2="270"/><line x1="268" y1="30" x2="268" y2="270"/>
+              <!-- horizontal y=0..9 (every 2 for clarity) -->
+              <line x1="44" y1="246" x2="268" y2="246"/><line x1="44" y1="198" x2="268" y2="198"/><line x1="44" y1="150" x2="268" y2="150"/><line x1="44" y1="102" x2="268" y2="102"/><line x1="44" y1="54" x2="268" y2="54"/>
+            </g>
+            <!-- axes -->
+            <g stroke="#1B2624" stroke-width="1.4">
+              <line x1="30" y1="246" x2="282" y2="246"/><polygon points="282,246 276,243 276,249" fill="#1B2624" stroke="none"/>
+              <line x1="156" y1="270" x2="156" y2="24"/><polygon points="156,24 153,30 159,30" fill="#1B2624" stroke="none"/>
+            </g>
+            <g font-family="Georgia,serif" font-size="10" fill="#4B5A56">
+              <text x="286" y="250">x</text><text x="144" y="22">y</text><text x="146" y="259">O</text>
+              <text x="97" y="259">-2</text><text x="209" y="259">2</text><text x="41" y="259">-4</text><text x="265" y="259">4</text>
+              <text x="140" y="202">2</text><text x="140" y="154">4</text><text x="140" y="106">6</text><text x="140" y="58">8</text>
+            </g>
+            <!-- parabola y=1/2 x^2 -->
+            <polyline points="44,54 72,138 100,198 128,234 156,246 184,234 212,198 240,138 268,54" fill="none" stroke="#B4741C" stroke-width="2.4"/>
+            <!-- marked points (2,2) and (-2,2) -->
+            <circle cx="212" cy="198" r="3.2" fill="#B4741C"/><circle cx="100" cy="198" r="3.2" fill="#B4741C"/>
+            <text x="216" y="194" font-size="10" fill="#B4741C" font-family="Georgia,serif">(2; 2)</text>
+            <text x="64" y="194" font-size="10" fill="#B4741C" font-family="Georgia,serif">(-2; 2)</text>
+          </svg>
+        </div>
+        <figcaption>Hình 2 — đọc toạ độ điểm được đánh dấu để tìm hệ số a.</figcaption>
+        <div class="problem-text" style="margin-top:12px">
+          <div class="part"><b>a)</b> Xác định hệ số \(a\) và viết công thức của hàm số.</div>
+          <div class="part"><b>b)</b> Trong hai điểm \(M(-4;\,8)\) và \(N(3;\,4)\), điểm nào thuộc đồ thị? Giải thích.</div>
+          <div class="part"><b>c)</b> Tìm toạ độ các điểm trên đồ thị có tung độ bằng 8.</div>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 5</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Cho parabol \((P): y = x^2\) và đường thẳng \((d): y = -x + 2\).</div>
+        <div class="problem-text">
+          <div class="part"><b>a)</b> Tìm toạ độ giao điểm của \((P)\) và \((d)\) bằng phép tính.</div>
+          <div class="part"><b>b)</b> Gọi \(A, B\) là hai giao điểm ở câu a). Tính độ dài đoạn thẳng \(AB\).</div>
+          <div class="part"><b>c)</b> Không giải phương trình hoành độ giao điểm, hãy giải thích vì sao đường thẳng \(y = -x - 1\) không cắt \((P)\).</div>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 6</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Cho parabol \((P): y = ax^2\) đi qua điểm \(A(-2;\,6)\).</div>
+        <div class="problem-text">
+          <div class="part"><b>a)</b> Tìm \(a\).</div>
+          <div class="part"><b>b)</b> Tìm \(m\) để điểm \(B(m;\,24)\) thuộc \((P)\).</div>
+          <div class="part"><b>c)</b> Tìm toạ độ điểm thuộc \((P)\) (khác gốc toạ độ) có tung độ gấp đôi hoành độ.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ PHẦN C ============ -->
+  <section class="chapter" id="ch4">
+    <div class="chapter-tab"><span class="num">C</span><span class="name">Phương trình bậc hai &amp; định lí Vi-ét</span></div>
+    <div class="chapter-body">
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 7</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Cho phương trình \(x^2 - 2(m+1)x + m^2 + 2 = 0\) (ẩn \(x\), tham số \(m\)).</div>
+        <div class="problem-text">
+          <div class="part"><b>a)</b> Tìm \(m\) để phương trình có hai nghiệm phân biệt.</div>
+          <div class="part"><b>b)</b> Gọi \(x_1, x_2\) là hai nghiệm. Tìm \(m\) để \(x_1^2 + x_2^2 = 10\).</div>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 8</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Cho phương trình \(2x^2 - 5x - 3 = 0\) có hai nghiệm \(x_1, x_2\). <b>Không giải phương trình</b>, hãy tính giá trị các biểu thức sau:</div>
+        <div class="problem-text">
+          <div class="part"><b>a)</b> \(x_1 + x_2\) và \(x_1 x_2\).</div>
+          <div class="part"><b>b)</b> \(x_1^2 + x_2^2\).</div>
+          <div class="part"><b>c)</b> \(\dfrac{1}{x_1} + \dfrac{1}{x_2}\).</div>
+          <div class="part"><b>d)</b> \((x_1 - x_2)^2\).</div>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 9</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Cho phương trình \(3x^2 - 7x + 2 = 0\) có hai nghiệm \(x_1, x_2\). <b>Không giải phương trình</b>, hãy lập một phương trình bậc hai (ẩn \(y\)) nhận \(y_1 = x_1 + 1\) và \(y_2 = x_2 + 1\) làm hai nghiệm.</div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 10</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Một bạn học sinh giải bài toán dưới đây. Hãy <b>chỉ rõ chỗ sai (nếu có)</b> và <b>giải lại cho đúng</b>.</div>
+        <div class="problem-text" style="background:#FAFAF6;border:1px dashed #C9CCC0;border-radius:6px;padding:12px 14px;margin-top:8px">
+          <p style="margin:.2em 0"><b>Đề:</b> Tìm \(m\) để phương trình \(x^2 - 2mx + m^2 + 1 = 0\) có hai nghiệm \(x_1, x_2\) thoả mãn \(x_1 + x_2 = 4\).</p>
+          <p style="margin:.4em 0"><b>Bài làm của bạn đó:</b></p>
+          <p style="margin:.2em 0">Theo định lí Vi-ét, \(x_1 + x_2 = 2m\).</p>
+          <p style="margin:.2em 0">Để \(x_1 + x_2 = 4\) thì \(2m = 4 \Rightarrow m = 2\).</p>
+          <p style="margin:.2em 0">Vậy \(m = 2\).</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>File đề bài — Toán 9. Học sinh tự làm ra giấy, sau đó mở file “Lời giải chi tiết” để đối chiếu.</p>
+  </footer>
+
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function(){
+    if(window.renderMathInElement){
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "\\[", right: "\\]", display: true},
+          {left: "\\(", right: "\\)", display: false}
+        ],
+        throwOnError: false
+      });
+    }
+  });
+</script>
+</body>
+</html>

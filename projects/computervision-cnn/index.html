@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mạng Nơ-ron Tích Chập (CNN) — Thị giác Máy tính</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<style>
+:root{
+  --paper:#f3f6f4;
+  --paper-deep:#eaefec;
+  --ink:#132036;
+  --ink-soft:#42506a;
+  --ink-faint:#7c8aa0;
+  --line:#d9e0da;
+  --forward:#0f8b8d;
+  --forward-soft:#e1f3f2;
+  --forward-ink:#0a5f60;
+  --backward:#d1495b;
+  --backward-soft:#fbe7ea;
+  --backward-ink:#9c2f3d;
+  --signal:#e8940f;
+  --signal-soft:#fdf0da;
+  --signal-ink:#a86608;
+  --panel:#ffffff;
+  --code-bg:#101c2c;
+  --code-text:#d7e2ee;
+  --radius:14px;
+  --serif-display:'Be Vietnam Pro', sans-serif;
+  --sans-body:'Inter', sans-serif;
+  --mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink-soft);
+  font-family:var(--sans-body);
+  font-size:16px;
+  line-height:1.7;
+  background-image:
+    linear-gradient(var(--paper) 0%, var(--paper) 100%),
+    repeating-linear-gradient(0deg, rgba(19,32,54,0.025) 0px, rgba(19,32,54,0.025) 1px, transparent 1px, transparent 28px),
+    repeating-linear-gradient(90deg, rgba(19,32,54,0.025) 0px, rgba(19,32,54,0.025) 1px, transparent 1px, transparent 28px);
+}
+h1,h2,h3,h4{
+  font-family:var(--serif-display);
+  color:var(--ink);
+  margin:0 0 .5em 0;
+  letter-spacing:-0.01em;
+}
+p{margin:0 0 1em 0;}
+a{color:var(--forward-ink);}
+strong{color:var(--ink);}
+code{font-family:var(--mono);}
+.layout{
+  display:grid;
+  grid-template-columns:272px minmax(0,1fr);
+  max-width:1280px;
+  margin:0 auto;
+}
+.rail{
+  position:sticky; top:0; align-self:start; height:100vh;
+  padding:32px 18px 32px 28px; border-right:1px solid var(--line); overflow-y:auto;
+}
+.rail-brand{
+  font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--forward-ink); margin-bottom:22px; display:block;
+}
+.rail-list{list-style:none; margin:0; padding:0 0 0 18px; position:relative; border-left:2px solid var(--line);}
+.rail-item{position:relative; margin:0 0 4px 0;}
+.rail-item::before{
+  content:''; position:absolute; left:-24px; top:13px; width:8px;height:8px; border-radius:50%;
+  background:var(--paper); border:2px solid var(--ink-faint); transition:.2s;
+}
+.rail-item.active::before{background:var(--forward); border-color:var(--forward); box-shadow:0 0 0 4px var(--forward-soft);}
+.rail-link{display:block; padding:9px 10px; font-size:13.5px; color:var(--ink-soft); text-decoration:none; border-radius:8px; font-weight:500;}
+.rail-link .rail-num{font-family:var(--mono); color:var(--ink-faint); font-size:11px; display:block;}
+.rail-item.active .rail-link{color:var(--forward-ink); background:var(--forward-soft); font-weight:600;}
+.rail-item.active .rail-link .rail-num{color:var(--forward-ink);}
+.content{padding:0 0 40px 0; min-width:0;}
+.wrap{max-width:760px; margin:0 auto; padding:0 40px;}
+.hero{padding:70px 0 20px 0;}
+.hero-eyebrow{
+  font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--forward-ink); background:var(--forward-soft); display:inline-block; padding:5px 12px;
+  border-radius:20px; margin-bottom:20px;
+}
+.hero-title{font-size:clamp(34px,5vw,54px); font-weight:800; line-height:1.06;}
+.hero-title em{font-style:normal; color:var(--forward); position:relative;}
+.hero-sub{font-size:19px; color:var(--ink-soft); font-weight:500; max-width:600px; margin-bottom:26px;}
+.hero-lede{font-size:16px; max-width:640px;}
+.section{padding:64px 0; border-top:1px solid var(--line);}
+.section-eyebrow{
+  font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-faint); margin-bottom:10px; display:flex; align-items:center; gap:10px;
+}
+.section-eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--forward);}
+.section-title{font-size:30px; margin-bottom:14px;}
+.section-lead{font-size:16.5px; color:var(--ink-soft); max-width:640px;}
+.subsection{margin-top:38px;}
+.subsection h3{font-size:21px; margin-bottom:10px;}
+.subsection h3 .tag{
+  font-family:var(--mono); font-size:12px; color:var(--forward-ink); background:var(--forward-soft);
+  padding:2px 8px; border-radius:6px; margin-right:8px; vertical-align:middle;
+}
+ul.plain, ol.plain{padding-left:22px; margin:0 0 1em 0;}
+ul.plain li, ol.plain li{margin-bottom:8px;}
+.callout{border-radius:var(--radius); padding:18px 20px; margin:22px 0; border:1px solid var(--line); background:var(--panel); font-size:15px;}
+.callout-head{font-weight:700; color:var(--ink); display:block; margin-bottom:6px; font-size:14px; text-transform:uppercase; letter-spacing:.04em;}
+.callout-note{border-left:4px solid var(--signal); background:var(--signal-soft);}
+.callout-note .callout-head{color:var(--signal-ink);}
+.callout-warn{border-left:4px solid var(--backward); background:var(--backward-soft);}
+.callout-warn .callout-head{color:var(--backward-ink);}
+.callout-result{border-left:4px solid var(--forward); background:var(--forward-soft);}
+.callout-result .callout-head{color:var(--forward-ink);}
+.figure{margin:26px 0; border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:24px;}
+.figure-caption{font-size:13.5px; color:var(--ink-faint); margin-top:14px; padding-top:12px; border-top:1px dashed var(--line);}
+.figure-caption b{color:var(--ink-soft);}
+.check{margin:26px 0; border-radius:var(--radius); border:1.5px dashed var(--forward); background:#fff; padding:18px 20px;}
+.check-tag{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#fff; background:var(--forward); padding:3px 9px; border-radius:6px; margin-right:8px;}
+.check-q{font-weight:600; color:var(--ink); font-size:15.5px;}
+.reveal-btn{margin-top:12px; border:1px solid var(--forward); color:var(--forward-ink); background:var(--forward-soft); font-family:var(--sans-body); font-weight:600; font-size:13.5px; padding:8px 16px; border-radius:8px; cursor:pointer; transition:.15s;}
+.reveal-btn:hover{background:var(--forward); color:#fff;}
+.reveal-content{display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); font-size:15px;}
+.reveal-content.show{display:block;}
+.code-window{margin:22px 0; border-radius:var(--radius); overflow:hidden; background:var(--code-bg); box-shadow:0 8px 24px -12px rgba(16,28,44,.5);}
+.code-titlebar{display:flex; align-items:center; gap:8px; padding:11px 16px; background:#0a1522; border-bottom:1px solid rgba(255,255,255,.06);}
+.code-dot{width:10px;height:10px;border-radius:50%;}
+.code-dot:nth-child(1){background:#e8594f;}
+.code-dot:nth-child(2){background:#e8b13f;}
+.code-dot:nth-child(3){background:#3fb556;}
+.code-filename{font-family:var(--mono); font-size:12.5px; color:#8fa2bd; margin-left:8px;}
+.code-window pre{margin:0 !important; padding:18px 20px !important; background:var(--code-bg) !important; font-size:13.3px !important; line-height:1.65 !important; overflow-x:auto;}
+.code-window code.hljs{background:var(--code-bg) !important;}
+.ref-table{width:100%; border-collapse:collapse; margin:20px 0; font-size:14.5px;}
+.ref-table th{text-align:left; font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); padding:10px 12px; border-bottom:2px solid var(--ink);}
+.ref-table td{padding:11px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+.ref-table code{background:var(--forward-soft); color:var(--forward-ink); padding:2px 6px; border-radius:5px; font-size:13px;}
+.footer{padding:50px 0 70px 0; border-top:1px solid var(--line); font-size:13.5px; color:var(--ink-faint);}
+
+/* ============ WIDGETS ============ */
+.widget{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:26px; margin:26px 0;}
+.widget-label{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--forward-ink); margin-bottom:16px; display:block;}
+.btn{
+  font-family:var(--sans-body); font-weight:600; font-size:13.5px; border-radius:8px; padding:9px 16px;
+  border:1px solid var(--ink); background:var(--ink); color:#fff; cursor:pointer; transition:.15s;
+}
+.btn:hover{opacity:.85;}
+.btn:disabled{opacity:.35; cursor:not-allowed;}
+.btn-ghost{background:#fff; color:var(--ink); border:1px solid var(--line);}
+.btn-ghost:hover{border-color:var(--ink); opacity:1;}
+.btn-forward{background:var(--forward); border-color:var(--forward);}
+.btn-row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:16px;}
+
+/* Convolution demo */
+.conv-layout{display:flex; gap:34px; flex-wrap:wrap; align-items:flex-start;}
+.conv-block{display:flex; flex-direction:column; align-items:center;}
+.conv-block-title{font-size:12.5px; color:var(--ink-faint); margin-bottom:8px; font-weight:600;}
+.conv-grid-wrap{position:relative;}
+.conv-grid{display:grid; grid-template-columns:repeat(7,32px); grid-template-rows:repeat(7,32px); gap:2px;}
+.conv-cell{
+  width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-size:12px; font-weight:600; border-radius:3px;
+  background:#eef2f0; color:var(--ink-faint);
+}
+.conv-cell.on{background:var(--forward-soft); color:var(--forward-ink);}
+.conv-highlight{
+  position:absolute; width:102px; height:102px; border:2.5px solid var(--signal);
+  border-radius:6px; background:rgba(232,148,15,.12); pointer-events:none;
+  transition:top .35s ease, left .35s ease;
+}
+.conv-out-grid{display:grid; grid-template-columns:repeat(5,32px); grid-template-rows:repeat(5,32px); gap:2px;}
+.conv-out-cell{
+  width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-size:11px; font-weight:700; border-radius:3px;
+  background:#eef2f0; color:var(--ink-faint); border:1px solid var(--line);
+}
+.conv-out-cell.filled{background:var(--backward-soft); color:var(--backward-ink); border-color:var(--backward);}
+.conv-out-cell.current{outline:2px solid var(--signal); outline-offset:1px;}
+.conv-kernel{display:grid; grid-template-columns:repeat(3,32px); grid-template-rows:repeat(3,32px); gap:2px;}
+.conv-kernel .conv-cell{background:var(--signal-soft); color:var(--signal-ink);}
+.conv-formula{
+  font-family:var(--mono); font-size:13.5px; background:#f6f4ee; border:1px solid var(--line);
+  border-radius:8px; padding:12px 14px; margin-top:16px; min-height:44px; color:var(--ink);
+}
+.conv-formula .eq{color:var(--backward-ink); font-weight:700;}
+
+/* Activation grapher */
+.act-tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;}
+.act-tab{
+  font-family:var(--mono); font-size:12.5px; padding:7px 14px; border-radius:20px;
+  border:1px solid var(--line); background:#fff; color:var(--ink-soft); cursor:pointer; font-weight:600;
+}
+.act-tab.active{background:var(--ink); border-color:var(--ink); color:#fff;}
+.act-desc{font-size:14.5px; margin-top:14px; color:var(--ink-soft);}
+
+/* Max pooling demo */
+.pool-layout{display:flex; align-items:center; gap:26px; flex-wrap:wrap;}
+.pool-grid{display:grid; grid-template-columns:repeat(4,38px); grid-template-rows:repeat(4,38px); gap:3px;}
+.pool-cell{
+  width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-weight:700; font-size:13px; border-radius:4px; color:var(--ink);
+}
+.pool-cell.g1{background:#e1f3f2;} .pool-cell.g2{background:#fdf0da;}
+.pool-cell.g3{background:#fbe7ea;} .pool-cell.g4{background:#e6e9f7;}
+.pool-cell.max{box-shadow:inset 0 0 0 2.5px var(--ink);}
+.pool-arrow{font-size:26px; color:var(--ink-faint);}
+.pool-out-grid{display:grid; grid-template-columns:repeat(2,44px); grid-template-rows:repeat(2,44px); gap:4px;}
+.pool-out-cell{
+  width:44px; height:44px; display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-weight:700; font-size:15px; border-radius:5px; color:#fff;
+}
+.pool-out-cell.g1{background:#0f8b8d;} .pool-out-cell.g2{background:#e8940f;}
+.pool-out-cell.g3{background:#d1495b;} .pool-out-cell.g4{background:#5762c7;}
+
+/* Gradient descent demo */
+.grad-controls{display:flex; align-items:center; gap:14px; margin-top:8px; flex-wrap:wrap;}
+.grad-controls input[type=range]{width:200px; accent-color:var(--forward);}
+.grad-lr-val{font-family:var(--mono); font-weight:700; color:var(--forward-ink); min-width:48px; display:inline-block;}
+.grad-msg{font-size:14px; margin-top:12px; min-height:22px; font-weight:600;}
+.grad-msg.ok{color:var(--forward-ink);}
+.grad-msg.bad{color:var(--backward-ink);}
+
+/* Architecture flow */
+.arch-flow{display:flex; align-items:flex-end; gap:6px; overflow-x:auto; padding:20px 4px 8px 4px;}
+.arch-card{flex:0 0 auto; display:flex; flex-direction:column; align-items:center; min-width:96px;}
+.arch-square{
+  background:linear-gradient(135deg, var(--forward-soft), #fff);
+  border:1.5px solid var(--forward); border-radius:8px; display:flex; align-items:center; justify-content:center;
+  position:relative;
+}
+.arch-square.small{border-color:var(--ink-faint); background:#eef1f4;}
+.arch-badge{
+  position:absolute; top:-10px; right:-10px; background:var(--signal); color:#fff; font-family:var(--mono);
+  font-size:10.5px; font-weight:700; padding:2px 6px; border-radius:10px;
+}
+.arch-name{font-weight:700; font-size:12.5px; color:var(--ink); margin-top:10px; text-align:center;}
+.arch-shape{font-family:var(--mono); font-size:11px; color:var(--ink-faint); text-align:center;}
+.arch-arrow{color:var(--ink-faint); font-size:18px; flex:0 0 auto; margin-bottom:34px;}
+.neurons-col{display:flex; flex-direction:column; gap:4px; align-items:center;}
+.neuron-dot{width:9px; height:9px; border-radius:50%; background:var(--forward);}
+
+/* Confusion matrix */
+.cm-wrap{overflow-x:auto;}
+.cm-table{border-collapse:collapse; font-size:11.5px; font-family:var(--mono);}
+.cm-table th{padding:6px; color:var(--ink-faint); font-weight:600; text-align:center; vertical-align:bottom;}
+.cm-table th.rowlab{text-align:right; padding-right:10px;}
+.cm-table td{width:34px; height:30px; text-align:center; border:1px solid #fff; color:#0c1220; font-weight:600;}
+.cm0{background:#eef2f0;} .cm1{background:#c9e8e6;} .cm2{background:#8fd1cd;}
+.cm3{background:#3fa7a2;color:#fff;} .cm4{background:#0f6f70;color:#fff;}
+
+/* Chart compare */
+.chart-row{display:flex; gap:24px; flex-wrap:wrap;}
+.chart-col{flex:1 1 260px;}
+.chart-title{font-size:13.5px; font-weight:700; margin-bottom:8px; color:var(--ink);}
+.chart-legend{display:flex; gap:16px; margin-top:8px; font-size:12.5px; color:var(--ink-soft);}
+.chart-legend span{display:inline-flex; align-items:center; gap:6px;}
+.legend-dot{width:10px; height:10px; border-radius:2px; display:inline-block;}
+
+/* Augmentation grid */
+.aug-grid{display:flex; gap:16px; flex-wrap:wrap;}
+.aug-item{display:flex; flex-direction:column; align-items:center; gap:8px;}
+.aug-box{
+  width:72px; height:72px; border-radius:10px; background:#eef2f0; border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center; font-size:32px;
+}
+.aug-label{font-size:11.5px; color:var(--ink-faint); text-align:center; max-width:80px;}
+
+/* Dropout visual */
+.dropout-net{display:flex; justify-content:space-between; gap:36px; padding:10px 10px 0 10px;}
+.dropout-layer{display:flex; flex-direction:column; gap:10px;}
+.dnode{width:16px; height:16px; border-radius:50%; background:var(--forward); border:2px solid var(--forward-ink);}
+.dnode.off{background:#eee; border-color:var(--line); opacity:.4;}
+
+/* Reference / checklist / task cards */
+.tip-list{list-style:none; padding:0; margin:20px 0;}
+.tip-list li{display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); font-size:15px;}
+.tip-list li:last-child{border-bottom:none;}
+.tip-check{flex:0 0 auto; width:22px; height:22px; border-radius:50%; background:var(--forward-soft); color:var(--forward-ink); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;}
+.task-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:14px; margin:22px 0;}
+.task-card{border:1px solid var(--line); border-radius:12px; padding:16px; background:var(--panel);}
+.task-num{font-family:var(--mono); font-size:11px; color:var(--forward-ink); font-weight:700;}
+.task-card p{margin:8px 0 0 0; font-size:14.5px;}
+.task-card.advanced{border-color:var(--signal); background:var(--signal-soft);}
+
+/* Quiz */
+.quiz-item{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:20px 22px; margin:18px 0;}
+.quiz-q{font-weight:700; color:var(--ink); font-size:15.5px; margin-bottom:14px;}
+.quiz-q .qnum{font-family:var(--mono); color:var(--forward-ink); margin-right:8px;}
+.quiz-options{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.quiz-opt{
+  text-align:left; font-family:var(--sans-body); font-size:14px; padding:11px 14px; border-radius:9px;
+  border:1px solid var(--line); background:#fff; cursor:pointer; color:var(--ink-soft); transition:.12s;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--forward); background:var(--forward-soft);}
+.quiz-opt:disabled{cursor:default;}
+.quiz-opt.correct{background:var(--forward-soft); border-color:var(--forward); color:var(--forward-ink); font-weight:700;}
+.quiz-opt.incorrect{background:var(--backward-soft); border-color:var(--backward); color:var(--backward-ink); font-weight:700;}
+.quiz-foot{display:flex; align-items:center; gap:12px; margin-top:14px; flex-wrap:wrap;}
+.hint-btn{
+  font-family:var(--mono); font-size:12px; color:var(--signal-ink); background:var(--signal-soft);
+  border:1px solid var(--signal); padding:6px 12px; border-radius:7px; cursor:pointer; font-weight:600;
+}
+.quiz-hint{display:none; font-size:13.5px; color:var(--signal-ink); background:var(--signal-soft); padding:10px 12px; border-radius:8px; width:100%; margin-top:10px;}
+.quiz-hint.show{display:block;}
+.quiz-explain{display:none; font-size:14px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); color:var(--ink-soft);}
+.quiz-explain.show{display:block;}
+@media (max-width:640px){
+  .quiz-options{grid-template-columns:1fr;}
+  .conv-layout, .pool-layout{gap:18px;}
+  .conv-grid{grid-template-columns:repeat(7,26px); grid-template-rows:repeat(7,26px);}
+  .conv-cell{width:26px; height:26px; font-size:10px;}
+  .conv-highlight{width:84px; height:84px;}
+}
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr;}
+  .rail{position:sticky; height:auto; top:0; padding:12px 16px; border-right:none; border-bottom:1px solid var(--line); background:var(--paper); z-index:50; display:flex; align-items:center;}
+  .rail-brand{display:none;}
+  .rail-list{display:flex; gap:4px; overflow-x:auto; border-left:none; padding-left:0; -ms-overflow-style:none; scrollbar-width:none;}
+  .rail-list::-webkit-scrollbar{display:none;}
+  .rail-item{flex:0 0 auto; margin:0;}
+  .rail-item::before{display:none;}
+  .rail-link{white-space:nowrap; padding:8px 12px; font-size:12.5px;}
+  .rail-link .rail-num{display:none;}
+  .wrap{padding:0 20px;}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="rail">
+  <span class="rail-brand">Thị giác máy tính · Học sâu</span>
+  <ul class="rail-list" id="railList">
+    <li class="rail-item"><a class="rail-link" href="#top"><span class="rail-num">Mở đầu</span>Nhập môn</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l1"><span class="rail-num">Lớp 01</span>Vì sao cần học sâu</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l2"><span class="rail-num">Lớp 02</span>Nơ-ron &amp; kích hoạt</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l3"><span class="rail-num">Lớp 03</span>Hàm mất mát</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l4"><span class="rail-num">Lớp 04</span>Vì sao CNN hợp ảnh</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l5"><span class="rail-num">Lớp 05</span>Các cấu phần CNN</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l6"><span class="rail-num">Lớp 06</span>Kiến trúc hoàn chỉnh</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l7"><span class="rail-num">Lớp 07</span>Quá trình huấn luyện</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l8"><span class="rail-num">Lớp 08</span>Thực hành PyTorch</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l9"><span class="rail-num">Lớp 09</span>Đánh giá &amp; cải thiện</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l10"><span class="rail-num">Lớp 10</span>Bảng tra cứu</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l11"><span class="rail-num">Bài tập</span>Thực hành thêm</a></li>
+    <li class="rail-item"><a class="rail-link" href="#quiz"><span class="rail-num">Lớp ra</span>Trắc nghiệm tổng kết</a></li>
+  </ul>
+</nav>
+<main class="content">
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <span class="hero-eyebrow">Bài giảng Tutorial · Thị giác Máy tính</span>
+    <h1 class="hero-title">Mạng nơ-ron<br>tích chập <em>(CNN)</em></h1>
+    <p class="hero-sub">Vì sao một cỗ máy có thể nhìn một bức ảnh và tự học ra đặc trưng, thay vì được lập trình sẵn quy tắc?</p>
+    <p class="hero-lede">Ở buổi trước, chúng ta đã tự tay dùng OpenCV để trích đặc trưng bằng những kernel <strong>do chính mình chọn</strong>: Sobel để tìm biên, Gaussian để làm mờ. Buổi học này đi theo hướng ngược lại — thay vì tự nghĩ ra con số trong kernel, ta sẽ để mạng <strong>tự học</strong> những con số đó từ dữ liệu. Đó chính là ý tưởng cốt lõi đứng sau CNN, kiến trúc nền tảng của gần như mọi hệ thống thị giác máy tính hiện đại. Hãy bắt đầu bằng chính phép toán nằm ở trái tim của CNN: phép tích chập.</p>
+
+    <div class="widget" id="convHero">
+      <span class="widget-label">Thử ngay · Bộ lọc học được đang "nhìn" ảnh như thế nào</span>
+      <div class="conv-layout">
+        <div class="conv-block">
+          <span class="conv-block-title">Ảnh đầu vào (7×7)</span>
+          <div class="conv-grid-wrap">
+            <div class="conv-grid" id="heroInputGrid"></div>
+            <div class="conv-highlight" id="heroHighlight"></div>
+          </div>
+        </div>
+        <div class="conv-block">
+          <span class="conv-block-title">Bộ lọc 3×3 (đã học)</span>
+          <div class="conv-kernel" id="heroKernelGrid"></div>
+        </div>
+        <div class="conv-block">
+          <span class="conv-block-title">Bản đồ đặc trưng (5×5)</span>
+          <div class="conv-out-grid" id="heroOutputGrid"></div>
+        </div>
+      </div>
+      <div class="conv-formula" id="heroFormula">Bấm "Bước tiếp" để bắt đầu trượt bộ lọc qua ảnh…</div>
+      <div class="btn-row">
+        <button class="btn btn-forward" id="heroStepBtn">Bước tiếp →</button>
+        <button class="btn btn-ghost" id="heroResetBtn">Đặt lại</button>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l1">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 01 · Nền tảng</span>
+    <h2 class="section-title">Vì sao chúng ta cần học sâu?</h2>
+    <p class="section-lead">Trước khi đi vào cấu trúc của CNN, cần trả lời một câu hỏi ngược lại: cách làm cũ — tự tay thiết kế đặc trưng — sai ở đâu, và học sâu giải quyết chỗ sai đó như thế nào?</p>
+
+    <div class="subsection">
+      <h3><span class="tag">1.1</span>Giới hạn của đặc trưng thủ công</h3>
+      <p>Ở buổi trước, để máy "hiểu" ảnh, chúng ta phải <strong>tự nghĩ ra cách trích đặc trưng</strong>: dùng Canny để tìm biên, dùng ngưỡng để tách vật thể, đếm đường viền để nhận dạng hình dạng. Cách này hoạt động tốt với bài toán đơn giản, nhưng nhanh chóng bộc lộ giới hạn khi bài toán phức tạp hơn.</p>
+      <p>Thử hình dung: làm sao viết tay một quy tắc để phân biệt <strong>một chiếc áo sơ mi với một chiếc áo khoác</strong>? Hay nhận ra một con mèo ở mọi tư thế, mọi điều kiện ánh sáng, mọi góc chụp? Số lượng quy tắc cần thiết sẽ bùng nổ, và mỗi quy tắc lại rất mong manh — chỉ cần đổi góc chụp là có thể thất bại.</p>
+      <p>Đây chính là <strong>khoảng cách ngữ nghĩa (semantic gap)</strong>: khoảng cách giữa những con số pixel thô mà máy tính nhìn thấy, và khái niệm mức cao mà con người hiểu. Đặc trưng thủ công chỉ lấp được một phần rất nhỏ của khoảng cách đó.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">1.2</span>Ý tưởng cốt lõi của học sâu</h3>
+      <p><strong>Học sâu (Deep Learning)</strong> đảo ngược hoàn toàn cách tiếp cận: thay vì con người thiết kế đặc trưng, ta cho mô hình xem <strong>rất nhiều ví dụ có gán nhãn</strong>, rồi để nó <strong>tự học</strong> đặc trưng nào là hữu ích cho bài toán. Mô hình gồm nhiều lớp xếp chồng lên nhau: lớp đầu học những đặc trưng đơn giản nhất — cạnh, góc; lớp giữa kết hợp chúng thành đặc trưng phức tạp hơn — kết cấu, bộ phận (mắt, bánh xe, cánh hoa); lớp cuối cùng ghép các bộ phận lại để nhận ra cả vật thể hoàn chỉnh.</p>
+
+    <div class="figure">
+      <div class="arch-flow" style="justify-content:center;">
+        <div class="arch-card">
+          <div class="arch-square" style="width:76px;height:76px;font-size:26px;">▨</div>
+          <div class="arch-name">Cạnh &amp; góc</div>
+          <div class="arch-shape">lớp nông</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-card">
+          <div class="arch-square" style="width:76px;height:76px;font-size:26px;">🧵</div>
+          <div class="arch-name">Kết cấu &amp; bộ phận</div>
+          <div class="arch-shape">lớp giữa</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-card">
+          <div class="arch-square" style="width:76px;height:76px;font-size:26px;">👕</div>
+          <div class="arch-name">Vật thể hoàn chỉnh</div>
+          <div class="arch-shape">lớp sâu</div>
+        </div>
+      </div>
+      <div class="figure-caption"><b>Hình 1.</b> Phân cấp đặc trưng trong một mạng học sâu: mỗi lớp học một mức trừu tượng cao hơn lớp trước, từ nét vẽ đơn giản cho tới cả một vật thể có ý nghĩa.</div>
+    </div>
+
+      <div class="callout callout-note">
+        <span class="callout-head">Điểm mấu chốt</span>
+        Học sâu không phải phép màu — nó là <strong>học từ dữ liệu</strong>. Mô hình tốt cần nhiều dữ liệu chất lượng. Thay vì lập trình <em>quy tắc</em>, ta cung cấp <em>ví dụ</em> và để thuật toán tối ưu tự tìm ra quy tắc ẩn bên trong.
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao việc viết tay quy tắc để nhận diện "con mèo ở mọi tư thế" gần như bất khả thi, trong khi một mạng học sâu lại có thể học được?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì số lượng biến thể (tư thế, ánh sáng, góc chụp, giống mèo, độ tuổi…) là gần như vô hạn — không ai có thể liệt kê hết bằng quy tắc if-else. Mạng học sâu không cần liệt kê quy tắc: nó nhìn hàng chục nghìn ảnh mèo thật, và tự điều chỉnh hàng triệu trọng số bên trong để tối ưu một mục tiêu duy nhất — dự đoán đúng nhãn. Quy tắc "ẩn" được học ra từ dữ liệu, không phải do con người gõ ra.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">1.3</span>Bài toán xuyên suốt: phân loại Fashion-MNIST</h3>
+      <p>Để lý thuyết luôn đi kèm thực hành, suốt buổi học ta sẽ giải một bài toán <strong>phân loại ảnh</strong> cụ thể trên tập <strong>Fashion-MNIST</strong> — bộ dữ liệu chuẩn cho người mới bắt đầu: 70.000 ảnh xám kích thước 28×28, chia thành 10 lớp trang phục. Nhiệm vụ: cho một ảnh, đoán đúng nó thuộc lớp nào.</p>
+      <div class="figure">
+        <div class="aug-grid" style="justify-content:center;">
+          <div class="aug-item"><div class="aug-box">👕</div><div class="aug-label">T-shirt</div></div>
+          <div class="aug-item"><div class="aug-box">👖</div><div class="aug-label">Trouser</div></div>
+          <div class="aug-item"><div class="aug-box">🧥</div><div class="aug-label">Pullover</div></div>
+          <div class="aug-item"><div class="aug-box">👗</div><div class="aug-label">Dress</div></div>
+          <div class="aug-item"><div class="aug-box">🧣</div><div class="aug-label">Coat</div></div>
+          <div class="aug-item"><div class="aug-box">🩴</div><div class="aug-label">Sandal</div></div>
+          <div class="aug-item"><div class="aug-box">👔</div><div class="aug-label">Shirt</div></div>
+          <div class="aug-item"><div class="aug-box">👟</div><div class="aug-label">Sneaker</div></div>
+          <div class="aug-item"><div class="aug-box">👜</div><div class="aug-label">Bag</div></div>
+          <div class="aug-item"><div class="aug-box">🥾</div><div class="aug-label">Ankle boot</div></div>
+        </div>
+        <div class="figure-caption"><b>Hình 2.</b> 10 lớp của Fashion-MNIST. Mỗi ảnh thật trong tập dữ liệu là ảnh xám 28×28 pixel — các biểu tượng trên chỉ minh hoạ cho từng lớp.</div>
+      </div>
+      <p>Fashion-MNIST khó hơn bộ chữ số viết tay MNIST kinh điển (vì hình dạng quần áo đa dạng hơn chữ số), nhưng vẫn đủ nhỏ để huấn luyện nhanh trên một máy cá nhân — lý tưởng để vừa học lý thuyết vừa chạy thật.</p>
+    </div>
+  </div>
+</section>
+<section class="section" id="l2">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 02 · Nền tảng mạng nơ-ron</span>
+    <h2 class="section-title">Nơ-ron nhân tạo &amp; hàm kích hoạt</h2>
+    <p class="section-lead">Trước khi ráp thành một mạng lớn, hãy hiểu rõ viên gạch nhỏ nhất: một nơ-ron nhân tạo làm gì, và vì sao nó cần một "hàm kích hoạt" đi kèm.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">2.1</span>Nơ-ron nhân tạo</h3>
+      <p>Đơn vị tính toán nhỏ nhất của một mạng nơ-ron là <strong>nơ-ron nhân tạo</strong>. Nó nhận nhiều đầu vào, nhân mỗi đầu vào với một <strong>trọng số (weight)</strong> riêng, cộng tất cả các tích đó lại kèm thêm một <strong>độ chệch (bias)</strong>, rồi đưa tổng đó qua một <strong>hàm kích hoạt</strong> để tạo ra đầu ra cuối cùng. Trọng số và bias chính là những con số mà mô hình sẽ <strong>tự học</strong> trong suốt quá trình huấn luyện.</p>
+      <div class="figure">
+        <svg viewBox="0 0 480 200" style="width:100%;max-width:480px;display:block;margin:0 auto;">
+          <g font-family="JetBrains Mono" font-size="13" fill="#42506a">
+            <circle cx="40" cy="40" r="16" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"/>
+            <text x="40" y="45" text-anchor="middle" fill="#0a5f60">x₁</text>
+            <circle cx="40" cy="100" r="16" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"/>
+            <text x="40" y="105" text-anchor="middle" fill="#0a5f60">x₂</text>
+            <circle cx="40" cy="160" r="16" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"/>
+            <text x="40" y="165" text-anchor="middle" fill="#0a5f60">x₃</text>
+            <line x1="56" y1="40" x2="190" y2="100" stroke="#b7c2c8" stroke-width="1.5"/>
+            <line x1="56" y1="100" x2="190" y2="100" stroke="#b7c2c8" stroke-width="1.5"/>
+            <line x1="56" y1="160" x2="190" y2="100" stroke="#b7c2c8" stroke-width="1.5"/>
+            <text x="100" y="55" fill="#7c8aa0" font-size="11">w₁</text>
+            <text x="100" y="112" fill="#7c8aa0" font-size="11">w₂</text>
+            <text x="100" y="155" fill="#7c8aa0" font-size="11">w₃</text>
+            <circle cx="210" cy="100" r="26" fill="#fdf0da" stroke="#e8940f" stroke-width="2"/>
+            <text x="210" y="96" text-anchor="middle" fill="#a86608" font-size="12">Σ + b</text>
+            <text x="210" y="112" text-anchor="middle" fill="#a86608" font-size="10">tổng có trọng số</text>
+            <line x1="236" y1="100" x2="300" y2="100" stroke="#b7c2c8" stroke-width="1.5"/>
+            <rect x="300" y="76" width="70" height="48" rx="8" fill="#fbe7ea" stroke="#d1495b" stroke-width="2"/>
+            <text x="335" y="105" text-anchor="middle" fill="#9c2f3d" font-size="14" font-weight="700">f( )</text>
+            <line x1="370" y1="100" x2="420" y2="100" stroke="#b7c2c8" stroke-width="1.5"/>
+            <circle cx="440" cy="100" r="16" fill="#0f8b8d"/>
+            <text x="440" y="105" text-anchor="middle" fill="#fff">y</text>
+            <text x="335" y="150" text-anchor="middle" fill="#7c8aa0" font-size="11">hàm kích hoạt</text>
+          </g>
+        </svg>
+        <div class="figure-caption"><b>Hình 3.</b> Một nơ-ron: tính tổng có trọng số của các đầu vào cộng bias (w₁x₁+w₂x₂+w₃x₃+b), rồi cho qua hàm kích hoạt f để tạo ra đầu ra y.</div>
+      </div>
+      <p>Một nơ-ron đơn lẻ rất hạn chế — nó gần như chỉ vẽ được một đường thẳng phân chia dữ liệu. Nhưng khi xếp <strong>hàng nghìn nơ-ron thành nhiều lớp</strong>, mạng có thể biểu diễn được những hàm cực kỳ phức tạp và phi tuyến.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Trọng số (weight) và bias trong một nơ-ron, cái nào do người thiết kế đặt sẵn, cái nào do mô hình tự học?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Cả hai đều do mô hình <strong>tự học</strong> trong quá trình huấn luyện, thông qua gradient descent (sẽ học ở Lớp 07). Người thiết kế chỉ chọn <em>kiến trúc</em> — có bao nhiêu nơ-ron, bao nhiêu lớp, dùng hàm kích hoạt nào — chứ không tự tay gán giá trị cho từng trọng số. Đây chính là điểm khác biệt so với việc tự chọn kernel Sobel ở buổi trước.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.2</span>Hàm kích hoạt: nguồn gốc của tính phi tuyến</h3>
+      <p>Nếu chỉ cộng và nhân tuyến tính, thì dù xếp bao nhiêu lớp nơ-ron chồng lên nhau, cả mạng vẫn tương đương với một phép biến đổi tuyến tính duy nhất — không hơn gì một nơ-ron đơn. <strong>Hàm kích hoạt</strong> chính là thứ đưa vào tính <strong>phi tuyến</strong>, cho phép mạng học được những quan hệ phức tạp trong dữ liệu. Hãy thử so sánh trực tiếp bốn hàm kích hoạt phổ biến nhất bên dưới.</p>
+
+      <div class="widget">
+        <span class="widget-label">Thử ngay · So sánh các hàm kích hoạt</span>
+        <div class="act-tabs" id="actTabs">
+          <button class="act-tab active" data-fn="relu">ReLU</button>
+          <button class="act-tab" data-fn="sigmoid">Sigmoid</button>
+          <button class="act-tab" data-fn="tanh">Tanh</button>
+          <button class="act-tab" data-fn="leaky">Leaky ReLU</button>
+        </div>
+        <svg viewBox="0 0 300 200" style="width:100%;max-width:340px;display:block;">
+          <line x1="10" y1="10" x2="10" y2="190" stroke="#d9e0da"/>
+          <line x1="10" y1="190" x2="290" y2="190" stroke="#d9e0da"/>
+          <polyline id="actLine" points="" fill="none" stroke="#0f8b8d" stroke-width="2.5"/>
+        </svg>
+        <p class="act-desc" id="actDesc"></p>
+      </div>
+      <ul class="plain">
+        <li><strong>ReLU</strong> — max(0, x): đơn giản, tính nhanh, là lựa chọn <strong>mặc định</strong> cho hầu hết mạng hiện đại, kể cả CNN.</li>
+        <li><strong>Sigmoid</strong> — ép giá trị về khoảng (0, 1), hay dùng ở đầu ra cho bài toán nhị phân.</li>
+        <li><strong>Tanh</strong> — ép giá trị về khoảng (−1, 1), có tâm tại 0.</li>
+        <li><strong>Leaky ReLU</strong> — giống ReLU nhưng cho phần âm một độ dốc nhỏ, giúp tránh hiện tượng "nơ-ron chết".</li>
+      </ul>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Nếu bỏ hết các hàm kích hoạt khỏi một mạng 10 lớp, điều gì sẽ xảy ra với khả năng biểu diễn của mạng đó?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Mạng 10 lớp toàn tuyến tính sẽ <strong>suy biến thành một phép biến đổi tuyến tính duy nhất</strong> — tương đương một mạng chỉ có một lớp. Việc xếp nhiều lớp sẽ trở nên vô nghĩa vì tổng hợp nhiều phép tuyến tính vẫn chỉ là một phép tuyến tính. Mạng sẽ không thể học được các ranh giới quyết định phi tuyến, ví dụ như phân biệt các hình dạng phức tạp trong ảnh.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.3</span>Xếp lớp: từ MLP đến nhu cầu cần CNN</h3>
+      <p>Khi nối nhiều lớp nơ-ron lại, trong đó mỗi nơ-ron ở lớp sau nối với <strong>mọi</strong> nơ-ron ở lớp trước, ta được một <strong>mạng kết nối đầy đủ (fully-connected)</strong>, còn gọi là <strong>MLP (Multi-Layer Perceptron)</strong>. MLP học được rất nhiều thứ, nhưng khi áp dụng cho ảnh, nó gặp hai vấn đề nghiêm trọng:</p>
+      <ol class="plain">
+        <li><strong>Quá nhiều tham số</strong> — một ảnh xám nhỏ 28×28 đã có 784 pixel đầu vào; nếu là ảnh màu kích thước lớn, số tham số cần thiết cho lớp đầu tiên sẽ bùng nổ.</li>
+        <li><strong>Bỏ qua cấu trúc không gian</strong> — với MLP, xáo trộn vị trí các pixel không hề ảnh hưởng đến cách nó tính toán, trong khi với ảnh, vị trí lân cận của các pixel lại mang thông tin cực kỳ quan trọng (một cạnh chỉ có ý nghĩa khi các pixel liền kề nhau).</li>
+      </ol>
+      <p>Đây chính là lý do vì sao ta cần một kiến trúc chuyên biệt hơn cho ảnh — <strong>CNN</strong>, chủ đề của các phần tiếp theo.</p>
+    </div>
+  </div>
+</section>
+<section class="section" id="l3">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 03 · Nền tảng mạng nơ-ron</span>
+    <h2 class="section-title">Hàm mất mát: đo mức độ sai</h2>
+    <p class="section-lead">Một mạng nơ-ron chỉ có thể "học" nếu có một con số cụ thể cho biết nó đang sai bao nhiêu. Con số đó gọi là hàm mất mát.</p>
+
+    <div class="subsection">
+      <p>Để mạng "học", ta cần một con số đo mức độ sai của nó — gọi là <strong>hàm mất mát (loss)</strong>. Với bài toán <strong>phân loại nhiều lớp</strong> như Fashion-MNIST, hàm chuẩn được dùng là <strong>Cross-Entropy</strong>: nó so sánh phân phối xác suất mà mô hình dự đoán với nhãn đúng, và phạt rất nặng khi mô hình <strong>tự tin nhưng lại sai</strong>. Mục tiêu xuyên suốt của việc huấn luyện chỉ đơn giản là: <strong>giảm loss</strong> càng nhiều càng tốt.</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 480 170" style="width:100%;max-width:480px;display:block;margin:0 auto;">
+          <g font-family="JetBrains Mono" font-size="11" fill="#42506a">
+            <text x="10" y="18" fill="#132036" font-weight="700" font-size="12">Nhãn đúng: "Túi (Bag)"</text>
+            <text x="10" y="40">T-shirt</text><rect x="80" y="28" width="18" height="14" fill="#c9e8e6"/>
+            <text x="10" y="58">Trouser</text><rect x="80" y="46" width="6" height="14" fill="#c9e8e6"/>
+            <text x="10" y="76">Coat</text><rect x="80" y="64" width="24" height="14" fill="#c9e8e6"/>
+            <text x="10" y="94">Bag</text><rect x="80" y="82" width="230" height="14" fill="#0f8b8d"/>
+            <text x="316" y="94" fill="#0a5f60" font-weight="700">0.82 ✓ (dự đoán đúng)</text>
+            <text x="10" y="112">Boot</text><rect x="80" y="100" width="14" height="14" fill="#c9e8e6"/>
+            <text x="10" y="140" fill="#7c8aa0">Loss thấp: mô hình tự tin và đúng nhãn "Bag".</text>
+          </g>
+        </svg>
+        <div class="figure-caption"><b>Hình 4.</b> Cross-entropy so sánh phân phối xác suất dự đoán (các thanh) với nhãn đúng. Khi xác suất gán cho nhãn đúng càng cao, loss càng thấp; nếu mô hình tự tin đặt xác suất cao vào nhãn <em>sai</em>, loss sẽ tăng vọt.</div>
+      </div>
+
+      <div class="callout callout-note">
+        <span class="callout-head">Liên hệ Softmax</span>
+        Trước khi tính cross-entropy, các giá trị đầu ra thô của mạng (gọi là <strong>logits</strong>) được chuyển thành xác suất bằng hàm <strong>Softmax</strong>. Trong PyTorch, <code>nn.CrossEntropyLoss</code> đã <strong>gộp sẵn Softmax</strong> bên trong, nên mô hình chỉ cần xuất ra logits thô — tuyệt đối không tự thêm softmax ở đầu ra, kẻo tính loss sai.
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Giữa hai tình huống: (a) mô hình dự đoán 60% cho nhãn đúng, và (b) mô hình dự đoán 95% cho một nhãn <em>sai</em> — tình huống nào có loss cao hơn, và vì sao?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Tình huống (b) có loss cao hơn nhiều. Cross-entropy không chỉ phạt việc dự đoán sai, mà phạt nặng nhất khi mô hình <strong>tự tin nhưng sai</strong> — vì lúc đó xác suất gán cho nhãn đúng gần như bằng 0, khiến giá trị -log(xác suất đúng) tiến tới rất lớn. Ngược lại, dự đoán đúng nhưng chỉ tự tin 60% vẫn bị phạt nhẹ, nhưng ít hơn nhiều so với việc tự tin sai hoàn toàn.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l4">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 04 · CNN</span>
+    <h2 class="section-title">Vì sao CNN đặc biệt hợp với ảnh</h2>
+    <p class="section-lead"><strong>CNN (Convolutional Neural Network)</strong> giải quyết đúng hai vấn đề của MLP đã nêu ở Lớp 02, nhờ hai ý tưởng nền tảng.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">4.1</span>Kết nối cục bộ &amp; chia sẻ trọng số</h3>
+      <ul class="plain">
+        <li><strong>Kết nối cục bộ (local connectivity):</strong> mỗi nơ-ron chỉ nhìn một vùng nhỏ của ảnh — giống hệt bộ lọc 3×3 ta đã dùng ở buổi thực hành OpenCV — tôn trọng tính lân cận không gian thay vì nối với toàn bộ ảnh.</li>
+        <li><strong>Chia sẻ trọng số (weight sharing):</strong> cùng một bộ lọc trượt khắp cả bức ảnh, nên số tham số cần học giảm mạnh, và đặc trưng học được có tính <strong>bất biến vị trí</strong> — một cạnh xuất hiện ở góc trên hay góc dưới ảnh đều được cùng một bộ lọc phát hiện ra.</li>
+      </ul>
+      <p>Điểm khác biệt then chốt so với buổi trước: khi dùng OpenCV, <strong>ta tự tay chọn</strong> giá trị trong kernel (Sobel, Gaussian…). Trong CNN, <strong>giá trị của bộ lọc được học</strong> từ dữ liệu sao cho phục vụ tốt nhất cho bài toán phân loại — không ai gõ tay các con số đó.</p>
+
+      <div class="figure">
+        <table class="ref-table">
+          <tr><th></th><th>MLP (kết nối đầy đủ)</th><th>CNN (tích chập)</th></tr>
+          <tr><td><strong>Một lớp ví dụ</strong></td><td>784 đầu vào → 128 nơ-ron</td><td>1 kênh vào → 32 bộ lọc 3×3</td></tr>
+          <tr><td><strong>Số trọng số</strong></td><td>784 × 128 = <strong>100.352</strong></td><td>3 × 3 × 1 × 32 = <strong>288</strong></td></tr>
+          <tr><td><strong>Tôn trọng vị trí pixel?</strong></td><td>Không</td><td>Có</td></tr>
+          <tr><td><strong>Bất biến vị trí?</strong></td><td>Không</td><td>Có (nhờ chia sẻ trọng số)</td></tr>
+        </table>
+        <div class="figure-caption"><b>Bảng 1.</b> So sánh số tham số cần học giữa một lớp fully-connected và một lớp Conv có cùng vai trò trích đặc trưng ban đầu — chênh lệch hơn 300 lần chỉ với một lớp duy nhất.</div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>"Chia sẻ trọng số" giúp một bộ lọc phát hiện cạnh dọc hoạt động đúng dù cạnh đó nằm ở góc nào của ảnh. Vì sao đây lại là một lợi thế lớn so với việc học trọng số riêng cho từng vị trí?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Nếu học trọng số riêng cho từng vị trí, mô hình sẽ phải thấy "cạnh dọc ở góc trên trái" và "cạnh dọc ở góc dưới phải" như hai khái niệm hoàn toàn khác nhau, cần học lại từ đầu ở mỗi nơi — vừa tốn tham số, vừa cần nhiều dữ liệu hơn để phủ hết mọi vị trí có thể. Chia sẻ trọng số cho phép một bộ lọc học một lần và áp dụng ở <strong>mọi</strong> vị trí, giúp mô hình tổng quát hoá tốt hơn nhiều với ít dữ liệu và tham số hơn.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l5">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 05 · CNN</span>
+    <h2 class="section-title">Phân tách từng cấu phần của CNN</h2>
+    <p class="section-lead">Một CNN không phải một khối đen bí ẩn — nó chỉ là sự lặp lại có trật tự của bốn loại lớp đơn giản. Hãy mổ xẻ từng lớp một.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">5.1</span>Lớp tích chập (Conv) — trái tim của CNN</h3>
+      <p>Lớp tích chập <strong>trượt các bộ lọc đã học</strong> qua ảnh đầu vào để tạo ra <strong>bản đồ đặc trưng (feature map)</strong>, làm nổi bật cạnh, kết cấu, hoa văn — hệt như phép tích chập ở buổi thực hành OpenCV, chỉ khác là giờ đây <strong>giá trị trong bộ lọc do mô hình tự học</strong>. Tại mỗi vị trí, ta nhân từng phần tử của bộ lọc với pixel nằm bên dưới, cộng tất cả lại thành một giá trị duy nhất, rồi trượt bộ lọc sang vị trí kế tiếp.</p>
+
+      <div class="widget">
+        <span class="widget-label">Thử ngay · Trượt bộ lọc từng bước một (giống demo ở đầu bài, xem lại công thức chi tiết)</span>
+        <div class="conv-layout">
+          <div class="conv-block">
+            <span class="conv-block-title">Ảnh đầu vào (7×7)</span>
+            <div class="conv-grid-wrap">
+              <div class="conv-grid" id="mainInputGrid"></div>
+              <div class="conv-highlight" id="mainHighlight"></div>
+            </div>
+          </div>
+          <div class="conv-block">
+            <span class="conv-block-title">Bộ lọc 3×3</span>
+            <div class="conv-kernel" id="mainKernelGrid"></div>
+          </div>
+          <div class="conv-block">
+            <span class="conv-block-title">Feature map (5×5)</span>
+            <div class="conv-out-grid" id="mainOutputGrid"></div>
+          </div>
+        </div>
+        <div class="conv-formula" id="mainFormula">Bấm "Bước tiếp" để xem phép nhân-cộng tại từng vị trí…</div>
+        <div class="btn-row">
+          <button class="btn btn-forward" id="mainStepBtn">Bước tiếp →</button>
+          <button class="btn btn-ghost" id="mainResetBtn">Đặt lại</button>
+        </div>
+      </div>
+
+      <p>Kích thước của bản đồ đặc trưng đầu ra phụ thuộc vào ba siêu tham số: kích thước bộ lọc <strong>K</strong>, bước trượt <strong>stride S</strong> (mỗi lần trượt qua bao nhiêu pixel), và phần đệm <strong>padding P</strong> (số pixel 0 thêm quanh viền ảnh để kiểm soát kích thước đầu ra). Công thức chung:</p>
+      <div class="conv-formula" style="margin-top:0;">O = ⌊ (W − K + 2P) / S ⌋ + 1</div>
+
+      <div class="widget">
+        <span class="widget-label">Thử ngay · Máy tính kích thước đầu ra</span>
+        <div class="btn-row" style="align-items:flex-end;">
+          <label style="font-size:13px;color:var(--ink-faint);">Kích thước ảnh W<br>
+            <input type="number" id="calcW" value="28" min="1" style="width:70px;padding:6px;border-radius:6px;border:1px solid var(--line);font-family:var(--mono);">
+          </label>
+          <label style="font-size:13px;color:var(--ink-faint);">Bộ lọc K<br>
+            <input type="number" id="calcK" value="3" min="1" style="width:70px;padding:6px;border-radius:6px;border:1px solid var(--line);font-family:var(--mono);">
+          </label>
+          <label style="font-size:13px;color:var(--ink-faint);">Padding P<br>
+            <input type="number" id="calcP" value="1" min="0" style="width:70px;padding:6px;border-radius:6px;border:1px solid var(--line);font-family:var(--mono);">
+          </label>
+          <label style="font-size:13px;color:var(--ink-faint);">Stride S<br>
+            <input type="number" id="calcS" value="1" min="1" style="width:70px;padding:6px;border-radius:6px;border:1px solid var(--line);font-family:var(--mono);">
+          </label>
+        </div>
+        <div class="conv-formula" id="calcResult" style="margin-top:16px;">O = ...</div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Dùng công thức trên: một ảnh 28×28 qua lớp Conv với bộ lọc 3×3, <code>padding=1</code>, <code>stride=1</code> — kích thước đầu ra là bao nhiêu? Vì sao ta hay chọn padding=1 với bộ lọc 3×3?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>O = ⌊(28 − 3 + 2×1)/1⌋ + 1 = ⌊27/1⌋ + 1 = 27 + 1 = <strong>28</strong>. Kích thước đầu ra <strong>giữ nguyên</strong> 28×28 — đây chính là lý do padding=1 rất hay được chọn đi kèm bộ lọc 3×3: nó giữ nguyên kích thước không gian sau mỗi lớp Conv, để việc giảm kích thước hoàn toàn do lớp Pooling đảm nhiệm một cách có chủ đích, thay vì bị "ăn mòn" dần một cách không kiểm soát qua mỗi lớp Conv.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.2</span>Lớp kích hoạt ReLU — thêm phi tuyến ngay sau Conv</h3>
+      <p>Ngay sau mỗi phép tích chập, đầu ra được cho qua hàm kích hoạt <strong>ReLU</strong> (đã giới thiệu ở Lớp 02). Không có bước này, chồng nhiều lớp Conv liên tiếp cũng chỉ tương đương một phép tích chập tuyến tính duy nhất. Trong thực hành, cặp "Conv → ReLU" gần như luôn đi liền nhau, đến mức nhiều tài liệu coi đó là một khối duy nhất.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.3</span>Lớp gộp (Pooling) — cô đọng thông tin</h3>
+      <p>Lớp <strong>Pooling</strong>, phổ biến nhất là <strong>Max-Pooling 2×2</strong>, chia feature map thành các ô 2×2 không chồng lấp, và chỉ giữ lại giá trị <strong>lớn nhất</strong> trong mỗi ô — qua đó giảm một nửa kích thước không gian theo cả chiều rộng lẫn chiều cao. Lợi ích: giảm khối lượng tính toán cho các lớp sau, và tăng tính <strong>bền vững</strong> — một đặc trưng bị lệch vài pixel vẫn cho ra cùng giá trị max.</p>
+
+      <div class="widget">
+        <span class="widget-label">Minh hoạ · Max-Pooling 2×2 trên một feature map 4×4</span>
+        <div class="pool-layout">
+          <div class="pool-grid">
+            <div class="pool-cell g1">1</div><div class="pool-cell g1 max">4</div><div class="pool-cell g2">2</div><div class="pool-cell g2">1</div>
+            <div class="pool-cell g1">2</div><div class="pool-cell g1">3</div><div class="pool-cell g2 max">6</div><div class="pool-cell g2">3</div>
+            <div class="pool-cell g3">5</div><div class="pool-cell g3 max">7</div><div class="pool-cell g4">1</div><div class="pool-cell g4">0</div>
+            <div class="pool-cell g3">2</div><div class="pool-cell g3">1</div><div class="pool-cell g4">2</div><div class="pool-cell g4 max">4</div>
+          </div>
+          <div class="pool-arrow">→</div>
+          <div class="pool-out-grid">
+            <div class="pool-out-cell g1">4</div><div class="pool-out-cell g2">6</div>
+            <div class="pool-out-cell g3">7</div><div class="pool-out-cell g4">4</div>
+          </div>
+        </div>
+        <div class="figure-caption" style="border:none;padding-top:6px;"><b>Hình 5.</b> Mỗi ô màu 2×2 chỉ giữ lại giá trị lớn nhất (viền đậm) — feature map 4×4 co lại thành 2×2, giữ lại đúng những tín hiệu mạnh nhất.</div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao Pooling giúp mô hình "bền vững" hơn khi vật thể trong ảnh bị dịch chuyển vài pixel?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì Max-Pooling chỉ quan tâm giá trị lớn nhất trong một vùng, chứ không quan tâm giá trị đó nằm chính xác ở đâu trong vùng đó. Nếu một cạnh mạnh dịch chuyển 1–2 pixel nhưng vẫn nằm trong cùng ô 2×2, giá trị max đầu ra vẫn không đổi. Điều này giúp mô hình ít nhạy cảm hơn với những dịch chuyển nhỏ, vốn rất phổ biến trong ảnh thực tế.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.4</span>Làm phẳng (Flatten) &amp; Lớp kết nối đầy đủ (FC)</h3>
+      <p>Sau vài khối Conv→ReLU→Pool, ta có một khối đặc trưng 3 chiều (cao × rộng × số kênh) — ví dụ 7×7×64. Để đưa vào các lớp phân loại, khối này được <strong>"trải phẳng" (flatten)</strong> thành một vector 1 chiều duy nhất (7×7×64 = 3136 giá trị). Vector này sau đó đi qua một hoặc vài <strong>lớp kết nối đầy đủ (Fully-Connected)</strong>, và cuối cùng một lớp FC với 10 đầu ra (tương ứng 10 lớp trang phục) sẽ cho ra điểm số — qua Softmax sẽ thành xác suất của từng lớp.</p>
+      <div class="figure">
+        <div class="arch-flow" style="justify-content:center;">
+          <div class="arch-card">
+            <div class="arch-square small" style="width:70px;height:70px;">
+              <span style="font-size:11px;color:var(--ink-faint);">7×7×64</span>
+            </div>
+            <div class="arch-name">Khối đặc trưng</div>
+          </div>
+          <div class="arch-arrow">flatten →</div>
+          <div class="arch-card">
+            <div class="arch-square small" style="width:180px;height:26px;">
+              <span style="font-size:11px;color:var(--ink-faint);">vector dài 3136</span>
+            </div>
+            <div class="arch-name">Đã trải phẳng</div>
+          </div>
+          <div class="arch-arrow">FC →</div>
+          <div class="arch-card">
+            <div class="neurons-col">
+              <div class="neuron-dot"></div><div class="neuron-dot"></div><div class="neuron-dot"></div>
+              <div class="neuron-dot"></div><div class="neuron-dot"></div>
+            </div>
+            <div class="arch-name">10 lớp đầu ra</div>
+          </div>
+        </div>
+        <div class="figure-caption"><b>Hình 6.</b> Khối đặc trưng 3 chiều được trải phẳng thành một vector dài, rồi đi qua các lớp Fully-Connected để cho ra điểm số cho từng lớp trang phục.</div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Nếu khối đặc trưng cuối cùng có kích thước 7×7×64, vector sau khi flatten sẽ dài bao nhiêu phần tử? Đây là con số bạn sẽ gặp lại ở phần code.</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>7 × 7 × 64 = <strong>3136</strong>. Đây chính xác là con số sẽ xuất hiện trong dòng code <code>nn.Linear(64 * 7 * 7, 128)</code> ở phần thực hành — một trong những lỗi phổ biến nhất khi mới học PyTorch là gõ sai con số này.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l6">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 06 · CNN</span>
+    <h2 class="section-title">Ghép lại: kiến trúc CNN hoàn chỉnh</h2>
+    <p class="section-lead">Ghép các cấu phần vừa học theo đúng thứ tự, ta được kiến trúc sẽ dùng suốt phần thực hành: hai khối Conv→ReLU→Pool để trích đặc trưng, rồi Flatten và hai lớp FC để phân loại.</p>
+
+    <div class="figure">
+      <div class="arch-flow">
+        <div class="arch-card">
+          <div class="arch-square" style="width:100px;height:100px;">28×28</div>
+          <div class="arch-name">Input</div>
+          <div class="arch-shape">28×28×1</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-card">
+          <div class="arch-square" style="width:100px;height:100px;">
+            <span class="arch-badge">×32</span>28×28
+          </div>
+          <div class="arch-name">Conv1 + ReLU</div>
+          <div class="arch-shape">28×28×32</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-card">
+          <div class="arch-square" style="width:66px;height:66px;">
+            <span class="arch-badge">×32</span>14×14
+          </div>
+          <div class="arch-name">MaxPool1</div>
+          <div class="arch-shape">14×14×32</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-card">
+          <div class="arch-square" style="width:66px;height:66px;">
+            <span class="arch-badge">×64</span>14×14
+          </div>
+          <div class="arch-name">Conv2 + ReLU</div>
+          <div class="arch-shape">14×14×64</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-card">
+          <div class="arch-square" style="width:40px;height:40px;">
+            <span class="arch-badge">×64</span>
+          </div>
+          <div class="arch-name">MaxPool2</div>
+          <div class="arch-shape">7×7×64</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-card">
+          <div class="arch-square small" style="width:26px;height:120px;"></div>
+          <div class="arch-name">Flatten</div>
+          <div class="arch-shape">3136</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-card">
+          <div class="neurons-col">
+            <div class="neuron-dot"></div><div class="neuron-dot"></div><div class="neuron-dot"></div><div class="neuron-dot"></div>
+          </div>
+          <div class="arch-name">FC1 + Dropout</div>
+          <div class="arch-shape">128</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-card">
+          <div class="neurons-col">
+            <div class="neuron-dot" style="background:#d1495b;"></div><div class="neuron-dot" style="background:#d1495b;"></div><div class="neuron-dot" style="background:#d1495b;"></div>
+          </div>
+          <div class="arch-name">FC2 (Softmax)</div>
+          <div class="arch-shape">10 lớp</div>
+        </div>
+      </div>
+      <div class="figure-caption"><b>Hình 7.</b> Kiến trúc CNN dùng xuyên suốt phần thực hành. Đi dọc theo mạng: kích thước không gian <strong>co lại</strong> dần (28→14→7) trong khi số kênh đặc trưng <strong>tăng lên</strong> (1→32→64) — mạng đang "cô đọng" ảnh thành những đặc trưng ngày càng trừu tượng và giàu ý nghĩa hơn.</div>
+    </div>
+
+    <table class="ref-table">
+      <tr><th>Lớp</th><th>Phép toán</th><th>Kích thước ra</th><th>Số tham số (xấp xỉ)</th></tr>
+      <tr><td>Input</td><td>—</td><td><code>1×28×28</code></td><td>0</td></tr>
+      <tr><td>Conv1</td><td><code>Conv2d(1→32, k=3, p=1)</code></td><td><code>32×28×28</code></td><td>320</td></tr>
+      <tr><td>Pool1</td><td><code>MaxPool2d(2)</code></td><td><code>32×14×14</code></td><td>0</td></tr>
+      <tr><td>Conv2</td><td><code>Conv2d(32→64, k=3, p=1)</code></td><td><code>64×14×14</code></td><td>18.496</td></tr>
+      <tr><td>Pool2</td><td><code>MaxPool2d(2)</code></td><td><code>64×7×7</code></td><td>0</td></tr>
+      <tr><td>Flatten</td><td>reshape</td><td><code>3136</code></td><td>0</td></tr>
+      <tr><td>FC1</td><td><code>Linear(3136→128)</code></td><td><code>128</code></td><td>401.536</td></tr>
+      <tr><td>Dropout</td><td><code>Dropout(0.25)</code></td><td><code>128</code></td><td>0</td></tr>
+      <tr><td>FC2</td><td><code>Linear(128→10)</code></td><td><code>10</code></td><td>1.290</td></tr>
+    </table>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Nhìn vào bảng trên, lớp nào chiếm phần lớn tổng số tham số của cả mạng — lớp Conv hay lớp FC? Điều này có nhất quán với lý do CNN "tiết kiệm" tham số hơn MLP mà ta đã bàn ở Lớp 04 không?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Lớp <strong>FC1 (401.536 tham số)</strong> chiếm áp đảo, nhiều hơn cả hai lớp Conv cộng lại (320 + 18.496). Điều này hoàn toàn nhất quán: sự "tiết kiệm" của CNN nằm ở việc dùng các lớp Conv chia sẻ trọng số để <strong>trích đặc trưng</strong> một cách hiệu quả, còn phần "tốn tham số" vẫn nằm ở các lớp FC dùng để <strong>phân loại</strong> cuối cùng — đây cũng là lý do các kiến trúc hiện đại thường cố gắng thu nhỏ số lượng lớp FC hoặc thay bằng các kỹ thuật gọn nhẹ hơn.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l7">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 07 · Huấn luyện</span>
+    <h2 class="section-title">Mô hình học như thế nào?</h2>
+    <p class="section-lead">Có kiến trúc thôi chưa đủ — trọng số ban đầu chỉ là số ngẫu nhiên. Phần này giải thích cơ chế khiến các con số đó dần trở nên "thông minh".</p>
+
+    <div class="subsection">
+      <h3><span class="tag">7.1</span>Vòng lặp huấn luyện bốn bước</h3>
+      <p>Huấn luyện là quá trình <strong>lặp đi lặp lại</strong> bốn bước trên từng lô (batch) dữ liệu, qua nhiều lượt (epoch). Mỗi vòng điều chỉnh trọng số để mô hình bớt sai hơn một chút:</p>
+      <div class="figure">
+        <svg viewBox="0 0 320 320" style="width:100%;max-width:320px;display:block;margin:0 auto;">
+          <circle cx="160" cy="160" r="120" fill="none" stroke="#d9e0da" stroke-width="2" stroke-dasharray="4 5"/>
+          <circle id="loopDot" cx="160" cy="40" r="7" fill="#e8940f"/>
+          <g font-family="Inter" font-size="12.5" font-weight="700">
+            <circle cx="160" cy="40" r="34" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"/>
+            <text x="160" y="36" text-anchor="middle" fill="#0a5f60">Lan truyền</text>
+            <text x="160" y="49" text-anchor="middle" fill="#0a5f60">xuôi</text>
+            <circle cx="280" cy="160" r="34" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"/>
+            <text x="280" y="156" text-anchor="middle" fill="#a86608">Tính</text>
+            <text x="280" y="169" text-anchor="middle" fill="#a86608">mất mát</text>
+            <circle cx="160" cy="280" r="34" fill="#fbe7ea" stroke="#d1495b" stroke-width="1.5"/>
+            <text x="160" y="276" text-anchor="middle" fill="#9c2f3d">Lan truyền</text>
+            <text x="160" y="289" text-anchor="middle" fill="#9c2f3d">ngược</text>
+            <circle cx="40" cy="160" r="34" fill="#e6e9f7" stroke="#5762c7" stroke-width="1.5"/>
+            <text x="40" y="156" text-anchor="middle" fill="#3a3f8c">Cập nhật</text>
+            <text x="40" y="169" text-anchor="middle" fill="#3a3f8c">trọng số</text>
+          </g>
+          <path d="M 190 55 A 120 120 0 0 1 275 130" fill="none" stroke="#b7c2c8" stroke-width="1.5" marker-end="url(#arrowh)"/>
+          <path d="M 280 194 A 120 120 0 0 1 190 265" fill="none" stroke="#b7c2c8" stroke-width="1.5" marker-end="url(#arrowh)"/>
+          <path d="M 130 265 A 120 120 0 0 1 45 194" fill="none" stroke="#b7c2c8" stroke-width="1.5" marker-end="url(#arrowh)"/>
+          <path d="M 40 126 A 120 120 0 0 1 130 55" fill="none" stroke="#b7c2c8" stroke-width="1.5" marker-end="url(#arrowh)"/>
+          <defs><marker id="arrowh" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7c2c8"/></marker></defs>
+        </svg>
+        <div class="figure-caption"><b>Hình 8.</b> Vòng lặp huấn luyện: lan truyền xuôi → tính mất mát → lan truyền ngược → cập nhật trọng số, lặp lại liên tục cho từng batch dữ liệu.</div>
+      </div>
+      <ul class="plain">
+        <li><strong>Lan truyền xuôi (forward):</strong> đưa ảnh qua toàn bộ mạng để nhận được dự đoán.</li>
+        <li><strong>Tính mất mát (loss):</strong> so sánh dự đoán với nhãn đúng bằng cross-entropy.</li>
+        <li><strong>Lan truyền ngược (backpropagation):</strong> tính <strong>gradient</strong> — cho biết mỗi trọng số đang ảnh hưởng tới loss theo hướng nào và mạnh yếu ra sao.</li>
+        <li><strong>Cập nhật trọng số:</strong> optimizer điều chỉnh trọng số theo hướng <strong>ngược</strong> với gradient để giảm loss.</li>
+      </ul>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Bước nào trong bốn bước trên là bước duy nhất cần dùng đến khi <em>đánh giá</em> mô hình trên tập test (không huấn luyện)?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Chỉ cần <strong>lan truyền xuôi (forward)</strong>. Khi đánh giá, ta chỉ cần mô hình đưa ra dự đoán để so sánh với nhãn thật, không cần tính gradient hay cập nhật trọng số — đây là lý do khi đánh giá ta luôn bọc code trong <code>torch.no_grad()</code> để tắt việc tính gradient, giúp nhanh hơn và tiết kiệm bộ nhớ.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">7.2</span>Gradient Descent &amp; tốc độ học</h3>
+      <p>Cơ chế đứng sau bước cập nhật trọng số là <strong>gradient descent</strong>. Hãy hình dung hàm mất mát như một thung lũng, và bộ trọng số hiện tại là một quả bóng nằm trên sườn dốc. Gradient cho biết hướng dốc <strong>đi lên</strong>; ta di chuyển <strong>ngược lại</strong> hướng đó để dần xuống đáy — nơi loss thấp nhất. Mỗi bước di chuyển xa bao nhiêu do <strong>tốc độ học (learning rate)</strong> quyết định.</p>
+
+      <div class="widget">
+        <span class="widget-label">Thử ngay · Quả bóng lăn xuống thung lũng loss</span>
+        <svg viewBox="0 0 300 200" style="width:100%;max-width:340px;display:block;">
+          <polyline id="gradCurve" points="" fill="none" stroke="#d9e0da" stroke-width="2"/>
+          <line x1="10" y1="190" x2="290" y2="190" stroke="#d9e0da"/>
+          <circle id="gradBall" cx="34" cy="163" r="8" fill="#d1495b"/>
+        </svg>
+        <div class="grad-controls">
+          <label style="font-size:13px;color:var(--ink-faint);">Tốc độ học (learning rate):</label>
+          <input type="range" id="gradLR" min="0.05" max="1.1" step="0.05" value="0.15">
+          <span class="grad-lr-val" id="gradLRVal">0.15</span>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-forward" id="gradRunBtn">Chạy mô phỏng</button>
+          <button class="btn btn-ghost" id="gradResetBtn">Đặt lại</button>
+        </div>
+        <div class="grad-msg" id="gradMsg"></div>
+      </div>
+
+      <div class="callout callout-warn">
+        <span class="callout-head">Chọn learning rate</span>
+        Tốc độ học <strong>quá lớn</strong> khiến quả bóng nhảy vọt qua đáy thung lũng, dao động rồi phân kỳ — loss không giảm mà lại tăng. Tốc độ học <strong>quá nhỏ</strong> thì học rất chậm, tốn nhiều epoch mới hội tụ. Đây là một trong những <strong>siêu tham số (hyperparameter)</strong> quan trọng nhất cần tinh chỉnh khi huấn luyện. Hãy thử kéo thanh trượt ở demo trên lên mức cao (&gt;0.9) để tự mắt thấy hiện tượng phân kỳ.
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Nếu sau vài epoch đầu, loss huấn luyện đột nhiên tăng vọt hoặc thành NaN thay vì giảm dần, siêu tham số đầu tiên bạn nên nghi ngờ và hạ thấp xuống là gì?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Learning rate</strong>. Loss tăng vọt hoặc thành NaN là dấu hiệu kinh điển của learning rate quá lớn khiến quá trình cập nhật trọng số bị phân kỳ (các bước nhảy quá xa, vượt qua đáy thung lũng liên tục). Cách xử lý phổ biến nhất: giảm learning rate xuống (ví dụ chia 10) và thử lại.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">7.3</span>Ba thuật ngữ sẽ gặp liên tục trong code</h3>
+      <table class="ref-table">
+        <tr><th>Thuật ngữ</th><th>Ý nghĩa</th></tr>
+        <tr><td><strong>Batch</strong></td><td>Một nhóm nhỏ ảnh được xử lý cùng lúc trong một bước cập nhật trọng số (ví dụ 64 ảnh/batch).</td></tr>
+        <tr><td><strong>Epoch</strong></td><td>Một lượt đi qua <em>toàn bộ</em> tập dữ liệu huấn luyện, thường gồm nhiều batch.</td></tr>
+        <tr><td><strong>Optimizer</strong></td><td>Thuật toán thực hiện bước cập nhật trọng số (ví dụ <strong>Adam</strong>, <strong>SGD</strong>). Adam thường hội tụ nhanh và là lựa chọn mặc định tốt cho người mới.</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+<section class="section" id="l8">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 08 · Thực hành</span>
+    <h2 class="section-title">Thực hành: huấn luyện CNN với PyTorch</h2>
+    <p class="section-lead"><strong>PyTorch</strong> là một trong những thư viện học sâu phổ biến nhất, nổi tiếng vì dễ đọc và linh hoạt. Đến lúc hiện thực hoá toàn bộ lý thuyết trên thành code chạy được thật sự.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">8.1</span>Cài đặt &amp; chuẩn bị dữ liệu</h3>
+      <p>Trước tiên, cài PyTorch và torchvision (gói đi kèm sẵn các bộ dữ liệu ảnh chuẩn và các phép biến đổi ảnh):</p>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">terminal</span></div>
+        <pre><code class="language-bash">pip install torch torchvision</code></pre>
+      </div>
+      <p>torchvision giúp tải Fashion-MNIST chỉ bằng một dòng lệnh. Ta dùng <code>transforms</code> để chuyển ảnh thành <strong>tensor</strong> và chuẩn hoá, rồi bọc trong <code>DataLoader</code> để tự động chia batch và xáo trộn dữ liệu:</p>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">data.py</span></div>
+        <pre><code class="language-python">import torch
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader
+
+# Chuyen anh PIL -> tensor [0,1] roi chuan hoa ve quanh 0
+transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.5,), (0.5,)),
+])
+
+# Tai du lieu (lan dau se tu dong tai ve thu muc ./data)
+train_set = datasets.FashionMNIST("./data", train=True,  download=True, transform=transform)
+test_set  = datasets.FashionMNIST("./data", train=False, download=True, transform=transform)
+
+# DataLoader: chia batch, xao tron du lieu huan luyen
+train_loader = DataLoader(train_set, batch_size=64, shuffle=True)
+test_loader  = DataLoader(test_set,  batch_size=256)
+
+print("So anh huan luyen:", len(train_set), "| so anh test:", len(test_set))</code></pre>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">8.2</span>Định nghĩa mô hình CNN</h3>
+      <p>Trong PyTorch, một mô hình là một lớp con của <code>nn.Module</code>. Ta khai báo các lớp trong <code>__init__</code> và mô tả luồng dữ liệu trong <code>forward</code> — đúng theo kiến trúc đã vẽ ở Hình 7:</p>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">model.py</span></div>
+        <pre><code class="language-python">import torch.nn as nn
+import torch.nn.functional as F
+
+class SmallCNN(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)   # 1 kenh -> 32
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)  # 32 -> 64
+        self.pool  = nn.MaxPool2d(2)                              # giam 1/2
+        self.fc1   = nn.Linear(64 * 7 * 7, 128)
+        self.drop  = nn.Dropout(0.25)                             # chong overfit
+        self.fc2   = nn.Linear(128, 10)                           # 10 lop
+
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))   # 28x28 -> 14x14
+        x = self.pool(F.relu(self.conv2(x)))   # 14x14 -> 7x7
+        x = x.flatten(1)                        # phang thanh vector 3136
+        x = F.relu(self.fc1(x))
+        x = self.drop(x)
+        return self.fc2(x)                      # tra ve 10 logit (chua softmax)
+
+model = SmallCNN()
+print(model)</code></pre>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao <code>forward()</code> trả về trực tiếp <code>self.fc2(x)</code> mà không gọi thêm <code>softmax</code>?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì <code>nn.CrossEntropyLoss</code> (sẽ dùng ở phần huấn luyện) đã <strong>tích hợp sẵn Softmax</strong> bên trong nó — đúng như lưu ý ở Lớp 03. Nếu tự thêm softmax vào <code>forward()</code>, ta sẽ vô tình áp dụng softmax hai lần, khiến loss được tính sai và mô hình học sai lệch.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">8.3</span>Vòng lặp huấn luyện</h3>
+      <p>Đây là phần hiện thực bốn bước ở Lớp 07. Chú ý ba dòng kinh điển: <code>zero_grad()</code> xoá gradient cũ, <code>loss.backward()</code> tính gradient, <code>optimizer.step()</code> cập nhật trọng số:</p>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">train.py</span></div>
+        <pre><code class="language-python">model = SmallCNN()
+criterion = nn.CrossEntropyLoss()                        # da gom san Softmax
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+
+for epoch in range(10):
+    model.train()
+    for images, labels in train_loader:
+        optimizer.zero_grad()                # 0) xoa gradient cu
+        outputs = model(images)              # 1) lan truyen xuoi
+        loss = criterion(outputs, labels)    # 2) tinh mat mat
+        loss.backward()                      # 3) lan truyen nguoc
+        optimizer.step()                     # 4) cap nhat trong so
+    print(f"Epoch {epoch+1}: loss = {loss.item():.3f}")</code></pre>
+      </div>
+      <div class="callout callout-warn">
+        <span class="callout-head">Hai lỗi rất hay gặp</span>
+        Quên gọi <code>optimizer.zero_grad()</code> khiến gradient bị <strong>cộng dồn</strong> qua các batch (mô hình học sai lệch mà rất khó phát hiện). Và luôn nhớ gọi <code>model.train()</code> khi huấn luyện, <code>model.eval()</code> khi đánh giá — vì <strong>Dropout</strong> hoạt động khác nhau ở hai chế độ này.
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">8.4</span>Đánh giá trên tập test</h3>
+      <p>Sau huấn luyện, ta đo độ chính xác trên dữ liệu <strong>mô hình chưa từng thấy</strong>. Dùng <code>torch.no_grad()</code> để tắt việc tính gradient (nhanh hơn, đỡ tốn bộ nhớ), và <code>model.eval()</code> để chuyển hẳn sang chế độ đánh giá:</p>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">evaluate.py</span></div>
+        <pre><code class="language-python">model.eval()
+correct = total = 0
+with torch.no_grad():
+    for images, labels in test_loader:
+        preds = model(images).argmax(dim=1)       # lay lop co diem cao nhat
+        correct += (preds == labels).sum().item()
+        total   += labels.size(0)
+
+print(f"Do chinh xac tren tap test: {100 * correct / total:.2f}%")</code></pre>
+      </div>
+      <div class="callout callout-result">
+        <span class="callout-head">Kết quả thật</span>
+        Chạy đúng đoạn code trên với kiến trúc này trên Fashion-MNIST, mô hình đạt khoảng <strong>89–90%</strong> độ chính xác sau khoảng 10 epoch. Các biểu đồ và nhận xét ở Lớp 09 đều dựa trên một lần huấn luyện thật với đúng kiến trúc này.
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Trong code đánh giá, vì sao ta không gọi <code>optimizer.zero_grad()</code> hay <code>loss.backward()</code> như ở vòng lặp huấn luyện?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì đánh giá chỉ cần bước <strong>lan truyền xuôi</strong> để lấy dự đoán rồi so sánh với nhãn thật — không hề cập nhật trọng số nên không cần tính hay xoá gradient. Đây cũng là lý do toàn bộ khối code được đặt trong <code>with torch.no_grad()</code>: báo cho PyTorch biết không cần theo dõi gradient trong khối này, giúp tiết kiệm bộ nhớ và tăng tốc độ đáng kể.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l9">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 09 · Đánh giá &amp; cải thiện</span>
+    <h2 class="section-title">Đánh giá và cải thiện mô hình</h2>
+    <p class="section-lead">Một con số độ chính xác duy nhất không kể hết câu chuyện. Phần này rèn thói quen đọc mô hình sâu hơn, và các kỹ thuật xử lý khi mọi thứ không như ý.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">9.1</span>Đọc đường cong huấn luyện</h3>
+      <p>Thói quen tốt là vẽ <strong>loss</strong> và <strong>độ chính xác</strong> theo từng epoch cho cả tập huấn luyện và tập kiểm định. Đường cong cho biết mô hình có đang học tốt không, đã hội tụ chưa, và có dấu hiệu quá khớp hay chưa.</p>
+      <div class="figure">
+        <div class="chart-col" style="max-width:420px;margin:0 auto;">
+          <div class="chart-title">Quá trình huấn luyện khoẻ mạnh (mô hình thật, 10 epoch)</div>
+          <svg viewBox="0 0 300 160" style="width:100%;display:block;">
+            <line x1="10" y1="10" x2="10" y2="150" stroke="#d9e0da"/>
+            <line x1="10" y1="150" x2="290" y2="150" stroke="#d9e0da"/>
+            <polyline points="10,20 40,55 70,75 100,90 130,100 160,107 190,112 220,116 250,119 280,121" fill="none" stroke="#0f8b8d" stroke-width="2.5"/>
+            <polyline points="10,25 40,60 70,80 100,93 130,102 160,108 190,113 220,116 250,118 280,120" fill="none" stroke="#d1495b" stroke-width="2.5" stroke-dasharray="4 3"/>
+          </svg>
+          <div class="chart-legend">
+            <span><span class="legend-dot" style="background:#0f8b8d;"></span>Loss huấn luyện</span>
+            <span><span class="legend-dot" style="background:#d1495b;"></span>Loss kiểm định</span>
+          </div>
+        </div>
+      </div>
+      <p>Ở đây loss của cả hai tập cùng giảm và bám rất sát nhau — đây là biểu hiện của một quá trình huấn luyện lành mạnh, mô hình đang tổng quát hoá tốt chứ không chỉ học thuộc dữ liệu huấn luyện.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">9.2</span>Ma trận nhầm lẫn &amp; dự đoán mẫu</h3>
+      <p><strong>Ma trận nhầm lẫn (confusion matrix)</strong> cho thấy mô hình <strong>nhầm lớp nào với lớp nào</strong>: hàng là nhãn thật, cột là dự đoán của mô hình; đường chéo là số lần đoán đúng.</p>
+      <div class="figure">
+        <div class="cm-wrap">
+          <table class="cm-table" id="cmTable"></table>
+        </div>
+        <div class="figure-caption"><b>Hình 9.</b> Ma trận nhầm lẫn minh hoạ theo đúng xu hướng quan sát được trên mô hình thật: các lớp <strong>trang phục phần thân trên</strong> (T-shirt, Pullover, Coat, Shirt) dễ bị nhầm lẫn với nhau vì hình dáng tương tự, trong khi Trouser, Sandal, Sneaker, Bag, Ankle boot hiếm khi bị nhầm.</div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Nếu một mô hình có độ chính xác tổng thể 90%, nhưng ma trận nhầm lẫn cho thấy nó nhầm "Shirt" thành "T-shirt" tới 40% số lần, điều gì con số độ chính xác tổng thể đã "che giấu"?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Độ chính xác tổng thể là một con số trung bình trên toàn bộ 10 lớp, nên nó có thể che giấu việc mô hình hoạt động <strong>rất kém trên một vài lớp cụ thể</strong> trong khi vẫn rất tốt ở các lớp còn lại (kéo trung bình lên cao). Nếu chỉ nhìn con số 90%, ta sẽ không biết rằng "Shirt" đang là điểm yếu nghiêm trọng cần cải thiện — có thể bằng cách thêm dữ liệu cho lớp đó, hoặc kiểm tra lại nhãn có bị gán nhầm hay không.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">9.3</span>Quá khớp (Overfitting)</h3>
+      <p><strong>Quá khớp</strong> xảy ra khi mô hình "học thuộc lòng" dữ liệu huấn luyện thay vì học ra quy luật tổng quát: độ chính xác trên tập huấn luyện rất cao, nhưng trên dữ liệu mới lại kém hẳn. Dấu hiệu kinh điển trên đường cong: loss huấn luyện tiếp tục giảm, trong khi <strong>loss kiểm định chững lại rồi tăng trở lại</strong>.</p>
+      <div class="figure">
+        <div class="chart-row">
+          <div class="chart-col">
+            <div class="chart-title">Lành mạnh</div>
+            <svg viewBox="0 0 260 140" style="width:100%;display:block;">
+              <line x1="8" y1="8" x2="8" y2="130" stroke="#d9e0da"/><line x1="8" y1="130" x2="252" y2="130" stroke="#d9e0da"/>
+              <polyline points="8,18 60,50 112,70 164,84 216,93 244,98" fill="none" stroke="#0f8b8d" stroke-width="2.5"/>
+              <polyline points="8,22 60,53 112,73 164,86 216,94 244,99" fill="none" stroke="#d1495b" stroke-width="2.5" stroke-dasharray="4 3"/>
+            </svg>
+          </div>
+          <div class="chart-col">
+            <div class="chart-title">Quá khớp</div>
+            <svg viewBox="0 0 260 140" style="width:100%;display:block;">
+              <line x1="8" y1="8" x2="8" y2="130" stroke="#d9e0da"/><line x1="8" y1="130" x2="252" y2="130" stroke="#d9e0da"/>
+              <polyline points="8,18 60,45 112,60 164,68 216,73 244,76" fill="none" stroke="#0f8b8d" stroke-width="2.5"/>
+              <polyline points="8,22 60,50 112,58 164,50 216,38 244,25" fill="none" stroke="#d1495b" stroke-width="2.5" stroke-dasharray="4 3"/>
+            </svg>
+          </div>
+        </div>
+        <div class="chart-legend">
+          <span><span class="legend-dot" style="background:#0f8b8d;"></span>Loss huấn luyện</span>
+          <span><span class="legend-dot" style="background:#d1495b;"></span>Loss kiểm định</span>
+        </div>
+        <div class="figure-caption"><b>Hình 10.</b> Bên trái: cả hai loss cùng giảm — lành mạnh. Bên phải: loss kiểm định giảm rồi <strong>tăng ngược trở lại</strong> dù loss huấn luyện vẫn tiếp tục giảm — dấu hiệu rõ ràng của quá khớp.</div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Nếu bạn thấy loss huấn luyện giảm đều nhưng loss kiểm định bắt đầu tăng từ epoch thứ 5, hành động hợp lý nào bạn có thể cân nhắc ngay?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Đây là dấu hiệu quá khớp bắt đầu xuất hiện. Vài lựa chọn hợp lý: <strong>dừng sớm (early stopping)</strong> — giữ lại trọng số ở epoch 5 thay vì huấn luyện tiếp; thêm <strong>Dropout</strong> hoặc tăng tỉ lệ Dropout hiện có; bật <strong>data augmentation</strong> để mô hình thấy nhiều biến thể dữ liệu hơn; hoặc đơn giản là thu thập thêm dữ liệu huấn luyện nếu có thể.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">9.4</span>Ba kỹ thuật chống quá khớp phổ biến nhất</h3>
+
+      <p><strong>Tăng cường dữ liệu (Data Augmentation):</strong> tạo thêm biến thể từ ảnh có sẵn (xoay, lật, dịch chuyển, phóng to/nhỏ) để mô hình nhìn thấy nhiều biến thể hơn — giống như có thêm dữ liệu miễn phí.</p>
+      <div class="figure">
+        <div class="aug-grid">
+          <div class="aug-item"><div class="aug-box">👕</div><div class="aug-label">Gốc</div></div>
+          <div class="aug-item"><div class="aug-box" style="transform:scaleX(-1);">👕</div><div class="aug-label">Lật ngang</div></div>
+          <div class="aug-item"><div class="aug-box" style="transform:rotate(12deg);">👕</div><div class="aug-label">Xoay ±10°</div></div>
+          <div class="aug-item"><div class="aug-box" style="transform:translate(6px,-4px);">👕</div><div class="aug-label">Dịch chuyển</div></div>
+          <div class="aug-item"><div class="aug-box" style="transform:scale(1.15);">👕</div><div class="aug-label">Phóng to nhẹ</div></div>
+        </div>
+        <div class="figure-caption"><b>Hình 11.</b> Từ một ảnh gốc, tạo ra nhiều biến thể hợp lý — mô hình học được rằng đây vẫn là cùng một lớp trang phục dù nhìn hơi khác đi.</div>
+      </div>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">augment.py</span></div>
+        <pre><code class="language-python">from torchvision import transforms
+
+train_transform = transforms.Compose([
+    transforms.RandomHorizontalFlip(),                 # lat ngang ngau nhien
+    transforms.RandomRotation(10),                      # xoay nhe +-10 do
+    transforms.RandomAffine(0, translate=(0.1, 0.1)),   # dich chuyen ngau nhien
+    transforms.ToTensor(),
+    transforms.Normalize((0.5,), (0.5,)),
+])
+# Chi ap dung augmentation cho TAP HUAN LUYEN, khong ap dung cho tap test</code></pre>
+      </div>
+
+      <p><strong>Dropout:</strong> ngẫu nhiên "tắt" một phần nơ-ron ở mỗi bước huấn luyện, buộc mạng không được phép phụ thuộc quá nhiều vào một vài nơ-ron cụ thể — ta đã thêm <code>nn.Dropout(0.25)</code> ngay trong mô hình ở Lớp 08.</p>
+      <div class="figure">
+        <div class="dropout-net" id="dropoutNet"></div>
+        <div class="figure-caption" style="border:none;padding-top:6px;"><b>Hình 12.</b> Ở mỗi bước huấn luyện, một tỉ lệ ngẫu nhiên các nơ-ron (mờ đi) tạm thời bị "tắt" — buộc mạng phải học các đặc trưng dự phòng, dùng được ở nhiều cấu hình nơ-ron khác nhau.</div>
+      </div>
+
+      <p><strong>Regularization / dừng sớm:</strong> phạt các trọng số có giá trị quá lớn, hoặc dừng huấn luyện ngay khi loss kiểm định bắt đầu tăng trở lại — thay vì cố huấn luyện thêm cho tới epoch cuối cùng.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao augmentation chỉ nên áp dụng cho tập huấn luyện, tuyệt đối không áp dụng cho tập kiểm tra/đánh giá?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Tập kiểm tra tồn tại để đo hiệu năng của mô hình trên dữ liệu <strong>thực tế, không bị chỉnh sửa</strong> — mô phỏng đúng những gì mô hình sẽ gặp khi triển khai thật. Nếu áp dụng augmentation lên tập test, ta sẽ đo hiệu năng trên những ảnh đã bị biến đổi nhân tạo, không còn phản ánh đúng khả năng thật của mô hình, khiến con số độ chính xác báo cáo bị sai lệch và không đáng tin cậy.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">9.5</span>Bước tiến lớn: Transfer Learning</h3>
+      <p>Với bài toán thực tế phức tạp hơn Fashion-MNIST, ta ít khi huấn luyện một mạng từ đầu. <strong>Transfer learning</strong> tận dụng một mô hình đã được huấn luyện sẵn trên một bộ dữ liệu khổng lồ (như ImageNet), rồi <strong>tinh chỉnh</strong> lại cho bài toán riêng của mình. Mô hình đó đã học sẵn những đặc trưng thị giác tổng quát (cạnh, kết cấu, hình dạng), nên ta chỉ cần ít dữ liệu và thời gian huấn luyện hơn rất nhiều.</p>
+      <table class="ref-table">
+        <tr><th>Mô hình pretrained</th><th>Đặc điểm nổi bật</th></tr>
+        <tr><td><code>ResNet</code></td><td>Kết nối tắt (residual) cho phép huấn luyện mạng rất sâu mà không bị suy giảm gradient.</td></tr>
+        <tr><td><code>VGG</code></td><td>Kiến trúc đơn giản, dùng toàn bộ kernel 3×3 xếp chồng nhiều lớp.</td></tr>
+        <tr><td><code>EfficientNet</code></td><td>Cân bằng tối ưu giữa độ chính xác và chi phí tính toán.</td></tr>
+      </table>
+      <p><code>torchvision.models</code> cung cấp sẵn các kiến trúc trên đã huấn luyện trước — đây là hướng đi tiếp theo rất đáng khám phá sau buổi học này.</p>
+    </div>
+  </div>
+</section>
+<section class="section" id="l10">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 10 · Tra cứu</span>
+    <h2 class="section-title">Bảng tra cứu &amp; mẹo thực hành</h2>
+    <p class="section-lead">Những thành phần PyTorch bạn sẽ dùng đi dùng lại trong hầu hết mọi bài toán thị giác máy tính sau này.</p>
+
+    <table class="ref-table">
+      <tr><th>Thành phần</th><th>Vai trò</th></tr>
+      <tr><td><code>nn.Conv2d</code></td><td>Lớp tích chập — trích đặc trưng không gian từ ảnh.</td></tr>
+      <tr><td><code>nn.MaxPool2d</code></td><td>Gộp giảm kích thước, giữ lại đặc trưng mạnh nhất.</td></tr>
+      <tr><td><code>nn.Linear</code></td><td>Lớp kết nối đầy đủ (fully-connected).</td></tr>
+      <tr><td><code>nn.ReLU / F.relu</code></td><td>Hàm kích hoạt phi tuyến.</td></tr>
+      <tr><td><code>nn.Dropout</code></td><td>Tắt ngẫu nhiên nơ-ron để chống quá khớp.</td></tr>
+      <tr><td><code>nn.CrossEntropyLoss</code></td><td>Hàm mất mát cho phân loại (đã gồm Softmax).</td></tr>
+      <tr><td><code>torch.optim.Adam</code></td><td>Bộ tối ưu thực hiện bước cập nhật trọng số.</td></tr>
+      <tr><td><code>DataLoader</code></td><td>Nạp dữ liệu theo batch, tự động xáo trộn.</td></tr>
+      <tr><td><code>loss.backward()</code></td><td>Tính gradient bằng lan truyền ngược.</td></tr>
+    </table>
+
+    <h3 style="margin-top:32px;">Mẹo tránh lỗi thường gặp</h3>
+    <ul class="tip-list">
+      <li><span class="tip-check">✓</span><span><strong>Luôn</strong> gọi <code>optimizer.zero_grad()</code> mỗi batch, trước khi gọi <code>backward()</code>.</span></li>
+      <li><span class="tip-check">✓</span><span>Chuyển <code>model.train()</code> / <code>model.eval()</code> đúng lúc — ảnh hưởng trực tiếp tới Dropout và BatchNorm.</span></li>
+      <li><span class="tip-check">✓</span><span><code>CrossEntropyLoss</code> nhận <strong>logits</strong> thô, đừng tự thêm Softmax ở đầu ra mô hình.</span></li>
+      <li><span class="tip-check">✓</span><span>Dùng <code>with torch.no_grad()</code> khi đánh giá để nhanh hơn và tiết kiệm bộ nhớ.</span></li>
+      <li><span class="tip-check">✓</span><span>Kiểm tra kỹ <strong>kích thước tensor</strong> khi flatten (ở đây 64×7×7 = 3136) — sai số chiều là lỗi rất phổ biến.</span></li>
+      <li><span class="tip-check">✓</span><span>Chỉ áp dụng <strong>augmentation cho tập huấn luyện</strong>, không áp dụng cho tập kiểm tra/đánh giá.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="l11">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Bài tập</span>
+    <h2 class="section-title">Bài tập thực hành</h2>
+    <p class="section-lead">Hãy chạy lại mô hình ở Lớp 08, sau đó thử từng thí nghiệm dưới đây và <strong>quan sát đường cong huấn luyện</strong> thay đổi như thế nào sau mỗi lần chỉnh.</p>
+
+    <div class="task-grid">
+      <div class="task-card"><span class="task-num">Bài tập 01</span><p>Đổi <strong>learning rate</strong> (thử 1e-2, rồi 1e-4) và số <strong>epoch</strong>. Loss thay đổi ra sao? Khi nào mô hình học quá chậm, khi nào phân kỳ?</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 02</span><p>Thêm một khối Conv mới (ví dụ 128 kênh) hoặc bỏ bớt một khối hiện có. So sánh độ chính xác và thời gian huấn luyện.</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 03</span><p>Bật <strong>data augmentation</strong> ở Lớp 09 và huấn luyện lại. Khoảng cách giữa độ chính xác huấn luyện và kiểm định có thu hẹp lại không?</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 04</span><p>Thử các giá trị <strong>Dropout</strong> khác nhau: 0.0, 0.25, 0.5. Quan sát ảnh hưởng của từng mức tới hiện tượng quá khớp.</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 05</span><p>Tự vẽ <strong>ma trận nhầm lẫn</strong> cho mô hình của bạn (gợi ý: <code>sklearn.metrics.confusion_matrix</code>). Hai lớp nào bị nhầm nhiều nhất?</p></div>
+      <div class="task-card advanced"><span class="task-num">Nâng cao</span><p>Tìm hiểu và thử <strong>transfer learning</strong> với một mô hình pretrained từ <code>torchvision.models</code> trên một bộ ảnh màu.</p></div>
+    </div>
+  </div>
+</section>
+<section class="section" id="quiz">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp ra · Kiểm tra tổng kết</span>
+    <h2 class="section-title">Trắc nghiệm tổng kết</h2>
+    <p class="section-lead">10 câu hỏi để tự kiểm tra lại toàn bộ nội dung buổi học. Bấm vào một đáp án để xem ngay kết quả; nếu chưa chắc chắn, hãy bấm "Gợi ý" trước.</p>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 1.</span>Vấn đề nghiêm trọng nhất mà MLP gặp phải khi xử lý ảnh, và được CNN giải quyết, là gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Không thể dùng hàm kích hoạt phi tuyến</button>
+        <button class="quiz-opt" data-key="B">B. Quá nhiều tham số và bỏ qua cấu trúc không gian của ảnh</button>
+        <button class="quiz-opt" data-key="C">C. Không thể tính được hàm mất mát</button>
+        <button class="quiz-opt" data-key="D">D. Không thể chạy trên GPU</button>
+      </div>
+      <div class="quiz-foot">
+        <button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button>
+      </div>
+      <p class="quiz-hint">Nhớ lại Lớp 02.3 — có đúng hai vấn đề được nêu ra khi MLP xử lý ảnh.</p>
+      <p class="quiz-explain">MLP gặp đúng hai vấn đề: quá nhiều tham số do kết nối đầy đủ với mọi pixel, và bỏ qua tính lân cận không gian giữa các pixel. CNN giải quyết cả hai nhờ kết nối cục bộ và chia sẻ trọng số.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 2.</span>"Chia sẻ trọng số" (weight sharing) trong lớp Conv mang lại lợi ích chính nào?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Giúp mô hình chỉ chạy được trên CPU</button>
+        <button class="quiz-opt" data-key="B">B. Giảm mạnh số tham số và tạo tính bất biến vị trí cho đặc trưng học được</button>
+        <button class="quiz-opt" data-key="C">C. Cho phép bỏ hẳn lớp Pooling</button>
+        <button class="quiz-opt" data-key="D">D. Giúp hàm mất mát luôn bằng 0</button>
+      </div>
+      <div class="quiz-foot">
+        <button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button>
+      </div>
+      <p class="quiz-hint">Xem lại Bảng 1 ở Lớp 04 — chênh lệch số tham số giữa MLP và CNN.</p>
+      <p class="quiz-explain">Cùng một bộ lọc trượt khắp ảnh nên số tham số cần học giảm mạnh so với kết nối đầy đủ; đồng thời một cạnh xuất hiện ở bất kỳ vị trí nào cũng được cùng bộ lọc đó phát hiện — gọi là tính bất biến vị trí.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="C">
+      <p class="quiz-q"><span class="qnum">Câu 3.</span>Lớp Max-Pooling 2×2 thường có tác dụng gì với một feature map?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Tăng gấp đôi kích thước không gian</button>
+        <button class="quiz-opt" data-key="B">B. Giữ nguyên kích thước nhưng đổi tên các kênh</button>
+        <button class="quiz-opt" data-key="C">C. Giảm một nửa kích thước không gian, giữ lại giá trị lớn nhất mỗi vùng</button>
+        <button class="quiz-opt" data-key="D">D. Xoá bỏ hoàn toàn thông tin không gian</button>
+      </div>
+      <div class="quiz-foot">
+        <button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button>
+      </div>
+      <p class="quiz-hint">Xem lại demo Max-Pooling ở Hình 5, Lớp 05.3.</p>
+      <p class="quiz-explain">Max-Pooling 2×2 chia feature map thành các ô 2×2 không chồng lấp và chỉ giữ lại giá trị lớn nhất mỗi ô, giảm một nửa chiều rộng và chiều cao.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="C">
+      <p class="quiz-q"><span class="qnum">Câu 4.</span>Hàm kích hoạt nào được thiết kế để tránh hiện tượng "nơ-ron chết" so với ReLU chuẩn?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Sigmoid</button>
+        <button class="quiz-opt" data-key="B">B. Tanh</button>
+        <button class="quiz-opt" data-key="C">C. Leaky ReLU</button>
+        <button class="quiz-opt" data-key="D">D. Softmax</button>
+      </div>
+      <div class="quiz-foot">
+        <button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button>
+      </div>
+      <p class="quiz-hint">Xem lại danh sách bốn hàm kích hoạt ở Lớp 02.2.</p>
+      <p class="quiz-explain">Leaky ReLU giống ReLU nhưng cho phần giá trị âm một độ dốc nhỏ thay vì bằng 0 tuyệt đối, giúp nơ-ron không bị "chết" hoàn toàn khi đầu vào âm liên tục.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 5.</span>Thứ tự đúng của bốn bước trong vòng lặp huấn luyện là gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Cập nhật trọng số → Lan truyền xuôi → Tính mất mát → Lan truyền ngược</button>
+        <button class="quiz-opt" data-key="B">B. Lan truyền xuôi → Tính mất mát → Lan truyền ngược → Cập nhật trọng số</button>
+        <button class="quiz-opt" data-key="C">C. Tính mất mát → Lan truyền xuôi → Cập nhật trọng số → Lan truyền ngược</button>
+        <button class="quiz-opt" data-key="D">D. Lan truyền ngược → Lan truyền xuôi → Cập nhật trọng số → Tính mất mát</button>
+      </div>
+      <div class="quiz-foot">
+        <button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button>
+      </div>
+      <p class="quiz-hint">Xem lại sơ đồ vòng tròn ở Hình 8, Lớp 07.1.</p>
+      <p class="quiz-explain">Phải có dự đoán trước (lan truyền xuôi), rồi mới so sánh với nhãn để tính loss, sau đó mới tính được gradient (lan truyền ngược) dựa trên loss đó, và cuối cùng optimizer mới cập nhật trọng số.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 6.</span>Tốc độ học (learning rate) quá lớn thường dẫn tới hiện tượng gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Mô hình học rất chậm nhưng luôn ổn định</button>
+        <button class="quiz-opt" data-key="B">B. Loss dao động mạnh hoặc phân kỳ thay vì giảm dần</button>
+        <button class="quiz-opt" data-key="C">C. Mô hình tự động chuyển sang chạy trên CPU</button>
+        <button class="quiz-opt" data-key="D">D. Số tham số của mô hình tăng lên</button>
+      </div>
+      <div class="quiz-foot">
+        <button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button>
+      </div>
+      <p class="quiz-hint">Thử kéo thanh trượt learning rate lên cao ở demo Lớp 07.2 và quan sát quả bóng.</p>
+      <p class="quiz-explain">Learning rate quá lớn khiến mỗi bước cập nhật "nhảy" quá xa, vượt qua đáy thung lũng loss liên tục, khiến loss dao động mạnh hoặc phân kỳ thay vì hội tụ.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 7.</span><code>nn.CrossEntropyLoss</code> trong PyTorch đã tích hợp sẵn thao tác nào?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Dropout</button>
+        <button class="quiz-opt" data-key="B">B. Softmax</button>
+        <button class="quiz-opt" data-key="C">C. MaxPooling</button>
+        <button class="quiz-opt" data-key="D">D. Data Augmentation</button>
+      </div>
+      <div class="quiz-foot">
+        <button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button>
+      </div>
+      <p class="quiz-hint">Xem lại callout "Liên hệ Softmax" ở Lớp 03.</p>
+      <p class="quiz-explain"><code>nn.CrossEntropyLoss</code> đã gộp sẵn Softmax bên trong, nên mô hình chỉ cần xuất ra logits thô — không tự thêm Softmax ở lớp đầu ra.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 8.</span>Dấu hiệu rõ ràng nhất của hiện tượng quá khớp (overfitting) trên đồ thị loss là gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Cả loss huấn luyện và loss kiểm định cùng giảm đều, bám sát nhau</button>
+        <button class="quiz-opt" data-key="B">B. Loss huấn luyện tiếp tục giảm trong khi loss kiểm định chững lại rồi tăng trở lại</button>
+        <button class="quiz-opt" data-key="C">C. Loss huấn luyện tăng vọt thành NaN ngay từ epoch đầu</button>
+        <button class="quiz-opt" data-key="D">D. Loss kiểm định luôn thấp hơn loss huấn luyện suốt quá trình</button>
+      </div>
+      <div class="quiz-foot">
+        <button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button>
+      </div>
+      <p class="quiz-hint">Xem lại biểu đồ so sánh ở Hình 10, Lớp 09.3.</p>
+      <p class="quiz-explain">Quá khớp thể hiện rõ nhất qua việc mô hình tiếp tục "học thuộc" tập huấn luyện (loss huấn luyện vẫn giảm) trong khi hiệu năng trên dữ liệu mới (tập kiểm định) lại xấu đi.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="C">
+      <p class="quiz-q"><span class="qnum">Câu 9.</span>Kỹ thuật nào ngẫu nhiên "tắt" một phần nơ-ron ở mỗi bước huấn luyện để chống quá khớp?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Data Augmentation</button>
+        <button class="quiz-opt" data-key="B">B. Gradient Descent</button>
+        <button class="quiz-opt" data-key="C">C. Dropout</button>
+        <button class="quiz-opt" data-key="D">D. Transfer Learning</button>
+      </div>
+      <div class="quiz-foot">
+        <button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button>
+      </div>
+      <p class="quiz-hint">Xem lại Hình 12, Lớp 09.4 — mạng có vài nơ-ron mờ đi.</p>
+      <p class="quiz-explain">Dropout ngẫu nhiên tắt một tỉ lệ nơ-ron ở mỗi bước huấn luyện, buộc mạng không phụ thuộc quá nhiều vào một vài nơ-ron cụ thể, từ đó tổng quát hoá tốt hơn.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 10.</span>Lợi ích chính của Transfer Learning là gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Luôn cho ra kiến trúc mạng nhỏ hơn CNN tự thiết kế từ đầu</button>
+        <button class="quiz-opt" data-key="B">B. Tận dụng đặc trưng thị giác tổng quát đã học sẵn, cần ít dữ liệu và thời gian huấn luyện hơn</button>
+        <button class="quiz-opt" data-key="C">C. Loại bỏ hoàn toàn nhu cầu dùng hàm mất mát</button>
+        <button class="quiz-opt" data-key="D">D. Chỉ hoạt động với ảnh xám kích thước 28×28</button>
+      </div>
+      <div class="quiz-foot">
+        <button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button>
+      </div>
+      <p class="quiz-hint">Xem lại Lớp 09.5 — vì sao ta ít khi huấn luyện một mạng hoàn toàn từ đầu cho bài toán thực tế.</p>
+      <p class="quiz-explain">Mô hình pretrained (như ResNet, VGG) đã học sẵn các đặc trưng thị giác tổng quát trên tập dữ liệu khổng lồ; tinh chỉnh lại cho bài toán riêng cần ít dữ liệu và thời gian hơn nhiều so với huấn luyện từ đầu.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="end">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Tổng kết</span>
+    <h2 class="section-title">Từ một nơ-ron đến một CNN hoàn chỉnh</h2>
+    <p>Buổi học này đã đi trọn một hành trình: từ một <strong>nơ-ron</strong> đơn lẻ, đến một <strong>mạng CNN hoàn chỉnh được huấn luyện</strong> để phân loại ảnh với gần 90% độ chính xác. Quan trọng hơn cả những dòng code, bạn đã nắm được bức tranh lớn của học sâu: thay vì thiết kế đặc trưng bằng tay như buổi thực hành OpenCV, ta định nghĩa một mạng, chọn một hàm mất mát, rồi để gradient descent <strong>tự học</strong> ra những bộ lọc tốt nhất từ dữ liệu. Bạn cũng đã biết cách <strong>đánh giá</strong> một mô hình một cách nghiêm túc — không chỉ nhìn vào con số độ chính xác, mà còn biết đọc đường cong huấn luyện, đọc ma trận nhầm lẫn, và luôn cảnh giác với quá khớp.</p>
+    <p>Đây là nền tảng cho gần như mọi mô hình thị giác máy tính hiện đại. Hai hướng đi tiếp theo tự nhiên của khoá học: <strong>phát hiện đối tượng</strong> — không chỉ phân loại mà còn định vị vật thể trong ảnh, và <strong>phân đoạn ảnh</strong> — gán nhãn tới từng pixel một. Cả hai đều được xây dựng trên chính nền tảng CNN mà bạn vừa làm chủ hôm nay. Hãy hoàn thành các bài tập ở Lớp 11 — cách học sâu vững nhất vẫn luôn là tự tay huấn luyện và quan sát.</p>
+  </div>
+</section>
+
+<div class="footer">
+  <div class="wrap">
+    Học sâu cho Thị giác Máy tính — Bài giảng Tutorial · Mạng Nơ-ron Tích Chập (CNN)
+  </div>
+</div>
+
+</main>
+</div>
+<script>
+/* ---------- Reveal / Hint toggles ---------- */
+function toggleReveal(btn){
+  const box = btn.nextElementSibling;
+  box.classList.toggle('show');
+  btn.textContent = box.classList.contains('show') ? 'Ẩn đáp án' : 'Hiện đáp án';
+}
+function toggleHint(btn){
+  const hint = btn.closest('.quiz-item').querySelector('.quiz-hint');
+  hint.classList.toggle('show');
+  btn.textContent = hint.classList.contains('show') ? 'Ẩn gợi ý' : 'Gợi ý';
+}
+
+/* ---------- Quiz logic ---------- */
+document.querySelectorAll('.quiz-item').forEach(item=>{
+  const answer = item.dataset.answer;
+  const opts = item.querySelectorAll('.quiz-opt');
+  const explain = item.querySelector('.quiz-explain');
+  opts.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(item.classList.contains('answered')) return;
+      item.classList.add('answered');
+      opts.forEach(o=>o.disabled=true);
+      if(opt.dataset.key === answer){
+        opt.classList.add('correct');
+      } else {
+        opt.classList.add('incorrect');
+        const correctBtn = item.querySelector('.quiz-opt[data-key="'+answer+'"]');
+        if(correctBtn) correctBtn.classList.add('correct');
+      }
+      if(explain) explain.classList.add('show');
+    });
+  });
+});
+
+/* ---------- Convolution demo (reusable) ---------- */
+function setupConvDemo(cfg){
+  const inputData = [
+    [0,0,1,1,1,0,0],
+    [0,0,1,1,1,0,0],
+    [0,0,1,1,1,0,0],
+    [0,0,1,1,1,0,0],
+    [0,0,1,1,1,0,0],
+    [0,0,1,1,1,0,0],
+    [0,0,1,1,1,0,0],
+  ];
+  const kernelData = [
+    [1,0,-1],
+    [1,0,-1],
+    [1,0,-1],
+  ];
+  const inputGrid  = document.getElementById(cfg.inputGridId);
+  const kernelGrid = document.getElementById(cfg.kernelGridId);
+  const outputGrid = document.getElementById(cfg.outputGridId);
+  const highlight  = document.getElementById(cfg.highlightId);
+  const formula    = document.getElementById(cfg.formulaId);
+  const stepBtn    = document.getElementById(cfg.stepBtnId);
+  const resetBtn   = document.getElementById(cfg.resetBtnId);
+  if(!inputGrid) return;
+
+  inputGrid.innerHTML='';
+  for(let r=0;r<7;r++){
+    for(let c=0;c<7;c++){
+      const cell=document.createElement('div');
+      cell.className='conv-cell'+(inputData[r][c]===1?' on':'');
+      cell.textContent=inputData[r][c];
+      cell.id=cfg.inputGridId+'_'+r+'_'+c;
+      inputGrid.appendChild(cell);
+    }
+  }
+  kernelGrid.innerHTML='';
+  for(let r=0;r<3;r++){
+    for(let c=0;c<3;c++){
+      const cell=document.createElement('div');
+      cell.className='conv-cell';
+      cell.textContent=kernelData[r][c];
+      kernelGrid.appendChild(cell);
+    }
+  }
+  outputGrid.innerHTML='';
+  for(let r=0;r<5;r++){
+    for(let c=0;c<5;c++){
+      const cell=document.createElement('div');
+      cell.className='conv-out-cell';
+      cell.id=cfg.outputGridId+'_'+r+'_'+c;
+      outputGrid.appendChild(cell);
+    }
+  }
+  const cellSize=32, gap=2;
+  highlight.style.width=(cellSize*3+gap*2)+'px';
+  highlight.style.height=(cellSize*3+gap*2)+'px';
+
+  let step=0;
+  const total=25;
+  function moveHighlight(r,c){
+    highlight.style.left=(c*(cellSize+gap))+'px';
+    highlight.style.top=(r*(cellSize+gap))+'px';
+  }
+  function reset(){
+    step=0;
+    for(let r=0;r<5;r++){
+      for(let c=0;c<5;c++){
+        const cel=document.getElementById(cfg.outputGridId+'_'+r+'_'+c);
+        cel.textContent='';
+        cel.classList.remove('filled','current');
+      }
+    }
+    moveHighlight(0,0);
+    formula.textContent='Bấm "Bước tiếp" để bắt đầu trượt bộ lọc qua ảnh…';
+    stepBtn.disabled=false;
+  }
+  function doStep(){
+    if(step>=total) return;
+    const r=Math.floor(step/5), c=step%5;
+    moveHighlight(r,c);
+    let sum=0;
+    const terms=[];
+    for(let ki=0;ki<3;ki++){
+      for(let kj=0;kj<3;kj++){
+        const iv=inputData[r+ki][c+kj];
+        const kv=kernelData[ki][kj];
+        sum+=iv*kv;
+        terms.push('('+iv+'×'+kv+')');
+      }
+    }
+    outputGrid.querySelectorAll('.conv-out-cell.current').forEach(el=>el.classList.remove('current'));
+    const outCell=document.getElementById(cfg.outputGridId+'_'+r+'_'+c);
+    outCell.textContent=sum;
+    outCell.classList.add('filled','current');
+    formula.innerHTML='Vị trí (hàng '+(r+1)+', cột '+(c+1)+'): '+terms.join(' + ')+' = <span class="eq">'+sum+'</span>';
+    step++;
+    if(step>=total) stepBtn.disabled=true;
+  }
+  stepBtn.addEventListener('click', doStep);
+  resetBtn.addEventListener('click', reset);
+  reset();
+}
+setupConvDemo({inputGridId:'heroInputGrid', kernelGridId:'heroKernelGrid', outputGridId:'heroOutputGrid', highlightId:'heroHighlight', formulaId:'heroFormula', stepBtnId:'heroStepBtn', resetBtnId:'heroResetBtn'});
+setupConvDemo({inputGridId:'mainInputGrid', kernelGridId:'mainKernelGrid', outputGridId:'mainOutputGrid', highlightId:'mainHighlight', formulaId:'mainFormula', stepBtnId:'mainStepBtn', resetBtnId:'mainResetBtn'});
+
+/* ---------- Output-size calculator ---------- */
+function updateCalc(){
+  const W=parseFloat(document.getElementById('calcW').value)||0;
+  const K=parseFloat(document.getElementById('calcK').value)||0;
+  const P=parseFloat(document.getElementById('calcP').value)||0;
+  const S=parseFloat(document.getElementById('calcS').value)||1;
+  const O=Math.floor((W-K+2*P)/S)+1;
+  document.getElementById('calcResult').innerHTML =
+    'O = ⌊('+W+' − '+K+' + 2×'+P+') / '+S+'⌋ + 1 = <span class="eq">'+(isFinite(O)?O:'—')+'</span>';
+}
+['calcW','calcK','calcP','calcS'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('input', updateCalc);
+});
+updateCalc();
+
+/* ---------- Activation function grapher ---------- */
+const actFns = {
+  relu:   {fn:x=>Math.max(0,x), domain:[-1,6], desc:'ReLU giữ nguyên giá trị dương và cắt toàn bộ giá trị âm về 0 — đơn giản, tính rất nhanh, và là lựa chọn mặc định cho hầu hết các lớp ẩn trong CNN.'},
+  sigmoid:{fn:x=>1/(1+Math.exp(-x)), domain:[-0.1,1.1], desc:'Sigmoid ép mọi giá trị về khoảng (0, 1), thường dùng ở đầu ra cho các bài toán phân loại nhị phân.'},
+  tanh:   {fn:x=>Math.tanh(x), domain:[-1.2,1.2], desc:'Tanh ép giá trị về khoảng (−1, 1) với tâm tại 0, thường hội tụ tốt hơn Sigmoid ở các lớp ẩn.'},
+  leaky:  {fn:x=>x>=0?x:0.1*x, domain:[-1,6], desc:'Leaky ReLU giữ một độ dốc nhỏ (0.1) cho phần giá trị âm thay vì cắt về 0 tuyệt đối, giúp tránh hiện tượng "nơ-ron chết".'}
+};
+function plotActivation(name){
+  const {fn, domain, desc} = actFns[name];
+  const [ymin, ymax] = domain;
+  const pts=[];
+  for(let i=0;i<=60;i++){
+    const x=-6 + i*(12/60);
+    const y=fn(x);
+    const svgx=10 + (x+6)/12*280;
+    const svgy=10 + (ymax-y)/(ymax-ymin)*180;
+    pts.push(svgx.toFixed(1)+','+svgy.toFixed(1));
+  }
+  const line=document.getElementById('actLine');
+  if(line) line.setAttribute('points', pts.join(' '));
+  const descEl=document.getElementById('actDesc');
+  if(descEl) descEl.textContent=desc;
+}
+document.querySelectorAll('.act-tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.act-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    plotActivation(tab.dataset.fn);
+  });
+});
+plotActivation('relu');
+
+/* ---------- Gradient descent demo ---------- */
+let gradTimer=null;
+function gradSetBall(x){
+  const dispX=Math.max(-8, Math.min(8, x));
+  const y=Math.min(x*x, 25);
+  const svgx=10 + (dispX+5)/10*280;
+  const svgy=190 - (y/25)*175;
+  const ball=document.getElementById('gradBall');
+  if(ball){ ball.setAttribute('cx', svgx); ball.setAttribute('cy', svgy); }
+}
+function gradBuildCurve(){
+  const pts=[];
+  for(let x=-5;x<=5;x+=0.25){
+    const y=Math.min(x*x,25);
+    const svgx=10 + (x+5)/10*280;
+    const svgy=190 - (y/25)*175;
+    pts.push(svgx.toFixed(1)+','+svgy.toFixed(1));
+  }
+  const curve=document.getElementById('gradCurve');
+  if(curve) curve.setAttribute('points', pts.join(' '));
+}
+function gradReset(){
+  clearInterval(gradTimer);
+  gradSetBall(-4.5);
+  const msg=document.getElementById('gradMsg');
+  if(msg){ msg.textContent=''; msg.className='grad-msg'; }
+}
+function gradRun(){
+  clearInterval(gradTimer);
+  let x=-4.5, step=0;
+  const lrInput=document.getElementById('gradLR');
+  const lr=parseFloat(lrInput.value);
+  const msg=document.getElementById('gradMsg');
+  msg.textContent=''; msg.className='grad-msg';
+  gradSetBall(x);
+  gradTimer=setInterval(()=>{
+    if(Math.abs(x) > 6){
+      msg.textContent='Phân kỳ! Tốc độ học quá lớn khiến bóng văng khỏi thung lũng thay vì lăn xuống đáy.';
+      msg.className='grad-msg bad';
+      clearInterval(gradTimer);
+      return;
+    }
+    if(step>=14){
+      msg.textContent='Hội tụ! Bóng đã lăn tới gần đáy thung lũng (x ≈ 0).';
+      msg.className='grad-msg ok';
+      clearInterval(gradTimer);
+      return;
+    }
+    const grad=2*x;
+    x=x - lr*grad;
+    gradSetBall(x);
+    step++;
+  }, 450);
+}
+gradBuildCurve();
+gradSetBall(-4.5);
+const gradLRInput=document.getElementById('gradLR');
+if(gradLRInput){
+  gradLRInput.addEventListener('input', ()=>{
+    document.getElementById('gradLRVal').textContent=parseFloat(gradLRInput.value).toFixed(2);
+  });
+}
+const gradRunBtn=document.getElementById('gradRunBtn');
+if(gradRunBtn) gradRunBtn.addEventListener('click', gradRun);
+const gradResetBtn=document.getElementById('gradResetBtn');
+if(gradResetBtn) gradResetBtn.addEventListener('click', gradReset);
+
+/* ---------- Loop indicator dot animation (training loop diagram) ---------- */
+(function animateLoopDot(){
+  const dot=document.getElementById('loopDot');
+  if(!dot) return;
+  let angle=-90;
+  setInterval(()=>{
+    angle += 1.2;
+    const rad=angle*Math.PI/180;
+    const cx=160 + 120*Math.cos(rad);
+    const cy=160 + 120*Math.sin(rad);
+    dot.setAttribute('cx', cx);
+    dot.setAttribute('cy', cy);
+  }, 30);
+})();
+
+/* ---------- Confusion matrix ---------- */
+const cmClasses=['T-sh','Trou','Pull','Dres','Coat','San','Shrt','Snea','Bag','Boot'];
+const cmData=[
+  [78,0,6,2,3,0,9,0,1,1],
+  [0,97,0,2,0,0,1,0,0,0],
+  [4,0,80,1,9,0,5,0,1,0],
+  [3,3,1,86,3,0,3,0,1,0],
+  [2,0,10,3,78,0,6,0,1,0],
+  [0,0,0,0,0,96,0,3,1,0],
+  [12,0,10,3,9,0,62,0,3,1],
+  [0,0,0,0,0,3,0,94,0,3],
+  [1,0,1,0,1,0,1,0,95,1],
+  [0,0,0,0,0,1,0,4,0,95]
+];
+function cmColorClass(v){
+  if(v<3) return 'cm0';
+  if(v<8) return 'cm1';
+  if(v<20) return 'cm2';
+  if(v<60) return 'cm3';
+  return 'cm4';
+}
+(function buildConfusionMatrix(){
+  const table=document.getElementById('cmTable');
+  if(!table) return;
+  let html='<tr><th></th>';
+  cmClasses.forEach(c=>{ html+='<th>'+c+'</th>'; });
+  html+='</tr>';
+  cmData.forEach((row,i)=>{
+    html+='<tr><th class="rowlab">'+cmClasses[i]+'</th>';
+    row.forEach(v=>{ html+='<td class="'+cmColorClass(v)+'">'+v+'</td>'; });
+    html+='</tr>';
+  });
+  table.innerHTML=html;
+})();
+
+/* ---------- Dropout visual ---------- */
+(function buildDropoutNet(){
+  const container=document.getElementById('dropoutNet');
+  if(!container) return;
+  const layerSizes=[5,8,5];
+  layerSizes.forEach(count=>{
+    const layer=document.createElement('div');
+    layer.className='dropout-layer';
+    for(let n=0;n<count;n++){
+      const node=document.createElement('div');
+      node.className='dnode';
+      layer.appendChild(node);
+    }
+    container.appendChild(layer);
+  });
+  setInterval(()=>{
+    document.querySelectorAll('#dropoutNet .dnode').forEach(node=>{
+      if(Math.random() < 0.3) node.classList.add('off');
+      else node.classList.remove('off');
+    });
+  }, 900);
+})();
+
+/* ---------- Rail scrollspy ---------- */
+(function railScrollSpy(){
+  const map={};
+  document.querySelectorAll('.rail-item').forEach(item=>{
+    const a=item.querySelector('a');
+    if(a){ map[a.getAttribute('href').slice(1)] = item; }
+  });
+  const targets=Object.keys(map).map(id=>document.getElementById(id)).filter(Boolean);
+  const observer=new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        Object.values(map).forEach(it=>it.classList.remove('active'));
+        const item=map[entry.target.id];
+        if(item) item.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-35% 0px -55% 0px', threshold:0});
+  targets.forEach(t=>observer.observe(t));
+})();
+
+/* ---------- Syntax highlighting ---------- */
+if(window.hljs){ hljs.highlightAll(); }
+</script>
+</body>
+</html>

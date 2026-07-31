@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toán 10 – Bài C.4: Giá trị lượng giác của góc &amp; cung lượng giác</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<style>
+  :root{
+    --paper:#F4F5F0; --paper-alt:#ECEEE6; --ink:#1B2624; --ink-soft:#4B5A56; --rule:#D8DBCF;
+    --c1:#1F8A82; --c1-bg:#E3F2EF; /* Giá trị lượng giác 0-180 */
+    --c2:#39588F; --c2-bg:#E5EAF3; /* Radian & đường tròn lượng giác */
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.65;font-size:16px;}
+  h1,h2,h3,h4{font-family:Georgia,"Palatino Linotype","Times New Roman",serif;font-weight:700;line-height:1.25;margin:0 0 .5em 0;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 18px 80px;}
+  .top{background:var(--ink);color:var(--paper);padding:38px 18px 30px;}
+  .top .wrap{padding:0;}
+  .eyebrow{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:#B9C4B7;margin-bottom:10px;}
+  .top h1{font-size:clamp(22px,5vw,34px);color:#FBFBF6;margin-bottom:8px;}
+  .top p.sub{color:#C9D0C4;font-size:15.5px;max-width:58ch;margin:0;}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;}
+  .meta-chip{font-size:12.5px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;border:1px solid #4C5A55;color:#D6DCD1;padding:5px 10px;border-radius:20px;}
+  .toc{display:flex;gap:8px;overflow-x:auto;padding:14px 18px;background:var(--paper-alt);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:50;-webkit-overflow-scrolling:touch;}
+  .toc a{flex:0 0 auto;text-decoration:none;font-size:13px;font-weight:600;padding:8px 13px;border-radius:8px;white-space:nowrap;color:var(--ink);border:1px solid var(--rule);background:var(--paper);}
+  .toc a b{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:700;margin-right:5px;opacity:.55;}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:22px 0 6px;}
+  .controls button{font-family:inherit;font-size:13.5px;font-weight:600;padding:9px 15px;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer;}
+  .controls button.ghost{background:transparent;color:var(--ink);}
+  .controls span.hint{font-size:13px;color:var(--ink-soft);}
+  .intro{padding:26px 0 6px;}
+  .intro p{color:var(--ink-soft);max-width:64ch;}
+  .chapter{margin-top:56px;scroll-margin-top:70px;}
+  .chapter-tab{display:inline-flex;align-items:baseline;gap:10px;padding:9px 16px 10px;border-radius:10px 10px 0 0;color:#fff;}
+  .chapter-tab .num{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:13px;opacity:.85;}
+  .chapter-tab .name{font-family:Georgia,serif;font-weight:700;font-size:20px;}
+  .chapter-body{border-radius:0 10px 10px 10px;border:1px solid var(--rule);background:#fff;padding:26px 22px 30px;}
+  .theory-box{background:var(--box-bg,var(--paper-alt));border-left:4px solid var(--box-c,var(--ink));border-radius:6px;padding:16px 18px;margin:16px 0 22px;}
+  .theory-box h4{font-size:13px;text-transform:uppercase;letter-spacing:.07em;font-family:"SFMono-Regular",Consolas,Menlo,monospace;color:var(--box-c,var(--ink));margin-bottom:10px;}
+  .theory-box ul{margin:0;padding-left:20px;}
+  .theory-box li{margin-bottom:8px;}
+  .theory-box li:last-child{margin-bottom:0;}
+  .theory-box table{border-collapse:collapse;margin-top:8px;font-size:13.5px;width:100%;}
+  .theory-box table th, .theory-box table td{border:1px solid var(--rule);padding:6px 8px;text-align:center;}
+  .theory-box table th{background:rgba(0,0,0,.04);}
+  .example-box{border:1px dashed var(--box-c,var(--ink-soft));border-radius:6px;padding:16px 18px;margin:16px 0 22px;background:#FCFCF9;}
+  .example-box h4{font-size:13px;text-transform:uppercase;letter-spacing:.07em;font-family:"SFMono-Regular",Consolas,Menlo,monospace;color:var(--box-c,var(--ink));margin-bottom:10px;}
+  .example-box .steps p{margin:.5em 0;}
+  .problems-head{font-size:13px;text-transform:uppercase;letter-spacing:.07em;font-family:"SFMono-Regular",Consolas,Menlo,monospace;color:var(--ink-soft);margin:26px 0 12px;border-top:1px solid var(--rule);padding-top:18px;}
+  .problem{border:1px solid var(--rule);border-radius:8px;padding:16px 18px;margin-bottom:14px;background:var(--paper);}
+  .problem-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px;}
+  .problem-num{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:700;color:var(--box-c,var(--ink));font-size:14px;flex:0 0 auto;}
+  .badge{font-size:10.5px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:20px;flex:0 0 auto;border:1px solid currentColor;opacity:.8;}
+  .b-nb{color:#2F7D6B;} .b-th{color:#3E5C9A;} .b-vd{color:#B4741C;} .b-vdc{color:#A83B49;}
+  .problem-text{margin:6px 0 10px;}
+  .btn-toggle{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12.5px;font-weight:600;background:transparent;border:1px solid var(--box-c,var(--ink));color:var(--box-c,var(--ink));padding:6px 12px;border-radius:20px;cursor:pointer;}
+  .btn-toggle.active{background:var(--box-c,var(--ink));color:#fff;}
+  .solution{display:none;margin-top:14px;padding:14px 16px;border-radius:6px;background:var(--box-bg,var(--paper-alt));border-left:3px solid var(--box-c,var(--ink));}
+  .solution p{margin:.45em 0;}
+  .solution .lbl{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--box-c,var(--ink));margin-bottom:8px;font-weight:700;}
+  #ch1{--box-c:var(--c1);--box-bg:var(--c1-bg);}
+  #ch2{--box-c:var(--c2);--box-bg:var(--c2-bg);}
+  #ch1 .chapter-tab{background:var(--c1);}
+  #ch2 .chapter-tab{background:var(--c2);}
+  figure.geo{margin:14px 0;padding:14px;background:#FCFCF9;border:1px solid var(--rule);border-radius:8px;text-align:center;}
+  figure.geo svg{max-width:100%;height:auto;}
+  figure.geo figcaption{font-size:12.5px;color:var(--ink-soft);margin-top:6px;}
+  footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--rule);color:var(--ink-soft);font-size:13px;}
+  @media print{
+    .toc,.controls,.btn-toggle{display:none !important;}
+    .solution{display:block !important;}
+    .top{background:#fff !important;color:#000 !important;}
+    .top .eyebrow,.top .sub,.meta-chip{color:#333 !important;}
+    .top h1{color:#000 !important;}
+  }
+  @media (max-width:600px){ .chapter-tab .name{font-size:17px;} .chapter-body{padding:20px 14px 24px;} }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wrap">
+    <div class="eyebrow">Chuẩn bị Toán 10 &nbsp;•&nbsp; Phần C — Hình học &nbsp;•&nbsp; Bài C.4</div>
+    <h1>Giá trị lượng giác của góc &amp; cung lượng giác</h1>
+    <p class="sub">Mở rộng sin, cos, tan từ tam giác vuông (chỉ 0°–90°) ra mọi góc từ 0° đến 180°, và làm quen với đơn vị radian — nền tảng cho hàm số lượng giác ở lớp 11.</p>
+    <div class="meta-row">
+      <span class="meta-chip">2 phần</span>
+      <span class="meta-chip">13 bài tập có lời giải chi tiết</span>
+      <span class="meta-chip">4 ví dụ minh hoạ</span>
+    </div>
+  </div>
+</div>
+
+<nav class="toc">
+  <a href="#ch1"><b>01</b>Giá trị lượng giác của góc 0°–180°</a>
+  <a href="#ch2"><b>02</b>Radian &amp; đường tròn lượng giác</a>
+</nav>
+
+<div class="wrap">
+
+  <div class="controls">
+    <button onclick="showAll()">Hiện tất cả lời giải</button>
+    <button class="ghost" onclick="hideAll()">Ẩn tất cả lời giải</button>
+    <span class="hint">Bấm “Xem lời giải” ở từng bài để hiện/ẩn đáp án.</span>
+  </div>
+
+  <div class="intro">
+    <p>Ở lớp 9, sin, cos, tan chỉ định nghĩa được cho góc nhọn (0°–90°) trong tam giác vuông. Bài này mở rộng định nghĩa cho <b>mọi góc từ 0° đến 180°</b> — kể cả góc tù — bằng cách gắn góc vào nửa đường tròn đơn vị. Đây chính là điều cho phép định lí côsin, định lí sin hoạt động với tam giác có góc tù (đã dùng ở bài C.1). Phần sau giới thiệu đơn vị radian, chuẩn bị cho hàm số lượng giác ở lớp 11.</p>
+  </div>
+
+  <!-- ============ PHẦN 1 ============ -->
+  <section class="chapter" id="ch1">
+    <div class="chapter-tab"><span class="num">01</span><span class="name">Giá trị lượng giác của góc 0°–180°</span></div>
+    <div class="chapter-body">
+
+      <figure class="geo">
+        <svg viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50,180 A100,100 0 0 1 250,180" fill="none" stroke="#1B2624" stroke-width="1.8"/>
+          <line x1="30" y1="180" x2="270" y2="180" stroke="#1B2624" stroke-width="1.3"/>
+          <polygon points="270,180 263,176 263,184" fill="#1B2624"/>
+          <line x1="150" y1="180" x2="150" y2="60" stroke="#1B2624" stroke-width="1" stroke-dasharray="2 2"/>
+          <line x1="150" y1="180" x2="100" y2="93.4" stroke="#1F8A82" stroke-width="2.3"/>
+          <line x1="100" y1="93.4" x2="100" y2="180" stroke="#A83B49" stroke-width="1.4" stroke-dasharray="3 2"/>
+          <line x1="100" y1="93.4" x2="150" y2="93.4" stroke="#39588F" stroke-width="1.4" stroke-dasharray="3 2"/>
+          <path d="M180,180 A30,30 0 0 1 165,154" fill="none" stroke="#B4741C" stroke-width="1.3"/>
+          <circle cx="150" cy="180" r="2.5" fill="#1B2624"/>
+          <circle cx="100" cy="93.4" r="3.2" fill="#1F8A82"/>
+          <circle cx="250" cy="180" r="2.5" fill="#1B2624"/>
+          <text x="140" y="196" font-size="13" font-family="Georgia,serif">O</text>
+          <text x="253" y="196" font-size="12" font-family="Georgia,serif">1</text>
+          <text x="80" y="86" font-size="13" font-family="Georgia,serif">M</text>
+          <text x="185" y="168" font-size="13" font-family="Georgia,serif" fill="#B4741C">α</text>
+          <text x="65" y="140" font-size="12.5" font-family="Georgia,serif" fill="#A83B49">cosα</text>
+          <text x="105" y="86" font-size="12.5" font-family="Georgia,serif" fill="#39588F">sinα</text>
+          <text x="272" y="184" font-size="13" font-family="Georgia,serif">x</text>
+        </svg>
+        <figcaption>Nửa đường tròn đơn vị: điểm M ứng với góc α (120°), toạ độ M là (cosα; sinα)</figcaption>
+      </figure>
+
+      <div class="theory-box">
+        <h4>Tóm tắt lý thuyết</h4>
+        <ul>
+          <li>Trên nửa đường tròn đơn vị tâm O (phía trên trục hoành), với góc \(\alpha\ (0^\circ\le\alpha\le180^\circ)\), lấy điểm M sao cho \(\widehat{xOM}=\alpha\). Điểm M có toạ độ \((x_0;y_0)\).</li>
+          <li><b>Định nghĩa:</b> \(\sin\alpha=y_0,\quad \cos\alpha=x_0,\quad \tan\alpha=\dfrac{y_0}{x_0}\ (\alpha\) ≠ \(90^\circ),\quad \cot\alpha=\dfrac{x_0}{y_0}\ (\alpha\) ≠ \(0^\circ,180^\circ)\)</li>
+          <li>Với \(0^\circ\le\alpha\le180^\circ\): luôn có \(\sin\alpha\ge0\); còn \(\cos\alpha\) dương khi \(\alpha\) nhọn, âm khi \(\alpha\) tù, bằng 0 khi \(\alpha=90^\circ\).</li>
+          <li><b>Hai góc bù nhau</b> (\(\alpha\) và \(180^\circ-\alpha\)): \(\sin(180^\circ-\alpha)=\sin\alpha;\ \cos(180^\circ-\alpha)=-\cos\alpha;\ \tan(180^\circ-\alpha)=-\tan\alpha\)</li>
+          <li><b>Hai góc phụ nhau</b> (\(\alpha,90^\circ-\alpha\), giữ nguyên từ lớp 9): \(\sin(90^\circ-\alpha)=\cos\alpha;\ \cos(90^\circ-\alpha)=\sin\alpha;\ \tan(90^\circ-\alpha)=\cot\alpha\)</li>
+          <li>Hằng đẳng thức cơ bản: \(\sin^2\alpha+\cos^2\alpha=1\)</li>
+        </ul>
+        <table>
+          <tr><th>\(\alpha\)</th><td>0°</td><td>30°</td><td>45°</td><td>60°</td><td>90°</td><td>120°</td><td>135°</td><td>150°</td><td>180°</td></tr>
+          <tr><th>\(\sin\alpha\)</th><td>0</td><td>\(\frac12\)</td><td>\(\frac{\sqrt2}2\)</td><td>\(\frac{\sqrt3}2\)</td><td>1</td><td>\(\frac{\sqrt3}2\)</td><td>\(\frac{\sqrt2}2\)</td><td>\(\frac12\)</td><td>0</td></tr>
+          <tr><th>\(\cos\alpha\)</th><td>1</td><td>\(\frac{\sqrt3}2\)</td><td>\(\frac{\sqrt2}2\)</td><td>\(\frac12\)</td><td>0</td><td>\(-\frac12\)</td><td>\(-\frac{\sqrt2}2\)</td><td>\(-\frac{\sqrt3}2\)</td><td>−1</td></tr>
+        </table>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 1 — Giá trị lượng giác của góc tù</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Tính \(\sin120^\circ,\ \cos120^\circ,\ \tan120^\circ\).</p>
+          <p><b>Giải:</b> Vì \(120^\circ=180^\circ-60^\circ\), dùng quan hệ bù nhau:</p>
+          <p>\(\sin120^\circ=\sin60^\circ=\dfrac{\sqrt3}2;\quad \cos120^\circ=-\cos60^\circ=-\dfrac12;\quad \tan120^\circ=-\tan60^\circ=-\sqrt3\)</p>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 2 — Tìm giá trị lượng giác khác khi biết một giá trị</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Cho \(\cos\alpha=-\dfrac35\) với \(90^\circ<\alpha<180^\circ\). Tính \(\sin\alpha\).</p>
+          <p><b>Giải:</b> \(\sin^2\alpha=1-\cos^2\alpha=1-\dfrac9{25}=\dfrac{16}{25} \Rightarrow \sin\alpha=\dfrac45\)</p>
+          <p><i>(Lấy dấu dương vì \(0^\circ\le\alpha\le180^\circ\) luôn có \(\sin\alpha\ge0\).)</i></p>
+        </div>
+      </div>
+
+      <div class="problems-head">Bài tập tự luyện — Giá trị lượng giác của góc 0°–180°</div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.1</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Tính \(\sin150^\circ,\ \cos150^\circ,\ \tan150^\circ\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-1', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-1">
+          <p class="lbl">Lời giải</p>
+          <p>\(150^\circ=180^\circ-30^\circ\): \(\sin150^\circ=\sin30^\circ=\dfrac12;\quad \cos150^\circ=-\cos30^\circ=-\dfrac{\sqrt3}2;\quad \tan150^\circ=-\tan30^\circ=-\dfrac{\sqrt3}3\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.2</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">So sánh \(\sin100^\circ\) và \(\sin80^\circ\) (không dùng máy tính).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-2', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-2">
+          <p class="lbl">Lời giải</p>
+          <p>\(100^\circ=180^\circ-80^\circ\), theo quan hệ bù nhau: \(\sin100^\circ=\sin80^\circ\). Vậy hai giá trị này <b>bằng nhau</b>.</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.3</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Cho \(\cos\alpha=\dfrac13\) với \(0^\circ\le\alpha\le180^\circ\). Tính \(\sin\alpha\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-3', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-3">
+          <p class="lbl">Lời giải</p>
+          <p>\(\sin^2\alpha=1-\dfrac19=\dfrac89 \Rightarrow \sin\alpha=\sqrt{\dfrac89}=\dfrac{2\sqrt2}{3}\) (dương vì \(0^\circ\le\alpha\le180^\circ\))</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.4</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Tính giá trị biểu thức \(A=\sin30^\circ\cos60^\circ+\cos30^\circ\sin60^\circ+\sin90^\circ\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-4', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-4">
+          <p class="lbl">Lời giải</p>
+          <p>\(A=\dfrac12\cdot\dfrac12+\dfrac{\sqrt3}2\cdot\dfrac{\sqrt3}2+1=\dfrac14+\dfrac34+1=2\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.5</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Cho \(\tan\alpha=-2\) với \(90^\circ<\alpha<180^\circ\). Tính \(\cos\alpha\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-5', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-5">
+          <p class="lbl">Lời giải</p>
+          <p>Từ \(\tan^2\alpha+1=\dfrac1{\cos^2\alpha}\): \(4+1=\dfrac1{\cos^2\alpha} \Rightarrow \cos^2\alpha=\dfrac15 \Rightarrow \cos\alpha=\pm\dfrac1{\sqrt5}\)</p>
+          <p>Vì \(90^\circ<\alpha<180^\circ\) nên \(\cos\alpha<0\). Vậy \(\cos\alpha=-\dfrac{\sqrt5}{5}\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.6</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Chứng minh: với mọi góc \(\alpha\ (0^\circ\le\alpha\le180^\circ)\), ta có \(\sin^2\alpha+\cos^2\alpha=1\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-6', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-6">
+          <p class="lbl">Lời giải</p>
+          <p>Với \(M(x_0;y_0)\) trên nửa đường tròn đơn vị (bán kính 1) ứng với góc \(\alpha\), ta có \(OM=1\), tức \(x_0^2+y_0^2=1\).</p>
+          <p>Mà \(\cos\alpha=x_0,\ \sin\alpha=y_0\) nên \(\sin^2\alpha+\cos^2\alpha=x_0^2+y_0^2=1\) (đpcm).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.7</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Tìm \(\alpha\ (0^\circ\le\alpha\le180^\circ)\) biết \(2\cos\alpha+1=0\), và cho biết \(\alpha\) là góc nhọn hay góc tù.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-7', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-7">
+          <p class="lbl">Lời giải</p>
+          <p>\(2\cos\alpha+1=0 \Rightarrow \cos\alpha=-\dfrac12\)</p>
+          <p>Vì \(\cos\alpha<0\) nên \(\alpha\) là <b>góc tù</b>. Tra bảng giá trị đặc biệt: \(\alpha=120^\circ\).</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ PHẦN 2 ============ -->
+  <section class="chapter" id="ch2">
+    <div class="chapter-tab"><span class="num">02</span><span class="name">Radian &amp; đường tròn lượng giác</span></div>
+    <div class="chapter-body">
+
+      <figure class="geo">
+        <svg viewBox="0 0 300 210" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="150" cy="150" r="90" fill="none" stroke="#1B2624" stroke-width="1.6"/>
+          <circle cx="150" cy="150" r="2.5" fill="#1B2624"/>
+          <line x1="150" y1="150" x2="240" y2="150" stroke="#1B2624" stroke-width="1.5"/>
+          <line x1="150" y1="150" x2="195" y2="72.1" stroke="#1B2624" stroke-width="1.5"/>
+          <path d="M240,150 A90,90 0 0 0 195,72.1" fill="none" stroke="#39588F" stroke-width="3.2"/>
+          <path d="M180,150 A30,30 0 0 0 165,124" fill="none" stroke="#B4741C" stroke-width="1.3"/>
+          <circle cx="240" cy="150" r="2.5" fill="#1B2624"/>
+          <circle cx="195" cy="72.1" r="2.5" fill="#1B2624"/>
+          <text x="140" y="168" font-size="13" font-family="Georgia,serif">O</text>
+          <text x="244" y="154" font-size="13" font-family="Georgia,serif">A</text>
+          <text x="198" y="66" font-size="13" font-family="Georgia,serif">B</text>
+          <text x="183" y="140" font-size="13" font-family="Georgia,serif" fill="#B4741C">α</text>
+          <text x="205" y="105" font-size="12.5" font-family="Georgia,serif" fill="#39588F">cung l</text>
+          <text x="205" y="135" font-size="12" font-family="Georgia,serif">R</text>
+        </svg>
+        <figcaption>Cung AB số đo α (rad) trên đường tròn bán kính R có độ dài \(l=R\alpha\)</figcaption>
+      </figure>
+
+      <div class="theory-box">
+        <h4>Tóm tắt lý thuyết</h4>
+        <ul>
+          <li><b>Đơn vị radian:</b> cung có độ dài bằng bán kính R gọi là cung có số đo 1 radian. Toàn đường tròn có số đo \(2\pi\) radian, ứng với \(360^\circ\).</li>
+          <li><b>Đổi độ ↔ radian:</b> \(\alpha(\text{rad})=\dfrac{\pi}{180}\cdot\alpha(\text{độ})\); &nbsp; \(\alpha(\text{độ})=\dfrac{180}{\pi}\cdot\alpha(\text{rad})\)</li>
+          <li><b>Độ dài cung tròn</b> bán kính R, số đo \(\alpha\) radian: \(l=R\alpha\)</li>
+          <li><b>Đường tròn lượng giác:</b> đường tròn đơn vị (bán kính 1), tâm O, chiều dương là chiều ngược kim đồng hồ, điểm gốc \(A(1;0)\).</li>
+          <li><b>Góc lượng giác, cung lượng giác:</b> cho phép số đo âm hoặc lớn hơn \(360^\circ\) (quay nhiều vòng). Nếu một số đo của góc lượng giác \((Ox,OM)\) là \(\alpha\) thì mọi số đo của nó có dạng \(\alpha+k360^\circ\) (hay \(\alpha+k2\pi\)), \(k\in\mathbb Z\).</li>
+        </ul>
+        <table>
+          <tr><th>Độ</th><td>0°</td><td>30°</td><td>45°</td><td>60°</td><td>90°</td><td>120°</td><td>135°</td><td>150°</td><td>180°</td></tr>
+          <tr><th>Radian</th><td>0</td><td>\(\frac{\pi}6\)</td><td>\(\frac{\pi}4\)</td><td>\(\frac{\pi}3\)</td><td>\(\frac{\pi}2\)</td><td>\(\frac{2\pi}3\)</td><td>\(\frac{3\pi}4\)</td><td>\(\frac{5\pi}6\)</td><td>\(\pi\)</td></tr>
+        </table>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 1 — Đổi độ sang radian</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Đổi số đo góc \(75^\circ\) sang radian.</p>
+          <p><b>Giải:</b> \(75^\circ = 75\times\dfrac{\pi}{180}=\dfrac{5\pi}{12}\) (rad)</p>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 2 — Đổi radian sang độ</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Đổi số đo \(\dfrac{7\pi}6\) rad sang độ.</p>
+          <p><b>Giải:</b> \(\dfrac{7\pi}6\times\dfrac{180}{\pi}=\dfrac{7\times180}{6}=210^\circ\)</p>
+        </div>
+      </div>
+
+      <div class="problems-head">Bài tập tự luyện — Radian &amp; đường tròn lượng giác</div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.1</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Đổi \(135^\circ\) sang radian.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-1', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-1">
+          <p class="lbl">Lời giải</p>
+          <p>\(135\times\dfrac{\pi}{180}=\dfrac{3\pi}4\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.2</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Đổi \(\dfrac{5\pi}4\) rad sang độ.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-2', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-2">
+          <p class="lbl">Lời giải</p>
+          <p>\(\dfrac{5\pi}4\times\dfrac{180}{\pi}=5\times45=225^\circ\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.3</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Một đường tròn có bán kính 20cm. Tính độ dài cung tròn có số đo \(\dfrac{\pi}3\) rad.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-3', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-3">
+          <p class="lbl">Lời giải</p>
+          <p>\(l=R\alpha=20\times\dfrac{\pi}3=\dfrac{20\pi}3\approx20{,}94\)cm</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.4</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Viết công thức tổng quát số đo của góc lượng giác \((Ox,OM)\), biết một số đo của nó là \(30^\circ\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-4', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-4">
+          <p class="lbl">Lời giải</p>
+          <p>Công thức tổng quát: \(30^\circ+k360^\circ,\ k\in\mathbb Z\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.5</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Một bánh xe có bán kính 0,5m quay được một góc \(\dfrac{2\pi}3\) rad. Tính độ dài cung mà một điểm trên vành bánh xe đã đi qua (làm tròn đến 0,01m).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-5', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-5">
+          <p class="lbl">Lời giải</p>
+          <p>\(l=R\alpha=0{,}5\times\dfrac{2\pi}3=\dfrac{\pi}3\approx1{,}05\)m</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.6</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Tìm số đo \(\alpha\ (0^\circ\le\alpha<360^\circ)\) của góc lượng giác \((Ox,OM)\), biết một số đo của góc lượng giác đó là \(1050^\circ\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-6', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-6">
+          <p class="lbl">Lời giải</p>
+          <p>Ta cần tìm \(\alpha\) và \(k\in\mathbb Z\) sao cho \(1050^\circ=\alpha+k\cdot360^\circ\) với \(0^\circ\le\alpha<360^\circ\).</p>
+          <p>Chia \(1050\) cho \(360\): \(1050=2\times360+330\)</p>
+          <p>Vậy \(\alpha=330^\circ\) (ứng với \(k=2\)).</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>Bài C.4 — Giá trị lượng giác của góc &amp; cung lượng giác. Đây là bước chuẩn bị cuối cùng trước khi vào lớp 11, nơi lượng giác sẽ trở thành hàm số và có đồ thị riêng.</p>
+  </footer>
+
+</div>
+
+<script>
+  function toggleSolution(id, btn){
+    var el = document.getElementById(id);
+    var isOpen = el.style.display === 'block';
+    if(isOpen){
+      el.style.display = 'none';
+      btn.textContent = 'Xem lời giải ▾';
+      btn.classList.remove('active');
+    } else {
+      el.style.display = 'block';
+      btn.textContent = 'Ẩn lời giải ▴';
+      btn.classList.add('active');
+    }
+  }
+  function showAll(){
+    document.querySelectorAll('.solution').forEach(function(el){ el.style.display = 'block'; });
+    document.querySelectorAll('.btn-toggle').forEach(function(btn){ btn.textContent = 'Ẩn lời giải ▴'; btn.classList.add('active'); });
+  }
+  function hideAll(){
+    document.querySelectorAll('.solution').forEach(function(el){ el.style.display = 'none'; });
+    document.querySelectorAll('.btn-toggle').forEach(function(btn){ btn.textContent = 'Xem lời giải ▾'; btn.classList.remove('active'); });
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    if(window.renderMathInElement){
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "\\[", right: "\\]", display: true},
+          {left: "\\(", right: "\\)", display: false}
+        ],
+        throwOnError: false
+      });
+    }
+  });
+</script>
+
+</body>
+</html>

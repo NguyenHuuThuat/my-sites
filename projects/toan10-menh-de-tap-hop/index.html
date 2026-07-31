@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toán 10 – Bài 1: Mệnh đề &amp; Tập hợp</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<style>
+  :root{
+    --paper:#F4F5F0; --paper-alt:#ECEEE6; --ink:#1B2624; --ink-soft:#4B5A56; --rule:#D8DBCF;
+    --c1:#1F8A82; --c1-bg:#E3F2EF; /* Mệnh đề */
+    --c2:#39588F; --c2-bg:#E5EAF3; /* Tập hợp & phép toán */
+    --c3:#B4741C; --c3-bg:#F5EADA; /* Các tập con của R */
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.65;font-size:16px;}
+  h1,h2,h3,h4{font-family:Georgia,"Palatino Linotype","Times New Roman",serif;font-weight:700;line-height:1.25;margin:0 0 .5em 0;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 18px 80px;}
+  .top{background:var(--ink);color:var(--paper);padding:38px 18px 30px;}
+  .top .wrap{padding:0;}
+  .eyebrow{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:#B9C4B7;margin-bottom:10px;}
+  .top h1{font-size:clamp(24px,5vw,36px);color:#FBFBF6;margin-bottom:8px;}
+  .top p.sub{color:#C9D0C4;font-size:15.5px;max-width:58ch;margin:0;}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;}
+  .meta-chip{font-size:12.5px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;border:1px solid #4C5A55;color:#D6DCD1;padding:5px 10px;border-radius:20px;}
+  .toc{display:flex;gap:8px;overflow-x:auto;padding:14px 18px;background:var(--paper-alt);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:50;-webkit-overflow-scrolling:touch;}
+  .toc a{flex:0 0 auto;text-decoration:none;font-size:13px;font-weight:600;padding:8px 13px;border-radius:8px;white-space:nowrap;color:var(--ink);border:1px solid var(--rule);background:var(--paper);}
+  .toc a b{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:700;margin-right:5px;opacity:.55;}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:22px 0 6px;}
+  .controls button{font-family:inherit;font-size:13.5px;font-weight:600;padding:9px 15px;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer;}
+  .controls button.ghost{background:transparent;color:var(--ink);}
+  .controls span.hint{font-size:13px;color:var(--ink-soft);}
+  .intro{padding:26px 0 6px;}
+  .intro p{color:var(--ink-soft);max-width:64ch;}
+  .chapter{margin-top:56px;scroll-margin-top:70px;}
+  .chapter-tab{display:inline-flex;align-items:baseline;gap:10px;padding:9px 16px 10px;border-radius:10px 10px 0 0;color:#fff;}
+  .chapter-tab .num{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:13px;opacity:.85;}
+  .chapter-tab .name{font-family:Georgia,serif;font-weight:700;font-size:20px;}
+  .chapter-body{border-radius:0 10px 10px 10px;border:1px solid var(--rule);background:#fff;padding:26px 22px 30px;}
+  .theory-box{background:var(--box-bg,var(--paper-alt));border-left:4px solid var(--box-c,var(--ink));border-radius:6px;padding:16px 18px;margin:16px 0 22px;}
+  .theory-box h4{font-size:13px;text-transform:uppercase;letter-spacing:.07em;font-family:"SFMono-Regular",Consolas,Menlo,monospace;color:var(--box-c,var(--ink));margin-bottom:10px;}
+  .theory-box ul{margin:0;padding-left:20px;}
+  .theory-box li{margin-bottom:8px;}
+  .theory-box li:last-child{margin-bottom:0;}
+  .theory-box table{border-collapse:collapse;margin-top:8px;font-size:14px;width:100%;}
+  .theory-box table th, .theory-box table td{border:1px solid var(--rule);padding:6px 10px;text-align:center;}
+  .theory-box table th{background:rgba(0,0,0,.04);}
+  .example-box{border:1px dashed var(--box-c,var(--ink-soft));border-radius:6px;padding:16px 18px;margin:16px 0 22px;background:#FCFCF9;}
+  .example-box h4{font-size:13px;text-transform:uppercase;letter-spacing:.07em;font-family:"SFMono-Regular",Consolas,Menlo,monospace;color:var(--box-c,var(--ink));margin-bottom:10px;}
+  .example-box .steps p{margin:.5em 0;}
+  .problems-head{font-size:13px;text-transform:uppercase;letter-spacing:.07em;font-family:"SFMono-Regular",Consolas,Menlo,monospace;color:var(--ink-soft);margin:26px 0 12px;border-top:1px solid var(--rule);padding-top:18px;}
+  .problem{border:1px solid var(--rule);border-radius:8px;padding:16px 18px;margin-bottom:14px;background:var(--paper);}
+  .problem-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px;}
+  .problem-num{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:700;color:var(--box-c,var(--ink));font-size:14px;flex:0 0 auto;}
+  .badge{font-size:10.5px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:20px;flex:0 0 auto;border:1px solid currentColor;opacity:.8;}
+  .b-nb{color:#2F7D6B;} .b-th{color:#3E5C9A;} .b-vd{color:#B4741C;} .b-vdc{color:#A83B49;}
+  .problem-text{margin:6px 0 10px;}
+  .btn-toggle{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12.5px;font-weight:600;background:transparent;border:1px solid var(--box-c,var(--ink));color:var(--box-c,var(--ink));padding:6px 12px;border-radius:20px;cursor:pointer;}
+  .btn-toggle.active{background:var(--box-c,var(--ink));color:#fff;}
+  .solution{display:none;margin-top:14px;padding:14px 16px;border-radius:6px;background:var(--box-bg,var(--paper-alt));border-left:3px solid var(--box-c,var(--ink));}
+  .solution p{margin:.45em 0;}
+  .solution .lbl{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--box-c,var(--ink));margin-bottom:8px;font-weight:700;}
+  #ch1{--box-c:var(--c1);--box-bg:var(--c1-bg);}
+  #ch2{--box-c:var(--c2);--box-bg:var(--c2-bg);}
+  #ch3{--box-c:var(--c3);--box-bg:var(--c3-bg);}
+  #ch1 .chapter-tab{background:var(--c1);}
+  #ch2 .chapter-tab{background:var(--c2);}
+  #ch3 .chapter-tab{background:var(--c3);}
+  .numline{margin:14px 0;padding:14px;background:#FCFCF9;border:1px solid var(--rule);border-radius:8px;text-align:center;}
+  .numline svg{max-width:100%;height:auto;}
+  footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--rule);color:var(--ink-soft);font-size:13px;}
+  @media print{
+    .toc,.controls,.btn-toggle{display:none !important;}
+    .solution{display:block !important;}
+    .top{background:#fff !important;color:#000 !important;}
+    .top .eyebrow,.top .sub,.meta-chip{color:#333 !important;}
+    .top h1{color:#000 !important;}
+  }
+  @media (max-width:600px){ .chapter-tab .name{font-size:17px;} .chapter-body{padding:20px 14px 24px;} }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wrap">
+    <div class="eyebrow">Chuẩn bị Toán 10 &nbsp;•&nbsp; Phần B — Đại số &nbsp;•&nbsp; Bài B.1</div>
+    <h1>Mệnh đề &amp; Tập hợp</h1>
+    <p class="sub">Bài học làm quen đầu tiên của chương trình Toán 10 — nền tảng tư duy logic cho toàn bộ các chương tiếp theo.</p>
+    <div class="meta-row">
+      <span class="meta-chip">3 phần</span>
+      <span class="meta-chip">20 bài tập có lời giải chi tiết</span>
+      <span class="meta-chip">6 ví dụ minh hoạ</span>
+    </div>
+  </div>
+</div>
+
+<nav class="toc">
+  <a href="#ch1"><b>01</b>Mệnh đề</a>
+  <a href="#ch2"><b>02</b>Tập hợp &amp; các phép toán</a>
+  <a href="#ch3"><b>03</b>Các tập con của ℝ</a>
+</nav>
+
+<div class="wrap">
+
+  <div class="controls">
+    <button onclick="showAll()">Hiện tất cả lời giải</button>
+    <button class="ghost" onclick="hideAll()">Ẩn tất cả lời giải</button>
+    <span class="hint">Bấm “Xem lời giải” ở từng bài để hiện/ẩn đáp án.</span>
+  </div>
+
+  <div class="intro">
+    <p>Đây là chuyên đề đầu tiên của chương trình Toán 10 — khác hẳn phần Đại số lớp 9 vì mang tính <b>tư duy logic</b> nhiều hơn là tính toán. Học sinh cần làm quen với cách lập luận chặt chẽ: mệnh đề đúng/sai, điều kiện cần/đủ — đây là "ngôn ngữ" sẽ dùng xuyên suốt các chứng minh ở lớp 10, 11, 12.</p>
+  </div>
+
+  <!-- ============ PHẦN 1: MỆNH ĐỀ ============ -->
+  <section class="chapter" id="ch1">
+    <div class="chapter-tab"><span class="num">01</span><span class="name">Mệnh đề</span></div>
+    <div class="chapter-body">
+
+      <div class="theory-box">
+        <h4>Tóm tắt lý thuyết</h4>
+        <ul>
+          <li><b>Mệnh đề</b> là một câu khẳng định <b>đúng</b> hoặc <b>sai</b>, không thể vừa đúng vừa sai. Câu hỏi, câu cảm thán, câu mệnh lệnh không phải là mệnh đề.</li>
+          <li><b>Mệnh đề chứa biến</b> \(P(x)\): chưa xác định đúng/sai, chỉ trở thành mệnh đề khi thay \(x\) bằng một giá trị cụ thể.</li>
+          <li><b>Phủ định</b> của mệnh đề \(P\), kí hiệu \(\overline{P}\): \(P\) đúng thì \(\overline{P}\) sai, và ngược lại.</li>
+          <li><b>Mệnh đề kéo theo</b> \(P\Rightarrow Q\) ("Nếu P thì Q"): chỉ <b>sai</b> khi P đúng mà Q sai, các trường hợp còn lại đều đúng. Khi đó P là <i>điều kiện đủ</i> để có Q, Q là <i>điều kiện cần</i> để có P.</li>
+          <li><b>Mệnh đề đảo</b> của \(P\Rightarrow Q\) là \(Q\Rightarrow P\) — mệnh đề đảo không nhất thiết cùng tính đúng/sai với mệnh đề ban đầu.</li>
+          <li><b>Mệnh đề tương đương</b> \(P\Leftrightarrow Q\) ("P khi và chỉ khi Q"): đúng khi cả \(P\Rightarrow Q\) và \(Q\Rightarrow P\) đều đúng. Khi đó P là <i>điều kiện cần và đủ</i> để có Q.</li>
+          <li>Kí hiệu \(\forall\) ("với mọi"), \(\exists\) ("tồn tại").</li>
+          <li><b>Phủ định mệnh đề chứa \(\forall,\exists\):</b> phủ định của "\(\forall x\in X, P(x)\)" là "\(\exists x\in X, \overline{P(x)}\)"; phủ định của "\(\exists x\in X, P(x)\)" là "\(\forall x\in X,\overline{P(x)}\)".</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 1 — Nhận biết mệnh đề</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Trong các câu sau, câu nào là mệnh đề? Nếu là mệnh đề thì đúng hay sai?</p>
+          <p>a) "5 là số nguyên tố" &nbsp;&nbsp; b) "\(2+3=6\)" &nbsp;&nbsp; c) "Bạn có khỏe không?" &nbsp;&nbsp; d) "\(x+3=5\)"</p>
+          <p><b>Giải:</b></p>
+          <p>a) Là mệnh đề, <b>đúng</b> (5 chỉ chia hết cho 1 và chính nó).</p>
+          <p>b) Là mệnh đề, <b>sai</b> (vì \(2+3=5\) ≠ \(6\)).</p>
+          <p>c) <b>Không</b> là mệnh đề — đây là câu hỏi, không khẳng định đúng/sai.</p>
+          <p>d) <b>Không</b> là mệnh đề — đây là mệnh đề chứa biến, chưa xác định đúng/sai khi chưa biết \(x\).</p>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 2 — Mệnh đề đảo</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Cho mệnh đề P: "Nếu tam giác ABC đều thì tam giác ABC cân". Phát biểu mệnh đề đảo và xét tính đúng sai của nó.</p>
+          <p><b>Giải:</b> Mệnh đề đảo Q: "Nếu tam giác ABC cân thì tam giác ABC đều."</p>
+          <p>Mệnh đề Q <b>sai</b>, vì một tam giác cân (chẳng hạn có hai góc đáy 40°, góc đỉnh 100°) chưa chắc là tam giác đều.</p>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 3 — Phủ định mệnh đề chứa \(\forall,\exists\)</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Cho mệnh đề \(P\!: "\forall x\in\mathbb R, x^2\ge0"\). Viết mệnh đề phủ định và xét tính đúng sai.</p>
+          <p><b>Giải:</b> Phủ định: \(\overline{P}\!: "\exists x\in\mathbb R, x^2<0"\).</p>
+          <p>Mệnh đề \(P\) đúng (bình phương một số thực luôn không âm) nên \(\overline{P}\) <b>sai</b>.</p>
+        </div>
+      </div>
+
+      <div class="problems-head">Bài tập tự luyện — Mệnh đề</div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.1</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Trong các câu sau, câu nào là mệnh đề? "Hà Nội là thủ đô của Việt Nam", "Bạn học lớp mấy?", "3 là số chẵn".</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-1', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-1">
+          <p class="lbl">Lời giải</p>
+          <p>"Hà Nội là thủ đô của Việt Nam" — là mệnh đề, <b>đúng</b>.</p>
+          <p>"Bạn học lớp mấy?" — <b>không</b> là mệnh đề (câu hỏi).</p>
+          <p>"3 là số chẵn" — là mệnh đề, <b>sai</b>.</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.2</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Xét tính đúng sai của mệnh đề: "\(\pi>3\) và \(\pi<4\)".</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-2', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-2">
+          <p class="lbl">Lời giải</p>
+          <p>Mệnh đề <b>đúng</b>, vì \(\pi\approx3{,}14159\) nằm giữa 3 và 4.</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.3</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Cho mệnh đề P: "16 là số chính phương". Phát biểu mệnh đề phủ định \(\overline{P}\) và xét tính đúng sai của P và \(\overline{P}\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-3', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-3">
+          <p class="lbl">Lời giải</p>
+          <p>\(\overline{P}\): "16 không phải là số chính phương".</p>
+          <p>Vì \(16=4^2\) nên P <b>đúng</b>, suy ra \(\overline{P}\) <b>sai</b>.</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.4</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Cho mệnh đề: "Nếu tứ giác là hình vuông thì tứ giác đó có bốn góc vuông". a) Xét tính đúng sai. b) Phát biểu mệnh đề đảo và xét tính đúng sai của nó.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-4', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-4">
+          <p class="lbl">Lời giải</p>
+          <p><b>a)</b> Mệnh đề <b>đúng</b> — đây là tính chất của hình vuông.</p>
+          <p><b>b)</b> Mệnh đề đảo: "Nếu tứ giác có bốn góc vuông thì tứ giác đó là hình vuông." Mệnh đề này <b>sai</b> — ví dụ hình chữ nhật có 4 góc vuông nhưng không phải hình vuông.</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.5</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Phát biểu mệnh đề \(P\Leftrightarrow Q\) với P: "Tam giác ABC cân tại A", Q: "Tam giác ABC có \(AB=AC\)" và xét tính đúng sai.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-5', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-5">
+          <p class="lbl">Lời giải</p>
+          <p>\(P\Leftrightarrow Q\): "Tam giác ABC cân tại A khi và chỉ khi \(AB=AC\)."</p>
+          <p>Mệnh đề <b>đúng</b> — đây chính là định nghĩa của tam giác cân tại A.</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.6</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Dùng kí hiệu \(\forall,\exists\) để viết các mệnh đề sau, rồi xét tính đúng sai: a) Mọi số thực x đều có bình phương không âm. b) Tồn tại số tự nhiên n sao cho \(n^2=n\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-6', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-6">
+          <p class="lbl">Lời giải</p>
+          <p><b>a)</b> \(\forall x\in\mathbb R, x^2\ge0\) — <b>đúng</b>.</p>
+          <p><b>b)</b> \(\exists n\in\mathbb N, n^2=n\) — <b>đúng</b> (chẳng hạn \(n=0\) hoặc \(n=1\)).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.7</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Viết mệnh đề phủ định của các mệnh đề sau và xét tính đúng sai của mệnh đề phủ định: a) \(P\!: "\forall x\in\mathbb R, x^2+1>0"\) &nbsp; b) \(Q\!: "\exists x\in\mathbb Q, x^2=2"\)</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-7', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-7">
+          <p class="lbl">Lời giải</p>
+          <p><b>a)</b> Phủ định: \(\overline{P}\!: "\exists x\in\mathbb R, x^2+1\le0"\). Mệnh đề này <b>sai</b>, vì \(x^2+1\ge1>0\) với mọi \(x\), tức P đúng.</p>
+          <p><b>b)</b> Phủ định: \(\overline{Q}\!: "\forall x\in\mathbb Q, x^2\) ≠ \(2"\). Mệnh đề này <b>đúng</b>, vì không tồn tại số hữu tỉ nào có bình phương bằng 2 (\(\sqrt2\) là số vô tỉ), tức Q sai.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ PHẦN 2: TẬP HỢP VÀ CÁC PHÉP TOÁN ============ -->
+  <section class="chapter" id="ch2">
+    <div class="chapter-tab"><span class="num">02</span><span class="name">Tập hợp &amp; các phép toán</span></div>
+    <div class="chapter-body">
+
+      <div class="theory-box">
+        <h4>Tóm tắt lý thuyết</h4>
+        <ul>
+          <li><b>Tập hợp</b> là một nhóm các đối tượng xác định, gọi là phần tử của tập hợp. Kí hiệu \(a\in A\) (a là phần tử của A), \(a\) ∉ \(A\).</li>
+          <li><b>Cách xác định tập hợp:</b> liệt kê phần tử \(A=\{a_1,a_2,\ldots\}\); hoặc chỉ ra tính chất đặc trưng \(A=\{x \mid P(x)\}\).</li>
+          <li><b>Tập rỗng</b> \(\varnothing\): tập không chứa phần tử nào.</li>
+          <li><b>Tập con:</b> \(A\subset B \iff \forall x, x\in A \Rightarrow x\in B\).</li>
+          <li><b>Hai tập hợp bằng nhau:</b> \(A=B \iff A\subset B\) và \(B\subset A\).</li>
+          <li><b>Các phép toán trên tập hợp:</b>
+            <br>— Giao: \(A\cap B = \{x \mid x\in A\text{ và }x\in B\}\)
+            <br>— Hợp: \(A\cup B = \{x \mid x\in A\text{ hoặc }x\in B\}\)
+            <br>— Hiệu: \(A\setminus B = \{x \mid x\in A\text{ và }x\) ∉ \(B\}\)
+            <br>— Phần bù của A trong E (khi \(A\subset E\)): \(C_E A = E\setminus A\)</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 1 — Liệt kê phần tử của tập hợp</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Cho \(A=\{x\in\mathbb N \mid x<6\}\). Liệt kê các phần tử của A.</p>
+          <p><b>Giải:</b> \(A=\{0,1,2,3,4,5\}\)</p>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 2 — Các phép toán trên tập hợp</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Cho \(A=\{1,2,3,4,5\}\), \(B=\{3,4,5,6,7\}\). Tìm \(A\cap B,\ A\cup B,\ A\setminus B,\ B\setminus A\).</p>
+          <p><b>Giải:</b> \(A\cap B=\{3,4,5\}\)</p>
+          <p>\(A\cup B=\{1,2,3,4,5,6,7\}\)</p>
+          <p>\(A\setminus B=\{1,2\}\)</p>
+          <p>\(B\setminus A=\{6,7\}\)</p>
+        </div>
+      </div>
+
+      <div class="problems-head">Bài tập tự luyện — Tập hợp &amp; các phép toán</div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.1</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Viết tập hợp sau bằng cách liệt kê phần tử: \(A=\{x\in\mathbb Z \mid -3\le x\le2\}\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-1', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-1">
+          <p class="lbl">Lời giải</p>
+          <p>\(A=\{-3,-2,-1,0,1,2\}\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.2</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Viết tập hợp sau bằng cách chỉ ra tính chất đặc trưng: \(B=\{2,4,6,8,10\}\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-2', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-2">
+          <p class="lbl">Lời giải</p>
+          <p>\(B=\{x\in\mathbb N^* \mid x\text{ chẵn},\ x\le10\}\) &nbsp; (có thể viết theo nhiều cách tương đương).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.3</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Cho \(A=\{1,3,5,7\}\), \(B=\{2,3,4,5\}\). Tìm \(A\cap B\) và \(A\cup B\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-3', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-3">
+          <p class="lbl">Lời giải</p>
+          <p>\(A\cap B=\{3,5\}\)</p>
+          <p>\(A\cup B=\{1,2,3,4,5,7\}\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.4</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Cho \(A=\{x\in\mathbb N \mid x\text{ là ước của }12\}\), \(B=\{x\in\mathbb N \mid x\text{ là ước của }18\}\). Tìm \(A\cap B\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-4', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-4">
+          <p class="lbl">Lời giải</p>
+          <p>\(A=\{1,2,3,4,6,12\}\), \(B=\{1,2,3,6,9,18\}\)</p>
+          <p>\(A\cap B=\{1,2,3,6\}\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.5</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Cho tập \(E=\{1,2,3,4,5,6,7,8\}\), \(A=\{1,2,3,4\}\). Tìm phần bù của A trong E.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-5', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-5">
+          <p class="lbl">Lời giải</p>
+          <p>\(C_E A = E\setminus A = \{5,6,7,8\}\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.6</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Lớp 10A có 40 học sinh, trong đó có 25 học sinh giỏi Toán, 20 học sinh giỏi Văn và 10 học sinh giỏi cả hai môn. Hỏi lớp có bao nhiêu học sinh không giỏi môn nào trong hai môn Toán, Văn?</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-6', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-6">
+          <p class="lbl">Lời giải</p>
+          <p>Gọi A là tập học sinh giỏi Toán, B là tập học sinh giỏi Văn.</p>
+          <p>Số học sinh giỏi ít nhất một trong hai môn: \(|A\cup B| = |A|+|B|-|A\cap B| = 25+20-10=35\)</p>
+          <p>Số học sinh không giỏi môn nào: \(40-35=5\) học sinh.</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.7</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Chứng minh rằng nếu \(A\subset B\) thì \(A\cap B=A\) và \(A\cup B=B\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-7', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-7">
+          <p class="lbl">Lời giải</p>
+          <p><b>Chứng minh \(A\cap B=A\):</b> Với mọi \(x\in A\), vì \(A\subset B\) nên \(x\in B\), suy ra \(x\in A\cap B\), tức \(A\subset A\cap B\). Mặt khác luôn có \(A\cap B\subset A\). Vậy \(A\cap B=A\).</p>
+          <p><b>Chứng minh \(A\cup B=B\):</b> Vì \(A\subset B\) nên \(A\cup B\subset B\cup B=B\). Mặt khác luôn có \(B\subset A\cup B\). Vậy \(A\cup B=B\).</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ PHẦN 3: CÁC TẬP CON CỦA R ============ -->
+  <section class="chapter" id="ch3">
+    <div class="chapter-tab"><span class="num">03</span><span class="name">Các tập con thường dùng của ℝ</span></div>
+    <div class="chapter-body">
+
+      <div class="theory-box">
+        <h4>Tóm tắt lý thuyết</h4>
+        <table>
+          <tr><th>Tên gọi</th><th>Kí hiệu</th><th>Tập hợp</th></tr>
+          <tr><td>Khoảng</td><td>\((a;b)\)</td><td>\(\{x\in\mathbb R \mid a<x<b\}\)</td></tr>
+          <tr><td>Khoảng</td><td>\((a;+\infty)\)</td><td>\(\{x\in\mathbb R \mid x>a\}\)</td></tr>
+          <tr><td>Khoảng</td><td>\((-\infty;b)\)</td><td>\(\{x\in\mathbb R \mid x<b\}\)</td></tr>
+          <tr><td>Đoạn</td><td>\([a;b]\)</td><td>\(\{x\in\mathbb R \mid a\le x\le b\}\)</td></tr>
+          <tr><td>Nửa khoảng</td><td>\([a;b)\)</td><td>\(\{x\in\mathbb R \mid a\le x<b\}\)</td></tr>
+          <tr><td>Nửa khoảng</td><td>\((a;b]\)</td><td>\(\{x\in\mathbb R \mid a<x\le b\}\)</td></tr>
+          <tr><td>Nửa khoảng</td><td>\([a;+\infty)\)</td><td>\(\{x\in\mathbb R \mid x\ge a\}\)</td></tr>
+          <tr><td>Nửa khoảng</td><td>\((-\infty;b]\)</td><td>\(\{x\in\mathbb R \mid x\le b\}\)</td></tr>
+        </table>
+        <p style="margin-top:10px;"><i>Quy ước biểu diễn trên trục số: dấu ngoặc tròn "(", ")" ứng với điểm không lấy (khoét rỗng); dấu ngoặc vuông "[", "]" ứng với điểm được lấy (tô đặc).</i></p>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 1 — Chuyển đổi kí hiệu</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Viết tập hợp \(\{x\in\mathbb R \mid -2\le x<5\}\) dưới dạng khoảng/đoạn/nửa khoảng.</p>
+          <p><b>Giải:</b> \(\{x\in\mathbb R \mid -2\le x<5\} = [-2;5)\)</p>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 2 — Các phép toán trên khoảng, đoạn</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Cho \(A=[-3;5]\), \(B=(1;7)\). Tìm \(A\cap B,\ A\cup B,\ A\setminus B\).</p>
+          <p><b>Giải:</b> Biểu diễn A, B trên trục số rồi lấy phần chung/phần hợp:</p>
+          <p>\(A\cap B = (1;5]\) &nbsp; <i>(từ 1 — không lấy vì B mở tại 1 — đến 5 — lấy vì A đóng tại 5)</i></p>
+          <p>\(A\cup B = [-3;7)\) &nbsp; <i>(từ −3 — lấy vì A đóng — đến 7 — không lấy vì B mở)</i></p>
+          <p>\(A\setminus B = [-3;1]\) &nbsp; <i>(phần thuộc A nhưng không thuộc B)</i></p>
+        </div>
+      </div>
+
+      <div class="problems-head">Bài tập tự luyện — Các tập con của ℝ</div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.1</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Viết tập hợp \(\{x\in\mathbb R \mid x\ge-1\}\) dưới dạng khoảng/đoạn/nửa khoảng.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-1', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-1">
+          <p class="lbl">Lời giải</p>
+          <p>\(\{x\in\mathbb R \mid x\ge-1\} = [-1;+\infty)\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.2</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Cho \(A=(-\infty;3]\), \(B=[0;+\infty)\). Tìm \(A\cap B\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-2', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-2">
+          <p class="lbl">Lời giải</p>
+          <p>\(A\cap B = [0;3]\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.3</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Cho \(A=[-5;3)\), \(B=(-1;5]\). Tìm \(A\cup B\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-3', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-3">
+          <p class="lbl">Lời giải</p>
+          <p>Vì \(-1\in A\) nên hai tập "nối liền" nhau, không có khoảng hở: \(A\cup B = [-5;5]\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.4</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Cho \(A=(2;7]\), \(B=[5;10)\). Tìm \(A\cap B\) và \(A\setminus B\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-4', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-4">
+          <p class="lbl">Lời giải</p>
+          <p>\(A\cap B = [5;7]\) &nbsp; <i>(lấy 5 vì B đóng tại 5 và \(5\in A\); lấy 7 vì A đóng tại 7 và \(7\in B\))</i></p>
+          <p>\(A\setminus B = (2;5)\) &nbsp; <i>(phần của A nằm ngoài B)</i></p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.5</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Cho \(A=(-\infty;m]\), \(B=(2;+\infty)\). Tìm điều kiện của \(m\) để \(A\cap B=\varnothing\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-5', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-5">
+          <p class="lbl">Lời giải</p>
+          <p>\(A\cap B=\{x \mid x\le m\text{ và }x>2\}\). Tập này rỗng khi và chỉ khi không tồn tại x thoả cả hai điều kiện, tức là \(m\le2\).</p>
+          <p>Vậy điều kiện cần tìm: \(m\le2\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.6</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Cho \(A=[m;m+3]\), \(B=[1;5]\). Tìm \(m\) để \(A\subset B\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-6', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-6">
+          <p class="lbl">Lời giải</p>
+          <p>\(A\subset B \iff\) điểm đầu và điểm cuối của A đều nằm trong B:</p>
+          <p>\(\begin{cases}m\ge1\\m+3\le5\end{cases} \iff \begin{cases}m\ge1\\m\le2\end{cases} \iff 1\le m\le2\)</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>Bài B.1 — Mệnh đề &amp; Tập hợp, mở đầu chương trình Toán 10. Nắm chắc phần này trước khi học các chuyên đề tiếp theo (Bất phương trình, Hàm số bậc hai, Thống kê – Xác suất).</p>
+  </footer>
+
+</div>
+
+<script>
+  function toggleSolution(id, btn){
+    var el = document.getElementById(id);
+    var isOpen = el.style.display === 'block';
+    if(isOpen){
+      el.style.display = 'none';
+      btn.textContent = 'Xem lời giải ▾';
+      btn.classList.remove('active');
+    } else {
+      el.style.display = 'block';
+      btn.textContent = 'Ẩn lời giải ▴';
+      btn.classList.add('active');
+    }
+  }
+  function showAll(){
+    document.querySelectorAll('.solution').forEach(function(el){ el.style.display = 'block'; });
+    document.querySelectorAll('.btn-toggle').forEach(function(btn){ btn.textContent = 'Ẩn lời giải ▴'; btn.classList.add('active'); });
+  }
+  function hideAll(){
+    document.querySelectorAll('.solution').forEach(function(el){ el.style.display = 'none'; });
+    document.querySelectorAll('.btn-toggle').forEach(function(btn){ btn.textContent = 'Xem lời giải ▾'; btn.classList.remove('active'); });
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    if(window.renderMathInElement){
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "\\[", right: "\\]", display: true},
+          {left: "\\(", right: "\\)", display: false}
+        ],
+        throwOnError: false
+      });
+    }
+  });
+</script>
+
+</body>
+</html>

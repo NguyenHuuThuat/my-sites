@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phân đoạn Ảnh — Thị giác Máy tính</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<style>
+:root{
+  --paper:#f3f6f4;
+  --paper-deep:#eaefec;
+  --ink:#132036;
+  --ink-soft:#42506a;
+  --ink-faint:#7c8aa0;
+  --line:#d9e0da;
+  --forward:#0f8b8d;
+  --forward-soft:#e1f3f2;
+  --forward-ink:#0a5f60;
+  --backward:#d1495b;
+  --backward-soft:#fbe7ea;
+  --backward-ink:#9c2f3d;
+  --signal:#e8940f;
+  --signal-soft:#fdf0da;
+  --signal-ink:#a86608;
+  --panel:#ffffff;
+  --code-bg:#101c2c;
+  --code-text:#d7e2ee;
+  --radius:14px;
+  --serif-display:'Be Vietnam Pro', sans-serif;
+  --sans-body:'Inter', sans-serif;
+  --mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--paper); color:var(--ink-soft); font-family:var(--sans-body);
+  font-size:16px; line-height:1.7;
+  background-image:
+    linear-gradient(var(--paper) 0%, var(--paper) 100%),
+    repeating-linear-gradient(0deg, rgba(19,32,54,0.025) 0px, rgba(19,32,54,0.025) 1px, transparent 1px, transparent 28px),
+    repeating-linear-gradient(90deg, rgba(19,32,54,0.025) 0px, rgba(19,32,54,0.025) 1px, transparent 1px, transparent 28px);
+}
+h1,h2,h3,h4{font-family:var(--serif-display); color:var(--ink); margin:0 0 .5em 0; letter-spacing:-0.01em;}
+p{margin:0 0 1em 0;}
+a{color:var(--forward-ink);}
+strong{color:var(--ink);}
+code{font-family:var(--mono);}
+.layout{display:grid; grid-template-columns:272px minmax(0,1fr); max-width:1280px; margin:0 auto;}
+.rail{position:sticky; top:0; align-self:start; height:100vh; padding:32px 18px 32px 28px; border-right:1px solid var(--line); overflow-y:auto;}
+.rail-brand{font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--forward-ink); margin-bottom:22px; display:block;}
+.rail-list{list-style:none; margin:0; padding:0 0 0 18px; position:relative; border-left:2px solid var(--line);}
+.rail-item{position:relative; margin:0 0 4px 0;}
+.rail-item::before{content:''; position:absolute; left:-24px; top:13px; width:8px;height:8px; border-radius:50%; background:var(--paper); border:2px solid var(--ink-faint); transition:.2s;}
+.rail-item.active::before{background:var(--forward); border-color:var(--forward); box-shadow:0 0 0 4px var(--forward-soft);}
+.rail-link{display:block; padding:9px 10px; font-size:13.5px; color:var(--ink-soft); text-decoration:none; border-radius:8px; font-weight:500;}
+.rail-link .rail-num{font-family:var(--mono); color:var(--ink-faint); font-size:11px; display:block;}
+.rail-item.active .rail-link{color:var(--forward-ink); background:var(--forward-soft); font-weight:600;}
+.rail-item.active .rail-link .rail-num{color:var(--forward-ink);}
+.content{padding:0 0 40px 0; min-width:0;}
+.wrap{max-width:760px; margin:0 auto; padding:0 40px;}
+.hero{padding:70px 0 20px 0;}
+.hero-eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--forward-ink); background:var(--forward-soft); display:inline-block; padding:5px 12px; border-radius:20px; margin-bottom:20px;}
+.hero-title{font-size:clamp(34px,5vw,54px); font-weight:800; line-height:1.06;}
+.hero-title em{font-style:normal; color:var(--forward); position:relative;}
+.hero-sub{font-size:19px; color:var(--ink-soft); font-weight:500; max-width:600px; margin-bottom:26px;}
+.hero-lede{font-size:16px; max-width:640px;}
+.section{padding:64px 0; border-top:1px solid var(--line);}
+.section-eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:10px; display:flex; align-items:center; gap:10px;}
+.section-eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--forward);}
+.section-title{font-size:30px; margin-bottom:14px;}
+.section-lead{font-size:16.5px; color:var(--ink-soft); max-width:640px;}
+.subsection{margin-top:38px;}
+.subsection h3{font-size:21px; margin-bottom:10px;}
+.subsection h3 .tag{font-family:var(--mono); font-size:12px; color:var(--forward-ink); background:var(--forward-soft); padding:2px 8px; border-radius:6px; margin-right:8px; vertical-align:middle;}
+ul.plain, ol.plain{padding-left:22px; margin:0 0 1em 0;}
+ul.plain li, ol.plain li{margin-bottom:8px;}
+.callout{border-radius:var(--radius); padding:18px 20px; margin:22px 0; border:1px solid var(--line); background:var(--panel); font-size:15px;}
+.callout-head{font-weight:700; color:var(--ink); display:block; margin-bottom:6px; font-size:14px; text-transform:uppercase; letter-spacing:.04em;}
+.callout-note{border-left:4px solid var(--signal); background:var(--signal-soft);}
+.callout-note .callout-head{color:var(--signal-ink);}
+.callout-warn{border-left:4px solid var(--backward); background:var(--backward-soft);}
+.callout-warn .callout-head{color:var(--backward-ink);}
+.callout-result{border-left:4px solid var(--forward); background:var(--forward-soft);}
+.callout-result .callout-head{color:var(--forward-ink);}
+.figure{margin:26px 0; border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:24px;}
+.figure-caption{font-size:13.5px; color:var(--ink-faint); margin-top:14px; padding-top:12px; border-top:1px dashed var(--line);}
+.figure-caption b{color:var(--ink-soft);}
+.check{margin:26px 0; border-radius:var(--radius); border:1.5px dashed var(--forward); background:#fff; padding:18px 20px;}
+.check-tag{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#fff; background:var(--forward); padding:3px 9px; border-radius:6px; margin-right:8px;}
+.check-q{font-weight:600; color:var(--ink); font-size:15.5px;}
+.reveal-btn{margin-top:12px; border:1px solid var(--forward); color:var(--forward-ink); background:var(--forward-soft); font-family:var(--sans-body); font-weight:600; font-size:13.5px; padding:8px 16px; border-radius:8px; cursor:pointer; transition:.15s;}
+.reveal-btn:hover{background:var(--forward); color:#fff;}
+.reveal-content{display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); font-size:15px;}
+.reveal-content.show{display:block;}
+.code-window{margin:22px 0; border-radius:var(--radius); overflow:hidden; background:var(--code-bg); box-shadow:0 8px 24px -12px rgba(16,28,44,.5);}
+.code-titlebar{display:flex; align-items:center; gap:8px; padding:11px 16px; background:#0a1522; border-bottom:1px solid rgba(255,255,255,.06);}
+.code-dot{width:10px;height:10px;border-radius:50%;}
+.code-dot:nth-child(1){background:#e8594f;}
+.code-dot:nth-child(2){background:#e8b13f;}
+.code-dot:nth-child(3){background:#3fb556;}
+.code-filename{font-family:var(--mono); font-size:12.5px; color:#8fa2bd; margin-left:8px;}
+.code-window pre{margin:0 !important; padding:18px 20px !important; background:var(--code-bg) !important; font-size:13.3px !important; line-height:1.65 !important; overflow-x:auto;}
+.code-window code.hljs{background:var(--code-bg) !important;}
+.ref-table{width:100%; border-collapse:collapse; margin:20px 0; font-size:14.5px;}
+.ref-table th{text-align:left; font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); padding:10px 12px; border-bottom:2px solid var(--ink);}
+.ref-table td{padding:11px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+.ref-table code{background:var(--forward-soft); color:var(--forward-ink); padding:2px 6px; border-radius:5px; font-size:13px;}
+.footer{padding:50px 0 70px 0; border-top:1px solid var(--line); font-size:13.5px; color:var(--ink-faint);}
+.widget{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:26px; margin:26px 0;}
+.widget-label{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--forward-ink); margin-bottom:16px; display:block;}
+.btn{font-family:var(--sans-body); font-weight:600; font-size:13.5px; border-radius:8px; padding:9px 16px; border:1px solid var(--ink); background:var(--ink); color:#fff; cursor:pointer; transition:.15s;}
+.btn:hover{opacity:.85;}
+.btn:disabled{opacity:.35; cursor:not-allowed;}
+.btn-ghost{background:#fff; color:var(--ink); border:1px solid var(--line);}
+.btn-ghost:hover{border-color:var(--ink); opacity:1;}
+.btn-forward{background:var(--forward); border-color:var(--forward);}
+.btn-row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:16px;}
+.chart-row{display:flex; gap:24px; flex-wrap:wrap;}
+.chart-col{flex:1 1 260px;}
+.chart-title{font-size:13.5px; font-weight:700; margin-bottom:8px; color:var(--ink);}
+.chart-legend{display:flex; gap:16px; margin-top:8px; font-size:12.5px; color:var(--ink-soft);}
+.chart-legend span{display:inline-flex; align-items:center; gap:6px;}
+.legend-dot{width:10px; height:10px; border-radius:2px; display:inline-block;}
+.aug-grid{display:flex; gap:16px; flex-wrap:wrap;}
+.aug-item{display:flex; flex-direction:column; align-items:center; gap:8px;}
+.aug-box{width:72px; height:72px; border-radius:10px; background:#eef2f0; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:32px;}
+.aug-label{font-size:11.5px; color:var(--ink-faint); text-align:center; max-width:80px;}
+.tip-list{list-style:none; padding:0; margin:20px 0;}
+.tip-list li{display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); font-size:15px;}
+.tip-list li:last-child{border-bottom:none;}
+.tip-check{flex:0 0 auto; width:22px; height:22px; border-radius:50%; background:var(--forward-soft); color:var(--forward-ink); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;}
+.task-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:14px; margin:22px 0;}
+.task-card{border:1px solid var(--line); border-radius:12px; padding:16px; background:var(--panel);}
+.task-num{font-family:var(--mono); font-size:11px; color:var(--forward-ink); font-weight:700;}
+.task-card p{margin:8px 0 0 0; font-size:14.5px;}
+.task-card.advanced{border-color:var(--signal); background:var(--signal-soft);}
+.quiz-item{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:20px 22px; margin:18px 0;}
+.quiz-q{font-weight:700; color:var(--ink); font-size:15.5px; margin-bottom:14px;}
+.quiz-q .qnum{font-family:var(--mono); color:var(--forward-ink); margin-right:8px;}
+.quiz-options{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.quiz-opt{text-align:left; font-family:var(--sans-body); font-size:14px; padding:11px 14px; border-radius:9px; border:1px solid var(--line); background:#fff; cursor:pointer; color:var(--ink-soft); transition:.12s;}
+.quiz-opt:hover:not(:disabled){border-color:var(--forward); background:var(--forward-soft);}
+.quiz-opt:disabled{cursor:default;}
+.quiz-opt.correct{background:var(--forward-soft); border-color:var(--forward); color:var(--forward-ink); font-weight:700;}
+.quiz-opt.incorrect{background:var(--backward-soft); border-color:var(--backward); color:var(--backward-ink); font-weight:700;}
+.quiz-foot{display:flex; align-items:center; gap:12px; margin-top:14px; flex-wrap:wrap;}
+.hint-btn{font-family:var(--mono); font-size:12px; color:var(--signal-ink); background:var(--signal-soft); border:1px solid var(--signal); padding:6px 12px; border-radius:7px; cursor:pointer; font-weight:600;}
+.quiz-hint{display:none; font-size:13.5px; color:var(--signal-ink); background:var(--signal-soft); padding:10px 12px; border-radius:8px; width:100%; margin-top:10px;}
+.quiz-hint.show{display:block;}
+.quiz-explain{display:none; font-size:14px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); color:var(--ink-soft);}
+.quiz-explain.show{display:block;}
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr;}
+  .rail{position:sticky; height:auto; top:0; padding:12px 16px; border-right:none; border-bottom:1px solid var(--line); background:var(--paper); z-index:50; display:flex; align-items:center;}
+  .rail-brand{display:none;}
+  .rail-list{display:flex; gap:4px; overflow-x:auto; border-left:none; padding-left:0; -ms-overflow-style:none; scrollbar-width:none;}
+  .rail-list::-webkit-scrollbar{display:none;}
+  .rail-item{flex:0 0 auto; margin:0;}
+  .rail-item::before{display:none;}
+  .rail-link{white-space:nowrap; padding:8px 12px; font-size:12.5px;}
+  .rail-link .rail-num{display:none;}
+  .wrap{padding:0 20px;}
+}
+@media (max-width:640px){
+  .quiz-options{grid-template-columns:1fr;}
+}
+
+
+/* ============ CSS RIÊNG CHO WIDGET BÀI 8 ============ */
+
+/* --- Widget hero: Semantic / Instance / Panoptic --- */
+.seg-mode-demo svg{background:var(--paper-deep); border-radius:10px; display:block; width:100%;}
+.seg-mode-demo svg rect, .seg-mode-demo svg circle{transition:fill .35s ease;}
+.seg-mode-desc{margin-top:14px; font-size:14px; color:var(--ink-soft); min-height:44px;}
+.seg-mode-desc b{color:var(--ink);}
+
+/* --- Widget L4: bật/tắt skip connection --- */
+.unet-toggle-demo svg{background:var(--paper-deep); border-radius:10px; display:block; width:100%;}
+.skip-line{stroke:var(--backward); stroke-width:2.5; stroke-dasharray:6 4; fill:none; transition:.3s ease;}
+.skip-line.skip-off{stroke:var(--ink-faint); stroke-width:1.5; stroke-dasharray:3 3; opacity:.35;}
+.mask-blob{fill:var(--forward); fill-opacity:.55; stroke:var(--forward-ink); stroke-width:2; transition:filter .35s ease;}
+.mask-blob.blurred{filter:blur(3.5px); stroke-width:1;}
+.unet-toggle-row{display:flex; align-items:center; gap:10px; margin-top:16px; font-size:14px; color:var(--ink-soft); font-weight:600;}
+.unet-toggle-row input[type=checkbox]{width:18px; height:18px; accent-color:var(--forward); cursor:pointer;}
+.unet-toggle-status{margin-top:10px; font-size:13.5px; padding:9px 14px; border-radius:8px; background:var(--forward-soft); color:var(--forward-ink); border:1px solid var(--forward); transition:.3s ease;}
+.unet-toggle-status.status-off{background:var(--backward-soft); color:var(--backward-ink); border-color:var(--backward);}
+
+/* --- Widget L5: IoU & Dice cùng lúc --- */
+.sd-controls{margin-top:6px;}
+.sd-controls input[type=range]{width:100%; accent-color:var(--ink);}
+.sd-readout{display:flex; gap:22px; align-items:center; margin-top:16px; flex-wrap:wrap;}
+.sd-metric{display:flex; flex-direction:column; gap:2px;}
+.sd-metric-label{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint);}
+.sd-metric strong{font-family:var(--mono); font-size:22px; color:var(--ink);}
+.sd-gap{font-family:var(--mono); font-size:13px; color:var(--forward-ink); background:var(--forward-soft); padding:7px 14px; border-radius:8px; border:1px solid var(--forward);}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="rail">
+  <span class="rail-brand">Thị giác máy tính · Bài giảng 8</span>
+  <ul class="rail-list" id="railList">
+    <li class="rail-item"><a class="rail-link" href="#top"><span class="rail-num">Mở đầu</span>Từ khung đến pixel</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l1"><span class="rail-num">Lớp 01</span>Bài toán phân đoạn</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l2"><span class="rail-num">Lớp 02</span>Phương pháp cổ điển</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l3"><span class="rail-num">Lớp 03</span>Phân đoạn học sâu</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l4"><span class="rail-num">Lớp 04</span>U-Net &amp; thực nghiệm</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l5"><span class="rail-num">Lớp 05</span>Đánh giá phân đoạn</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l6"><span class="rail-num">Lớp 06</span>Tổng quan &amp; khi nào dùng</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l7"><span class="rail-num">Bài tập</span>Thực hành</a></li>
+    <li class="rail-item"><a class="rail-link" href="#quiz"><span class="rail-num">Lớp ra</span>Trắc nghiệm tổng kết</a></li>
+  </ul>
+</nav>
+<main class="content">
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <span class="hero-eyebrow">Bài giảng Tutorial · Phần 8 · Tiếp nối Bài 6–7</span>
+    <h1 class="hero-title">Phân đoạn<br><em>từng pixel</em></h1>
+    <p class="hero-sub">Không chỉ khung bao quanh vật thể — mà đúng hình dạng của nó, đến từng điểm ảnh.</p>
+    <p class="hero-lede">Ở Bài 6–7, phát hiện đối tượng cho bạn biết vật thể <strong>ở đâu</strong> qua các khung bao. <strong>Phân đoạn ảnh</strong> đi xa thêm một bước — và là mức hiểu ảnh <strong>chi tiết nhất</strong>: gán nhãn cho <strong>từng pixel</strong>. Đây là mảnh ghép cuối trong bộ tứ bài toán thị giác (phân loại → phát hiện → YOLO → phân đoạn). Bài này dùng lại đúng các thước đo <strong>IoU/Dice/mIoU</strong> đã học ở Bài 5 và khái niệm <strong>encoder</strong> — một backbone CNN như Bài 4 — rồi mổ xẻ <strong>U-Net</strong> cùng vai trò then chốt của <strong>skip connections</strong>. Phần lớn ví dụ trong bài đều <strong>chạy thật</strong>: Otsu, K-means, SLIC, watershed, và một U-Net được <strong>huấn luyện thật</strong> trên dữ liệu tổng hợp.</p>
+
+    <div class="widget seg-mode-demo">
+      <span class="widget-label">Thử ngay · Bấm để chuyển đổi cách tô màu cho cùng một cảnh</span>
+      <svg id="segSceneSvg" viewBox="0 0 640 320" xmlns="http://www.w3.org/2000/svg">
+        <rect id="segSky" x="0" y="0" width="640" height="180"></rect>
+        <rect id="segGround" x="0" y="180" width="640" height="140"></rect>
+        <g stroke="#132036" stroke-width="1.5">
+          <circle id="segP1Head" cx="90" cy="205" r="14"></circle>
+          <rect id="segP1Body" x="76" y="219" width="28" height="62" rx="8"></rect>
+          <circle id="segP2Head" cx="170" cy="210" r="13"></circle>
+          <rect id="segP2Body" x="157" y="223" width="26" height="58" rx="8"></rect>
+          <circle id="segP3Head" cx="250" cy="207" r="14"></circle>
+          <rect id="segP3Body" x="236" y="221" width="28" height="60" rx="8"></rect>
+          <rect id="segC1Body" x="380" y="245" width="100" height="40" rx="10"></rect>
+          <circle id="segC1W1" cx="405" cy="288" r="12"></circle>
+          <circle id="segC1W2" cx="455" cy="288" r="12"></circle>
+          <rect id="segC2Body" x="500" y="250" width="90" height="36" rx="10"></rect>
+          <circle id="segC2W1" cx="522" cy="289" r="11"></circle>
+          <circle id="segC2W2" cx="568" cy="289" r="11"></circle>
+        </g>
+      </svg>
+      <div class="btn-row">
+        <button class="btn" id="segBtnSemantic">Semantic</button>
+        <button class="btn btn-ghost" id="segBtnInstance">Instance</button>
+        <button class="btn btn-ghost" id="segBtnPanoptic">Panoptic</button>
+      </div>
+      <p class="seg-mode-desc" id="segModeDesc">Semantic: mỗi pixel gán một <b>lớp</b> duy nhất — ba người cùng một màu "người", nền (trời/đường) cũng được tô theo lớp riêng. Không phân biệt người 1 với người 2.</p>
+    </div>
+  </div>
+</section>
+<section class="section" id="l1">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 01 · Bài toán phân đoạn</span>
+    <h2 class="section-title">Từ khung bao đến từng pixel</h2>
+    <p class="section-lead">Đây là mức hiểu ảnh chi tiết nhất trong toàn bộ khoá học — và cũng là mảnh ghép cuối cùng của bộ tứ bài toán thị giác.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">1.1</span>Từ khung bao đến từng pixel</h3>
+      <p>Phát hiện đối tượng (Bài 6–7) khoanh vật thể bằng <strong>khung bao chữ nhật</strong> — nhưng khung bao là một xấp xỉ thô, chứa cả pixel nền. <strong>Phân đoạn</strong> gán cho <strong>mỗi pixel</strong> một nhãn, cho ta hình dạng <strong>chính xác đến từng điểm ảnh</strong>. Đây là mức hiểu ảnh tinh vi nhất, cần thiết khi ranh giới quan trọng (ảnh y tế, xe tự lái, tách nền).</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">1.2</span>Ba loại phân đoạn</h3>
+      <ul class="plain">
+        <li><strong>Semantic:</strong> mỗi pixel được gán một <strong>lớp</strong>, nhưng <strong>không phân biệt</strong> các thực thể cùng lớp — hai người sẽ cùng một màu "người".</li>
+        <li><strong>Instance:</strong> <strong>phân biệt từng thực thể</strong> riêng (người 1, người 2...), thường chỉ cho các vật thể <strong>đếm được</strong>; bỏ qua nền.</li>
+        <li><strong>Panoptic:</strong> <strong>kết hợp</strong> cả hai — gán lớp cho nền (semantic) và phân biệt thực thể cho vật thể (instance). Đầy đủ nhất. (Trong thuật ngữ phân đoạn, nền vô định hình như trời/đường được gọi là <strong>"stuff"</strong>; vật thể đếm được như người/xe được gọi là <strong>"thing"</strong>.)</li>
+      </ul>
+
+      <div class="figure">
+        <div class="chart-row">
+          <div class="chart-col">
+            <svg viewBox="0 0 180 150" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <rect x="5" y="5" width="170" height="140" rx="8" fill="#eef1ec" stroke="#d9e0da" stroke-width="1.5"></rect>
+              <circle cx="65" cy="72" r="30" fill="#0f8b8d" stroke="#0a5f60" stroke-width="2"></circle>
+              <circle cx="125" cy="82" r="26" fill="#0f8b8d" stroke="#0a5f60" stroke-width="2"></circle>
+              <text x="90" y="135" text-anchor="middle" font-family="Inter" font-size="10.5" font-weight="700" fill="#0a5f60">Semantic — cùng 1 màu lớp</text>
+            </svg>
+          </div>
+          <div class="chart-col">
+            <svg viewBox="0 0 180 150" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <rect x="5" y="5" width="170" height="140" rx="8" fill="#eef1ec" stroke="#d9e0da" stroke-width="1.5"></rect>
+              <circle cx="65" cy="72" r="30" fill="#0f8b8d" stroke="#0a5f60" stroke-width="2"></circle>
+              <circle cx="125" cy="82" r="26" fill="#6a4c93" stroke="#43305e" stroke-width="2"></circle>
+              <text x="90" y="135" text-anchor="middle" font-family="Inter" font-size="10.5" font-weight="700" fill="#42506a">Instance — mỗi thực thể 1 màu</text>
+            </svg>
+          </div>
+          <div class="chart-col">
+            <svg viewBox="0 0 180 150" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <rect x="5" y="5" width="170" height="140" rx="8" fill="#cfe8f3" stroke="#d9e0da" stroke-width="1.5"></rect>
+              <circle cx="65" cy="72" r="30" fill="#0f8b8d" stroke="#0a5f60" stroke-width="2"></circle>
+              <circle cx="125" cy="82" r="26" fill="#6a4c93" stroke="#43305e" stroke-width="2"></circle>
+              <text x="90" y="135" text-anchor="middle" font-family="Inter" font-size="10.5" font-weight="700" fill="#0a5f60">Panoptic — nền + thực thể</text>
+            </svg>
+          </div>
+        </div>
+        <div class="figure-caption"><b>Hình 1.</b> Ba loại phân đoạn: semantic (mỗi pixel một lớp), instance (phân biệt từng thực thể), panoptic (kết hợp cả hai). Thử trực tiếp trên cảnh phố ở widget đầu bài.</div>
+      </div>
+
+      <table class="ref-table">
+        <tr><th>Loại</th><th>Đầu ra</th><th>Phân biệt cá thể?</th><th>Ứng dụng</th></tr>
+        <tr><td><strong>Semantic</strong></td><td>Nhãn từng pixel</td><td>Không</td><td>Xe tự lái (đường, vỉa hè, xe)</td></tr>
+        <tr><td><strong>Instance</strong></td><td>Mask riêng từng đối tượng</td><td>Có</td><td>Đếm tế bào, đếm người</td></tr>
+        <tr><td><strong>Panoptic</strong></td><td>Kết hợp cả hai</td><td>Có</td><td>Chẩn đoán y tế toàn diện</td></tr>
+      </table>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Một mô hình instance segmentation chỉ gán mặt nạ cho "người", "xe", "chó" nhưng KHÔNG gán nhãn gì cho bầu trời hay mặt đường. Đây có phải là lỗi của mô hình không?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Không phải lỗi.</strong> Đây đúng là định nghĩa của instance segmentation — nó chủ động <strong>bỏ qua nền</strong> ("stuff": trời, đường, tường...) và chỉ tập trung vào các thực thể <strong>đếm được</strong> ("thing": người, xe, chó...). Nếu ứng dụng cần gán nhãn cho CẢ nền lẫn thực thể riêng biệt, phải dùng <strong>panoptic segmentation</strong> thay vì instance.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">1.3</span>Ứng dụng</h3>
+      <p>Phân đoạn là cốt lõi của nhiều ứng dụng đòi hỏi độ chính xác cao:</p>
+      <div class="aug-grid">
+        <div class="aug-item"><div class="aug-box">🏥</div><div class="aug-label">Y tế: khoanh khối u, cơ quan</div></div>
+        <div class="aug-item"><div class="aug-box">🚗</div><div class="aug-label">Xe tự lái: đường, làn, vật cản</div></div>
+        <div class="aug-item"><div class="aug-box">✂️</div><div class="aug-label">Chỉnh sửa ảnh: xoá/thay nền</div></div>
+        <div class="aug-item"><div class="aug-box">🛰️</div><div class="aug-label">Ảnh vệ tinh: đất/nước/rừng</div></div>
+        <div class="aug-item"><div class="aug-box">🌾</div><div class="aug-label">Nông nghiệp: phân tích cây trồng</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l2">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 02 · Phương pháp cổ điển</span>
+    <h2 class="section-title">Phân đoạn không cần học sâu</h2>
+    <p class="section-lead">Trước học sâu, phân đoạn dựa trên độ sáng, màu sắc, cạnh và tính đồng nhất của pixel. Các phương pháp này không cần huấn luyện và vẫn hữu ích đến nay. Tất cả ví dụ dưới đây đều <strong>chạy thật</strong>.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">2.1</span>Ngưỡng hoá Otsu</h3>
+      <p>Cách đơn giản nhất: chọn một <strong>ngưỡng độ sáng</strong> chia ảnh thành tiền cảnh/nền. <strong>Otsu</strong> tự động tìm ngưỡng tối ưu bằng cách tìm điểm chia tách hai đỉnh của biểu đồ histogram độ sáng. Hiệu quả khi tương phản rõ:</p>
+      <div class="figure">
+        <svg viewBox="0 0 320 165" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:360px;display:block;margin:0 auto;">
+          <line x1="20" y1="140" x2="300" y2="140" stroke="#d9e0da"></line>
+          <path d="M20,140 Q60,40 100,140 Z" fill="#7c8aa0" fill-opacity="0.45" stroke="#42506a" stroke-width="1.5"></path>
+          <path d="M180,140 Q220,55 260,140 Z" fill="#0f8b8d" fill-opacity="0.45" stroke="#0a5f60" stroke-width="1.5"></path>
+          <line x1="150" y1="30" x2="150" y2="140" stroke="#d1495b" stroke-width="2" stroke-dasharray="5 3"></line>
+          <text x="150" y="20" text-anchor="middle" fill="#9c2f3d" font-family="JetBrains Mono" font-size="11" font-weight="700">ngưỡng Otsu</text>
+          <text x="60" y="157" text-anchor="middle" fill="#42506a" font-family="Inter" font-size="10.5">nền (tối)</text>
+          <text x="220" y="157" text-anchor="middle" fill="#0a5f60" font-family="Inter" font-size="10.5">vật thể (sáng)</text>
+        </svg>
+        <div class="figure-caption"><b>Hình 2.</b> Ngưỡng hoá Otsu (thật): thuật toán tự tìm điểm chia nằm giữa hai đỉnh của histogram độ sáng, tách vật thể sáng khỏi nền tối.</div>
+      </div>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">otsu_threshold.py</span></div>
+        <pre><code class="language-python">from skimage import data
+from skimage.filters import threshold_otsu
+
+coins = data.coins()                      # anh xam dong xu
+otsu = coins &gt; threshold_otsu(coins)      # tu dong tim nguong toi uu</code></pre>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.2</span>Phân cụm màu K-means</h3>
+      <p>Coi mỗi pixel là một điểm trong không gian màu, rồi <strong>gom cụm (K-means)</strong> thành K nhóm màu — mỗi nhóm là một vùng. Hữu ích để giảm màu hoặc phân vùng theo màu:</p>
+      <div class="figure">
+        <svg viewBox="0 0 320 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:360px;display:block;margin:0 auto;">
+          <text x="160" y="18" text-anchor="middle" font-family="Inter" font-size="11.5" font-weight="700" fill="#132036">Trước: nhiều màu liên tục</text>
+          <rect x="20" y="26" width="280" height="30" fill="url(#kmeansGrad)"></rect>
+          <defs>
+            <linearGradient id="kmeansGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#2b3a55"></stop>
+              <stop offset="25%" stop-color="#5a7d6b"></stop>
+              <stop offset="50%" stop-color="#c9a26a"></stop>
+              <stop offset="75%" stop-color="#d97a5f"></stop>
+              <stop offset="100%" stop-color="#e8c14a"></stop>
+            </linearGradient>
+          </defs>
+          <text x="160" y="82" text-anchor="middle" font-family="Inter" font-size="11.5" font-weight="700" fill="#132036">Sau K-means (K=5): 5 màu đại diện</text>
+          <rect x="20" y="92" width="56" height="28" fill="#2b3a55"></rect>
+          <rect x="76" y="92" width="56" height="28" fill="#5a7d6b"></rect>
+          <rect x="132" y="92" width="56" height="28" fill="#c9a26a"></rect>
+          <rect x="188" y="92" width="56" height="28" fill="#d97a5f"></rect>
+          <rect x="244" y="92" width="56" height="28" fill="#e8c14a"></rect>
+        </svg>
+        <div class="figure-caption"><b>Hình 3.</b> Phân cụm K-means (thật, K=5): mỗi pixel — một điểm trong không gian màu 3 chiều (RGB) — được gán vào 1 trong 5 cụm; toàn vùng thuộc cùng cụm nhận màu tâm cụm.</div>
+      </div>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">kmeans_mau.py</span></div>
+        <pre><code class="language-python">import numpy as np
+from skimage import data
+from sklearn.cluster import KMeans
+
+coffee = data.coffee()                              # anh mau coc ca phe
+px = coffee.reshape(-1, 3).astype(float)            # (H*W, 3): moi pixel la 1 diem 3D
+
+km  = KMeans(n_clusters=5, n_init=4, random_state=0).fit(px)
+seg = km.cluster_centers_[km.labels_].reshape(coffee.shape).astype(np.uint8)</code></pre>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.3</span>Superpixels (SLIC)</h3>
+      <p><strong>Superpixels</strong> gộp các pixel lân cận tương đồng thành những <strong>vùng nhỏ đồng nhất</strong> — giảm hàng triệu pixel xuống vài trăm vùng, làm <strong>bước tiền xử lý</strong> cho các thuật toán sau:</p>
+      <div class="figure">
+        <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px;display:block;margin:0 auto;">
+<rect x="20" y="15" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.2" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="55" y="15" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.52" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="90" y="15" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.24" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="125" y="15" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.48" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="160" y="15" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.28" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="195" y="15" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.4" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="230" y="15" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.3" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="265" y="15" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.44" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="20" y="50" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.58" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="55" y="50" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.2" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="90" y="50" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.52" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="125" y="50" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.24" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="160" y="50" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.48" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="195" y="50" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.28" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="230" y="50" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.4" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="265" y="50" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.3" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="20" y="85" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.34" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="55" y="85" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.58" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="90" y="85" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.2" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="125" y="85" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.52" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="160" y="85" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.24" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="195" y="85" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.48" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="230" y="85" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.28" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="265" y="85" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.4" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="20" y="120" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.44" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="55" y="120" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.34" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="90" y="120" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.58" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="125" y="120" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.2" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="160" y="120" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.52" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="195" y="120" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.24" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="230" y="120" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.48" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="265" y="120" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.28" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="20" y="155" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.3" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="55" y="155" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.44" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="90" y="155" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.34" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="125" y="155" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.58" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="160" y="155" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.2" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="195" y="155" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.52" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="230" y="155" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.24" stroke="#0a5f60" stroke-width="1"></rect>
+<rect x="265" y="155" width="33" height="33" rx="3" fill="#0f8b8d" fill-opacity="0.48" stroke="#0a5f60" stroke-width="1"></rect>
+        </svg>
+        <div class="figure-caption"><b>Hình 4.</b> Superpixels SLIC (minh hoạ lưới nhỏ để dễ quan sát): gộp pixel lân cận đồng nhất thành từng vùng. Thí nghiệm thật chạy trên ảnh gốc cho ra đúng khoảng <strong>250 vùng</strong>, bám theo biên vật thể.</div>
+      </div>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">slic_superpixel.py</span></div>
+        <pre><code class="language-python">from skimage import data
+from skimage.segmentation import slic, mark_boundaries
+
+astro = data.astronaut()
+# Chia thanh ~250 vung dong nhat (compactness: can bang mau vs vi tri)
+sp = mark_boundaries(astro, slic(astro, n_segments=250, compactness=12, start_label=1))</code></pre>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>SLIC không trực tiếp cho ra nhãn cuối cùng như "con mèo" hay "cái ghế". Vậy SLIC có tác dụng gì trong một pipeline phân đoạn?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>SLIC nhóm hàng triệu pixel thành vài trăm vùng đồng nhất (~250 trong thí nghiệm ở đây), đóng vai trò <strong>bước tiền xử lý</strong>. Các thuật toán phía sau (kể cả học sâu) có thể xử lý trên các "siêu pixel" này thay vì từng pixel riêng lẻ — giảm đáng kể khối lượng tính toán trong khi vẫn giữ được ranh giới vật thể tương đối chính xác, vì SLIC đã nhóm các pixel lân cận tương đồng lại với nhau từ trước.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.4</span>Watershed — tách thực thể chạm nhau</h3>
+      <p><strong>Watershed</strong> xem ảnh như địa hình và "đổ nước" để tìm ranh giới — rất tốt để <strong>tách các vật thể chạm nhau</strong> thành thực thể riêng (một dạng instance cổ điển):</p>
+      <div class="figure">
+        <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px;display:block;margin:0 auto;">
+          <g stroke="#132036" stroke-opacity="0.5" stroke-width="1.5">
+            <circle cx="60" cy="70" r="24" fill="#0f8b8d"></circle>
+            <circle cx="100" cy="55" r="22" fill="#e8940f"></circle>
+            <circle cx="140" cy="75" r="25" fill="#d1495b"></circle>
+            <circle cx="85" cy="110" r="23" fill="#6a4c93"></circle>
+            <circle cx="125" cy="120" r="24" fill="#c9184a"></circle>
+            <circle cx="170" cy="100" r="22" fill="#3a7d44"></circle>
+            <circle cx="200" cy="65" r="23" fill="#2f6690"></circle>
+            <circle cx="210" cy="130" r="24" fill="#b08a3e"></circle>
+            <circle cx="155" cy="150" r="22" fill="#7c5a3f"></circle>
+          </g>
+        </svg>
+        <div class="figure-caption"><b>Hình 5.</b> Watershed (thật): tách các đồng xu chạm nhau thành từng thực thể riêng biệt (mỗi màu một đồng xu). Thí nghiệm thật trên ảnh gốc tách được đúng <strong>29 đồng xu</strong> chạm nhau (hình trên minh hoạ với ít đồng xu hơn để dễ quan sát từng màu).</div>
+      </div>
+      <p>Bạn sẽ tự chạy watershed để đếm vật thể ở Bài tập 02 cuối bài — cách tốt nhất để hiểu thuật toán này là tự mình thử.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.5</span>Giới hạn → cần học sâu</h3>
+      <p>Các phương pháp cổ điển chỉ dựa vào <strong>tín hiệu cấp thấp</strong> (màu, cạnh, độ sáng) nên <strong>không hiểu ngữ nghĩa</strong>: chúng có thể tách "vùng sáng" nhưng không biết đó <em>là con mèo hay cái xe</em>. Khi cần phân đoạn theo <strong>ý nghĩa</strong>, ta cần học sâu.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Otsu có thể tách thành công "vùng sáng" ra khỏi "vùng tối" trong một bức ảnh. Vậy Otsu có biết vùng sáng đó là con mèo hay là cái đĩa sứ không?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Không.</strong> Otsu (cũng như K-means và SLIC) chỉ dựa vào tín hiệu cấp thấp — ở đây là độ sáng — hoàn toàn không "hiểu" nội dung ngữ nghĩa của vùng đó là gì. Nó chỉ trả lời được "vùng này sáng hơn ngưỡng hay không", không trả lời được "vùng này là gì". Để phân đoạn theo đúng ý nghĩa (biết đó là con mèo, người, hay xe), bắt buộc phải chuyển sang các phương pháp học sâu ở Lớp 03.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l3">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 03 · Học sâu</span>
+    <h2 class="section-title">Phân đoạn bằng học sâu</h2>
+    <p class="section-lead">Muốn phân đoạn theo đúng ý nghĩa — biết vùng đó là gì, không chỉ là "sáng" hay "tối" — ta cần một kiểu mạng khác hẳn mạng phân loại thông thường.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">3.1</span>Thách thức: dự đoán dày đặc</h3>
+      <p>Khác phân loại (một nhãn cho cả ảnh), phân đoạn cần <strong>dự đoán dày đặc (dense prediction)</strong>: đầu ra là một <strong>bản đồ nhãn cùng kích thước ảnh</strong> — mỗi pixel một dự đoán. Mạng phân loại thông thường (kết thúc bằng lớp FC) không làm được điều này.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.2</span>FCN — Fully Convolutional Network</h3>
+      <p><strong>FCN (2015)</strong> là bước ngoặt: bỏ các lớp FC, dùng <strong>toàn bộ là convolution</strong>, rồi <strong>upsample</strong> bản đồ đặc trưng trở lại kích thước ảnh để cho ra nhãn từng pixel. Ý tưởng này là nền móng cho mọi mạng phân đoạn sau đó.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao một mạng phân loại ảnh thông thường (kết thúc bằng lớp Fully Connected) KHÔNG thể trực tiếp dùng để phân đoạn ảnh?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Lớp FC nén toàn bộ đặc trưng không gian thành <strong>một vector phẳng</strong>, rồi xuất ra <strong>một nhãn duy nhất</strong> cho cả ảnh — phá vỡ hoàn toàn thông tin vị trí không gian. Trong khi đó, phân đoạn cần <strong>dự đoán dày đặc</strong>: một bản đồ nhãn cùng kích thước ảnh, mỗi pixel một dự đoán. FCN (2015) giải quyết việc này bằng cách bỏ hẳn lớp FC, chỉ dùng convolution + upsample để giữ được cấu trúc không gian xuyên suốt mạng.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.3</span>Kiến trúc Encoder–Decoder</h3>
+      <p>Hầu hết mạng phân đoạn theo cấu trúc <strong>encoder–decoder</strong>: <strong>encoder</strong> nén ảnh (giảm độ phân giải, tăng mức ngữ nghĩa — chính là một backbone CNN như Bài 4); <strong>decoder</strong> giải nén (tăng dần độ phân giải) để khôi phục bản đồ nhãn về kích thước gốc:</p>
+      <div class="figure">
+        <svg viewBox="0 0 620 165" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:0 auto;">
+          <g font-family="Inter" font-size="11" font-weight="700">
+            <rect x="0" y="20" width="110" height="100" rx="8" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="55" y="65" text-anchor="middle" fill="#0a5f60">Ảnh</text>
+            <text x="55" y="80" text-anchor="middle" fill="#0a5f60">đầu vào</text>
+            <rect x="125" y="37" width="110" height="66" rx="8" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"></rect>
+            <text x="180" y="66" text-anchor="middle" fill="#a86608">Encoder</text>
+            <text x="180" y="79" text-anchor="middle" fill="#a86608" font-size="9.5" font-weight="500">(nén)</text>
+            <rect x="250" y="53" width="110" height="34" rx="8" fill="#fbe7ea" stroke="#d1495b" stroke-width="1.5"></rect>
+            <text x="305" y="74" text-anchor="middle" fill="#9c2f3d" font-size="10">Bottleneck</text>
+            <rect x="375" y="37" width="110" height="66" rx="8" fill="#eae6f5" stroke="#7c5cbf" stroke-width="1.5"></rect>
+            <text x="430" y="66" text-anchor="middle" fill="#513a87">Decoder</text>
+            <text x="430" y="79" text-anchor="middle" fill="#513a87" font-size="9.5" font-weight="500">(giải nén)</text>
+            <rect x="500" y="20" width="110" height="100" rx="8" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="555" y="60" text-anchor="middle" fill="#0a5f60">Bản đồ</text>
+            <text x="555" y="74" text-anchor="middle" fill="#0a5f60">nhãn</text>
+            <text x="555" y="88" text-anchor="middle" fill="#0a5f60" font-size="9">(cùng cỡ ảnh)</text>
+          </g>
+          <g stroke="#b7c2c8" stroke-width="1.5" fill="none" marker-end="url(#arrH6seg)">
+            <line x1="110" y1="70" x2="123" y2="70"></line>
+            <line x1="235" y1="70" x2="248" y2="70"></line>
+            <line x1="360" y1="70" x2="373" y2="70"></line>
+            <line x1="485" y1="70" x2="498" y2="70"></line>
+          </g>
+          <defs><marker id="arrH6seg" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7c2c8"></path></marker></defs>
+        </svg>
+        <div class="figure-caption"><b>Hình 6.</b> Kiến trúc encoder–decoder: encoder nén để hiểu ngữ nghĩa (độ phân giải giảm dần), decoder giải nén để khôi phục mặt nạ cùng kích thước ảnh gốc.</div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.4</span>Các họ tiêu biểu</h3>
+      <ul class="plain">
+        <li><strong>Semantic:</strong> <strong>U-Net</strong> (rất phổ biến trong y tế), <strong>DeepLab</strong> (dùng dilated/atrous convolution để mở rộng tầm nhìn), SegNet.</li>
+        <li><strong>Instance:</strong> <strong>Mask R-CNN</strong> — mở rộng từ detector (Faster R-CNN, Bài 6): mỗi vật thể được phát hiện kèm một <strong>mặt nạ</strong> riêng.</li>
+        <li><strong>Zero-shot:</strong> <strong>SAM (Segment Anything Model)</strong> — mô hình nền tảng phân đoạn <em>bất kỳ</em> vật thể theo gợi ý (điểm/khung), không cần huấn luyện lại cho từng bài toán.</li>
+      </ul>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Mask R-CNN (instance segmentation) được xây dựng bằng cách mở rộng từ kiến trúc detector nào bạn đã học ở Bài 6?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Faster R-CNN.</strong> Mask R-CNN thêm một nhánh dự đoán <strong>mặt nạ (mask)</strong> chạy song song với hai nhánh có sẵn của Faster R-CNN (phân loại lớp + tinh chỉnh khung bao), cho mỗi vật thể mà detector đã phát hiện được. Đây là lý do Mask R-CNN vừa biết vật thể ở đâu (khung bao, như Bài 6) vừa biết hình dạng chính xác của nó (mặt nạ, như bài này).</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l4">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 04 · U-Net</span>
+    <h2 class="section-title">U-Net chi tiết &amp; thực nghiệm thật</h2>
+    <p class="section-lead">U-Net là kiến trúc phân đoạn kinh điển nhất — và là một trong những kiến trúc bạn nên thuộc nằm lòng. Phần này mổ xẻ nó kỹ, kèm một mô hình được huấn luyện thật ngay trong bài.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">4.1</span>Kiến trúc U-Net</h3>
+      <p><strong>U-Net</strong> là kiến trúc phân đoạn kinh điển, có hình dạng chữ <strong>U</strong>: một nhánh encoder đi xuống (nén) và một nhánh decoder đi lên (giải nén) <strong>đối xứng</strong>, nối với nhau bằng các <strong>skip connections</strong>:</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 630 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:0 auto;">
+          <line x1="120" y1="44" x2="500" y2="44" stroke="#d1495b" stroke-width="2" stroke-dasharray="6 4"></line>
+          <line x1="230" y1="112" x2="390" y2="112" stroke="#d1495b" stroke-width="2" stroke-dasharray="6 4"></line>
+          <text x="310" y="34" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#9c2f3d">skip connection</text>
+
+          <g stroke="#7c8aa0" stroke-width="1.5" fill="none" marker-end="url(#arrH7seg)">
+            <line x1="118" y1="55" x2="132" y2="90"></line>
+            <line x1="228" y1="122" x2="256" y2="152"></line>
+            <line x1="364" y1="165" x2="392" y2="122"></line>
+            <line x1="490" y1="95" x2="502" y2="58"></line>
+          </g>
+          <defs><marker id="arrH7seg" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#7c8aa0"></path></marker></defs>
+
+          <g font-family="Inter" font-size="11" font-weight="700">
+            <rect x="10" y="20" width="110" height="48" rx="8" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="65" y="42" text-anchor="middle" fill="#0a5f60">Encoder</text>
+            <text x="65" y="56" text-anchor="middle" fill="#0a5f60" font-size="9.5" font-weight="500">64×64</text>
+
+            <rect x="130" y="90" width="100" height="44" rx="8" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"></rect>
+            <text x="180" y="110" text-anchor="middle" fill="#a86608">Encoder</text>
+            <text x="180" y="123" text-anchor="middle" fill="#a86608" font-size="9.5" font-weight="500">32×32</text>
+
+            <rect x="260" y="155" width="100" height="42" rx="8" fill="#fbe7ea" stroke="#d1495b" stroke-width="1.5"></rect>
+            <text x="310" y="174" text-anchor="middle" fill="#9c2f3d">Bottleneck</text>
+            <text x="310" y="187" text-anchor="middle" fill="#9c2f3d" font-size="9.5" font-weight="500">16×16</text>
+
+            <rect x="390" y="90" width="100" height="44" rx="8" fill="#eae6f5" stroke="#7c5cbf" stroke-width="1.5"></rect>
+            <text x="440" y="110" text-anchor="middle" fill="#513a87">Decoder</text>
+            <text x="440" y="123" text-anchor="middle" fill="#513a87" font-size="9.5" font-weight="500">32×32</text>
+
+            <rect x="500" y="20" width="110" height="48" rx="8" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="555" y="42" text-anchor="middle" fill="#0a5f60">Decoder → mặt nạ</text>
+            <text x="555" y="56" text-anchor="middle" fill="#0a5f60" font-size="9.5" font-weight="500">64×64</text>
+          </g>
+        </svg>
+        <div class="figure-caption"><b>Hình 7.</b> Kiến trúc U-Net: encoder–decoder đối xứng hình chữ U, với skip connections (mũi tên đỏ nét đứt) nối các tầng cùng độ phân giải. Độ phân giải 64→32→16 khớp với thực nghiệm thật ở mục 4.3.</div>
+      </div>
+
+      <div class="widget unet-toggle-demo">
+        <span class="widget-label">Thử ngay · Bật/tắt skip connection và xem chất lượng biên mặt nạ</span>
+        <svg id="unetToggleSvg" viewBox="0 0 630 220" xmlns="http://www.w3.org/2000/svg">
+          <path id="skipLine1" class="skip-line" d="M120,44 L500,44"></path>
+          <path id="skipLine2" class="skip-line" d="M230,112 L390,112"></path>
+          <g stroke="#7c8aa0" stroke-width="1.5" fill="none" marker-end="url(#arrHtoggle)">
+            <line x1="118" y1="55" x2="132" y2="90"></line>
+            <line x1="228" y1="122" x2="256" y2="152"></line>
+            <line x1="364" y1="165" x2="392" y2="122"></line>
+            <line x1="490" y1="95" x2="502" y2="58"></line>
+          </g>
+          <defs><marker id="arrHtoggle" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#7c8aa0"></path></marker></defs>
+          <g font-family="Inter" font-size="11" font-weight="700">
+            <rect x="10" y="20" width="110" height="48" rx="8" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="65" y="49" text-anchor="middle" fill="#0a5f60">Encoder</text>
+            <rect x="130" y="90" width="100" height="44" rx="8" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"></rect>
+            <text x="180" y="116" text-anchor="middle" fill="#a86608">Encoder</text>
+            <rect x="260" y="155" width="100" height="42" rx="8" fill="#fbe7ea" stroke="#d1495b" stroke-width="1.5"></rect>
+            <text x="310" y="180" text-anchor="middle" fill="#9c2f3d" font-size="10">Bottleneck</text>
+            <rect x="390" y="90" width="100" height="44" rx="8" fill="#eae6f5" stroke="#7c5cbf" stroke-width="1.5"></rect>
+            <text x="440" y="116" text-anchor="middle" fill="#513a87">Decoder</text>
+            <rect x="500" y="20" width="110" height="48" rx="8" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="555" y="49" text-anchor="middle" fill="#0a5f60">Decoder</text>
+          </g>
+          <rect x="255" y="240" width="120" height="100" rx="8" fill="#fff" stroke="#d9e0da" stroke-width="1.5"></rect>
+          <text x="315" y="228" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="#7c8aa0">mặt nạ dự đoán</text>
+          <polygon id="maskBlob" class="mask-blob" points="355,290 343,277 337,260 320,263 303,260 297,277 285,290 297,304 303,320 320,317 337,320 343,304"></polygon>
+        </svg>
+        <div class="unet-toggle-row">
+          <label><input type="checkbox" id="skipToggle" checked> Có skip connections</label>
+        </div>
+        <p class="unet-toggle-status" id="unetToggleStatus">Biên sắc nét — decoder nhận được chi tiết không gian độ phân giải cao trực tiếp từ encoder.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">4.2</span>Vì sao skip connections quan trọng?</h3>
+      <p>Khi encoder nén ảnh, <strong>chi tiết không gian</strong> (biên sắc nét, vị trí chính xác) bị mất dần. <strong>Skip connections</strong> nối thẳng đặc trưng <strong>độ phân giải cao</strong> từ encoder sang tầng tương ứng của decoder, giúp decoder <strong>khôi phục biên chính xác</strong>. Đây là lý do U-Net cho mặt nạ rất sắc nét — chìa khoá thành công của nó, đặc biệt trong ảnh y tế.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Nếu bỏ hết skip connections khỏi U-Net (chỉ còn encoder nén rồi decoder giải nén tuần tự), điều gì xảy ra với chất lượng biên của mặt nạ dự đoán?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Biên sẽ <strong>mờ, kém sắc nét hơn hẳn</strong> — đúng như bạn vừa thấy khi tắt skip connection ở widget trên. Khi encoder nén ảnh qua nhiều lớp pooling, chi tiết không gian (vị trí chính xác, biên sắc nét) bị mất dần. Nếu không có skip connections nối thẳng đặc trưng độ phân giải cao từ encoder sang decoder, decoder chỉ còn dựa vào thông tin đã bị nén ở bottleneck — không đủ chi tiết để khôi phục biên chính xác.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">4.3</span>Thực nghiệm thật: huấn luyện một U-Net nhỏ</h3>
+      <p>Để minh hoạ, mình xây một <strong>U-Net nhỏ (~483.000 tham số)</strong> và huấn luyện thật để phân đoạn các vật thể (đốm sáng) trên một bộ <strong>dữ liệu tổng hợp</strong>. Đây là kết quả dự đoán trên tập kiểm định:</p>
+
+      <div class="figure">
+        <div class="chart-row">
+          <div class="chart-col">
+            <svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <rect x="5" y="5" width="130" height="130" fill="#2a2f26"></rect>
+              <circle cx="55" cy="60" r="26" fill="#cfcabb"></circle>
+              <circle cx="95" cy="90" r="18" fill="#d6d1c2"></circle>
+              <text x="70" y="150" text-anchor="middle" font-family="Inter" font-size="11" fill="#42506a"></text>
+            </svg>
+            <p style="text-align:center;font-size:11.5px;color:#42506a;margin-top:6px;">Ảnh đầu vào</p>
+          </div>
+          <div class="chart-col">
+            <svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <rect x="5" y="5" width="130" height="130" fill="#000"></rect>
+              <circle cx="55" cy="60" r="26" fill="#fff"></circle>
+              <circle cx="95" cy="90" r="18" fill="#fff"></circle>
+            </svg>
+            <p style="text-align:center;font-size:11.5px;color:#42506a;margin-top:6px;">Mặt nạ thật (GT)</p>
+          </div>
+          <div class="chart-col">
+            <svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <rect x="5" y="5" width="130" height="130" fill="#000"></rect>
+              <circle cx="56" cy="59" r="25" fill="#fff"></circle>
+              <circle cx="94" cy="91" r="17" fill="#fff"></circle>
+            </svg>
+            <p style="text-align:center;font-size:11.5px;color:#42506a;margin-top:6px;">Mặt nạ U-Net dự đoán</p>
+          </div>
+        </div>
+        <div class="figure-caption"><b>Hình 8.</b> U-Net huấn luyện thật: ảnh đầu vào, mặt nạ thật (GT) và mặt nạ U-Net dự đoán — gần như trùng khít.</div>
+      </div>
+
+      <div class="figure">
+        <div class="chart-row">
+          <div class="chart-col">
+            <svg viewBox="0 0 280 150" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <line x1="20" y1="130" x2="270" y2="130" stroke="#d9e0da"></line>
+              <line x1="20" y1="15" x2="20" y2="130" stroke="#d9e0da"></line>
+              <path d="M20,25 C80,35 120,70 160,95 C200,110 230,118 260,122" fill="none" stroke="#d1495b" stroke-width="2.5"></path>
+              <text x="145" y="12" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#9c2f3d">Loss giảm đều</text>
+              <text x="145" y="144" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#7c8aa0">epoch →</text>
+            </svg>
+          </div>
+          <div class="chart-col">
+            <svg viewBox="0 0 280 150" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <line x1="20" y1="130" x2="270" y2="130" stroke="#d9e0da"></line>
+              <line x1="20" y1="15" x2="20" y2="130" stroke="#d9e0da"></line>
+              <path d="M20,125 C70,100 110,55 160,35 C200,25 230,22 260,20" fill="none" stroke="#0f8b8d" stroke-width="2.5"></path>
+              <path d="M20,128 C70,108 110,68 160,50 C200,40 230,36 260,32" fill="none" stroke="#e8940f" stroke-width="2.5"></path>
+              <text x="145" y="12" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#0a5f60">Dice &amp; IoU tăng nhanh</text>
+              <text x="145" y="144" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#7c8aa0">epoch →</text>
+              <circle cx="262" cy="20" r="3" fill="#0f8b8d"></circle>
+              <text x="245" y="16" text-anchor="end" font-family="JetBrains Mono" font-size="9.5" fill="#0a5f60">Dice</text>
+              <circle cx="262" cy="32" r="3" fill="#e8940f"></circle>
+              <text x="245" y="46" text-anchor="end" font-family="JetBrains Mono" font-size="9.5" fill="#a86608">IoU</text>
+            </svg>
+          </div>
+        </div>
+        <div class="figure-caption"><b>Hình 9.</b> Huấn luyện U-Net thật: loss giảm đều, Dice &amp; IoU trên tập kiểm định tăng nhanh tới gần 100%. (Hình dạng đường cong minh hoạ đúng xu hướng thật; không có giá trị số theo từng epoch được lưu lại.)</div>
+      </div>
+
+      <div class="callout callout-warn">
+        <span class="callout-head">Đọc kết quả cho đúng</span>
+        <p>Bộ dữ liệu tổng hợp ở đây <strong>rất đơn giản</strong> (đốm sáng trên nền tối), nên U-Net đạt Dice <strong>gần 100%</strong> chỉ sau vài epoch. Trên dữ liệu thực tế (ảnh y tế, cảnh đường phố), con số sẽ <strong>thấp và thực tế hơn nhiều</strong>. Mục đích của thí nghiệm là minh hoạ rằng kiến trúc encoder–decoder + skip connection <strong>thực sự học được</strong> phân đoạn, không phải để khoe điểm số.</p>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>U-Net đạt Dice gần 100% trên bộ dữ liệu tổng hợp (đốm sáng đơn giản) trong thí nghiệm ở bài này. Điều này có nghĩa U-Net sẽ luôn đạt Dice gần 100% trên MỌI bài toán phân đoạn y tế thực tế không?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Không.</strong> Dữ liệu tổng hợp ở đây rất đơn giản (đốm sáng rõ ràng trên nền tối gần như đồng nhất), nên U-Net đạt điểm cao chỉ sau vài epoch. Dữ liệu thực tế (ảnh y tế, cảnh đường phố) phức tạp hơn nhiều về kết cấu, ánh sáng, nhiễu và ranh giới mờ — điểm số trên đó sẽ thấp và thực tế hơn. Mục đích của thí nghiệm là chứng minh kiến trúc encoder–decoder + skip connection <strong>thực sự học được</strong> phân đoạn, không phải để khẳng định con số tuyệt đối này lặp lại trên mọi bài toán.</p>
+      </div>
+    </div>
+
+    <p>Về mặt code, trái tim của U-Net là khối <strong>DoubleConv</strong> lặp lại, cùng các bước pool (encoder) và up-conv + nối skip (decoder):</p>
+
+    <div class="code-window">
+      <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">unet.py</span></div>
+      <pre><code class="language-python">import torch, torch.nn as nn
+
+def double_conv(ci, co):
+    return nn.Sequential(
+        nn.Conv2d(ci, co, 3, padding=1), nn.BatchNorm2d(co), nn.ReLU(),
+        nn.Conv2d(co, co, 3, padding=1), nn.BatchNorm2d(co), nn.ReLU())
+
+class UNet(nn.Module):
+    def __init__(self, base=16):
+        super().__init__()
+        self.d1, self.d2 = double_conv(1, base), double_conv(base, base*2)
+        self.bott = double_conv(base*2, base*4)
+        self.pool = nn.MaxPool2d(2)
+        self.up2  = nn.ConvTranspose2d(base*4, base*2, 2, stride=2)
+        self.u2   = double_conv(base*4, base*2)        # *4 vi noi skip
+        self.up1  = nn.ConvTranspose2d(base*2, base, 2, stride=2)
+        self.u1   = double_conv(base*2, base)
+        self.out  = nn.Conv2d(base, 1, 1)              # 1 kenh = mat na
+
+    def forward(self, x):
+        c1 = self.d1(x)                                # giu lai cho skip
+        c2 = self.d2(self.pool(c1))
+        b  = self.bott(self.pool(c2))
+        u2 = self.u2(torch.cat([self.up2(b),  c2], 1)) # noi skip tu encoder
+        u1 = self.u1(torch.cat([self.up1(u2), c1], 1))
+        return self.out(u1)                            # logits cho moi pixel</code></pre>
+    </div>
+
+    <p>Huấn luyện như một bài toán phân loại nhị phân <strong>theo từng pixel</strong> — thường kết hợp <strong>BCE loss</strong> và <strong>Dice loss</strong> để mặt nạ vừa đúng vừa sắc:</p>
+
+    <div class="code-window">
+      <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">dice_loss.py</span></div>
+      <pre><code class="language-python">bce = nn.BCEWithLogitsLoss()
+
+def dice_loss(logits, target, eps=1.0):
+    prob = torch.sigmoid(logits)
+    inter = (prob * target).sum((1, 2, 3))
+    union = prob.sum((1, 2, 3)) + target.sum((1, 2, 3))
+    return (1 - (2*inter + eps) / (union + eps)).mean()
+
+# Trong vong lap huan luyen:
+# loss = bce(logits, masks) + dice_loss(logits, masks)</code></pre>
+    </div>
+  </div>
+</section>
+<section class="section" id="l5">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 05 · Đánh giá</span>
+    <h2 class="section-title">Đánh giá phân đoạn</h2>
+    <p class="section-lead">Cách đánh giá áp dụng đúng các thước đo theo pixel đã học ở Bài 5 — chỉ khác đơn vị tính giờ là <strong>pixel</strong> thay vì cả bức ảnh hay khung bao.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">5.1</span>Cạm bẫy: Pixel accuracy</h3>
+      <p><strong>Pixel accuracy:</strong> tỉ lệ pixel đúng — đơn giản nhưng <strong>dễ đánh lừa</strong> khi vật thể nhỏ so với nền (đoán hết là nền vẫn "chính xác" cao).</p>
+      <div class="callout callout-warn">
+        <span class="callout-head">Cạm bẫy quen thuộc</span>
+        <p>Nếu khối u chỉ chiếm, ví dụ, <strong>2% diện tích ảnh</strong>, một mô hình luôn dự đoán "không phải khối u" cho <em>mọi</em> pixel vẫn đạt pixel accuracy tới <strong>98%</strong> — dù nó hoàn toàn không phát hiện được khối u nào. Đây chính xác là cạm bẫy của accuracy trên dữ liệu lệch mà ta đã thấy ở Bài 4/5, chỉ khác đơn vị tính là pixel thay vì cả bức ảnh.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.2</span>IoU/Jaccard &amp; mIoU</h3>
+      <p><strong>IoU / Jaccard:</strong> độ trùng giữa mặt nạ dự đoán và thật; <strong>mean IoU (mIoU)</strong> trung bình qua các lớp — thước đo chuẩn cho semantic segmentation.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.3</span>Dice — luôn ≥ IoU</h3>
+      <p><strong>Dice (F1 cho mặt nạ):</strong> = 2·|giao| / (|dự đoán| + |thật|); <strong>luôn ≥ IoU</strong>, nhạy với vùng nhỏ, rất phổ biến trong ảnh y tế.</p>
+
+      <div class="widget">
+        <span class="widget-label">Thử ngay · Kéo để dịch chuyển mặt nạ dự đoán, xem IoU và Dice cùng lúc</span>
+        <svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:340px;display:block;margin:0 auto;">
+          <rect id="sdGt" x="70" y="40" width="100" height="80" fill="#0f8b8d" fill-opacity="0.25" stroke="#0f8b8d" stroke-width="2"></rect>
+          <rect id="sdPred" x="70" y="40" width="100" height="80" fill="#d1495b" fill-opacity="0.25" stroke="#d1495b" stroke-width="2" stroke-dasharray="5 3"></rect>
+          <text x="70" y="34" fill="#0a5f60" font-family="JetBrains Mono" font-size="11">Mặt nạ thật (GT)</text>
+        </svg>
+        <div class="sd-controls">
+          <input type="range" id="sdSlider" min="0" max="130" value="0">
+        </div>
+        <div class="sd-readout">
+          <div class="sd-metric"><span class="sd-metric-label">IoU</span><strong id="sdIoUValue">1.00</strong></div>
+          <div class="sd-metric"><span class="sd-metric-label">Dice</span><strong id="sdDiceValue">1.00</strong></div>
+          <div class="sd-gap">Dice − IoU = <strong id="sdGapValue">0.00</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Với cùng một cặp mặt nạ dự đoán/thật, Dice và IoU có luôn cho ra cùng một con số không?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Không.</strong> Dice <strong>luôn ≥ IoU</strong> — hai chỉ số chỉ bằng nhau khi trùng khít hoàn toàn (cả hai = 1) hoặc không chồng lấn chút nào (cả hai = 0). Kéo thử thanh trượt ở widget trên: quan sát giá trị "Dice − IoU" để thấy khoảng cách giữa hai chỉ số thay đổi thế nào theo mức độ lệch giữa hai mặt nạ.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.4</span>Hàm mất mát</h3>
+      <p>Về <strong>hàm mất mát</strong>: <strong>cross-entropy theo từng pixel</strong> là cơ bản; <strong>Dice loss</strong> tối ưu trực tiếp độ trùng (tốt khi mất cân bằng tiền/hậu cảnh); thực tế thường <strong>kết hợp</strong> cả hai như đoạn code ở Lớp 04.</p>
+      <div class="callout callout-note">
+        <span class="callout-head">Liên hệ Bài 5</span>
+        <p>Cùng tinh thần như phân loại và phát hiện: <strong>đừng chỉ nhìn accuracy</strong>. Với phân đoạn, hãy báo cáo <strong>mIoU</strong> và/hoặc <strong>Dice</strong> — chúng phản ánh đúng chất lượng mặt nạ, đặc biệt khi vật thể nhỏ.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l6">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 06 · Tổng quan</span>
+    <h2 class="section-title">Tổng quan &amp; khi nào dùng</h2>
+    <p class="section-lead">Bảng dưới tổng hợp lại toàn bộ phương pháp đã nhắc tới trong bài, để bạn có một điểm tra cứu nhanh khi cần chọn cách phân đoạn cho một bài toán cụ thể.</p>
+
+    <table class="ref-table">
+      <tr><th>Phương pháp</th><th>Loại / đặc điểm</th><th>Khi nào dùng</th></tr>
+      <tr><td><code>Otsu / ngưỡng</code></td><td>Cổ điển; nhị phân theo độ sáng.</td><td>Tương phản rõ, tiền/hậu cảnh đơn giản.</td></tr>
+      <tr><td><code>K-means / SLIC</code></td><td>Cổ điển; nhóm theo màu/đồng nhất.</td><td>Tiền xử lý, phân vùng không cần nhãn.</td></tr>
+      <tr><td><code>Watershed</code></td><td>Cổ điển; tách vật chạm nhau.</td><td>Đếm/tách thực thể có ranh giới rõ.</td></tr>
+      <tr><td><code>U-Net / DeepLab</code></td><td>Học sâu; semantic.</td><td>Phân đoạn ngữ nghĩa (y tế, cảnh đường).</td></tr>
+      <tr><td><code>Mask R-CNN</code></td><td>Học sâu; instance.</td><td>Phân biệt từng thực thể + mặt nạ.</td></tr>
+      <tr><td><code>SAM</code></td><td>Học sâu; zero-shot, theo gợi ý.</td><td>Phân đoạn linh hoạt, không huấn luyện lại.</td></tr>
+    </table>
+
+    <div class="subsection">
+      <h3><span class="tag">6.1</span>Mẹo &amp; lưu ý</h3>
+      <ul class="tip-list">
+        <li><span class="tip-check">✓</span><span>Bài toán đơn giản, tương phản rõ → thử <strong>phương pháp cổ điển</strong> trước (nhanh, không cần dữ liệu nhãn).</span></li>
+        <li><span class="tip-check">✓</span><span>Cần hiểu <strong>ngữ nghĩa</strong> → học sâu; <strong>U-Net</strong> là lựa chọn khởi đầu tuyệt vời, nhất là khi ít dữ liệu (y tế).</span></li>
+        <li><span class="tip-check">✓</span><span>Cần phân biệt <strong>từng thực thể</strong> → Mask R-CNN; cần <strong>linh hoạt, không huấn luyện</strong> → thử SAM.</span></li>
+        <li><span class="tip-check">✓</span><span>Gán nhãn phân đoạn <strong>rất tốn công</strong> (tô từng pixel) — cân nhắc transfer learning, augmentation, hoặc SAM hỗ trợ gán nhãn.</span></li>
+        <li><span class="tip-check">✓</span><span>Đánh giá bằng <strong>mIoU/Dice</strong>, dùng <strong>Dice loss</strong> (hoặc kết hợp BCE) khi tiền/hậu cảnh mất cân bằng.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="l7">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Bài tập · Thực hành</span>
+    <h2 class="section-title">Bài tập thực hành</h2>
+    <p class="section-lead">Không gì giúp bạn hiểu phân đoạn sâu hơn việc tự tay chạy các thí nghiệm trong bài trên dữ liệu của chính mình.</p>
+
+    <div class="task-grid">
+      <div class="task-card"><span class="task-num">Bài tập 01</span><p>Chạy <strong>Otsu, K-means và SLIC</strong> trên ba ảnh khác nhau. Mỗi phương pháp phù hợp loại ảnh nào? Khi nào chúng thất bại?</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 02</span><p>Dùng <strong>watershed</strong> tách một cụm vật thể chạm nhau (vd hạt, tế bào) và <strong>đếm</strong> số vật thể. So sánh với đếm bằng mắt.</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 03</span><p>Giải thích bằng lời: vì sao <strong>skip connections</strong> giúp U-Net cho biên sắc nét hơn so với encoder–decoder không có chúng?</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 04</span><p>Huấn luyện một <strong>U-Net nhỏ</strong> trên dữ liệu tổng hợp của riêng bạn (vd hình tròn vs vuông). Theo dõi <strong>Dice/IoU</strong> theo epoch.</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 05</span><p>Phân biệt <strong>semantic, instance, panoptic</strong> qua một ví dụ ảnh đường phố cụ thể (đâu là "stuff", đâu là "thing"?).</p></div>
+      <div class="task-card advanced"><span class="task-num">Nâng cao</span><p>Cài đặt <strong>Dice loss</strong> và so sánh kết quả khi huấn luyện chỉ với BCE, chỉ với Dice, và kết hợp cả hai.</p></div>
+    </div>
+  </div>
+</section>
+<section class="section" id="quiz">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp ra · Trắc nghiệm tổng kết</span>
+    <h2 class="section-title">Kiểm tra lại toàn bài</h2>
+    <p class="section-lead">10 câu trắc nghiệm rải đều qua các Lớp 01–05. Chọn một đáp án để xem giải thích — cứ thử trước, sai không sao.</p>
+
+    <div class="quiz-item" data-answer="A">
+      <p class="quiz-q"><span class="qnum">Câu 1.</span>Một mô hình gán CÙNG một màu cho tất cả các pixel thuộc lớp "người", không phân biệt người 1 với người 2. Đây là loại phân đoạn nào?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Semantic</button>
+        <button class="quiz-opt" data-key="B">B. Instance</button>
+        <button class="quiz-opt" data-key="C">C. Panoptic</button>
+        <button class="quiz-opt" data-key="D">D. Watershed</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Nhớ lại widget đầu bài — chế độ tô "cùng 1 màu cho mọi thực thể cùng lớp".</p>
+      <p class="quiz-explain">Semantic segmentation gán một LỚP cho mỗi pixel nhưng KHÔNG phân biệt các thực thể cùng lớp — hai người khác nhau vẫn nhận cùng một màu "người". Đây khác với instance (mỗi thực thể một màu riêng) và panoptic (kết hợp cả hai).</p>
+    </div>
+
+    <div class="quiz-item" data-answer="D">
+      <p class="quiz-q"><span class="qnum">Câu 2.</span>Trong thuật ngữ phân đoạn, bầu trời và mặt đường (vùng nền vô định hình) được gọi là gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Thing</button>
+        <button class="quiz-opt" data-key="B">B. Instance</button>
+        <button class="quiz-opt" data-key="C">C. Bounding box</button>
+        <button class="quiz-opt" data-key="D">D. Stuff</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại chú thích ở mục 1.2.</p>
+      <p class="quiz-explain">Trong thuật ngữ phân đoạn (đặc biệt panoptic segmentation), vùng nền vô định hình, không đếm được như trời, đường, tường được gọi là "stuff". Vật thể đếm được như người, xe, động vật được gọi là "thing". Instance segmentation chỉ xử lý "thing", bỏ qua "stuff".</p>
+    </div>
+
+    <div class="quiz-item" data-answer="A">
+      <p class="quiz-q"><span class="qnum">Câu 3.</span>Otsu tách thành công một vùng sáng ra khỏi nền tối trong ảnh. Otsu có "biết" vùng sáng đó là vật thể gì không?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Không — Otsu chỉ dựa vào độ sáng, không hiểu ngữ nghĩa của vùng đó.</button>
+        <button class="quiz-opt" data-key="B">B. Có, Otsu luôn nhận diện đúng tên vật thể.</button>
+        <button class="quiz-opt" data-key="C">C. Có, nhưng chỉ với vật thể hình tròn.</button>
+        <button class="quiz-opt" data-key="D">D. Otsu không thể tách vùng sáng khỏi nền tối.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại mục 2.5 — giới hạn của phương pháp cổ điển.</p>
+      <p class="quiz-explain">Otsu (và các phương pháp cổ điển nói chung) chỉ dựa vào tín hiệu cấp thấp như độ sáng — nó có thể tách "vùng sáng" khỏi "vùng tối" nhưng hoàn toàn không hiểu nội dung ngữ nghĩa của vùng đó là gì. Để biết đó là con mèo hay cái xe, cần chuyển sang học sâu.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="D">
+      <p class="quiz-q"><span class="qnum">Câu 4.</span>Superpixels (SLIC) đóng vai trò gì trong một pipeline phân đoạn?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Là kết quả phân đoạn cuối cùng, đã gán nhãn ngữ nghĩa đầy đủ.</button>
+        <button class="quiz-opt" data-key="B">B. Chỉ dùng để tăng độ phân giải ảnh.</button>
+        <button class="quiz-opt" data-key="C">C. Thay thế hoàn toàn cho học sâu.</button>
+        <button class="quiz-opt" data-key="D">D. Là bước tiền xử lý, gộp pixel lân cận đồng nhất thành vùng nhỏ để giảm khối lượng tính toán cho các bước sau.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại mục 2.3.</p>
+      <p class="quiz-explain">SLIC gộp hàng triệu pixel thành vài trăm vùng đồng nhất (~250 trong thí nghiệm ở bài này), đóng vai trò bước tiền xử lý giúp các thuật toán phía sau xử lý nhanh hơn nhiều so với từng pixel riêng lẻ, trong khi vẫn giữ được ranh giới vật thể tương đối chính xác.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 5.</span>Vì sao mạng phân loại ảnh thông thường (có lớp FC) không dùng trực tiếp để phân đoạn được?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Vì lớp FC quá chậm khi huấn luyện.</button>
+        <button class="quiz-opt" data-key="B">B. Vì lớp FC nén đặc trưng thành một vector phẳng, phá vỡ thông tin vị trí không gian cần thiết cho dự đoán dày đặc.</button>
+        <button class="quiz-opt" data-key="C">C. Vì lớp FC chỉ hoạt động trên ảnh xám.</button>
+        <button class="quiz-opt" data-key="D">D. Vì lớp FC không thể chạy trên GPU.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Liên hệ khái niệm "dự đoán dày đặc" ở mục 3.1.</p>
+      <p class="quiz-explain">Lớp FC nén toàn bộ đặc trưng không gian thành một vector phẳng rồi xuất ra MỘT nhãn cho cả ảnh — phá vỡ hoàn toàn thông tin vị trí. Phân đoạn cần dự đoán dày đặc: một bản đồ nhãn cùng kích thước ảnh, mỗi pixel một dự đoán — đây là lý do FCN (2015) phải bỏ hẳn lớp FC.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="A">
+      <p class="quiz-q"><span class="qnum">Câu 6.</span>Mask R-CNN mở rộng từ kiến trúc detector nào bạn đã học ở Bài 6?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Faster R-CNN</button>
+        <button class="quiz-opt" data-key="B">B. YOLO</button>
+        <button class="quiz-opt" data-key="C">C. SSD</button>
+        <button class="quiz-opt" data-key="D">D. U-Net</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại mục 3.4.</p>
+      <p class="quiz-explain">Mask R-CNN mở rộng từ Faster R-CNN (Bài 6) bằng cách thêm một nhánh dự đoán mặt nạ chạy song song với hai nhánh có sẵn (phân loại lớp + tinh chỉnh khung bao), cho mỗi vật thể được phát hiện.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="C">
+      <p class="quiz-q"><span class="qnum">Câu 7.</span>Vai trò chính của skip connections trong U-Net là gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Tăng tốc độ suy luận lên gấp đôi.</button>
+        <button class="quiz-opt" data-key="B">B. Giảm số tham số của mô hình.</button>
+        <button class="quiz-opt" data-key="C">C. Nối thẳng đặc trưng độ phân giải cao từ encoder sang decoder, giúp khôi phục biên chính xác.</button>
+        <button class="quiz-opt" data-key="D">D. Thay thế hoàn toàn bottleneck.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Liên hệ widget bật/tắt skip connection ở mục 4.1.</p>
+      <p class="quiz-explain">Khi encoder nén ảnh, chi tiết không gian (biên sắc nét, vị trí chính xác) bị mất dần qua các lớp pooling. Skip connections nối thẳng đặc trưng độ phân giải cao từ encoder sang tầng tương ứng của decoder, giúp decoder khôi phục biên chính xác — chìa khoá thành công của U-Net.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 8.</span>U-Net trong thí nghiệm của bài đạt Dice gần 100% trên dữ liệu tổng hợp. Điều này có nghĩa gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. U-Net sẽ luôn đạt điểm tương tự trên mọi bộ dữ liệu y tế thực tế.</button>
+        <button class="quiz-opt" data-key="B">B. Dữ liệu tổng hợp đơn giản nên điểm cao; dữ liệu thực tế phức tạp hơn sẽ cho điểm thấp và thực tế hơn.</button>
+        <button class="quiz-opt" data-key="C">C. Thí nghiệm này chứng minh U-Net không cần huấn luyện.</button>
+        <button class="quiz-opt" data-key="D">D. Dice luôn đạt gần 100% với mọi kiến trúc.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại callout "Đọc kết quả cho đúng" ở mục 4.3.</p>
+      <p class="quiz-explain">Bộ dữ liệu tổng hợp trong thí nghiệm rất đơn giản (đốm sáng rõ ràng trên nền tối), nên U-Net đạt điểm cao chỉ sau vài epoch. Dữ liệu thực tế (y tế, đường phố) phức tạp hơn nhiều — điểm số trên đó sẽ thấp và thực tế hơn. Mục đích thí nghiệm là chứng minh kiến trúc thực sự học được, không phải khoe điểm tuyệt đối.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="C">
+      <p class="quiz-q"><span class="qnum">Câu 9.</span>Phát biểu nào đúng về mối quan hệ giữa Dice và IoU trên cùng một cặp mặt nạ?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. IoU luôn ≥ Dice.</button>
+        <button class="quiz-opt" data-key="B">B. Dice và IoU luôn bằng nhau.</button>
+        <button class="quiz-opt" data-key="C">C. Dice luôn ≥ IoU.</button>
+        <button class="quiz-opt" data-key="D">D. Không có mối quan hệ cố định nào giữa hai chỉ số.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Kéo thử widget ở mục 5.3 và quan sát giá trị "Dice − IoU".</p>
+      <p class="quiz-explain">Dice luôn ≥ IoU với cùng một cặp mặt nạ — hai chỉ số chỉ bằng nhau ở hai cực (trùng khít hoàn toàn hoặc không chồng lấn chút nào). Đây là lý do Dice được ưa chuộng hơn trong ảnh y tế, vì nó nhạy hơn với các vùng nhỏ.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="C">
+      <p class="quiz-q"><span class="qnum">Câu 10.</span>Một mô hình luôn dự đoán "nền" cho mọi pixel, trên ảnh có khối u chiếm 2% diện tích. Pixel accuracy của mô hình này sẽ khoảng bao nhiêu, và điều đó có ý nghĩa gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Khoảng 2%, cho thấy mô hình rất kém.</button>
+        <button class="quiz-opt" data-key="B">B. Khoảng 50%, một con số trung bình.</button>
+        <button class="quiz-opt" data-key="C">C. Khoảng 98%, một con số cao nhưng đánh lừa vì mô hình không phát hiện được khối u nào.</button>
+        <button class="quiz-opt" data-key="D">D. Không thể tính được pixel accuracy trong trường hợp này.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại callout "Cạm bẫy quen thuộc" ở mục 5.1.</p>
+      <p class="quiz-explain">Pixel accuracy sẽ khoảng 98% (100% trừ 2% diện tích khối u) — một con số trông rất ấn tượng nhưng hoàn toàn đánh lừa, vì mô hình không phát hiện được khối u nào cả. Đây là lý do phải luôn báo cáo mIoU và/hoặc Dice thay vì chỉ nhìn accuracy khi dữ liệu mất cân bằng.</p>
+    </div>
+  </div>
+</section>
+<section class="section" id="end">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Tổng kết</span>
+    <h2 class="section-title">Đích đến của bộ tứ bài toán thị giác</h2>
+    <p>Bạn vừa hoàn thành bài toán thị giác <strong>chi tiết nhất</strong>. Phân đoạn gán nhãn tới <strong>từng pixel</strong>, với ba mức độ — <strong>semantic</strong> (theo lớp), <strong>instance</strong> (theo thực thể) và <strong>panoptic</strong> (kết hợp). Bạn đã chạy thật các <strong>phương pháp cổ điển</strong> (Otsu, K-means, SLIC, watershed) và hiểu giới hạn của chúng, nắm cách <strong>học sâu</strong> giải bài toán qua kiến trúc <strong>encoder–decoder</strong>, mổ xẻ <strong>U-Net</strong> cùng vai trò then chốt của <strong>skip connections</strong>, và xem một U-Net <strong>huấn luyện thật</strong> học phân đoạn thành công. Bạn cũng biết <strong>đánh giá</strong> bằng IoU/Dice/mIoU và chọn hàm mất mát phù hợp.</p>
+    <p>Về mặt khái niệm, đây là <strong>đích đến của bộ tứ bài toán cốt lõi</strong>. Nhìn lại chặng đường: từ ảnh số là gì (Bài 1), xử lý ảnh với OpenCV (Bài 2), học sâu &amp; CNN (Bài 3–4), phương pháp luận &amp; đánh giá (Bài 5), đến bộ tứ bài toán — <strong>phân loại</strong>, <strong>phát hiện</strong> (Bài 6), <strong>YOLO</strong> (Bài 7) và <strong>phân đoạn</strong> (Bài 8). Bạn đã có một nền tảng vững và mạch lạc để hiểu bất kỳ bài toán thị giác máy tính nào từ gốc rễ.</p>
+    <p>Nhưng hành trình học của bạn chưa dừng ở đây. Series sẽ tiếp tục bước sang các bài <strong>ứng dụng cụ thể</strong>, bắt đầu từ <strong>Bài 9 — Phát hiện khuôn mặt</strong> (một bài toán phát hiện chuyên biệt, dùng lại chính các khối xây dựng bạn đã học ở Bài 6–7), rồi xa hơn nữa là <strong>Nhận diện khuôn mặt</strong> và <strong>OCR</strong> — những ứng dụng đưa toàn bộ nền tảng phân loại, phát hiện và phân đoạn bạn vừa học vào các bài toán thực tế rất cụ thể. Xa hơn nữa trên bản đồ thị giác máy tính còn có phân đoạn video, thị giác 3D, các mô hình nền tảng (SAM, CLIP), và triển khai mô hình vào thực tế. Chúc bạn vững bước — và đừng quên: cách học tốt nhất luôn là <strong>tự tay làm các bài tập</strong>.</p>
+  </div>
+</section>
+
+<div class="footer">
+  <div class="wrap">
+    Học sâu cho Thị giác Máy tính — Bài giảng Tutorial 8 · Phân đoạn Ảnh
+  </div>
+</div>
+
+</main>
+</div>
+<script>
+/* ---------- Reveal / Hint toggles ---------- */
+function toggleReveal(btn){
+  const box = btn.nextElementSibling;
+  box.classList.toggle('show');
+  btn.textContent = box.classList.contains('show') ? 'Ẩn đáp án' : 'Hiện đáp án';
+}
+function toggleHint(btn){
+  const hint = btn.closest('.quiz-item').querySelector('.quiz-hint');
+  hint.classList.toggle('show');
+  btn.textContent = hint.classList.contains('show') ? 'Ẩn gợi ý' : 'Gợi ý';
+}
+
+/* ---------- Quiz logic (giữ nguyên cho mọi bài) ---------- */
+document.querySelectorAll('.quiz-item').forEach(item=>{
+  const answer = item.dataset.answer;
+  const opts = item.querySelectorAll('.quiz-opt');
+  const explain = item.querySelector('.quiz-explain');
+  opts.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(item.classList.contains('answered')) return;
+      item.classList.add('answered');
+      opts.forEach(o=>o.disabled=true);
+      if(opt.dataset.key === answer){
+        opt.classList.add('correct');
+      } else {
+        opt.classList.add('incorrect');
+        const correctBtn = item.querySelector('.quiz-opt[data-key="'+answer+'"]');
+        if(correctBtn) correctBtn.classList.add('correct');
+      }
+      if(explain) explain.classList.add('show');
+    });
+  });
+});
+
+/* ---------- Rail scrollspy (giữ nguyên cho mọi bài) ---------- */
+(function railScrollSpy(){
+  const map={};
+  document.querySelectorAll('.rail-item').forEach(item=>{
+    const a=item.querySelector('a');
+    if(a){ map[a.getAttribute('href').slice(1)] = item; }
+  });
+  const targets=Object.keys(map).map(id=>document.getElementById(id)).filter(Boolean);
+  const observer=new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        Object.values(map).forEach(it=>it.classList.remove('active'));
+        const item=map[entry.target.id];
+        if(item) item.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-35% 0px -55% 0px', threshold:0});
+  targets.forEach(t=>observer.observe(t));
+})();
+
+/* ---------- Syntax highlighting (giữ nguyên cho mọi bài) ---------- */
+if(window.hljs){ hljs.highlightAll(); }
+
+/* ---------- BÊN DƯỚI: JS riêng cho widget của bài này ---------- */
+
+/* ---------- Widget 1 (hero): Semantic / Instance / Panoptic ---------- */
+(function(){
+  const svg = document.getElementById('segSceneSvg');
+  if(!svg) return;
+
+  const MODES = {
+    semantic: {
+      fills: {
+        segSky:'#cfe8f3', segGround:'#cbb896',
+        segP1Head:'#0f8b8d', segP1Body:'#0f8b8d',
+        segP2Head:'#0f8b8d', segP2Body:'#0f8b8d',
+        segP3Head:'#0f8b8d', segP3Body:'#0f8b8d',
+        segC1Body:'#e8940f', segC1W1:'#e8940f', segC1W2:'#e8940f',
+        segC2Body:'#e8940f', segC2W1:'#e8940f', segC2W2:'#e8940f'
+      },
+      desc: 'Semantic: mỗi pixel gán một <b>lớp</b> duy nhất — ba người cùng một màu "người", nền (trời/đường) cũng được tô theo lớp riêng. Không phân biệt người 1 với người 2.'
+    },
+    instance: {
+      fills: {
+        segSky:'#eef1ec', segGround:'#eef1ec',
+        segP1Head:'#0f8b8d', segP1Body:'#0f8b8d',
+        segP2Head:'#6a4c93', segP2Body:'#6a4c93',
+        segP3Head:'#c9184a', segP3Body:'#c9184a',
+        segC1Body:'#e8940f', segC1W1:'#e8940f', segC1W2:'#e8940f',
+        segC2Body:'#d1495b', segC2W1:'#d1495b', segC2W2:'#d1495b'
+      },
+      desc: 'Instance: mỗi <b>thực thể</b> có màu riêng — người 1, người 2, người 3, xe 1, xe 2 đều tách biệt. Nền (trời/đường) không được tô vì instance chỉ quan tâm vật thể đếm được ("thing").'
+    },
+    panoptic: {
+      fills: {
+        segSky:'#cfe8f3', segGround:'#cbb896',
+        segP1Head:'#0f8b8d', segP1Body:'#0f8b8d',
+        segP2Head:'#6a4c93', segP2Body:'#6a4c93',
+        segP3Head:'#c9184a', segP3Body:'#c9184a',
+        segC1Body:'#e8940f', segC1W1:'#e8940f', segC1W2:'#e8940f',
+        segC2Body:'#d1495b', segC2W1:'#d1495b', segC2W2:'#d1495b'
+      },
+      desc: 'Panoptic: kết hợp cả hai — nền tô theo <b>lớp</b> (semantic), mỗi thực thể vẫn có <b>màu riêng</b> (instance). Đầy đủ nhất, không bỏ sót pixel nào.'
+    }
+  };
+
+  const descEl = document.getElementById('segModeDesc');
+  const btns = {
+    semantic: document.getElementById('segBtnSemantic'),
+    instance: document.getElementById('segBtnInstance'),
+    panoptic: document.getElementById('segBtnPanoptic')
+  };
+
+  function setMode(mode){
+    const cfg = MODES[mode];
+    Object.keys(cfg.fills).forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.setAttribute('fill', cfg.fills[id]);
+    });
+    descEl.innerHTML = cfg.desc;
+    Object.keys(btns).forEach(m=>{
+      btns[m].className = (m===mode) ? 'btn' : 'btn btn-ghost';
+    });
+  }
+
+  Object.keys(btns).forEach(mode=>{
+    btns[mode].addEventListener('click', ()=> setMode(mode));
+  });
+
+  setMode('semantic');
+})();
+
+/* ---------- Widget 2 (L4): bat/tat skip connection ---------- */
+(function(){
+  const toggle = document.getElementById('skipToggle');
+  if(!toggle) return;
+  const skip1 = document.getElementById('skipLine1');
+  const skip2 = document.getElementById('skipLine2');
+  const blob  = document.getElementById('maskBlob');
+  const status = document.getElementById('unetToggleStatus');
+
+  function applyState(){
+    const on = toggle.checked;
+    [skip1, skip2].forEach(el=>{
+      if(!el) return;
+      el.classList.toggle('skip-off', !on);
+    });
+    if(blob) blob.classList.toggle('blurred', !on);
+    if(status){
+      if(on){
+        status.textContent = 'Biên sắc nét — decoder nhận được chi tiết không gian độ phân giải cao trực tiếp từ encoder.';
+        status.classList.remove('status-off');
+      } else {
+        status.textContent = 'Biên mờ, mất chi tiết — decoder chỉ còn dựa vào thông tin đã bị nén ở bottleneck, không đủ để khôi phục ranh giới chính xác.';
+        status.classList.add('status-off');
+      }
+    }
+  }
+
+  toggle.addEventListener('change', applyState);
+  applyState();
+})();
+
+/* ---------- Widget 3 (L5): IoU & Dice cung luc ---------- */
+(function(){
+  const slider = document.getElementById('sdSlider');
+  if(!slider) return;
+  const pred = document.getElementById('sdPred');
+  const iouEl = document.getElementById('sdIoUValue');
+  const diceEl = document.getElementById('sdDiceValue');
+  const gapEl = document.getElementById('sdGapValue');
+
+  function updateSD(){
+    const offset = parseFloat(slider.value);
+    if(pred) pred.setAttribute('x', 70+offset);
+    const W=100, H=80;
+    const overlapW = Math.max(0, W-offset);
+    const overlapArea = overlapW*H;
+    const areaGT = W*H, areaPred = W*H;
+    const unionArea = areaGT + areaPred - overlapArea;
+    const iou = unionArea>0 ? overlapArea/unionArea : 0;
+    const dice = (areaGT+areaPred)>0 ? (2*overlapArea)/(areaGT+areaPred) : 0;
+    iouEl.textContent = iou.toFixed(2);
+    diceEl.textContent = dice.toFixed(2);
+    gapEl.textContent = (dice-iou).toFixed(2);
+  }
+
+  slider.addEventListener('input', updateSD);
+  updateSD();
+})();
+</script>
+</body>
+</html>

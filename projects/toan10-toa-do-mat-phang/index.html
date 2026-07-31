@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toán 10 – Bài C.3: Toạ độ trong mặt phẳng</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<style>
+  :root{
+    --paper:#F4F5F0; --paper-alt:#ECEEE6; --ink:#1B2624; --ink-soft:#4B5A56; --rule:#D8DBCF;
+    --c1:#1F8A82; --c1-bg:#E3F2EF; /* Toạ độ điểm, vectơ */
+    --c2:#39588F; --c2-bg:#E5EAF3; /* Phương trình đường thẳng */
+    --c3:#B4741C; --c3-bg:#F5EADA; /* Phương trình đường tròn */
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.65;font-size:16px;}
+  h1,h2,h3,h4{font-family:Georgia,"Palatino Linotype","Times New Roman",serif;font-weight:700;line-height:1.25;margin:0 0 .5em 0;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 18px 80px;}
+  .top{background:var(--ink);color:var(--paper);padding:38px 18px 30px;}
+  .top .wrap{padding:0;}
+  .eyebrow{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:#B9C4B7;margin-bottom:10px;}
+  .top h1{font-size:clamp(24px,5vw,36px);color:#FBFBF6;margin-bottom:8px;}
+  .top p.sub{color:#C9D0C4;font-size:15.5px;max-width:58ch;margin:0;}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;}
+  .meta-chip{font-size:12.5px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;border:1px solid #4C5A55;color:#D6DCD1;padding:5px 10px;border-radius:20px;}
+  .toc{display:flex;gap:8px;overflow-x:auto;padding:14px 18px;background:var(--paper-alt);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:50;-webkit-overflow-scrolling:touch;}
+  .toc a{flex:0 0 auto;text-decoration:none;font-size:13px;font-weight:600;padding:8px 13px;border-radius:8px;white-space:nowrap;color:var(--ink);border:1px solid var(--rule);background:var(--paper);}
+  .toc a b{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:700;margin-right:5px;opacity:.55;}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:22px 0 6px;}
+  .controls button{font-family:inherit;font-size:13.5px;font-weight:600;padding:9px 15px;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer;}
+  .controls button.ghost{background:transparent;color:var(--ink);}
+  .controls span.hint{font-size:13px;color:var(--ink-soft);}
+  .intro{padding:26px 0 6px;}
+  .intro p{color:var(--ink-soft);max-width:64ch;}
+  .chapter{margin-top:56px;scroll-margin-top:70px;}
+  .chapter-tab{display:inline-flex;align-items:baseline;gap:10px;padding:9px 16px 10px;border-radius:10px 10px 0 0;color:#fff;}
+  .chapter-tab .num{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:13px;opacity:.85;}
+  .chapter-tab .name{font-family:Georgia,serif;font-weight:700;font-size:20px;}
+  .chapter-body{border-radius:0 10px 10px 10px;border:1px solid var(--rule);background:#fff;padding:26px 22px 30px;}
+  .theory-box{background:var(--box-bg,var(--paper-alt));border-left:4px solid var(--box-c,var(--ink));border-radius:6px;padding:16px 18px;margin:16px 0 22px;}
+  .theory-box h4{font-size:13px;text-transform:uppercase;letter-spacing:.07em;font-family:"SFMono-Regular",Consolas,Menlo,monospace;color:var(--box-c,var(--ink));margin-bottom:10px;}
+  .theory-box ul{margin:0;padding-left:20px;}
+  .theory-box li{margin-bottom:8px;}
+  .theory-box li:last-child{margin-bottom:0;}
+  .example-box{border:1px dashed var(--box-c,var(--ink-soft));border-radius:6px;padding:16px 18px;margin:16px 0 22px;background:#FCFCF9;}
+  .example-box h4{font-size:13px;text-transform:uppercase;letter-spacing:.07em;font-family:"SFMono-Regular",Consolas,Menlo,monospace;color:var(--box-c,var(--ink));margin-bottom:10px;}
+  .example-box .steps p{margin:.5em 0;}
+  .problems-head{font-size:13px;text-transform:uppercase;letter-spacing:.07em;font-family:"SFMono-Regular",Consolas,Menlo,monospace;color:var(--ink-soft);margin:26px 0 12px;border-top:1px solid var(--rule);padding-top:18px;}
+  .problem{border:1px solid var(--rule);border-radius:8px;padding:16px 18px;margin-bottom:14px;background:var(--paper);}
+  .problem-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px;}
+  .problem-num{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:700;color:var(--box-c,var(--ink));font-size:14px;flex:0 0 auto;}
+  .badge{font-size:10.5px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:20px;flex:0 0 auto;border:1px solid currentColor;opacity:.8;}
+  .b-nb{color:#2F7D6B;} .b-th{color:#3E5C9A;} .b-vd{color:#B4741C;} .b-vdc{color:#A83B49;}
+  .problem-text{margin:6px 0 10px;}
+  .btn-toggle{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12.5px;font-weight:600;background:transparent;border:1px solid var(--box-c,var(--ink));color:var(--box-c,var(--ink));padding:6px 12px;border-radius:20px;cursor:pointer;}
+  .btn-toggle.active{background:var(--box-c,var(--ink));color:#fff;}
+  .solution{display:none;margin-top:14px;padding:14px 16px;border-radius:6px;background:var(--box-bg,var(--paper-alt));border-left:3px solid var(--box-c,var(--ink));}
+  .solution p{margin:.45em 0;}
+  .solution .lbl{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--box-c,var(--ink));margin-bottom:8px;font-weight:700;}
+  #ch1{--box-c:var(--c1);--box-bg:var(--c1-bg);}
+  #ch2{--box-c:var(--c2);--box-bg:var(--c2-bg);}
+  #ch3{--box-c:var(--c3);--box-bg:var(--c3-bg);}
+  #ch1 .chapter-tab{background:var(--c1);}
+  #ch2 .chapter-tab{background:var(--c2);}
+  #ch3 .chapter-tab{background:var(--c3);}
+  figure.geo{margin:14px 0;padding:14px;background:#FCFCF9;border:1px solid var(--rule);border-radius:8px;text-align:center;}
+  figure.geo svg{max-width:100%;height:auto;}
+  figure.geo figcaption{font-size:12.5px;color:var(--ink-soft);margin-top:6px;}
+  footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--rule);color:var(--ink-soft);font-size:13px;}
+  @media print{
+    .toc,.controls,.btn-toggle{display:none !important;}
+    .solution{display:block !important;}
+    .top{background:#fff !important;color:#000 !important;}
+    .top .eyebrow,.top .sub,.meta-chip{color:#333 !important;}
+    .top h1{color:#000 !important;}
+  }
+  @media (max-width:600px){ .chapter-tab .name{font-size:17px;} .chapter-body{padding:20px 14px 24px;} }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wrap">
+    <div class="eyebrow">Chuẩn bị Toán 10 &nbsp;•&nbsp; Phần C — Hình học &nbsp;•&nbsp; Bài C.3</div>
+    <h1>Toạ độ trong mặt phẳng</h1>
+    <p class="sub">Chuyển hình học sang "ngôn ngữ" đại số: điểm thành cặp số, đường thẳng và đường tròn thành phương trình — nền tảng để giải hình học bằng tính toán thuần tuý.</p>
+    <div class="meta-row">
+      <span class="meta-chip">3 phần</span>
+      <span class="meta-chip">19 bài tập có lời giải chi tiết</span>
+      <span class="meta-chip">6 ví dụ minh hoạ</span>
+    </div>
+  </div>
+</div>
+
+<nav class="toc">
+  <a href="#ch1"><b>01</b>Toạ độ điểm &amp; vectơ</a>
+  <a href="#ch2"><b>02</b>Phương trình đường thẳng</a>
+  <a href="#ch3"><b>03</b>Phương trình đường tròn</a>
+</nav>
+
+<div class="wrap">
+
+  <div class="controls">
+    <button onclick="showAll()">Hiện tất cả lời giải</button>
+    <button class="ghost" onclick="hideAll()">Ẩn tất cả lời giải</button>
+    <span class="hint">Bấm “Xem lời giải” ở từng bài để hiện/ẩn đáp án.</span>
+  </div>
+
+  <div class="intro">
+    <p>Đây là bước ngoặt quan trọng: thay vì vẽ hình và suy luận hình học thuần tuý, ta gắn hệ trục toạ độ Oxy rồi biến mọi bài toán hình học thành bài toán đại số — cộng trừ, giải phương trình. Vectơ học ở bài trước chính là cầu nối giúp việc này trở nên tự nhiên.</p>
+  </div>
+
+  <!-- ============ PHẦN 1 ============ -->
+  <section class="chapter" id="ch1">
+    <div class="chapter-tab"><span class="num">01</span><span class="name">Toạ độ điểm &amp; vectơ</span></div>
+    <div class="chapter-body">
+
+      <figure class="geo">
+        <svg viewBox="0 0 260 250" xmlns="http://www.w3.org/2000/svg">
+          <defs><marker id="ar1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1F8A82"/></marker></defs>
+          <line x1="30" y1="220" x2="250" y2="220" stroke="#1B2624" stroke-width="1.5"/>
+          <polygon points="250,220 243,216 243,224" fill="#1B2624"/>
+          <line x1="60" y1="240" x2="60" y2="20" stroke="#1B2624" stroke-width="1.5"/>
+          <polygon points="60,20 56,27 64,27" fill="#1B2624"/>
+          <line x1="85" y1="170" x2="160" y2="70" stroke="#1F8A82" stroke-width="2.3" marker-end="url(#ar1)"/>
+          <circle cx="85" cy="170" r="3" fill="#1B2624"/>
+          <circle cx="160" cy="70" r="3" fill="#1B2624"/>
+          <circle cx="122.5" cy="120" r="3" fill="#A83B49"/>
+          <line x1="85" y1="220" x2="85" y2="170" stroke="#1B2624" stroke-width="1" stroke-dasharray="2 2"/>
+          <line x1="60" y1="170" x2="85" y2="170" stroke="#1B2624" stroke-width="1" stroke-dasharray="2 2"/>
+          <line x1="160" y1="220" x2="160" y2="70" stroke="#1B2624" stroke-width="1" stroke-dasharray="2 2"/>
+          <line x1="60" y1="70" x2="160" y2="70" stroke="#1B2624" stroke-width="1" stroke-dasharray="2 2"/>
+          <text x="255" y="224" font-size="13" font-family="Georgia,serif">x</text>
+          <text x="50" y="18" font-size="13" font-family="Georgia,serif">y</text>
+          <text x="46" y="234" font-size="12" font-family="Georgia,serif">O</text>
+          <text x="90" y="185" font-size="13" font-family="Georgia,serif">A(1;2)</text>
+          <text x="164" y="65" font-size="13" font-family="Georgia,serif">B(4;6)</text>
+          <text x="128" y="112" font-size="12" font-family="Georgia,serif" fill="#A83B49">I</text>
+        </svg>
+        <figcaption>Điểm A(1;2), B(4;6); vectơ \(\vec{AB}\); I là trung điểm AB</figcaption>
+      </figure>
+
+      <div class="theory-box">
+        <h4>Tóm tắt lý thuyết</h4>
+        <ul>
+          <li>Trong hệ trục toạ độ Oxy, điểm M có toạ độ \((x;y)\) nghĩa là \(\vec{OM}=(x;y)\).</li>
+          <li>Cho \(A(x_A;y_A),\ B(x_B;y_B)\): \(\vec{AB}=(x_B-x_A;\ y_B-y_A)\).</li>
+          <li>Độ dài đoạn thẳng: \(AB=\sqrt{(x_B-x_A)^2+(y_B-y_A)^2}\).</li>
+          <li><b>Toạ độ trung điểm</b> I của AB: \(x_I=\dfrac{x_A+x_B}{2},\quad y_I=\dfrac{y_A+y_B}{2}\)</li>
+          <li><b>Toạ độ trọng tâm</b> G của tam giác ABC: \(x_G=\dfrac{x_A+x_B+x_C}{3},\quad y_G=\dfrac{y_A+y_B+y_C}{3}\)</li>
+          <li>Với \(\vec u=(u_1;u_2),\ \vec v=(v_1;v_2)\): \(\vec u+\vec v=(u_1+v_1;u_2+v_2)\), &nbsp; \(k\vec u=(ku_1;ku_2)\)</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 1 — Vectơ và độ dài đoạn thẳng theo toạ độ</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Cho \(A(1;2),\ B(4;6)\). Tính \(\vec{AB}\) và độ dài AB.</p>
+          <p><b>Giải:</b> \(\vec{AB}=(4-1;\ 6-2)=(3;4)\)</p>
+          <p>\(AB=\sqrt{3^2+4^2}=\sqrt{25}=5\)</p>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 2 — Toạ độ trọng tâm tam giác</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Cho tam giác ABC có \(A(1;1),\ B(5;1),\ C(1;4)\). Tìm toạ độ trọng tâm G.</p>
+          <p><b>Giải:</b> \(x_G=\dfrac{1+5+1}{3}=\dfrac73,\qquad y_G=\dfrac{1+1+4}{3}=2\)</p>
+          <p>Vậy \(G\left(\dfrac73;2\right)\).</p>
+        </div>
+      </div>
+
+      <div class="problems-head">Bài tập tự luyện — Toạ độ điểm &amp; vectơ</div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.1</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Cho \(A(2;3),\ B(5;7)\). Tính \(\vec{AB}\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-1', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-1">
+          <p class="lbl">Lời giải</p>
+          <p>\(\vec{AB}=(5-2;\ 7-3)=(3;4)\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.2</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Cho \(A(-1;2),\ B(3;5)\). Tính độ dài AB.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-2', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-2">
+          <p class="lbl">Lời giải</p>
+          <p>\(AB=\sqrt{(3-(-1))^2+(5-2)^2}=\sqrt{16+9}=\sqrt{25}=5\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.3</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Cho \(A(2;4),\ B(6;8)\). Tìm toạ độ trung điểm I của AB.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-3', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-3">
+          <p class="lbl">Lời giải</p>
+          <p>\(I\left(\dfrac{2+6}{2};\dfrac{4+8}{2}\right)=I(4;6)\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.4</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Cho tam giác ABC có \(A(0;3),\ B(4;0),\ C(-2;-1)\). Tìm toạ độ trọng tâm G.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-4', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-4">
+          <p class="lbl">Lời giải</p>
+          <p>\(x_G=\dfrac{0+4-2}{3}=\dfrac23,\qquad y_G=\dfrac{3+0-1}{3}=\dfrac23\)</p>
+          <p>Vậy \(G\left(\dfrac23;\dfrac23\right)\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.5</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Cho \(\vec u=(2;-3),\ \vec v=(-1;4)\). Tìm toạ độ của \(\vec u+\vec v\) và \(2\vec u-3\vec v\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-5', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-5">
+          <p class="lbl">Lời giải</p>
+          <p>\(\vec u+\vec v=(2-1;\ -3+4)=(1;1)\)</p>
+          <p>\(2\vec u=(4;-6),\quad 3\vec v=(-3;12)\)</p>
+          <p>\(2\vec u-3\vec v=(4-(-3);\ -6-12)=(7;-18)\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.6</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Cho \(A(1;1),\ B(4;5)\). Tìm toạ độ điểm C sao cho B là trung điểm của AC.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-6', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-6">
+          <p class="lbl">Lời giải</p>
+          <p>B là trung điểm AC \(\Rightarrow x_C=2x_B-x_A=2(4)-1=7,\quad y_C=2y_B-y_A=2(5)-1=9\)</p>
+          <p>Vậy \(C(7;9)\).</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ PHẦN 2 ============ -->
+  <section class="chapter" id="ch2">
+    <div class="chapter-tab"><span class="num">02</span><span class="name">Phương trình đường thẳng</span></div>
+    <div class="chapter-body">
+
+      <figure class="geo">
+        <svg viewBox="0 0 240 300" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="ar2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#39588F"/></marker>
+            <marker id="ar3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#A83B49"/></marker>
+          </defs>
+          <line x1="20" y1="220" x2="220" y2="220" stroke="#1B2624" stroke-width="1.5"/>
+          <polygon points="220,220 213,216 213,224" fill="#1B2624"/>
+          <line x1="70" y1="290" x2="70" y2="20" stroke="#1B2624" stroke-width="1.5"/>
+          <polygon points="70,20 66,27 74,27" fill="#1B2624"/>
+          <line x1="56" y1="290" x2="126" y2="80" stroke="#1B2624" stroke-width="2.2"/>
+          <circle cx="70" cy="248" r="3" fill="#1B2624"/>
+          <circle cx="98" cy="164" r="3" fill="#1B2624"/>
+          <line x1="98" y1="164" x2="122" y2="172" stroke="#39588F" stroke-width="2.2" marker-end="url(#ar2)"/>
+          <line x1="98" y1="164" x2="106" y2="140" stroke="#A83B49" stroke-width="2.2" marker-end="url(#ar3)"/>
+          <text x="225" y="224" font-size="13" font-family="Georgia,serif">x</text>
+          <text x="60" y="18" font-size="13" font-family="Georgia,serif">y</text>
+          <text x="55" y="264" font-size="12" font-family="Georgia,serif">(0;−1)</text>
+          <text x="102" y="160" font-size="12" font-family="Georgia,serif">(1;2)</text>
+          <text x="128" y="180" font-size="12.5" font-family="Georgia,serif" fill="#39588F">n=(3;−1)</text>
+          <text x="72" y="136" font-size="12.5" font-family="Georgia,serif" fill="#A83B49">u=(1;3)</text>
+          <text x="14" y="90" font-size="13" font-family="Georgia,serif">Δ: 3x−y−1=0</text>
+        </svg>
+        <figcaption>Đường thẳng Δ với VTPT \(\vec n\) (vuông góc Δ) và VTCP \(\vec u\) (song song Δ)</figcaption>
+      </figure>
+
+      <div class="theory-box">
+        <h4>Tóm tắt lý thuyết</h4>
+        <ul>
+          <li><b>Vectơ pháp tuyến (VTPT)</b> \(\vec n=(a;b)\) của đường thẳng \(\Delta\): vectơ khác \(\vec0\) có giá vuông góc với \(\Delta\).</li>
+          <li><b>Vectơ chỉ phương (VTCP)</b> \(\vec u=(u_1;u_2)\): vectơ khác \(\vec0\) có giá song song hoặc trùng \(\Delta\). Nếu VTPT là \((a;b)\) thì có thể chọn VTCP là \((-b;a)\).</li>
+          <li><b>Phương trình tổng quát:</b> đường thẳng qua \(M_0(x_0;y_0)\), VTPT \((a;b)\): \(a(x-x_0)+b(y-y_0)=0\), tức \(ax+by+c=0\).</li>
+          <li><b>Phương trình tham số:</b> đường thẳng qua \(M_0(x_0;y_0)\), VTCP \((u_1;u_2)\): \(\begin{cases}x=x_0+tu_1\\y=y_0+tu_2\end{cases}\ (t\in\mathbb R)\)</li>
+          <li><b>Vị trí tương đối</b> của \(d_1\!:a_1x+b_1y+c_1=0\) và \(d_2\!:a_2x+b_2y+c_2=0\): cắt nhau nếu \(\dfrac{a_1}{a_2}\) ≠ \(\dfrac{b_1}{b_2}\); song song nếu \(\dfrac{a_1}{a_2}=\dfrac{b_1}{b_2}\) ≠ \(\dfrac{c_1}{c_2}\); trùng nhau nếu cả ba tỉ số bằng nhau.</li>
+          <li><b>Góc giữa hai đường thẳng</b> có VTPT \(\vec n_1,\vec n_2\): \(\cos\varphi=\dfrac{|\vec n_1\cdot\vec n_2|}{|\vec n_1|\cdot|\vec n_2|}\)</li>
+          <li><b>Khoảng cách từ điểm</b> \(M_0(x_0;y_0)\) đến \(\Delta\!:ax+by+c=0\): \(d(M_0,\Delta)=\dfrac{|ax_0+by_0+c|}{\sqrt{a^2+b^2}}\)</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 1 — Viết phương trình tổng quát</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Viết phương trình tổng quát đường thẳng qua \(A(1;2)\), VTPT \(\vec n=(3;-1)\).</p>
+          <p><b>Giải:</b> \(3(x-1)-1(y-2)=0 \iff 3x-3-y+2=0 \iff 3x-y-1=0\)</p>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 2 — Khoảng cách từ điểm đến đường thẳng</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Tính khoảng cách từ \(M(2;3)\) đến đường thẳng \(3x-4y+1=0\).</p>
+          <p><b>Giải:</b> \(d=\dfrac{|3(2)-4(3)+1|}{\sqrt{3^2+4^2}}=\dfrac{|6-12+1|}{5}=\dfrac{5}{5}=1\)</p>
+        </div>
+      </div>
+
+      <div class="problems-head">Bài tập tự luyện — Phương trình đường thẳng</div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.1</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Viết phương trình tổng quát đường thẳng qua \(A(2;-1)\), VTPT \(\vec n=(1;2)\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-1', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-1">
+          <p class="lbl">Lời giải</p>
+          <p>\(1(x-2)+2(y+1)=0 \iff x-2+2y+2=0 \iff x+2y=0\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.2</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Viết phương trình tổng quát đường thẳng qua hai điểm \(A(1;1),\ B(3;5)\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-2', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-2">
+          <p class="lbl">Lời giải</p>
+          <p>VTCP: \(\vec{AB}=(2;4)\), suy ra chọn VTPT \(\vec n=(4;-2)\) hoặc rút gọn \((2;-1)\).</p>
+          <p>PT: \(2(x-1)-1(y-1)=0 \iff 2x-y-1=0\)</p>
+          <p><i>Kiểm tra qua B(3;5): \(2(3)-5-1=0\) ✓</i></p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.3</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Tìm một VTCP và một VTPT của đường thẳng \(2x-3y+6=0\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-3', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-3">
+          <p class="lbl">Lời giải</p>
+          <p>VTPT: \(\vec n=(2;-3)\). VTCP: \(\vec u=(3;2)\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.4</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Xét vị trí tương đối của hai đường thẳng \(d_1\!: 2x-y+1=0\) và \(d_2\!: 4x-2y+3=0\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-4', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-4">
+          <p class="lbl">Lời giải</p>
+          <p>\(\dfrac{a_1}{a_2}=\dfrac24=\dfrac12,\quad \dfrac{b_1}{b_2}=\dfrac{-1}{-2}=\dfrac12,\quad \dfrac{c_1}{c_2}=\dfrac13\)</p>
+          <p>Vì \(\dfrac{a_1}{a_2}=\dfrac{b_1}{b_2}\) ≠ \(\dfrac{c_1}{c_2}\) nên hai đường thẳng <b>song song</b>.</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.5</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Tính khoảng cách từ \(M(2;3)\) đến đường thẳng \(3x-4y+1=0\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-5', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-5">
+          <p class="lbl">Lời giải</p>
+          <p>\(d=\dfrac{|3(2)-4(3)+1|}{\sqrt{9+16}}=\dfrac{|-5|}{5}=1\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.6</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Viết phương trình đường thẳng qua \(A(1;2)\) và song song với đường thẳng \(2x-3y+5=0\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-6', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-6">
+          <p class="lbl">Lời giải</p>
+          <p>Vì song song nên VTPT giống đường đã cho: \(\vec n=(2;-3)\).</p>
+          <p>PT: \(2(x-1)-3(y-2)=0 \iff 2x-3y+4=0\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.7</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Tính góc giữa hai đường thẳng \(d_1\!: x-y+1=0\) và \(d_2\!: x+y-3=0\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-7', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-7">
+          <p class="lbl">Lời giải</p>
+          <p>\(\vec n_1=(1;-1),\ \vec n_2=(1;1)\). \(\vec n_1\cdot\vec n_2=1(1)+(-1)(1)=0\)</p>
+          <p>Vì tích vô hướng bằng 0 nên hai đường thẳng vuông góc: góc giữa chúng là \(90^\circ\).</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ PHẦN 3 ============ -->
+  <section class="chapter" id="ch3">
+    <div class="chapter-tab"><span class="num">03</span><span class="name">Phương trình đường tròn</span></div>
+    <div class="chapter-body">
+
+      <figure class="geo">
+        <svg viewBox="0 0 280 300" xmlns="http://www.w3.org/2000/svg">
+          <line x1="20" y1="150" x2="260" y2="150" stroke="#1B2624" stroke-width="1.5"/>
+          <polygon points="260,150 253,146 253,154" fill="#1B2624"/>
+          <line x1="100" y1="290" x2="100" y2="20" stroke="#1B2624" stroke-width="1.5"/>
+          <polygon points="100,20 96,27 104,27" fill="#1B2624"/>
+          <circle cx="140" cy="210" r="80" fill="#B4741C" fill-opacity="0.12" stroke="#B4741C" stroke-width="2.2"/>
+          <circle cx="140" cy="210" r="3" fill="#1B2624"/>
+          <line x1="140" y1="210" x2="220" y2="210" stroke="#1B2624" stroke-width="1.5" stroke-dasharray="3 2"/>
+          <circle cx="220" cy="210" r="2.5" fill="#1B2624"/>
+          <text x="265" y="154" font-size="13" font-family="Georgia,serif">x</text>
+          <text x="90" y="18" font-size="13" font-family="Georgia,serif">y</text>
+          <text x="112" y="206" font-size="13" font-family="Georgia,serif">I(2;−3)</text>
+          <text x="170" y="204" font-size="12.5" font-family="Georgia,serif">R=4</text>
+        </svg>
+        <figcaption>Đường tròn tâm I(2;−3), bán kính R=4: \((x-2)^2+(y+3)^2=16\)</figcaption>
+      </figure>
+
+      <div class="theory-box">
+        <h4>Tóm tắt lý thuyết</h4>
+        <ul>
+          <li>Phương trình đường tròn tâm \(I(a;b)\), bán kính R: \((x-a)^2+(y-b)^2=R^2\)</li>
+          <li><b>Dạng khai triển:</b> \(x^2+y^2-2ax-2by+c=0\), với \(c=a^2+b^2-R^2\). Đây là phương trình đường tròn khi \(a^2+b^2-c>0\), và khi đó \(R=\sqrt{a^2+b^2-c}\).</li>
+          <li><b>Phương trình tiếp tuyến</b> của đường tròn tâm I, bán kính R, tại điểm \(M_0\) thuộc đường tròn: đường thẳng qua \(M_0\), có VTPT là \(\vec{IM_0}\) (vì tiếp tuyến vuông góc bán kính tại tiếp điểm).</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 1 — Viết phương trình đường tròn</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Viết phương trình đường tròn tâm \(I(1;2)\), bán kính \(R=3\).</p>
+          <p><b>Giải:</b> \((x-1)^2+(y-2)^2=9\)</p>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 2 — Xác định tâm, bán kính từ dạng khai triển</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Xác định tâm và bán kính đường tròn \(x^2+y^2-4x+6y-3=0\).</p>
+          <p><b>Giải:</b> \((x^2-4x)+(y^2+6y)=3 \iff (x-2)^2-4+(y+3)^2-9=3\)</p>
+          <p>\(\iff (x-2)^2+(y+3)^2=16\)</p>
+          <p>Vậy tâm \(I(2;-3)\), bán kính \(R=4\).</p>
+        </div>
+      </div>
+
+      <div class="problems-head">Bài tập tự luyện — Phương trình đường tròn</div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.1</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Viết phương trình đường tròn tâm \(I(-2;3)\), bán kính \(R=5\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-1', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-1">
+          <p class="lbl">Lời giải</p>
+          <p>\((x+2)^2+(y-3)^2=25\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.2</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Xác định tâm và bán kính đường tròn \((x-3)^2+(y+1)^2=16\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-2', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-2">
+          <p class="lbl">Lời giải</p>
+          <p>Tâm \(I(3;-1)\), bán kính \(R=4\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.3</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Xác định tâm và bán kính đường tròn \(x^2+y^2+2x-4y-4=0\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-3', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-3">
+          <p class="lbl">Lời giải</p>
+          <p>\((x^2+2x)+(y^2-4y)=4 \iff (x+1)^2-1+(y-2)^2-4=4 \iff (x+1)^2+(y-2)^2=9\)</p>
+          <p>Tâm \(I(-1;2)\), bán kính \(R=3\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.4</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Viết phương trình đường tròn có đường kính AB với \(A(1;2),\ B(5;6)\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-4', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-4">
+          <p class="lbl">Lời giải</p>
+          <p>Tâm I là trung điểm AB: \(I(3;4)\).</p>
+          <p>Bán kính \(R=IA=\sqrt{(3-1)^2+(4-2)^2}=\sqrt{8}=2\sqrt2\)</p>
+          <p>PT: \((x-3)^2+(y-4)^2=8\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.5</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Viết phương trình tiếp tuyến của đường tròn \((x-1)^2+(y-2)^2=25\) tại điểm \(M(4;6)\) thuộc đường tròn.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-5', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-5">
+          <p class="lbl">Lời giải</p>
+          <p>Kiểm tra M thuộc đường tròn: \((4-1)^2+(6-2)^2=9+16=25\) ✓</p>
+          <p>VTPT của tiếp tuyến là \(\vec{IM}=(4-1;\ 6-2)=(3;4)\) (vì tiếp tuyến vuông góc bán kính IM tại M).</p>
+          <p>PT tiếp tuyến: \(3(x-4)+4(y-6)=0 \iff 3x+4y-36=0\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.6</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Tìm \(m\) để \(x^2+y^2-2x+4y+m=0\) là phương trình một đường tròn.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-6', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-6">
+          <p class="lbl">Lời giải</p>
+          <p>Ở đây \(a=1,\ b=-2,\ c=m\). Điều kiện là phương trình đường tròn: \(a^2+b^2-c>0\)</p>
+          <p>\(1+4-m>0 \iff m<5\)</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>Bài C.3 — Toạ độ trong mặt phẳng. Cùng với Vectơ, đây là nền tảng của phương pháp toạ độ — công cụ chủ lực để giải hình học phẳng ở lớp 10 và xuyên suốt lớp 12 (hình học không gian Oxyz).</p>
+  </footer>
+
+</div>
+
+<script>
+  function toggleSolution(id, btn){
+    var el = document.getElementById(id);
+    var isOpen = el.style.display === 'block';
+    if(isOpen){
+      el.style.display = 'none';
+      btn.textContent = 'Xem lời giải ▾';
+      btn.classList.remove('active');
+    } else {
+      el.style.display = 'block';
+      btn.textContent = 'Ẩn lời giải ▴';
+      btn.classList.add('active');
+    }
+  }
+  function showAll(){
+    document.querySelectorAll('.solution').forEach(function(el){ el.style.display = 'block'; });
+    document.querySelectorAll('.btn-toggle').forEach(function(btn){ btn.textContent = 'Ẩn lời giải ▴'; btn.classList.add('active'); });
+  }
+  function hideAll(){
+    document.querySelectorAll('.solution').forEach(function(el){ el.style.display = 'none'; });
+    document.querySelectorAll('.btn-toggle').forEach(function(btn){ btn.textContent = 'Xem lời giải ▾'; btn.classList.remove('active'); });
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    if(window.renderMathInElement){
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "\\[", right: "\\]", display: true},
+          {left: "\\(", right: "\\)", display: false}
+        ],
+        throwOnError: false
+      });
+    }
+  });
+</script>
+
+</body>
+</html>

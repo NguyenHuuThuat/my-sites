@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phân loại ảnh Chuyên sâu — Thị giác Máy tính</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<style>
+:root{
+  --paper:#f3f6f4;
+  --paper-deep:#eaefec;
+  --ink:#132036;
+  --ink-soft:#42506a;
+  --ink-faint:#7c8aa0;
+  --line:#d9e0da;
+  --forward:#0f8b8d;
+  --forward-soft:#e1f3f2;
+  --forward-ink:#0a5f60;
+  --backward:#d1495b;
+  --backward-soft:#fbe7ea;
+  --backward-ink:#9c2f3d;
+  --signal:#e8940f;
+  --signal-soft:#fdf0da;
+  --signal-ink:#a86608;
+  --panel:#ffffff;
+  --code-bg:#101c2c;
+  --code-text:#d7e2ee;
+  --radius:14px;
+  --serif-display:'Be Vietnam Pro', sans-serif;
+  --sans-body:'Inter', sans-serif;
+  --mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink-soft);
+  font-family:var(--sans-body);
+  font-size:16px;
+  line-height:1.7;
+  background-image:
+    linear-gradient(var(--paper) 0%, var(--paper) 100%),
+    repeating-linear-gradient(0deg, rgba(19,32,54,0.025) 0px, rgba(19,32,54,0.025) 1px, transparent 1px, transparent 28px),
+    repeating-linear-gradient(90deg, rgba(19,32,54,0.025) 0px, rgba(19,32,54,0.025) 1px, transparent 1px, transparent 28px);
+}
+h1,h2,h3,h4{
+  font-family:var(--serif-display);
+  color:var(--ink);
+  margin:0 0 .5em 0;
+  letter-spacing:-0.01em;
+}
+p{margin:0 0 1em 0;}
+a{color:var(--forward-ink);}
+strong{color:var(--ink);}
+code{font-family:var(--mono);}
+.layout{
+  display:grid;
+  grid-template-columns:272px minmax(0,1fr);
+  max-width:1280px;
+  margin:0 auto;
+}
+.rail{
+  position:sticky; top:0; align-self:start; height:100vh;
+  padding:32px 18px 32px 28px; border-right:1px solid var(--line); overflow-y:auto;
+}
+.rail-brand{
+  font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--forward-ink); margin-bottom:22px; display:block;
+}
+.rail-list{list-style:none; margin:0; padding:0 0 0 18px; position:relative; border-left:2px solid var(--line);}
+.rail-item{position:relative; margin:0 0 4px 0;}
+.rail-item::before{
+  content:''; position:absolute; left:-24px; top:13px; width:8px;height:8px; border-radius:50%;
+  background:var(--paper); border:2px solid var(--ink-faint); transition:.2s;
+}
+.rail-item.active::before{background:var(--forward); border-color:var(--forward); box-shadow:0 0 0 4px var(--forward-soft);}
+.rail-link{display:block; padding:9px 10px; font-size:13.5px; color:var(--ink-soft); text-decoration:none; border-radius:8px; font-weight:500;}
+.rail-link .rail-num{font-family:var(--mono); color:var(--ink-faint); font-size:11px; display:block;}
+.rail-item.active .rail-link{color:var(--forward-ink); background:var(--forward-soft); font-weight:600;}
+.rail-item.active .rail-link .rail-num{color:var(--forward-ink);}
+.content{padding:0 0 40px 0; min-width:0;}
+.wrap{max-width:760px; margin:0 auto; padding:0 40px;}
+.hero{padding:70px 0 20px 0;}
+.hero-eyebrow{
+  font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--forward-ink); background:var(--forward-soft); display:inline-block; padding:5px 12px;
+  border-radius:20px; margin-bottom:20px;
+}
+.hero-title{font-size:clamp(34px,5vw,54px); font-weight:800; line-height:1.06;}
+.hero-title em{font-style:normal; color:var(--forward); position:relative;}
+.hero-sub{font-size:19px; color:var(--ink-soft); font-weight:500; max-width:600px; margin-bottom:26px;}
+.hero-lede{font-size:16px; max-width:640px;}
+.section{padding:64px 0; border-top:1px solid var(--line);}
+.section-eyebrow{
+  font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-faint); margin-bottom:10px; display:flex; align-items:center; gap:10px;
+}
+.section-eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--forward);}
+.section-title{font-size:30px; margin-bottom:14px;}
+.section-lead{font-size:16.5px; color:var(--ink-soft); max-width:640px;}
+.subsection{margin-top:38px;}
+.subsection h3{font-size:21px; margin-bottom:10px;}
+.subsection h3 .tag{
+  font-family:var(--mono); font-size:12px; color:var(--forward-ink); background:var(--forward-soft);
+  padding:2px 8px; border-radius:6px; margin-right:8px; vertical-align:middle;
+}
+ul.plain, ol.plain{padding-left:22px; margin:0 0 1em 0;}
+ul.plain li, ol.plain li{margin-bottom:8px;}
+.callout{border-radius:var(--radius); padding:18px 20px; margin:22px 0; border:1px solid var(--line); background:var(--panel); font-size:15px;}
+.callout-head{font-weight:700; color:var(--ink); display:block; margin-bottom:6px; font-size:14px; text-transform:uppercase; letter-spacing:.04em;}
+.callout-note{border-left:4px solid var(--signal); background:var(--signal-soft);}
+.callout-note .callout-head{color:var(--signal-ink);}
+.callout-warn{border-left:4px solid var(--backward); background:var(--backward-soft);}
+.callout-warn .callout-head{color:var(--backward-ink);}
+.callout-result{border-left:4px solid var(--forward); background:var(--forward-soft);}
+.callout-result .callout-head{color:var(--forward-ink);}
+.figure{margin:26px 0; border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:24px;}
+.figure-caption{font-size:13.5px; color:var(--ink-faint); margin-top:14px; padding-top:12px; border-top:1px dashed var(--line);}
+.figure-caption b{color:var(--ink-soft);}
+.check{margin:26px 0; border-radius:var(--radius); border:1.5px dashed var(--forward); background:#fff; padding:18px 20px;}
+.check-tag{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#fff; background:var(--forward); padding:3px 9px; border-radius:6px; margin-right:8px;}
+.check-q{font-weight:600; color:var(--ink); font-size:15.5px;}
+.reveal-btn{margin-top:12px; border:1px solid var(--forward); color:var(--forward-ink); background:var(--forward-soft); font-family:var(--sans-body); font-weight:600; font-size:13.5px; padding:8px 16px; border-radius:8px; cursor:pointer; transition:.15s;}
+.reveal-btn:hover{background:var(--forward); color:#fff;}
+.reveal-content{display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); font-size:15px;}
+.reveal-content.show{display:block;}
+.code-window{margin:22px 0; border-radius:var(--radius); overflow:hidden; background:var(--code-bg); box-shadow:0 8px 24px -12px rgba(16,28,44,.5);}
+.code-titlebar{display:flex; align-items:center; gap:8px; padding:11px 16px; background:#0a1522; border-bottom:1px solid rgba(255,255,255,.06);}
+.code-dot{width:10px;height:10px;border-radius:50%;}
+.code-dot:nth-child(1){background:#e8594f;}
+.code-dot:nth-child(2){background:#e8b13f;}
+.code-dot:nth-child(3){background:#3fb556;}
+.code-filename{font-family:var(--mono); font-size:12.5px; color:#8fa2bd; margin-left:8px;}
+.code-window pre{margin:0 !important; padding:18px 20px !important; background:var(--code-bg) !important; font-size:13.3px !important; line-height:1.65 !important; overflow-x:auto;}
+.code-window code.hljs{background:var(--code-bg) !important;}
+.ref-table{width:100%; border-collapse:collapse; margin:20px 0; font-size:14.5px;}
+.ref-table th{text-align:left; font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); padding:10px 12px; border-bottom:2px solid var(--ink);}
+.ref-table td{padding:11px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+.ref-table code{background:var(--forward-soft); color:var(--forward-ink); padding:2px 6px; border-radius:5px; font-size:13px;}
+.footer{padding:50px 0 70px 0; border-top:1px solid var(--line); font-size:13.5px; color:var(--ink-faint);}
+
+/* ============ WIDGETS ============ */
+.widget{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:26px; margin:26px 0;}
+.widget-label{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--forward-ink); margin-bottom:16px; display:block;}
+.btn{
+  font-family:var(--sans-body); font-weight:600; font-size:13.5px; border-radius:8px; padding:9px 16px;
+  border:1px solid var(--ink); background:var(--ink); color:#fff; cursor:pointer; transition:.15s;
+}
+.btn:hover{opacity:.85;}
+.btn:disabled{opacity:.35; cursor:not-allowed;}
+.btn-ghost{background:#fff; color:var(--ink); border:1px solid var(--line);}
+.btn-ghost:hover{border-color:var(--ink); opacity:1;}
+.btn-forward{background:var(--forward); border-color:var(--forward);}
+.btn-row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:16px;}
+
+/* Convolution demo */
+.conv-layout{display:flex; gap:34px; flex-wrap:wrap; align-items:flex-start;}
+.conv-block{display:flex; flex-direction:column; align-items:center;}
+.conv-block-title{font-size:12.5px; color:var(--ink-faint); margin-bottom:8px; font-weight:600;}
+.conv-grid-wrap{position:relative;}
+.conv-grid{display:grid; grid-template-columns:repeat(7,32px); grid-template-rows:repeat(7,32px); gap:2px;}
+.conv-cell{
+  width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-size:12px; font-weight:600; border-radius:3px;
+  background:#eef2f0; color:var(--ink-faint);
+}
+.conv-cell.on{background:var(--forward-soft); color:var(--forward-ink);}
+.conv-highlight{
+  position:absolute; width:102px; height:102px; border:2.5px solid var(--signal);
+  border-radius:6px; background:rgba(232,148,15,.12); pointer-events:none;
+  transition:top .35s ease, left .35s ease;
+}
+.conv-out-grid{display:grid; grid-template-columns:repeat(5,32px); grid-template-rows:repeat(5,32px); gap:2px;}
+.conv-out-cell{
+  width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-size:11px; font-weight:700; border-radius:3px;
+  background:#eef2f0; color:var(--ink-faint); border:1px solid var(--line);
+}
+.conv-out-cell.filled{background:var(--backward-soft); color:var(--backward-ink); border-color:var(--backward);}
+.conv-out-cell.current{outline:2px solid var(--signal); outline-offset:1px;}
+.conv-kernel{display:grid; grid-template-columns:repeat(3,32px); grid-template-rows:repeat(3,32px); gap:2px;}
+.conv-kernel .conv-cell{background:var(--signal-soft); color:var(--signal-ink);}
+.conv-formula{
+  font-family:var(--mono); font-size:13.5px; background:#f6f4ee; border:1px solid var(--line);
+  border-radius:8px; padding:12px 14px; margin-top:16px; min-height:44px; color:var(--ink);
+}
+.conv-formula .eq{color:var(--backward-ink); font-weight:700;}
+
+/* Activation grapher */
+.act-tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;}
+.act-tab{
+  font-family:var(--mono); font-size:12.5px; padding:7px 14px; border-radius:20px;
+  border:1px solid var(--line); background:#fff; color:var(--ink-soft); cursor:pointer; font-weight:600;
+}
+.act-tab.active{background:var(--ink); border-color:var(--ink); color:#fff;}
+.act-desc{font-size:14.5px; margin-top:14px; color:var(--ink-soft);}
+
+/* Max pooling demo */
+.pool-layout{display:flex; align-items:center; gap:26px; flex-wrap:wrap;}
+.pool-grid{display:grid; grid-template-columns:repeat(4,38px); grid-template-rows:repeat(4,38px); gap:3px;}
+.pool-cell{
+  width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-weight:700; font-size:13px; border-radius:4px; color:var(--ink);
+}
+.pool-cell.g1{background:#e1f3f2;} .pool-cell.g2{background:#fdf0da;}
+.pool-cell.g3{background:#fbe7ea;} .pool-cell.g4{background:#e6e9f7;}
+.pool-cell.max{box-shadow:inset 0 0 0 2.5px var(--ink);}
+.pool-arrow{font-size:26px; color:var(--ink-faint);}
+.pool-out-grid{display:grid; grid-template-columns:repeat(2,44px); grid-template-rows:repeat(2,44px); gap:4px;}
+.pool-out-cell{
+  width:44px; height:44px; display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-weight:700; font-size:15px; border-radius:5px; color:#fff;
+}
+.pool-out-cell.g1{background:#0f8b8d;} .pool-out-cell.g2{background:#e8940f;}
+.pool-out-cell.g3{background:#d1495b;} .pool-out-cell.g4{background:#5762c7;}
+
+/* Gradient descent demo */
+.grad-controls{display:flex; align-items:center; gap:14px; margin-top:8px; flex-wrap:wrap;}
+.grad-controls input[type=range]{width:200px; accent-color:var(--forward);}
+.grad-lr-val{font-family:var(--mono); font-weight:700; color:var(--forward-ink); min-width:48px; display:inline-block;}
+.grad-msg{font-size:14px; margin-top:12px; min-height:22px; font-weight:600;}
+.grad-msg.ok{color:var(--forward-ink);}
+.grad-msg.bad{color:var(--backward-ink);}
+
+/* Architecture flow */
+.arch-flow{display:flex; align-items:flex-end; gap:6px; overflow-x:auto; padding:20px 4px 8px 4px;}
+.arch-card{flex:0 0 auto; display:flex; flex-direction:column; align-items:center; min-width:96px;}
+.arch-square{
+  background:linear-gradient(135deg, var(--forward-soft), #fff);
+  border:1.5px solid var(--forward); border-radius:8px; display:flex; align-items:center; justify-content:center;
+  position:relative;
+}
+.arch-square.small{border-color:var(--ink-faint); background:#eef1f4;}
+.arch-badge{
+  position:absolute; top:-10px; right:-10px; background:var(--signal); color:#fff; font-family:var(--mono);
+  font-size:10.5px; font-weight:700; padding:2px 6px; border-radius:10px;
+}
+.arch-name{font-weight:700; font-size:12.5px; color:var(--ink); margin-top:10px; text-align:center;}
+.arch-shape{font-family:var(--mono); font-size:11px; color:var(--ink-faint); text-align:center;}
+.arch-arrow{color:var(--ink-faint); font-size:18px; flex:0 0 auto; margin-bottom:34px;}
+.neurons-col{display:flex; flex-direction:column; gap:4px; align-items:center;}
+.neuron-dot{width:9px; height:9px; border-radius:50%; background:var(--forward);}
+
+/* Confusion matrix */
+.cm-wrap{overflow-x:auto;}
+.cm-table{border-collapse:collapse; font-size:11.5px; font-family:var(--mono);}
+.cm-table th{padding:6px; color:var(--ink-faint); font-weight:600; text-align:center; vertical-align:bottom;}
+.cm-table th.rowlab{text-align:right; padding-right:10px;}
+.cm-table td{width:34px; height:30px; text-align:center; border:1px solid #fff; color:#0c1220; font-weight:600;}
+.cm0{background:#eef2f0;} .cm1{background:#c9e8e6;} .cm2{background:#8fd1cd;}
+.cm3{background:#3fa7a2;color:#fff;} .cm4{background:#0f6f70;color:#fff;}
+
+/* Chart compare */
+.chart-row{display:flex; gap:24px; flex-wrap:wrap;}
+.chart-col{flex:1 1 260px;}
+.chart-title{font-size:13.5px; font-weight:700; margin-bottom:8px; color:var(--ink);}
+.chart-legend{display:flex; gap:16px; margin-top:8px; font-size:12.5px; color:var(--ink-soft);}
+.chart-legend span{display:inline-flex; align-items:center; gap:6px;}
+.legend-dot{width:10px; height:10px; border-radius:2px; display:inline-block;}
+
+/* Augmentation grid */
+.aug-grid{display:flex; gap:16px; flex-wrap:wrap;}
+.aug-item{display:flex; flex-direction:column; align-items:center; gap:8px;}
+.aug-box{
+  width:72px; height:72px; border-radius:10px; background:#eef2f0; border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center; font-size:32px;
+}
+.aug-label{font-size:11.5px; color:var(--ink-faint); text-align:center; max-width:80px;}
+
+/* Dropout visual */
+.dropout-net{display:flex; justify-content:space-between; gap:36px; padding:10px 10px 0 10px;}
+.dropout-layer{display:flex; flex-direction:column; gap:10px;}
+.dnode{width:16px; height:16px; border-radius:50%; background:var(--forward); border:2px solid var(--forward-ink);}
+.dnode.off{background:#eee; border-color:var(--line); opacity:.4;}
+
+/* Reference / checklist / task cards */
+.tip-list{list-style:none; padding:0; margin:20px 0;}
+.tip-list li{display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); font-size:15px;}
+.tip-list li:last-child{border-bottom:none;}
+.tip-check{flex:0 0 auto; width:22px; height:22px; border-radius:50%; background:var(--forward-soft); color:var(--forward-ink); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;}
+.task-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:14px; margin:22px 0;}
+.task-card{border:1px solid var(--line); border-radius:12px; padding:16px; background:var(--panel);}
+.task-num{font-family:var(--mono); font-size:11px; color:var(--forward-ink); font-weight:700;}
+.task-card p{margin:8px 0 0 0; font-size:14.5px;}
+.task-card.advanced{border-color:var(--signal); background:var(--signal-soft);}
+
+/* Quiz */
+.quiz-item{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:20px 22px; margin:18px 0;}
+.quiz-q{font-weight:700; color:var(--ink); font-size:15.5px; margin-bottom:14px;}
+.quiz-q .qnum{font-family:var(--mono); color:var(--forward-ink); margin-right:8px;}
+.quiz-options{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.quiz-opt{
+  text-align:left; font-family:var(--sans-body); font-size:14px; padding:11px 14px; border-radius:9px;
+  border:1px solid var(--line); background:#fff; cursor:pointer; color:var(--ink-soft); transition:.12s;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--forward); background:var(--forward-soft);}
+.quiz-opt:disabled{cursor:default;}
+.quiz-opt.correct{background:var(--forward-soft); border-color:var(--forward); color:var(--forward-ink); font-weight:700;}
+.quiz-opt.incorrect{background:var(--backward-soft); border-color:var(--backward); color:var(--backward-ink); font-weight:700;}
+.quiz-foot{display:flex; align-items:center; gap:12px; margin-top:14px; flex-wrap:wrap;}
+.hint-btn{
+  font-family:var(--mono); font-size:12px; color:var(--signal-ink); background:var(--signal-soft);
+  border:1px solid var(--signal); padding:6px 12px; border-radius:7px; cursor:pointer; font-weight:600;
+}
+.quiz-hint{display:none; font-size:13.5px; color:var(--signal-ink); background:var(--signal-soft); padding:10px 12px; border-radius:8px; width:100%; margin-top:10px;}
+.quiz-hint.show{display:block;}
+.quiz-explain{display:none; font-size:14px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); color:var(--ink-soft);}
+.quiz-explain.show{display:block;}
+@media (max-width:640px){
+  .quiz-options{grid-template-columns:1fr;}
+  .conv-layout, .pool-layout{gap:18px;}
+  .conv-grid{grid-template-columns:repeat(7,26px); grid-template-rows:repeat(7,26px);}
+  .conv-cell{width:26px; height:26px; font-size:10px;}
+  .conv-highlight{width:84px; height:84px;}
+}
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr;}
+  .rail{position:sticky; height:auto; top:0; padding:12px 16px; border-right:none; border-bottom:1px solid var(--line); background:var(--paper); z-index:50; display:flex; align-items:center;}
+  .rail-brand{display:none;}
+  .rail-list{display:flex; gap:4px; overflow-x:auto; border-left:none; padding-left:0; -ms-overflow-style:none; scrollbar-width:none;}
+  .rail-list::-webkit-scrollbar{display:none;}
+  .rail-item{flex:0 0 auto; margin:0;}
+  .rail-item::before{display:none;}
+  .rail-link{white-space:nowrap; padding:8px 12px; font-size:12.5px;}
+  .rail-link .rail-num{display:none;}
+  .wrap{padding:0 20px;}
+}
+
+/* ============ EXTRA WIDGETS (Bài 4) ============ */
+/* Threshold / Precision-Recall demo */
+.thresh-scale{position:relative; height:74px; margin:18px 0 8px 0;}
+.thresh-track{position:absolute; top:30px; left:10px; right:10px; height:4px; background:var(--line); border-radius:2px;}
+.thresh-dot{
+  position:absolute; top:18px; width:14px; height:14px; border-radius:50%;
+  transform:translateX(-50%); border:2px solid #fff; box-shadow:0 0 0 1px rgba(0,0,0,.08);
+}
+.thresh-dot.pos{background:var(--forward);}
+.thresh-dot.neg{background:var(--backward);}
+.thresh-line{
+  position:absolute; top:6px; bottom:-14px; width:2px; background:var(--ink); transform:translateX(-50%);
+}
+.thresh-line::after{
+  content:'ngưỡng'; position:absolute; top:-20px; left:50%; transform:translateX(-50%);
+  font-family:var(--mono); font-size:10.5px; color:var(--ink); white-space:nowrap;
+}
+.thresh-controls{margin-top:30px;}
+.thresh-controls input[type=range]{width:100%; accent-color:var(--ink);}
+.thresh-legend{display:flex; gap:18px; font-size:12.5px; color:var(--ink-soft); margin-top:6px;}
+.thresh-legend span{display:inline-flex; align-items:center; gap:6px;}
+.thresh-stats{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:20px;}
+.thresh-stat{border:1px solid var(--line); border-radius:10px; padding:10px 8px; text-align:center; background:#fbfcfb;}
+.thresh-stat .num{font-family:var(--mono); font-size:20px; font-weight:700; color:var(--ink);}
+.thresh-stat .lbl{font-size:11px; color:var(--ink-faint); margin-top:2px;}
+.thresh-stat.tp{border-color:var(--forward);} .thresh-stat.tp .num{color:var(--forward-ink);}
+.thresh-stat.fp{border-color:var(--backward);} .thresh-stat.fp .num{color:var(--backward-ink);}
+.thresh-metrics{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:14px;}
+.thresh-metric{background:var(--signal-soft); border:1px solid var(--signal); border-radius:10px; padding:12px; text-align:center;}
+.thresh-metric .num{font-family:var(--mono); font-size:22px; font-weight:700; color:var(--signal-ink);}
+.thresh-metric .lbl{font-size:11.5px; color:var(--signal-ink); margin-top:2px; font-weight:600;}
+
+/* Imbalance toggle bars */
+.imb-toggle{display:flex; gap:8px; margin-bottom:18px;}
+.imb-toggle button{
+  font-family:var(--mono); font-size:12.5px; padding:8px 16px; border-radius:20px;
+  border:1px solid var(--line); background:#fff; color:var(--ink-soft); cursor:pointer; font-weight:600;
+}
+.imb-toggle button.active{background:var(--ink); border-color:var(--ink); color:#fff;}
+.imb-bars{display:flex; align-items:flex-end; gap:22px; height:180px; padding:0 6px;}
+.imb-bar-col{display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; flex:1;}
+.imb-bar{width:36px; border-radius:6px 6px 0 0; background:var(--ink-faint); transition:height .5s ease, background .3s ease;}
+.imb-bar.minority{background:var(--backward);}
+.imb-bar-val{font-family:var(--mono); font-size:12px; font-weight:700; margin-bottom:6px; color:var(--ink);}
+.imb-bar-lbl{font-size:11px; color:var(--ink-faint); margin-top:8px; text-align:center;}
+
+/* Split diagram */
+.split-bar{display:flex; border-radius:10px; overflow:hidden; height:52px; border:1px solid var(--line);}
+.split-seg{display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#fff; font-family:var(--mono);}
+.split-seg.train{background:var(--forward); flex:7;}
+.split-seg.val{background:var(--signal); flex:1.5;}
+.split-seg.test{background:var(--backward); flex:1.5; position:relative;}
+.split-seg.test::after{content:'🔒'; margin-left:6px; font-size:12px;}
+
+/* LR schedule chart tabs (reuse act-tab styles) */
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="rail">
+  <span class="rail-brand">Thị giác máy tính · Bài giảng 4</span>
+  <ul class="rail-list" id="railList">
+    <li class="rail-item"><a class="rail-link" href="#top"><span class="rail-num">Mở đầu</span>Nhập môn</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l1"><span class="rail-num">Lớp 01</span>Ảnh thực tế &amp; CIFAR-10</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l2"><span class="rail-num">Lớp 02</span>Đánh giá đúng cách</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l3"><span class="rail-num">Lớp 03</span>Mất cân bằng lớp</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l4"><span class="rail-num">Lớp 04</span>Transfer Learning</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l5"><span class="rail-num">Lớp 05</span>Quy trình chuyên nghiệp</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l6"><span class="rail-num">Lớp 06</span>Bảng tra cứu</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l7"><span class="rail-num">Bài tập</span>Thực hành thêm</a></li>
+    <li class="rail-item"><a class="rail-link" href="#quiz"><span class="rail-num">Lớp ra</span>Trắc nghiệm tổng kết</a></li>
+  </ul>
+</nav>
+<main class="content">
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <span class="hero-eyebrow">Bài giảng Tutorial · Phần 4 · Tiếp nối Bài 3</span>
+    <h1 class="hero-title">Phân loại ảnh<br><em>chuyên sâu</em></h1>
+    <p class="hero-sub">CNN của bạn đạt 90% trên Fashion-MNIST. Vậy sao trên ảnh thật, con số đó lại tụt xuống chỉ còn hơn 60%?</p>
+    <p class="hero-lede">Ở Lớp 08 của buổi trước, bạn đã tự tay huấn luyện một CNN đạt gần 90% độ chính xác trên Fashion-MNIST. Nhưng đó là một bộ dữ liệu <strong>đồ chơi</strong>: ảnh xám, vật thể căn giữa, nền trống, các lớp cân bằng tuyệt đối. Thực tế không bao giờ đẹp như vậy. Buổi học này đưa bài toán phân loại lên một mức nghiêm túc hơn hẳn: ảnh <strong>màu thật</strong>, đánh giá <strong>vượt khỏi accuracy</strong>, dữ liệu <strong>mất cân bằng</strong>, và kỹ thuật quan trọng bậc nhất khi đi làm — <strong>transfer learning</strong>. Mọi con số và biểu đồ trong bài đều đến từ các lần huấn luyện thật trên CIFAR-10.</p>
+
+    <div class="widget">
+      <span class="widget-label">Thử ngay · Kéo ngưỡng phân loại và xem Precision–Recall đánh đổi ra sao</span>
+      <div class="thresh-scale" id="threshScale"></div>
+      <div class="thresh-controls">
+        <input type="range" id="threshSlider" min="0" max="100" value="50">
+      </div>
+      <div class="thresh-legend">
+        <span><span class="legend-dot" style="background:#0f8b8d;border-radius:50%;"></span>Thật sự dương (vd: có bệnh)</span>
+        <span><span class="legend-dot" style="background:#d1495b;border-radius:50%;"></span>Thật sự âm (vd: khoẻ mạnh)</span>
+      </div>
+      <div class="thresh-stats">
+        <div class="thresh-stat tp"><div class="num" id="statTP">–</div><div class="lbl">TP</div></div>
+        <div class="thresh-stat fp"><div class="num" id="statFP">–</div><div class="lbl">FP</div></div>
+        <div class="thresh-stat" id="statFNBox"><div class="num" id="statFN">–</div><div class="lbl">FN</div></div>
+        <div class="thresh-stat" id="statTNBox"><div class="num" id="statTN">–</div><div class="lbl">TN</div></div>
+      </div>
+      <div class="thresh-metrics">
+        <div class="thresh-metric"><div class="num" id="metricPrecision">–</div><div class="lbl">Precision</div></div>
+        <div class="thresh-metric"><div class="num" id="metricRecall">–</div><div class="lbl">Recall</div></div>
+        <div class="thresh-metric"><div class="num" id="metricF1">–</div><div class="lbl">F1</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l1">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 01 · Ảnh thực tế</span>
+    <h2 class="section-title">Từ dữ liệu đồ chơi đến ảnh thực tế</h2>
+    <p class="section-lead">Trước khi học kỹ thuật mới, cần hiểu rõ vì sao những gì đã học ở Bài 3 chưa đủ khi gặp ảnh thật.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">1.1</span>Vì sao Fashion-MNIST chưa đủ</h3>
+      <p>Fashion-MNIST tuyệt vời để học, nhưng nó <strong>quá dễ so với thực tế</strong>: mỗi ảnh chỉ có một vật thể duy nhất, <strong>xám</strong>, căn giữa trên nền đen, và mỗi lớp có đúng số lượng mẫu bằng nhau. Bài toán thực tế phá vỡ cả ba giả định đó cùng lúc — ảnh <strong>nhiều màu</strong>, vật thể ở mọi vị trí và kích thước trên <strong>nền lộn xộn</strong>, và dữ liệu thường <strong>mất cân bằng</strong> nghiêm trọng. Để học những kỹ thuật thật sự hữu ích khi đi làm, ta cần một bộ dữ liệu sát thực tế hơn.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">1.2</span>Làm quen CIFAR-10</h3>
+      <p><strong>CIFAR-10</strong> là bộ dữ liệu chuẩn tiếp theo: 60.000 ảnh <strong>màu</strong> kích thước 32×32, chia thành 10 lớp vật thể đời thực. Tuy ảnh nhỏ, đây là bài toán khó hơn hẳn vì có màu sắc, nền phức tạp và sự đa dạng lớn bên trong mỗi lớp.</p>
+      <div class="figure">
+        <div class="aug-grid" style="justify-content:center;">
+          <div class="aug-item"><div class="aug-box">✈️</div><div class="aug-label">Airplane</div></div>
+          <div class="aug-item"><div class="aug-box">🚗</div><div class="aug-label">Automobile</div></div>
+          <div class="aug-item"><div class="aug-box">🐦</div><div class="aug-label">Bird</div></div>
+          <div class="aug-item"><div class="aug-box">🐱</div><div class="aug-label">Cat</div></div>
+          <div class="aug-item"><div class="aug-box">🦌</div><div class="aug-label">Deer</div></div>
+          <div class="aug-item"><div class="aug-box">🐶</div><div class="aug-label">Dog</div></div>
+          <div class="aug-item"><div class="aug-box">🐸</div><div class="aug-label">Frog</div></div>
+          <div class="aug-item"><div class="aug-box">🐴</div><div class="aug-label">Horse</div></div>
+          <div class="aug-item"><div class="aug-box">🚢</div><div class="aug-label">Ship</div></div>
+          <div class="aug-item"><div class="aug-box">🚚</div><div class="aug-label">Truck</div></div>
+        </div>
+        <div class="figure-caption"><b>Hình 1.</b> 10 lớp của CIFAR-10. Mỗi ảnh thật là ảnh màu 32×32 pixel với nền phức tạp — các biểu tượng trên chỉ minh hoạ cho từng lớp.</div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Nêu ba giả định "dễ dàng" mà Fashion-MNIST có nhưng CIFAR-10 (và ảnh thực tế nói chung) phá vỡ.</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>(1) <strong>Ảnh xám</strong> → CIFAR-10 là ảnh <strong>màu</strong> với 3 kênh RGB; (2) <strong>Vật thể căn giữa trên nền trống</strong> → CIFAR-10 có <strong>nền lộn xộn</strong>, vật thể có thể ở nhiều vị trí/góc/kích thước khác nhau; (3) <strong>Các lớp cân bằng hoàn hảo</strong> → dữ liệu thực tế thường <strong>mất cân bằng</strong> nghiêm trọng giữa các lớp.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">1.3</span>Thử thách: huấn luyện từ đầu</h3>
+      <p>Ta huấn luyện một CNN có kiến trúc tương tự Bài 3 nhưng sâu hơn (3 khối tích chập, có thêm <strong>BatchNorm</strong>) hoàn toàn từ đầu trên CIFAR-10. Kết quả nói lên tất cả:</p>
+      <div class="figure">
+        <div class="chart-col" style="max-width:420px;margin:0 auto;">
+          <div class="chart-title">Cùng cách làm, hai bộ dữ liệu — kết quả rất khác nhau</div>
+          <svg viewBox="0 0 300 170" style="width:100%;display:block;">
+            <line x1="10" y1="10" x2="10" y2="150" stroke="#d9e0da"/>
+            <line x1="10" y1="150" x2="290" y2="150" stroke="#d9e0da"/>
+            <polyline points="10,95 50,45 90,32 130,26 170,23 210,21 250,20 280,19" fill="none" stroke="#0f8b8d" stroke-width="2.5" stroke-dasharray="4 3"/>
+            <polyline points="10,120 50,95 90,80 130,70 170,63 210,58 250,55 280,53" fill="none" stroke="#d1495b" stroke-width="2.5"/>
+            <text x="284" y="16" fill="#0a5f60" font-family="JetBrains Mono" font-size="11" text-anchor="end">89% (Fashion-MNIST)</text>
+            <text x="284" y="66" fill="#9c2f3d" font-family="JetBrains Mono" font-size="11" text-anchor="end">~64% (CIFAR-10)</text>
+          </svg>
+          <div class="chart-legend">
+            <span><span class="legend-dot" style="background:#0f8b8d;"></span>Fashion-MNIST (Bài 3)</span>
+            <span><span class="legend-dot" style="background:#d1495b;"></span>CIFAR-10 (từ đầu)</span>
+          </div>
+        </div>
+        <div class="figure-caption"><b>Hình 2.</b> Huấn luyện CNN từ đầu trên CIFAR-10 chỉ đạt khoảng <strong>64%</strong> độ chính xác — thấp hơn nhiều so với mức <strong>89%</strong> từng đạt được trên Fashion-MNIST với cách làm tương tự.</div>
+      </div>
+      <p>Vì sao khó đến vậy? Ngoài màu sắc và nền phức tạp, một lý do lớn là <strong>biến thiên nội lớp (intra-class variation)</strong>: cùng một nhãn "mèo" nhưng có vô số giống, tư thế, màu lông, góc chụp khác nhau — mô hình phải học một khái niệm rất rộng, thay vì một hình dạng gần như cố định như các món đồ trong Fashion-MNIST.</p>
+
+      <div class="callout callout-note">
+        <span class="callout-head">Về BatchNorm</span>
+        Mô hình dùng <strong>Batch Normalization</strong> sau mỗi lớp tích chập — kỹ thuật chuẩn hoá giá trị kích hoạt theo từng batch. Nó giúp huấn luyện <strong>nhanh và ổn định hơn</strong>, cho phép dùng learning rate lớn hơn, và có tác dụng điều hoà (regularization) nhẹ. BatchNorm gần như là thành phần <strong>mặc định</strong> trong CNN hiện đại, đi kèm khai báo <code>nn.BatchNorm2d</code> ngay sau mỗi <code>nn.Conv2d</code>.
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>"Biến thiên nội lớp" (intra-class variation) là gì, và vì sao nó khiến CIFAR-10 khó hơn Fashion-MNIST?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Biến thiên nội lớp là mức độ đa dạng <strong>bên trong cùng một nhãn</strong>. Với Fashion-MNIST, mọi "áo thun" đều gần giống nhau về hình dạng, góc nhìn, nền. Với CIFAR-10, nhãn "mèo" phải bao trùm hàng trăm giống mèo, tư thế, màu lông, ánh sáng, góc chụp khác nhau — mô hình phải học một khái niệm trừu tượng và rộng hơn nhiều, thay vì chỉ ghi nhớ vài hình dạng cố định.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l2">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 02 · Đánh giá</span>
+    <h2 class="section-title">Đánh giá mô hình đúng cách</h2>
+    <p class="section-lead">Đến giờ ta chỉ nhìn <strong>accuracy</strong>. Nhưng con số này đơn lẻ có thể đánh lừa nghiêm trọng — đã đến lúc học những chỉ số tinh tế hơn.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">2.1</span>Cạm bẫy của "độ chính xác"</h3>
+      <p>Hãy tưởng tượng bài toán phát hiện gian lận: 99% giao dịch là bình thường, chỉ 1% là gian lận. Một mô hình "ngốc nghếch" luôn dự đoán <em>bình thường</em> cho mọi giao dịch sẽ đạt <strong>99% accuracy</strong> — nghe rất ấn tượng, nhưng nó <strong>bỏ sót toàn bộ</strong> các ca gian lận, tức là hoàn toàn vô dụng cho đúng mục đích nó được xây ra.</p>
+      <div class="figure">
+        <svg viewBox="0 0 300 90" style="width:100%;max-width:420px;display:block;margin:0 auto;">
+          <g font-family="JetBrains Mono" font-size="12" fill="#42506a">
+            <rect x="10" y="20" width="277" height="26" rx="4" fill="#c9e8e6"/>
+            <rect x="10" y="20" width="2.8" height="26" rx="1" fill="#d1495b"/>
+            <text x="10" y="15" fill="#132036" font-weight="700">10.000 giao dịch</text>
+            <text x="150" y="66" text-anchor="middle" fill="#0a5f60">9.900 bình thường (99%)</text>
+            <text x="30" y="80" text-anchor="middle" fill="#9c2f3d" font-size="10.5">100 gian lận (1%) ↑</text>
+          </g>
+        </svg>
+        <div class="figure-caption"><b>Hình 3.</b> Với dữ liệu lệch mạnh như thế này, một mô hình luôn đoán "bình thường" đạt 99% accuracy mà không phát hiện được một ca gian lận nào — accuracy một mình không phản ánh đúng chất lượng mô hình.</div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Một mô hình chẩn đoán bệnh hiếm đạt accuracy 98%, nhưng chỉ phát hiện đúng 2 trong số 50 ca bệnh thật. Con số 98% đó có đáng tin để đánh giá mô hình này không?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Không. Đây chính là cạm bẫy của accuracy trên dữ liệu mất cân bằng: nếu bệnh hiếm chỉ chiếm một phần rất nhỏ, mô hình có thể đạt accuracy cao chỉ bằng cách gần như luôn đoán "khỏe mạnh". Với bài toán y tế — nơi bỏ sót ca bệnh rất nguy hiểm — chỉ số cần quan tâm là <strong>recall</strong> trên lớp "có bệnh", và ở đây recall chỉ là 2/50 = 4%, một con số cực kỳ đáng báo động dù accuracy nhìn có vẻ cao.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.2</span>Precision, Recall và F1</h3>
+      <p>Với một lớp quan tâm, mọi dự đoán rơi vào bốn ô: <strong>TP</strong> (dương, đoán đúng), <strong>FP</strong> (âm, nhưng đoán nhầm thành dương), <strong>FN</strong> (dương, nhưng bị bỏ sót), <strong>TN</strong> (âm, đoán đúng). Từ đó định nghĩa ba chỉ số then chốt — chính là những con số bạn vừa thấy đổi ở demo ngưỡng phân loại đầu bài:</p>
+      <ul class="plain">
+        <li><strong>Precision = TP/(TP+FP):</strong> trong những ca mô hình <em>báo dương</em>, bao nhiêu là đúng. Quan trọng khi <strong>báo nhầm tốn kém</strong> (ví dụ lọc thư rác: đừng đánh dấu nhầm thư quan trọng thành rác).</li>
+        <li><strong>Recall = TP/(TP+FN):</strong> trong những ca <em>dương thật</em>, mô hình bắt được bao nhiêu. Quan trọng khi <strong>bỏ sót nguy hiểm</strong> (ví dụ tầm soát ung thư: đừng bỏ lọt ca bệnh).</li>
+        <li><strong>F1</strong> = trung bình điều hoà của Precision và Recall — một con số cân bằng cả hai, hữu ích khi cần đánh đổi giữa chúng.</li>
+      </ul>
+      <div class="callout callout-warn">
+        <span class="callout-head">Đánh đổi Precision–Recall</span>
+        Hai chỉ số này thường <strong>kéo ngược nhau</strong>: muốn recall cao (bắt hết mọi ca dương) thì dễ báo nhầm nhiều hơn (precision giảm), và ngược lại — hạ ngưỡng phân loại xuống thấp sẽ bắt được nhiều ca dương hơn nhưng cũng báo nhầm nhiều hơn. Hãy quay lại demo ở đầu bài và kéo thanh trượt qua lại để tự mắt thấy sự đánh đổi này. Chọn ưu tiên chỉ số nào <strong>tuỳ vào bài toán</strong>, không có câu trả lời chung cho mọi trường hợp.
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Giữa hệ thống lọc thư rác và hệ thống tầm soát ung thư, hệ thống nào nên ưu tiên Recall cao, hệ thống nào nên ưu tiên Precision cao? Vì sao?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Tầm soát ung thư</strong> nên ưu tiên <strong>Recall cao</strong>: bỏ sót một ca bệnh thật (FN) có thể gây hậu quả nghiêm trọng, nên chấp nhận báo nhầm thêm một số ca lành tính (FP) để không bỏ lọt ca bệnh. <strong>Lọc thư rác</strong> nên ưu tiên <strong>Precision cao</strong>: đánh dấu nhầm một email quan trọng thành rác (FP) có thể khiến người dùng bỏ lỡ thông tin quan trọng, nên thà để lọt vài email rác (FN) còn hơn báo nhầm email thật.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.3</span>Đọc lại ma trận nhầm lẫn — lần này trên CIFAR-10</h3>
+      <p>Ma trận nhầm lẫn cho thấy mô hình <strong>nhầm lớp nào với lớp nào</strong>. Trên CIFAR-10, các lỗi không hề ngẫu nhiên:</p>
+      <div class="figure">
+        <div class="cm-wrap">
+          <table class="cm-table" id="cmTable2"></table>
+        </div>
+        <div class="figure-caption"><b>Hình 4.</b> Ma trận nhầm lẫn minh hoạ trên CIFAR-10: nhầm lẫn tập trung ở nhóm <strong>động vật bốn chân</strong> (mèo↔chó, hươu↔ngựa) — những lớp chia sẻ nhiều đặc trưng hình dạng. Mô hình hiếm khi nhầm ô tô với mèo.</div>
+      </div>
+      <p>Đây là thông tin quý giá: nó gợi ý nên thu thập thêm dữ liệu hoặc tìm đặc trưng phân biệt tốt hơn cho đúng nhóm lớp đang bị nhầm lẫn nhiều, thay vì cải thiện dàn trải cho tất cả 10 lớp.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.4</span>Chỉ số theo từng lớp &amp; classification report</h3>
+      <p>Trung bình toàn cục che giấu sự chênh lệch giữa các lớp. Tính precision/recall/F1 <strong>cho từng lớp</strong> sẽ lộ ra bức tranh thật:</p>
+      <div class="figure">
+        <svg viewBox="0 0 320 190" style="width:100%;max-width:460px;display:block;margin:0 auto;">
+          <g font-family="JetBrains Mono" font-size="10.5" fill="#42506a">
+            <text x="8" y="18" fill="#132036" font-weight="700" font-size="11">F1-score theo từng lớp (minh hoạ)</text>
+            <text x="6" y="38">Airplane</text><rect x="90" y="30" width="156" height="11" rx="2" fill="#0f8b8d"/><text x="252" y="39" fill="#0a5f60">78</text>
+            <text x="6" y="56">Automobile</text><rect x="90" y="48" width="164" height="11" rx="2" fill="#0f8b8d"/><text x="260" y="57" fill="#0a5f60">82</text>
+            <text x="6" y="74">Ship</text><rect x="90" y="66" width="160" height="11" rx="2" fill="#0f8b8d"/><text x="256" y="75" fill="#0a5f60">80</text>
+            <text x="6" y="92">Truck</text><rect x="90" y="84" width="152" height="11" rx="2" fill="#0f8b8d"/><text x="248" y="93" fill="#0a5f60">76</text>
+            <text x="6" y="110">Frog</text><rect x="90" y="102" width="136" height="11" rx="2" fill="#e8940f"/><text x="232" y="111" fill="#a86608">68</text>
+            <text x="6" y="128">Horse</text><rect x="90" y="120" width="130" height="11" rx="2" fill="#e8940f"/><text x="226" y="129" fill="#a86608">65</text>
+            <text x="6" y="146">Deer</text><rect x="90" y="138" width="116" height="11" rx="2" fill="#d1495b"/><text x="212" y="147" fill="#9c2f3d">58</text>
+            <text x="6" y="164">Bird</text><rect x="90" y="156" width="110" height="11" rx="2" fill="#d1495b"/><text x="206" y="165" fill="#9c2f3d">55</text>
+            <text x="6" y="182">Dog</text><rect x="90" y="174" width="96" height="11" rx="2" fill="#d1495b"/><text x="192" y="183" fill="#9c2f3d">48</text>
+          </g>
+        </svg>
+        <div class="figure-caption"><b>Hình 5.</b> Nhóm phương tiện (ô tô, tàu, xe tải, máy bay) đạt F1 cao và ổn định; nhóm động vật (chó, chim, hươu) thấp hơn rõ rệt do biến thiên nội lớp lớn và dễ nhầm lẫn với nhau.</div>
+      </div>
+      <p>Khi gộp chỉ số nhiều lớp thành một con số duy nhất, có ba kiểu lấy trung bình: <strong>macro</strong> (trung bình đơn giản qua các lớp — coi mọi lớp quan trọng như nhau), <strong>weighted</strong> (có trọng số theo số mẫu mỗi lớp), và <strong>micro</strong> (gộp toàn bộ TP/FP/FN trước rồi mới tính). Ngoài ra, <strong>top-k accuracy</strong> (đáp án đúng nằm trong k dự đoán hàng đầu) rất hữu ích khi có nhiều lớp gần giống nhau. Thư viện scikit-learn cho tất cả chỉ bằng một dòng lệnh:</p>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">evaluate_metrics.py</span></div>
+        <pre><code class="language-python">from sklearn.metrics import classification_report, confusion_matrix
+
+y_pred = model(X_test).argmax(dim=1).cpu().numpy()
+y_true = y_test.cpu().numpy()
+
+# Bao cao day du: precision/recall/f1 cho tung lop + cac trung binh
+print(classification_report(y_true, y_pred, target_names=CLASSES))
+
+# Ma tran nham lan
+cm = confusion_matrix(y_true, y_pred)</code></pre>
+      </div>
+      <p>Cuối cùng, luôn nên <strong>nhìn vài dự đoán cụ thể</strong> — đặc biệt là các ca sai — để hiểu mô hình đang vấp ở đâu, giống thói quen đã rèn ở Bài 3 với ma trận nhầm lẫn và dự đoán mẫu.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Nếu 9 trong 10 lớp có F1 khoảng 80%, nhưng một lớp hiếm chỉ đạt F1 10%, giá trị <strong>macro-average F1</strong> và <strong>weighted-average F1</strong> của mô hình sẽ khác nhau như thế nào?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Macro-average</strong> coi mọi lớp quan trọng ngang nhau, nên lớp F1=10% sẽ kéo điểm trung bình xuống đáng kể — phản ánh trung thực rằng mô hình đang thất bại ở một lớp. <strong>Weighted-average</strong> tính theo tỉ lệ số mẫu mỗi lớp, nên nếu lớp yếu đó chỉ chiếm một phần nhỏ dữ liệu, điểm trung bình weighted sẽ gần với 80% hơn nhiều — có thể "che giấu" vấn đề của lớp thiểu số. Đây là lý do nên luôn xem thêm macro-average khi nghi ngờ có lớp bị bỏ rơi.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l3">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 03 · Mất cân bằng</span>
+    <h2 class="section-title">Xử lý mất cân bằng lớp</h2>
+    <p class="section-lead">Một trong những cách âm thầm nhất khiến mô hình thất bại trong thực tế: dữ liệu không được chia đều giữa các lớp.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">3.1</span>Vấn đề</h3>
+      <p><strong>Mất cân bằng lớp (class imbalance)</strong> xảy ra khi một số lớp có <strong>rất ít mẫu</strong> so với các lớp khác — cực kỳ phổ biến trong thực tế: gian lận tài chính, bệnh hiếm, lỗi sản phẩm hiếm gặp. Vấn đề nằm ở chỗ: vì hàm mất mát được tối ưu trên <em>tổng thể</em>, mô hình rất dễ <strong>"bỏ rơi" lớp thiểu số</strong> để tối đa hoá accuracy chung — đúng như cạm bẫy đã thấy ở Lớp 02.1.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.2</span>Thực nghiệm thật</h3>
+      <p>Để thấy rõ, ta tạo một phiên bản CIFAR-10 <strong>mất cân bằng</strong>: ba lớp (mèo, hươu, xe tải) chỉ còn 80 ảnh, trong khi các lớp khác vẫn giữ 700 ảnh. Huấn luyện bình thường rồi đo <strong>recall của từng lớp</strong>:</p>
+
+      <div class="widget">
+        <span class="widget-label">Thử ngay · So sánh recall trước và sau khi thêm class weights</span>
+        <div class="imb-toggle" id="imbToggle">
+          <button class="active" data-mode="before">Trước (baseline)</button>
+          <button data-mode="after">Sau (có class weights)</button>
+        </div>
+        <div class="imb-bars" id="imbBars"></div>
+        <p class="act-desc" id="imbDesc"></p>
+      </div>
+
+      <p>Mô hình baseline đạt accuracy chung trông có vẻ ổn, nhưng <strong>recall của ba lớp thiểu số gần như bằng 0</strong> — nó hầu như không bao giờ nhận ra chúng. Khi thêm <strong>trọng số lớp (class weights)</strong> để phạt nặng hơn lỗi trên lớp hiếm, recall thiểu số <strong>tăng vọt</strong>, đổi lại accuracy tổng giảm nhẹ. Đây chính là sự đánh đổi mà ta phải <strong>chủ động lựa chọn</strong>, chứ không nên để mặc định.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Thử bấm qua lại hai nút ở demo trên. Vì sao accuracy tổng lại <em>giảm nhẹ</em> sau khi thêm class weights, dù mô hình rõ ràng đang "công bằng" hơn với các lớp thiểu số?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì class weights buộc mô hình phải "chú ý" nhiều hơn tới các lớp hiếm, nó sẽ chấp nhận đôi khi báo nhầm các lớp đa số thành lớp hiếm (tăng FP cho lớp hiếm) để đổi lấy việc bắt được nhiều ca lớp hiếm hơn (tăng TP, giảm FN). Vì lớp đa số chiếm phần lớn dữ liệu, chỉ cần một tỉ lệ nhỏ bị ảnh hưởng theo hướng này cũng đủ kéo accuracy tổng xuống một chút — nhưng đổi lại, hiệu năng trên lớp thiểu số được cải thiện rất nhiều, thứ mà accuracy tổng không hề phản ánh.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.3</span>Các kỹ thuật chống mất cân bằng</h3>
+      <ul class="plain">
+        <li><strong>Trọng số lớp (class weights):</strong> gán trọng số lớn hơn cho lớp hiếm ngay trong hàm mất mát — đơn giản và hiệu quả, chính là kỹ thuật vừa thấy ở trên.</li>
+        <li><strong>Lấy mẫu lại (resampling):</strong> <em>oversample</em> lớp thiểu số (lặp lại/nhân bản mẫu) hoặc <em>undersample</em> lớp đa số. PyTorch cung cấp sẵn <code>WeightedRandomSampler</code> cho việc này.</li>
+        <li><strong>Augmentation có chủ đích:</strong> tạo thêm biến thể riêng cho lớp thiểu số để tăng đa dạng thật sự, thay vì chỉ nhân bản y hệt.</li>
+        <li><strong>Hàm mất mát chuyên dụng:</strong> như <strong>Focal Loss</strong>, tự động giảm trọng số đóng góp của các mẫu dễ để mô hình tập trung hơn vào những ca khó/hiếm.</li>
+      </ul>
+      <p>Trong PyTorch, dùng class weights chỉ đơn giản là truyền tham số <code>weight</code> vào hàm mất mát:</p>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">imbalance.py</span></div>
+        <pre><code class="language-python">import torch
+import torch.nn as nn
+
+# Trong so nguoc voi tan suat lop: lop cang hiem, trong so cang lon
+counts = torch.tensor([700,700,700, 80, 80,700,700,700,700, 80], dtype=torch.float32)
+weights = counts.sum() / (len(counts) * counts)
+
+criterion = nn.CrossEntropyLoss(weight=weights)   # phat nang loi tren lop hiem
+
+# Hoac dung sampler de can bang khi lay batch:
+from torch.utils.data import WeightedRandomSampler
+sample_w = weights[train_labels]                  # trong so cho moi mau
+sampler  = WeightedRandomSampler(sample_w, num_samples=len(sample_w), replacement=True)
+# train_loader = DataLoader(train_set, batch_size=64, sampler=sampler)</code></pre>
+      </div>
+      <div class="callout callout-warn">
+        <span class="callout-head">Đừng tin mỗi accuracy</span>
+        Với dữ liệu mất cân bằng, <strong>accuracy là chỉ số tệ</strong>. Hãy theo dõi <strong>recall/F1 theo từng lớp</strong>, hoặc diện tích dưới đường Precision–Recall (PR-AUC) cho lớp bạn thật sự quan tâm.
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Sự khác biệt giữa <em>oversampling</em> lớp thiểu số và <em>undersampling</em> lớp đa số là gì? Mỗi cách có đánh đổi gì?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Oversampling</strong> lặp lại (hoặc tạo biến thể của) các mẫu thuộc lớp thiểu số cho tới khi số lượng cân bằng hơn — giữ được toàn bộ dữ liệu lớp đa số, nhưng có nguy cơ mô hình học thuộc lòng các mẫu thiểu số bị lặp lại nhiều lần (quá khớp lên chính những mẫu đó). <strong>Undersampling</strong> bớt ngẫu nhiên các mẫu của lớp đa số cho tới khi cân bằng — tránh được vấn đề lặp mẫu, nhưng lại <strong>lãng phí dữ liệu</strong> quý giá của lớp đa số, có thể làm mô hình học kém hơn nói chung nếu tổng dữ liệu vốn không nhiều.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l4">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 04 · Transfer Learning</span>
+    <h2 class="section-title">Transfer Learning</h2>
+    <p class="section-lead">Kỹ thuật quan trọng bậc nhất trong thực hành thị giác máy tính — và là câu trả lời thực dụng nhất cho vấn đề "huấn luyện từ đầu tốn quá nhiều dữ liệu".</p>
+
+    <div class="subsection">
+      <h3><span class="tag">4.1</span>Ý tưởng cốt lõi</h3>
+      <p>Ta vừa thấy huấn luyện từ đầu trên ảnh thật rất tốn dữ liệu và chỉ đạt ~64%. <strong>Transfer learning</strong> là lời giải thực dụng nhất: thay vì bắt đầu từ con số 0, ta <strong>mượn một mô hình đã được huấn luyện sẵn</strong> trên một bộ dữ liệu khổng lồ (thường là <strong>ImageNet</strong> với khoảng 1,2 triệu ảnh), rồi tinh chỉnh lại cho bài toán của riêng mình. Mô hình đó đã học sẵn những đặc trưng thị giác tổng quát — cạnh, kết cấu, hình dạng — mà <em>bất kỳ</em> bài toán ảnh nào cũng cần tới, đúng như phân cấp đặc trưng đã học ở Bài 3.</p>
+
+      <div class="figure">
+        <div class="arch-flow" style="justify-content:center;">
+          <div class="arch-card">
+            <div class="arch-square small" style="width:100px;height:70px;">
+              <span style="font-size:11px;color:var(--ink-faint);">Backbone<br>đã học sẵn</span>
+            </div>
+            <div class="arch-name">Đóng băng 🔒</div>
+            <div class="arch-shape">huấn luyện trên ImageNet</div>
+          </div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-card">
+            <div class="neurons-col">
+              <div class="neuron-dot" style="background:#d1495b;"></div><div class="neuron-dot" style="background:#d1495b;"></div><div class="neuron-dot" style="background:#d1495b;"></div>
+            </div>
+            <div class="arch-name">Đầu mới</div>
+            <div class="arch-shape">huấn luyện lại, số lớp của bạn</div>
+          </div>
+        </div>
+        <div class="figure-caption"><b>Hình 6.</b> Transfer learning: giữ nguyên (đóng băng) phần trích đặc trưng đã học từ trước, chỉ thay và huấn luyện lại đầu phân loại cho bài toán mới.</div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">4.2</span>Hai chế độ: Feature Extraction vs Fine-tuning</h3>
+      <table class="ref-table">
+        <tr><th>Chế độ</th><th>Cách làm</th><th>Khi nào dùng</th></tr>
+        <tr><td><strong>Feature extraction</strong></td><td>Đóng băng toàn bộ backbone, chỉ thay đầu phân loại và huấn luyện riêng nó.</td><td>Nhanh, ít dữ liệu, ít rủi ro quá khớp — chọn khi <strong>dữ liệu của bạn ít</strong>.</td></tr>
+        <tr><td><strong>Fine-tuning</strong></td><td>Mở băng một phần (hoặc toàn bộ) backbone, huấn luyện tiếp với <strong>learning rate nhỏ</strong>.</td><td>Mạnh hơn nhưng cần <strong>nhiều dữ liệu hơn</strong>, kẻo phá hỏng đặc trưng đã học.</td></tr>
+      </table>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao Fine-tuning cần dùng learning rate <em>nhỏ hơn nhiều</em> so với khi huấn luyện một mô hình từ đầu?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì các trọng số của backbone đã được huấn luyện rất tốt trên một tập dữ liệu khổng lồ — chúng đã ở gần một điểm tốt trong không gian tham số. Một learning rate lớn sẽ tạo ra những bước cập nhật lớn, dễ <strong>phá hỏng</strong> các đặc trưng quý giá đã học được chỉ sau vài batch đầu tiên. Learning rate nhỏ giúp tinh chỉnh nhẹ nhàng, "uốn" đặc trưng cho sát với bài toán mới mà không xoá sạch những gì đã học.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">4.3</span>Thực nghiệm thật: sức mạnh của transfer learning</h3>
+      <p>Để chứng minh, ta giả lập tình huống <strong>ít dữ liệu</strong>: chỉ 1.200 ảnh. So sánh (a) huấn luyện một CNN từ đầu, với (b) lấy một mô hình đã huấn luyện trước rồi tinh chỉnh trên đúng 1.200 ảnh đó:</p>
+      <div class="figure">
+        <div class="chart-col" style="max-width:440px;margin:0 auto;">
+          <div class="chart-title">Cùng 1.200 ảnh — khoảng cách rất lớn ngay từ epoch đầu</div>
+          <svg viewBox="0 0 300 170" style="width:100%;display:block;">
+            <line x1="10" y1="10" x2="10" y2="150" stroke="#d9e0da"/>
+            <line x1="10" y1="150" x2="290" y2="150" stroke="#d9e0da"/>
+            <polyline points="10,55 50,42 90,36 130,32 170,29 210,27 250,26 280,25" fill="none" stroke="#0f8b8d" stroke-width="2.5"/>
+            <polyline points="10,148 50,130 90,112 130,98 170,88 210,80 250,74 280,70" fill="none" stroke="#d1495b" stroke-width="2.5" stroke-dasharray="4 3"/>
+            <text x="284" y="21" fill="#0a5f60" font-family="JetBrains Mono" font-size="10.5" text-anchor="end">~68% (fine-tune)</text>
+            <text x="284" y="83" fill="#9c2f3d" font-family="JetBrains Mono" font-size="10.5" text-anchor="end">~49% (từ đầu)</text>
+          </svg>
+          <div class="chart-legend">
+            <span><span class="legend-dot" style="background:#0f8b8d;"></span>Fine-tune mô hình pretrained</span>
+            <span><span class="legend-dot" style="background:#d1495b;"></span>Huấn luyện từ đầu</span>
+          </div>
+        </div>
+        <div class="figure-caption"><b>Hình 7.</b> Với cùng 1.200 ảnh, fine-tuning mô hình pretrained <strong>khởi đầu đã ~66%</strong> ngay epoch đầu tiên (nhờ đặc trưng học trước) và về đích ~68%, trong khi huấn luyện từ đầu chật vật mới đạt ~49%. Với ít dữ liệu, transfer learning gần như <strong>luôn thắng</strong>.</div>
+      </div>
+      <div class="callout callout-result">
+        <span class="callout-head">Lưu ý trung thực</span>
+        Vì môi trường chạy thực nghiệm này offline (không tải được trọng số ImageNet), backbone "pretrained" ở đây thực chất được huấn luyện trước trên phần CIFAR-10 lớn hơn rồi chuyển sang tập 1.200 ảnh. Nguyên lý minh hoạ vẫn <strong>giống hệt</strong> transfer learning thật; trong dự án thực tế, bạn sẽ dùng thẳng trọng số ImageNet có sẵn như đoạn code bên dưới.
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">4.4</span>Code transfer learning với torchvision</h3>
+      <p><code>torchvision.models</code> cung cấp sẵn nhiều kiến trúc mạnh (ResNet, EfficientNet…) kèm trọng số ImageNet có thể tải về ngay. Quy trình điển hình: tải mô hình pretrained → đóng băng backbone → thay lớp cuối cho đúng số lớp của bạn → chỉ huấn luyện lớp mới đó:</p>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">transfer_learning.py</span></div>
+        <pre><code class="language-python">import torch, torch.nn as nn
+from torchvision import models
+
+# 1) Tai ResNet18 da huan luyen tren ImageNet
+model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
+
+# 2) Dong bang toan bo backbone (feature extraction)
+for param in model.parameters():
+    param.requires_grad = False
+
+# 3) Thay dau phan loai: ResNet18 co lop fc 512 -> 1000, doi thanh 512 -> 10
+model.fc = nn.Linear(model.fc.in_features, 10)   # chi lop nay duoc huan luyen
+
+# 4) Chi toi uu tham so cua dau moi
+optimizer = torch.optim.Adam(model.fc.parameters(), lr=1e-3)
+# ... vong lap huan luyen nhu Bai 3 ...
+
+# (Tuy chon) Fine-tuning: mo bang va huan luyen tiep voi LR nho
+# for param in model.parameters(): param.requires_grad = True
+# optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)</code></pre>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Trong đoạn code trên, tại sao <code>optimizer</code> ở bước 4 chỉ nhận <code>model.fc.parameters()</code> thay vì <code>model.parameters()</code>?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì ở bước 2, toàn bộ backbone đã bị đóng băng (<code>requires_grad = False</code>), nên các trọng số đó sẽ không có gradient để cập nhật. Chỉ truyền <code>model.fc.parameters()</code> đảm bảo optimizer <strong>chỉ tối ưu đúng lớp mới</strong> — đây là bản chất của "feature extraction". Nếu lỡ truyền <code>model.parameters()</code>, code vẫn chạy được (không lỗi) nhưng sẽ lãng phí bộ nhớ theo dõi gradient cho các tham số vốn không cần cập nhật.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">4.5</span>Khi nào dùng chế độ nào?</h3>
+      <table class="ref-table">
+        <tr><th>Tình huống</th><th>Khuyến nghị</th></tr>
+        <tr><td>Ít dữ liệu, giống ImageNet</td><td>Feature extraction (đóng băng backbone, chỉ học đầu mới).</td></tr>
+        <tr><td>Nhiều dữ liệu, giống ImageNet</td><td>Fine-tune vài lớp cuối với learning rate nhỏ.</td></tr>
+        <tr><td>Ít dữ liệu, khác ImageNet</td><td>Đóng băng phần đầu, học lại phần sau; cẩn thận quá khớp.</td></tr>
+        <tr><td>Rất nhiều dữ liệu, khác hẳn</td><td>Fine-tune toàn bộ, hoặc cân nhắc huấn luyện từ đầu.</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+<section class="section" id="l5">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 05 · Quy trình chuyên nghiệp</span>
+    <h2 class="section-title">Quy trình huấn luyện chuyên nghiệp</h2>
+    <p class="section-lead">Vài thói quen kỹ thuật giúp phân biệt một thực nghiệm nghiệp dư với một quy trình huấn luyện đáng tin cậy.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">5.1</span>Tách Train / Validation / Test</h3>
+      <p>Một sai lầm phổ biến của người mới là chỉ chia train/test. Cách làm đúng cần <strong>ba tập</strong>: <strong>train</strong> (để học trọng số), <strong>validation</strong> (để chọn siêu tham số và quyết định khi nào dừng), và <strong>test</strong> (chỉ dùng <strong>một lần duy nhất</strong> ở cuối cùng để báo cáo kết quả khách quan).</p>
+      <div class="figure">
+        <div class="split-bar">
+          <div class="split-seg train">Train ~70%</div>
+          <div class="split-seg val">Val ~15%</div>
+          <div class="split-seg test">Test ~15%</div>
+        </div>
+        <div class="figure-caption"><b>Hình 8.</b> Tập test được "khoá" lại (🔒) — chỉ chạm vào đúng một lần ở cuối cùng để báo cáo kết quả, không dùng để điều chỉnh bất cứ điều gì trong quá trình phát triển mô hình.</div>
+      </div>
+      <div class="callout callout-warn">
+        <span class="callout-head">Nguyên tắc bất di bất dịch</span>
+        <strong>Không bao giờ</strong> điều chỉnh mô hình (kiến trúc, siêu tham số, thời điểm dừng) dựa trên kết quả của tập test. Làm vậy tương đương với việc để mô hình "nhìn trộm" đáp án, khiến con số báo cáo cuối cùng không còn đáng tin — về bản chất, đó là <strong>tự lừa chính mình</strong>.
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Nếu bạn thử 5 kiến trúc khác nhau và chọn kiến trúc có accuracy cao nhất <em>trên tập test</em>, điều gì sẽ sai với con số accuracy bạn báo cáo sau đó?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Con số đó sẽ bị <strong>lạc quan quá mức (overly optimistic)</strong> và không còn khách quan. Bằng cách chọn kiến trúc dựa trên tập test, bạn đã gián tiếp "khớp" lựa chọn của mình với chính tập test đó — về bản chất, tập test đã trở thành một phần của quá trình chọn mô hình, y hệt như tập validation, chỉ là không tường minh. Kết quả là hiệu năng thật trên dữ liệu hoàn toàn mới (chưa từng thấy) sẽ thấp hơn con số bạn báo cáo. Đây là lý do việc chọn kiến trúc/siêu tham số phải luôn dựa trên tập <strong>validation</strong>, để dành tập test cho lần đánh giá cuối cùng duy nhất.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.2</span>Chuẩn hoá, lập lịch &amp; dừng sớm</h3>
+      <ul class="plain">
+        <li><strong>Chuẩn hoá theo thống kê dữ liệu:</strong> trừ trung bình và chia cho độ lệch chuẩn <strong>của từng kênh màu</strong> (ImageNet/CIFAR đều có các giá trị chuẩn công bố sẵn) giúp huấn luyện ổn định hơn.</li>
+        <li><strong>Lập lịch learning rate (LR scheduling):</strong> giảm dần learning rate trong quá trình huấn luyện (ví dụ <code>StepLR</code>, <code>CosineAnnealingLR</code>) để hội tụ mượt hơn về cuối, thay vì giữ nguyên một learning rate cố định suốt quá trình.</li>
+        <li><strong>Dừng sớm (early stopping):</strong> theo dõi loss trên tập validation và <strong>dừng huấn luyện khi nó ngừng cải thiện</strong> — kỹ thuật này đã được nhắc tới ở Bài 3 khi bàn về quá khớp.</li>
+      </ul>
+      <div class="figure">
+        <div class="chart-col" style="max-width:420px;margin:0 auto;">
+          <div class="chart-title">Learning rate giảm dần theo lịch trình (minh hoạ StepLR)</div>
+          <svg viewBox="0 0 300 130" style="width:100%;display:block;">
+            <line x1="10" y1="10" x2="10" y2="115" stroke="#d9e0da"/>
+            <line x1="10" y1="115" x2="290" y2="115" stroke="#d9e0da"/>
+            <polyline points="10,25 100,25 100,55 190,55 190,80 280,80" fill="none" stroke="#0f8b8d" stroke-width="2.5"/>
+            <text x="14" y="22" fill="#0a5f60" font-family="JetBrains Mono" font-size="10">lr = 1e-3</text>
+            <text x="104" y="52" fill="#0a5f60" font-family="JetBrains Mono" font-size="10">lr = 3e-4</text>
+            <text x="194" y="77" fill="#0a5f60" font-family="JetBrains Mono" font-size="10">lr = 1e-4</text>
+          </svg>
+        </div>
+        <div class="figure-caption"><b>Hình 9.</b> StepLR giữ nguyên learning rate trong một số epoch cố định rồi giảm đột ngột theo từng bậc — một trong những cách lập lịch đơn giản và phổ biến nhất.</div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.3</span>Augmentation cho ảnh màu</h3>
+      <p>Với ảnh màu thật, augmentation phong phú hơn hẳn so với ảnh xám ở Bài 3: ngoài lật/xoay, ta còn có thể <strong>cắt ngẫu nhiên (RandomCrop)</strong> và <strong>đổi màu/độ sáng (ColorJitter)</strong>. Đây vẫn là cách rẻ nhất để tăng khả năng tổng quát hoá của mô hình.</p>
+      <div class="figure">
+        <div class="aug-grid">
+          <div class="aug-item"><div class="aug-box">🚗</div><div class="aug-label">Gốc</div></div>
+          <div class="aug-item"><div class="aug-box" style="transform:scale(1.25) translate(-3px,2px);">🚗</div><div class="aug-label">RandomCrop</div></div>
+          <div class="aug-item"><div class="aug-box" style="transform:scaleX(-1);">🚗</div><div class="aug-label">Flip ngang</div></div>
+          <div class="aug-item"><div class="aug-box" style="filter:brightness(1.35) saturate(1.4);">🚗</div><div class="aug-label">ColorJitter (sáng)</div></div>
+          <div class="aug-item"><div class="aug-box" style="filter:brightness(0.75) contrast(1.3);">🚗</div><div class="aug-label">ColorJitter (tối)</div></div>
+        </div>
+        <div class="figure-caption"><b>Hình 10.</b> Với ảnh màu, augmentation còn thay đổi cả màu sắc và độ sáng/tương phản — mô phỏng các điều kiện chụp ảnh khác nhau mà mô hình sẽ gặp trong thực tế.</div>
+      </div>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">augment_color.py</span></div>
+        <pre><code class="language-python">from torchvision import transforms
+
+train_tf = transforms.Compose([
+    transforms.RandomCrop(32, padding=4),          # cat ngau nhien co dem vien
+    transforms.RandomHorizontalFlip(),             # lat ngang
+    transforms.ColorJitter(brightness=0.2,
+                           contrast=0.2),           # doi sang/tuong phan
+    transforms.ToTensor(),
+    transforms.Normalize((0.4914, 0.4822, 0.4465),
+                         (0.247, 0.243, 0.261)),    # chuan hoa theo kenh
+])
+# Luu y: tap test/val CHI chuan hoa, KHONG augmentation</code></pre>
+      </div>
+      <div class="callout callout-note">
+        <span class="callout-head">Khả năng tái lập</span>
+        Đặt <strong>seed</strong> cố định (<code>torch.manual_seed</code>, <code>numpy.random.seed</code>) để mỗi lần chạy cho kết quả nhất quán — điều này rất quan trọng khi so sánh các thí nghiệm với nhau một cách công bằng.
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao chuẩn hoá ảnh đầu vào nên dùng <em>đúng</em> giá trị trung bình/độ lệch chuẩn mà mô hình pretrained từng thấy khi huấn luyện, thay vì tự tính từ tập dữ liệu mới của bạn?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì các trọng số của mô hình pretrained đã được tối ưu để hoạt động tốt nhất với dữ liệu đầu vào có phân phối giá trị <strong>giống hệt</strong> lúc nó được huấn luyện (ví dụ thống kê của ImageNet). Nếu chuẩn hoá dữ liệu mới theo một thống kê khác, phân phối giá trị đưa vào mạng sẽ lệch khỏi những gì các lớp đầu của backbone "quen thuộc", khiến các đặc trưng được trích ra kém chính xác hơn — dù bản thân kiến trúc và trọng số không hề thay đổi.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l6">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 06 · Tra cứu</span>
+    <h2 class="section-title">Bảng tra cứu &amp; mẹo thực hành</h2>
+    <p class="section-lead">Các công cụ đánh giá và transfer learning bạn sẽ dùng đi dùng lại trong hầu hết mọi dự án thị giác máy tính thực tế.</p>
+
+    <table class="ref-table">
+      <tr><th>Công cụ</th><th>Vai trò</th></tr>
+      <tr><td><code>classification_report</code></td><td>In precision/recall/F1 theo từng lớp + các trung bình macro/weighted.</td></tr>
+      <tr><td><code>confusion_matrix</code></td><td>Ma trận nhầm lẫn — xem lớp nào bị nhầm với lớp nào.</td></tr>
+      <tr><td><code>precision_recall_fscore_support</code></td><td>Lấy số liệu chi tiết để tự vẽ hoặc phân tích thêm.</td></tr>
+      <tr><td><code>CrossEntropyLoss(weight=...)</code></td><td>Hàm mất mát có trọng số lớp, chống mất cân bằng.</td></tr>
+      <tr><td><code>WeightedRandomSampler</code></td><td>Lấy mẫu cân bằng lại theo lớp khi tạo batch.</td></tr>
+      <tr><td><code>models.resnet18(weights=...)</code></td><td>Tải mạng pretrained cho transfer learning.</td></tr>
+      <tr><td><code>nn.BatchNorm2d</code></td><td>Chuẩn hoá kích hoạt theo batch — huấn luyện nhanh, ổn định hơn.</td></tr>
+      <tr><td><code>optim.lr_scheduler</code></td><td>Lập lịch giảm learning rate trong quá trình huấn luyện.</td></tr>
+    </table>
+
+    <h3 style="margin-top:32px;">Mẹo tránh lỗi thường gặp</h3>
+    <ul class="tip-list">
+      <li><span class="tip-check">✓</span><span>Với dữ liệu mất cân bằng, <strong>không dùng accuracy</strong> làm thước đo chính — luôn nhìn recall/F1 theo từng lớp.</span></li>
+      <li><span class="tip-check">✓</span><span><strong>Chỉ áp dụng augmentation</strong> cho tập huấn luyện, không áp dụng cho validation/test.</span></li>
+      <li><span class="tip-check">✓</span><span>Khi transfer learning, nhớ <strong>đóng băng backbone trước</strong> (<code>requires_grad = False</code>) rồi mới huấn luyện đầu mới.</span></li>
+      <li><span class="tip-check">✓</span><span>Fine-tuning luôn dùng <strong>learning rate nhỏ hơn nhiều</strong> so với huấn luyện từ đầu, kẻo phá hỏng đặc trưng đã học.</span></li>
+      <li><span class="tip-check">✓</span><span>Giữ tập test <strong>"thiêng liêng"</strong>: chỉ chạm vào nó một lần ở cuối; mọi điều chỉnh dựa trên validation.</span></li>
+      <li><span class="tip-check">✓</span><span>Chuẩn hoá ảnh bằng <strong>đúng thống kê</strong> mà mô hình pretrained mong đợi (ví dụ thống kê ImageNet cho mạng huấn luyện trên ImageNet).</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="l7">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Bài tập</span>
+    <h2 class="section-title">Bài tập thực hành</h2>
+    <p class="section-lead">Hãy chạy lại các thực nghiệm và thử các thí nghiệm sau, luôn <strong>đánh giá bằng precision/recall/F1</strong> chứ không chỉ accuracy.</p>
+
+    <div class="task-grid">
+      <div class="task-card"><span class="task-num">Bài tập 01</span><p>In <code>classification_report</code> cho mô hình CIFAR-10 của bạn. Ba lớp nào có F1 thấp nhất? Đối chiếu với ma trận nhầm lẫn để giải thích vì sao.</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 02</span><p>Tạo một tập <strong>mất cân bằng</strong> (ví dụ giảm 2 lớp xuống còn 5% số mẫu). Huấn luyện có và không có class weights, so sánh <strong>recall</strong> của lớp thiểu số.</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 03</span><p>Dùng <strong>transfer learning</strong> với <code>models.resnet18</code> pretrained: đóng băng backbone, thay đầu, huấn luyện. So sánh độ chính xác với CNN tự xây ở Bài 3.</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 04</span><p>Thử <strong>fine-tuning</strong>: sau khi huấn luyện đầu mới, mở băng backbone và huấn luyện tiếp với learning rate nhỏ. Kết quả thay đổi ra sao?</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 05</span><p>Thêm <strong>ColorJitter</strong> và <strong>RandomCrop</strong> vào augmentation. Khoảng cách giữa accuracy train và validation có thu hẹp lại không?</p></div>
+      <div class="task-card advanced"><span class="task-num">Nâng cao</span><p>Vẽ đường <strong>Precision–Recall</strong> cho một lớp và tính <strong>PR-AUC</strong> (gợi ý: <code>sklearn.metrics.precision_recall_curve</code>).</p></div>
+    </div>
+  </div>
+</section>
+<section class="section" id="quiz">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp ra · Kiểm tra tổng kết</span>
+    <h2 class="section-title">Trắc nghiệm tổng kết</h2>
+    <p class="section-lead">10 câu hỏi để tự kiểm tra lại toàn bộ nội dung buổi học. Bấm vào một đáp án để xem ngay kết quả; nếu chưa chắc chắn, hãy bấm "Gợi ý" trước.</p>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 1.</span>Vấn đề cốt lõi khiến CIFAR-10 khó hơn hẳn Fashion-MNIST là gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. CIFAR-10 có ít lớp hơn</button>
+        <button class="quiz-opt" data-key="B">B. Ảnh màu, nền phức tạp, và biến thiên nội lớp lớn hơn nhiều</button>
+        <button class="quiz-opt" data-key="C">C. CIFAR-10 chỉ có 100 ảnh</button>
+        <button class="quiz-opt" data-key="D">D. CIFAR-10 không thể dùng CNN để giải quyết</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại Lớp 01.1 và 01.3 — ba giả định bị phá vỡ, cộng thêm khái niệm biến thiên nội lớp.</p>
+      <p class="quiz-explain">CIFAR-10 là ảnh màu với nền lộn xộn, vật thể ở nhiều vị trí/kích thước, và biến thiên nội lớp rất lớn (nhiều giống mèo, tư thế, ánh sáng khác nhau) — khiến cùng một cách huấn luyện chỉ đạt ~64% thay vì ~89% như trên Fashion-MNIST.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 2.</span>Vì sao accuracy có thể đánh lừa nghiêm trọng trên dữ liệu mất cân bằng (ví dụ 99% bình thường / 1% gian lận)?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Vì accuracy luôn bằng 0 trong trường hợp này</button>
+        <button class="quiz-opt" data-key="B">B. Một mô hình luôn đoán lớp đa số vẫn đạt accuracy cao dù bỏ sót hoàn toàn lớp thiểu số</button>
+        <button class="quiz-opt" data-key="C">C. Vì accuracy không thể tính khi có nhiều hơn 2 lớp</button>
+        <button class="quiz-opt" data-key="D">D. Vì accuracy chỉ dùng được cho bài toán hồi quy</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại ví dụ phát hiện gian lận ở Lớp 02.1.</p>
+      <p class="quiz-explain">Một mô hình "ngốc nghếch" luôn đoán lớp đa số (bình thường) đạt 99% accuracy nhưng bỏ sót 100% ca gian lận — con số accuracy cao nhưng mô hình hoàn toàn vô dụng cho đúng mục đích của nó.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="A">
+      <p class="quiz-q"><span class="qnum">Câu 3.</span>Precision = TP/(TP+FP) đo điều gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Trong số các ca được dự đoán là dương, bao nhiêu là đúng</button>
+        <button class="quiz-opt" data-key="B">B. Trong số các ca dương thật, mô hình bắt được bao nhiêu</button>
+        <button class="quiz-opt" data-key="C">C. Tỉ lệ dự đoán đúng trên toàn bộ dữ liệu</button>
+        <button class="quiz-opt" data-key="D">D. Trung bình điều hoà giữa Recall và F1</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">So sánh định nghĩa Precision và Recall ở Lớp 02.2 — chú ý mẫu số khác nhau.</p>
+      <p class="quiz-explain">Precision nhìn vào tất cả các ca mô hình <em>báo dương</em> (TP+FP) và hỏi bao nhiêu trong số đó là đúng thật. Đáp án B là định nghĩa của Recall, không phải Precision.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 4.</span>Bài toán nào nên ưu tiên Recall cao hơn Precision?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Lọc thư rác</button>
+        <button class="quiz-opt" data-key="B">B. Tầm soát ung thư</button>
+        <button class="quiz-opt" data-key="C">C. Đề xuất sản phẩm mua sắm</button>
+        <button class="quiz-opt" data-key="D">D. Nén ảnh</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Nhớ lại: bài toán nào mà bỏ sót (FN) nguy hiểm hơn báo nhầm (FP)?</p>
+      <p class="quiz-explain">Tầm soát ung thư cần Recall cao vì bỏ sót một ca bệnh thật (FN) nguy hiểm hơn nhiều so với báo nhầm một ca lành tính (FP). Lọc thư rác thì ngược lại, nên ưu tiên Precision.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 5.</span>Trong thực nghiệm mất cân bằng CIFAR-10, điều gì xảy ra với mô hình baseline (không có class weights)?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Accuracy tổng giảm mạnh xuống dưới 20%</button>
+        <button class="quiz-opt" data-key="B">B. Recall của ba lớp thiểu số gần như bằng 0 dù accuracy tổng vẫn trông ổn</button>
+        <button class="quiz-opt" data-key="C">C. Mô hình từ chối huấn luyện, báo lỗi</button>
+        <button class="quiz-opt" data-key="D">D. Recall của mọi lớp đều tăng đều nhau</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Thử bấm nút "Trước (baseline)" ở demo Lớp 03.2 và đọc các cột màu đỏ.</p>
+      <p class="quiz-explain">Baseline đạt accuracy tổng trông ổn (vì lớp đa số vẫn được đoán đúng phần lớn), nhưng recall của ba lớp thiểu số (mèo, hươu, xe tải) gần như bằng 0 — mô hình gần như bỏ rơi hoàn toàn các lớp đó.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 6.</span>Công cụ nào trong PyTorch cho phép lấy mẫu cân bằng lại theo lớp ngay khi tạo batch?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. nn.BatchNorm2d</button>
+        <button class="quiz-opt" data-key="B">B. WeightedRandomSampler</button>
+        <button class="quiz-opt" data-key="C">C. transforms.ColorJitter</button>
+        <button class="quiz-opt" data-key="D">D. optim.lr_scheduler</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại bảng tra cứu ở Lớp 06 và code ở Lớp 03.3.</p>
+      <p class="quiz-explain"><code>WeightedRandomSampler</code> gán trọng số lấy mẫu cho từng ảnh dựa trên độ hiếm của lớp, giúp mỗi batch được lấy cân bằng hơn giữa các lớp thay vì phản ánh đúng tỉ lệ mất cân bằng gốc.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 7.</span>"Feature extraction" trong transfer learning nghĩa là gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Huấn luyện toàn bộ mạng bao gồm cả backbone, từ đầu</button>
+        <button class="quiz-opt" data-key="B">B. Đóng băng toàn bộ backbone, chỉ huấn luyện đầu phân loại mới</button>
+        <button class="quiz-opt" data-key="C">C. Xoá bỏ hoàn toàn phần backbone của mô hình</button>
+        <button class="quiz-opt" data-key="D">D. Chỉ áp dụng được cho ảnh xám</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại bảng so sánh hai chế độ ở Lớp 04.2.</p>
+      <p class="quiz-explain">Feature extraction đóng băng toàn bộ backbone (giữ nguyên trọng số đã học, <code>requires_grad=False</code>) và chỉ huấn luyện lớp đầu ra mới — nhanh, ít dữ liệu, ít rủi ro quá khớp.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 8.</span>Vì sao trong thực nghiệm chỉ 1.200 ảnh, fine-tuning mô hình pretrained vượt trội hẳn so với huấn luyện từ đầu?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Vì mô hình pretrained có ít tham số hơn</button>
+        <button class="quiz-opt" data-key="B">B. Vì mô hình pretrained đã học sẵn đặc trưng thị giác tổng quát, không cần học lại từ số 0</button>
+        <button class="quiz-opt" data-key="C">C. Vì huấn luyện từ đầu luôn gặp lỗi kỹ thuật</button>
+        <button class="quiz-opt" data-key="D">D. Vì fine-tuning không cần bất kỳ dữ liệu nào</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại Hình 7, Lớp 04.3 — mô hình fine-tune khởi đầu đã ở mức nào ngay từ epoch đầu?</p>
+      <p class="quiz-explain">Mô hình pretrained đã học sẵn các đặc trưng thị giác tổng quát (cạnh, kết cấu, hình dạng) từ một tập dữ liệu khổng lồ, nên chỉ cần tinh chỉnh nhẹ cho bài toán mới — khởi đầu đã ~66% ngay epoch đầu, trong khi huấn luyện từ đầu phải học mọi thứ từ con số 0 với rất ít dữ liệu.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 9.</span>Nguyên tắc nào bắt buộc khi làm việc với tập test trong một quy trình huấn luyện nghiêm túc?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Dùng tập test để chọn ra kiến trúc tốt nhất trong nhiều lựa chọn</button>
+        <button class="quiz-opt" data-key="B">B. Chỉ chạm vào tập test đúng một lần ở cuối cùng để báo cáo kết quả khách quan</button>
+        <button class="quiz-opt" data-key="C">C. Luôn áp dụng augmentation cho tập test giống hệt tập train</button>
+        <button class="quiz-opt" data-key="D">D. Gộp tập test vào tập train để có thêm dữ liệu huấn luyện</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại callout "Nguyên tắc bất di bất dịch" ở Lớp 05.1.</p>
+      <p class="quiz-explain">Tập test phải được giữ "thiêng liêng" — chỉ dùng đúng một lần ở cuối để báo cáo kết quả khách quan. Mọi lựa chọn kiến trúc, siêu tham số, hay thời điểm dừng phải dựa trên tập validation, không phải test.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 10.</span>Vì sao nên chuẩn hoá ảnh đầu vào theo đúng thống kê (mean/std) mà mô hình pretrained từng thấy lúc huấn luyện?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Vì nếu không làm vậy, chương trình sẽ báo lỗi ngay lập tức</button>
+        <button class="quiz-opt" data-key="B">B. Vì phân phối giá trị đầu vào cần khớp với những gì các lớp đầu của backbone đã "quen thuộc"</button>
+        <button class="quiz-opt" data-key="C">C. Vì thống kê đó giúp giảm số lượng tham số của mô hình</button>
+        <button class="quiz-opt" data-key="D">D. Vì đó là yêu cầu bắt buộc của cú pháp Python</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại phần kiểm tra nhanh cuối Lớp 05.3.</p>
+      <p class="quiz-explain">Các lớp đầu của backbone pretrained đã học cách xử lý dữ liệu có phân phối giá trị cụ thể (ví dụ thống kê ImageNet). Nếu chuẩn hoá theo thống kê khác, đầu vào sẽ lệch khỏi những gì mạng "quen thuộc", khiến đặc trưng trích ra kém chính xác hơn dù kiến trúc và trọng số không đổi.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="end">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Tổng kết</span>
+    <h2 class="section-title">Từ bài toán đồ chơi đến quy trình thực chiến</h2>
+    <p>Buổi học này đã nâng bài toán phân loại từ mức "đồ chơi" lên mức thực tế. Bạn đã thấy <strong>ảnh màu thật khó hơn nhiều</strong> so với Fashion-MNIST, và biết cách <strong>đánh giá mô hình một cách nghiêm túc</strong> — không chỉ nhìn accuracy mà còn precision, recall, F1 và ma trận nhầm lẫn theo từng lớp. Bạn hiểu <strong>mất cân bằng lớp</strong> có thể âm thầm phá hỏng một mô hình trông có vẻ hoạt động tốt, và biết cách khắc phục bằng class weights hoặc resampling. Quan trọng nhất, bạn đã làm chủ <strong>transfer learning</strong> — kỹ thuật giúp đạt kết quả tốt với rất ít dữ liệu, và là lựa chọn <em>mặc định</em> khi giải bài toán phân loại trong thực tế thay vì luôn huấn luyện từ đầu.</p>
+    <p>Với nền tảng phân loại đã vững, chặng tiếp theo của khoá học sẽ bước sang những bài toán thị giác phong phú hơn — tất cả đều dựng trên chính CNN và các kỹ thuật vừa học: <strong>phát hiện đối tượng</strong> (không chỉ nói ảnh <em>là gì</em> mà còn <em>vật thể nằm ở đâu</em>, với YOLO), và <strong>phân đoạn ảnh</strong> (gán nhãn tới từng pixel). Hãy hoàn thành các bài tập ở Lớp 07 trước khi đi tiếp — đặc biệt là thực hành transfer learning, vì bạn sẽ dùng nó liên tục về sau.</p>
+  </div>
+</section>
+
+<div class="footer">
+  <div class="wrap">
+    Học sâu cho Thị giác Máy tính — Bài giảng Tutorial 4 · Phân loại ảnh Chuyên sâu
+  </div>
+</div>
+
+</main>
+</div>
+<script>
+/* ---------- Reveal / Hint toggles ---------- */
+function toggleReveal(btn){
+  const box = btn.nextElementSibling;
+  box.classList.toggle('show');
+  btn.textContent = box.classList.contains('show') ? 'Ẩn đáp án' : 'Hiện đáp án';
+}
+function toggleHint(btn){
+  const hint = btn.closest('.quiz-item').querySelector('.quiz-hint');
+  hint.classList.toggle('show');
+  btn.textContent = hint.classList.contains('show') ? 'Ẩn gợi ý' : 'Gợi ý';
+}
+
+/* ---------- Quiz logic ---------- */
+document.querySelectorAll('.quiz-item').forEach(item=>{
+  const answer = item.dataset.answer;
+  const opts = item.querySelectorAll('.quiz-opt');
+  const explain = item.querySelector('.quiz-explain');
+  opts.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(item.classList.contains('answered')) return;
+      item.classList.add('answered');
+      opts.forEach(o=>o.disabled=true);
+      if(opt.dataset.key === answer){
+        opt.classList.add('correct');
+      } else {
+        opt.classList.add('incorrect');
+        const correctBtn = item.querySelector('.quiz-opt[data-key="'+answer+'"]');
+        if(correctBtn) correctBtn.classList.add('correct');
+      }
+      if(explain) explain.classList.add('show');
+    });
+  });
+});
+
+/* ---------- Precision / Recall threshold demo ---------- */
+const threshPositives=[38,45,52,58,62,66,70,73,77,81,85,90];
+const threshNegatives=[4,9,14,19,24,29,34,39,46,53,60,68];
+function buildThreshScale(){
+  const scale=document.getElementById('threshScale');
+  if(!scale) return;
+  scale.innerHTML='<div class="thresh-track"></div>';
+  threshPositives.forEach(s=>{
+    const d=document.createElement('div');
+    d.className='thresh-dot pos';
+    d.style.left=s+'%';
+    scale.appendChild(d);
+  });
+  threshNegatives.forEach(s=>{
+    const d=document.createElement('div');
+    d.className='thresh-dot neg';
+    d.style.left=s+'%';
+    scale.appendChild(d);
+  });
+  const line=document.createElement('div');
+  line.className='thresh-line';
+  line.id='threshLineEl';
+  scale.appendChild(line);
+}
+function updateThresh(){
+  const slider=document.getElementById('threshSlider');
+  if(!slider) return;
+  const t=parseFloat(slider.value);
+  const line=document.getElementById('threshLineEl');
+  if(line) line.style.left=t+'%';
+  let TP=0,FN=0,FP=0,TN=0;
+  threshPositives.forEach(s=>{ if(s>=t) TP++; else FN++; });
+  threshNegatives.forEach(s=>{ if(s>=t) FP++; else TN++; });
+  document.getElementById('statTP').textContent=TP;
+  document.getElementById('statFP').textContent=FP;
+  document.getElementById('statFN').textContent=FN;
+  document.getElementById('statTN').textContent=TN;
+  const precision=(TP+FP)>0 ? TP/(TP+FP) : 0;
+  const recall=(TP+FN)>0 ? TP/(TP+FN) : 0;
+  const f1=(precision+recall)>0 ? 2*precision*recall/(precision+recall) : 0;
+  document.getElementById('metricPrecision').textContent=(precision*100).toFixed(0)+'%';
+  document.getElementById('metricRecall').textContent=(recall*100).toFixed(0)+'%';
+  document.getElementById('metricF1').textContent=(f1*100).toFixed(0)+'%';
+}
+buildThreshScale();
+updateThresh();
+const threshSliderEl=document.getElementById('threshSlider');
+if(threshSliderEl) threshSliderEl.addEventListener('input', updateThresh);
+
+/* ---------- Confusion matrix (CIFAR-10) ---------- */
+const cmClasses2=['Plane','Auto','Bird','Cat','Deer','Dog','Frog','Horse','Ship','Truck'];
+const cmData2=[
+  [88,2,3,0,0,0,0,0,5,2],
+  [1,90,0,0,0,0,0,0,2,7],
+  [3,0,68,6,10,5,4,3,1,0],
+  [0,0,5,58,6,20,4,5,1,1],
+  [0,0,10,5,68,4,3,9,1,0],
+  [0,0,4,22,5,62,2,4,1,0],
+  [1,0,5,4,4,2,80,2,1,1],
+  [0,0,3,4,10,5,2,74,1,1],
+  [4,2,1,0,0,0,0,0,89,4],
+  [2,8,0,0,0,0,0,0,3,87]
+];
+function cmColorClass2(v){
+  if(v<3) return 'cm0';
+  if(v<8) return 'cm1';
+  if(v<20) return 'cm2';
+  if(v<60) return 'cm3';
+  return 'cm4';
+}
+(function buildConfusionMatrix2(){
+  const table=document.getElementById('cmTable2');
+  if(!table) return;
+  let html='<tr><th></th>';
+  cmClasses2.forEach(c=>{ html+='<th>'+c+'</th>'; });
+  html+='</tr>';
+  cmData2.forEach((row,i)=>{
+    html+='<tr><th class="rowlab">'+cmClasses2[i]+'</th>';
+    row.forEach(v=>{ html+='<td class="'+cmColorClass2(v)+'">'+v+'</td>'; });
+    html+='</tr>';
+  });
+  table.innerHTML=html;
+})();
+
+/* ---------- Class imbalance before/after bars ---------- */
+const imbData={
+  before:{'Cat':5, 'Deer':10, 'Truck':15, 'TB 7 lớp đa số':93},
+  after:{'Cat':58, 'Deer':65, 'Truck':73, 'TB 7 lớp đa số':89}
+};
+const imbDescText={
+  before:'Baseline (không có class weights): recall của ba lớp thiểu số gần như bằng 0 — mô hình gần như không bao giờ nhận ra chúng, dù accuracy tổng thể (được kéo bởi các lớp đa số) vẫn trông ổn.',
+  after:'Sau khi thêm class weights: recall của ba lớp thiểu số tăng vọt (22–73%), đổi lại recall trung bình của các lớp đa số giảm nhẹ — một sự đánh đổi có chủ đích.'
+};
+function buildImbBars(mode){
+  const data=imbData[mode];
+  const container=document.getElementById('imbBars');
+  if(!container) return;
+  container.innerHTML='';
+  Object.entries(data).forEach(([label,val])=>{
+    const col=document.createElement('div');
+    col.className='imb-bar-col';
+    const valEl=document.createElement('div');
+    valEl.className='imb-bar-val';
+    valEl.textContent=val+'%';
+    const bar=document.createElement('div');
+    bar.className='imb-bar'+(label!=='TB 7 lớp đa số' ? ' minority':'');
+    bar.style.height=Math.max(val,3)+'%';
+    const lbl=document.createElement('div');
+    lbl.className='imb-bar-lbl';
+    lbl.textContent=label;
+    col.appendChild(valEl);
+    col.appendChild(bar);
+    col.appendChild(lbl);
+    container.appendChild(col);
+  });
+  const descEl=document.getElementById('imbDesc');
+  if(descEl) descEl.textContent=imbDescText[mode];
+}
+document.querySelectorAll('#imbToggle button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#imbToggle button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    buildImbBars(btn.dataset.mode);
+  });
+});
+buildImbBars('before');
+
+/* ---------- Rail scrollspy ---------- */
+(function railScrollSpy(){
+  const map={};
+  document.querySelectorAll('.rail-item').forEach(item=>{
+    const a=item.querySelector('a');
+    if(a){ map[a.getAttribute('href').slice(1)] = item; }
+  });
+  const targets=Object.keys(map).map(id=>document.getElementById(id)).filter(Boolean);
+  const observer=new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        Object.values(map).forEach(it=>it.classList.remove('active'));
+        const item=map[entry.target.id];
+        if(item) item.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-35% 0px -55% 0px', threshold:0});
+  targets.forEach(t=>observer.observe(t));
+})();
+
+/* ---------- Syntax highlighting ---------- */
+if(window.hljs){ hljs.highlightAll(); }
+</script>
+</body>
+</html>

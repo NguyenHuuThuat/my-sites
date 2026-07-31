@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toán 10 – Bài C.2: Vectơ</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<style>
+  :root{
+    --paper:#F4F5F0; --paper-alt:#ECEEE6; --ink:#1B2624; --ink-soft:#4B5A56; --rule:#D8DBCF;
+    --c1:#1F8A82; --c1-bg:#E3F2EF; /* Khái niệm, tổng - hiệu vectơ */
+    --c2:#39588F; --c2-bg:#E5EAF3; /* Tích vectơ với số thực */
+    --c3:#B4741C; --c3-bg:#F5EADA; /* Tích vô hướng */
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.65;font-size:16px;}
+  h1,h2,h3,h4{font-family:Georgia,"Palatino Linotype","Times New Roman",serif;font-weight:700;line-height:1.25;margin:0 0 .5em 0;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 18px 80px;}
+  .top{background:var(--ink);color:var(--paper);padding:38px 18px 30px;}
+  .top .wrap{padding:0;}
+  .eyebrow{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:#B9C4B7;margin-bottom:10px;}
+  .top h1{font-size:clamp(24px,5vw,36px);color:#FBFBF6;margin-bottom:8px;}
+  .top p.sub{color:#C9D0C4;font-size:15.5px;max-width:58ch;margin:0;}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;}
+  .meta-chip{font-size:12.5px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;border:1px solid #4C5A55;color:#D6DCD1;padding:5px 10px;border-radius:20px;}
+  .toc{display:flex;gap:8px;overflow-x:auto;padding:14px 18px;background:var(--paper-alt);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:50;-webkit-overflow-scrolling:touch;}
+  .toc a{flex:0 0 auto;text-decoration:none;font-size:13px;font-weight:600;padding:8px 13px;border-radius:8px;white-space:nowrap;color:var(--ink);border:1px solid var(--rule);background:var(--paper);}
+  .toc a b{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:700;margin-right:5px;opacity:.55;}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:22px 0 6px;}
+  .controls button{font-family:inherit;font-size:13.5px;font-weight:600;padding:9px 15px;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer;}
+  .controls button.ghost{background:transparent;color:var(--ink);}
+  .controls span.hint{font-size:13px;color:var(--ink-soft);}
+  .intro{padding:26px 0 6px;}
+  .intro p{color:var(--ink-soft);max-width:64ch;}
+  .chapter{margin-top:56px;scroll-margin-top:70px;}
+  .chapter-tab{display:inline-flex;align-items:baseline;gap:10px;padding:9px 16px 10px;border-radius:10px 10px 0 0;color:#fff;}
+  .chapter-tab .num{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:13px;opacity:.85;}
+  .chapter-tab .name{font-family:Georgia,serif;font-weight:700;font-size:20px;}
+  .chapter-body{border-radius:0 10px 10px 10px;border:1px solid var(--rule);background:#fff;padding:26px 22px 30px;}
+  .theory-box{background:var(--box-bg,var(--paper-alt));border-left:4px solid var(--box-c,var(--ink));border-radius:6px;padding:16px 18px;margin:16px 0 22px;}
+  .theory-box h4{font-size:13px;text-transform:uppercase;letter-spacing:.07em;font-family:"SFMono-Regular",Consolas,Menlo,monospace;color:var(--box-c,var(--ink));margin-bottom:10px;}
+  .theory-box ul{margin:0;padding-left:20px;}
+  .theory-box li{margin-bottom:8px;}
+  .theory-box li:last-child{margin-bottom:0;}
+  .example-box{border:1px dashed var(--box-c,var(--ink-soft));border-radius:6px;padding:16px 18px;margin:16px 0 22px;background:#FCFCF9;}
+  .example-box h4{font-size:13px;text-transform:uppercase;letter-spacing:.07em;font-family:"SFMono-Regular",Consolas,Menlo,monospace;color:var(--box-c,var(--ink));margin-bottom:10px;}
+  .example-box .steps p{margin:.5em 0;}
+  .problems-head{font-size:13px;text-transform:uppercase;letter-spacing:.07em;font-family:"SFMono-Regular",Consolas,Menlo,monospace;color:var(--ink-soft);margin:26px 0 12px;border-top:1px solid var(--rule);padding-top:18px;}
+  .problem{border:1px solid var(--rule);border-radius:8px;padding:16px 18px;margin-bottom:14px;background:var(--paper);}
+  .problem-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px;}
+  .problem-num{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:700;color:var(--box-c,var(--ink));font-size:14px;flex:0 0 auto;}
+  .badge{font-size:10.5px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:20px;flex:0 0 auto;border:1px solid currentColor;opacity:.8;}
+  .b-nb{color:#2F7D6B;} .b-th{color:#3E5C9A;} .b-vd{color:#B4741C;} .b-vdc{color:#A83B49;}
+  .problem-text{margin:6px 0 10px;}
+  .btn-toggle{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12.5px;font-weight:600;background:transparent;border:1px solid var(--box-c,var(--ink));color:var(--box-c,var(--ink));padding:6px 12px;border-radius:20px;cursor:pointer;}
+  .btn-toggle.active{background:var(--box-c,var(--ink));color:#fff;}
+  .solution{display:none;margin-top:14px;padding:14px 16px;border-radius:6px;background:var(--box-bg,var(--paper-alt));border-left:3px solid var(--box-c,var(--ink));}
+  .solution p{margin:.45em 0;}
+  .solution .lbl{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--box-c,var(--ink));margin-bottom:8px;font-weight:700;}
+  #ch1{--box-c:var(--c1);--box-bg:var(--c1-bg);}
+  #ch2{--box-c:var(--c2);--box-bg:var(--c2-bg);}
+  #ch3{--box-c:var(--c3);--box-bg:var(--c3-bg);}
+  #ch1 .chapter-tab{background:var(--c1);}
+  #ch2 .chapter-tab{background:var(--c2);}
+  #ch3 .chapter-tab{background:var(--c3);}
+  figure.geo{margin:14px 0;padding:14px;background:#FCFCF9;border:1px solid var(--rule);border-radius:8px;text-align:center;}
+  figure.geo svg{max-width:100%;height:auto;}
+  figure.geo figcaption{font-size:12.5px;color:var(--ink-soft);margin-top:6px;}
+  footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--rule);color:var(--ink-soft);font-size:13px;}
+  @media print{
+    .toc,.controls,.btn-toggle{display:none !important;}
+    .solution{display:block !important;}
+    .top{background:#fff !important;color:#000 !important;}
+    .top .eyebrow,.top .sub,.meta-chip{color:#333 !important;}
+    .top h1{color:#000 !important;}
+  }
+  @media (max-width:600px){ .chapter-tab .name{font-size:17px;} .chapter-body{padding:20px 14px 24px;} }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wrap">
+    <div class="eyebrow">Chuẩn bị Toán 10 &nbsp;•&nbsp; Phần C — Hình học &nbsp;•&nbsp; Bài C.2</div>
+    <h1>Vectơ</h1>
+    <p class="sub">Khái niệm hoàn toàn mới so với lớp 9: đại lượng có hướng. Nền tảng của Vật lý (lực, vận tốc) và của toạ độ, tích vô hướng ở các bài sau.</p>
+    <div class="meta-row">
+      <span class="meta-chip">3 phần</span>
+      <span class="meta-chip">17 bài tập có lời giải chi tiết</span>
+      <span class="meta-chip">6 ví dụ minh hoạ</span>
+    </div>
+  </div>
+</div>
+
+<nav class="toc">
+  <a href="#ch1"><b>01</b>Khái niệm, tổng &amp; hiệu vectơ</a>
+  <a href="#ch2"><b>02</b>Tích của vectơ với một số</a>
+  <a href="#ch3"><b>03</b>Tích vô hướng của hai vectơ</a>
+</nav>
+
+<div class="wrap">
+
+  <div class="controls">
+    <button onclick="showAll()">Hiện tất cả lời giải</button>
+    <button class="ghost" onclick="hideAll()">Ẩn tất cả lời giải</button>
+    <span class="hint">Bấm “Xem lời giải” ở từng bài để hiện/ẩn đáp án.</span>
+  </div>
+
+  <div class="intro">
+    <p>Vectơ là khái niệm mới hoàn toàn: một đại lượng vừa có <b>độ lớn</b> vừa có <b>hướng</b> (khác với số thực chỉ có độ lớn). Đây là ngôn ngữ dùng xuyên suốt Vật lý (lực, vận tốc, gia tốc) và là công cụ mạnh để chứng minh các tính chất hình học (trung điểm, trọng tâm, thẳng hàng...) mà không cần vẽ hình phức tạp.</p>
+  </div>
+
+  <!-- ============ PHẦN 1 ============ -->
+  <section class="chapter" id="ch1">
+    <div class="chapter-tab"><span class="num">01</span><span class="name">Khái niệm, tổng &amp; hiệu vectơ</span></div>
+    <div class="chapter-body">
+
+      <div class="theory-box">
+        <h4>Tóm tắt lý thuyết</h4>
+        <ul>
+          <li><b>Vectơ</b> là một đoạn thẳng có hướng, kí hiệu \(\vec{AB}\) (điểm đầu A, điểm cuối B) hoặc \(\vec a,\vec b,\ldots\) Độ dài vectơ \(\vec{AB}\), kí hiệu \(|\vec{AB}|\), chính là độ dài đoạn thẳng AB.</li>
+          <li><b>Hai vectơ cùng phương</b> nếu giá của chúng song song hoặc trùng nhau; khi đó chúng cùng hướng hoặc ngược hướng.</li>
+          <li><b>Hai vectơ bằng nhau:</b> cùng hướng và cùng độ dài. <b>Vectơ-không</b> \(\vec0\): điểm đầu trùng điểm cuối, độ dài bằng 0, được quy ước cùng phương, cùng hướng với mọi vectơ.</li>
+          <li><b>Tổng hai vectơ</b> — quy tắc ba điểm: \(\vec{AB}+\vec{BC}=\vec{AC}\). Quy tắc hình bình hành: nếu ABCD là hình bình hành thì \(\vec{AB}+\vec{AD}=\vec{AC}\).</li>
+          <li><b>Hiệu hai vectơ:</b> \(\vec a-\vec b=\vec a+(-\vec b)\), với \(-\vec b\) là vectơ đối của \(\vec b\) (cùng độ dài, ngược hướng). Quy tắc: \(\vec{AB}-\vec{AC}=\vec{CB}\).</li>
+          <li>Tính chất phép cộng vectơ: giao hoán (\(\vec a+\vec b=\vec b+\vec a\)), kết hợp, cộng với \(\vec0\).</li>
+        </ul>
+      </div>
+
+      <figure class="geo">
+        <svg viewBox="0 0 270 230" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1B2624"/></marker>
+            <marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#A83B49"/></marker>
+          </defs>
+          <polygon points="50,190 220,80 220,80 90,80" fill="none" stroke="none"/>
+          <line x1="50" y1="190" x2="180" y2="190" stroke="#1B2624" stroke-width="2" marker-end="url(#arrow1)"/>
+          <line x1="50" y1="190" x2="85" y2="83" stroke="#1B2624" stroke-width="2" marker-end="url(#arrow1)"/>
+          <line x1="180" y1="190" x2="215" y2="83" stroke="#1B2624" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <line x1="85" y1="83" x2="215" y2="83" stroke="#1B2624" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <line x1="50" y1="190" x2="215" y2="83" stroke="#A83B49" stroke-width="2.4" marker-end="url(#arrow2)"/>
+          <circle cx="50" cy="190" r="2.5" fill="#1B2624"/>
+          <circle cx="180" cy="190" r="2.5" fill="#1B2624"/>
+          <circle cx="85" cy="83" r="2.5" fill="#1B2624"/>
+          <circle cx="215" cy="83" r="2.5" fill="#1B2624"/>
+          <text x="38" y="206" font-size="14" font-family="Georgia,serif">A</text>
+          <text x="184" y="206" font-size="14" font-family="Georgia,serif">B</text>
+          <text x="66" y="80" font-size="14" font-family="Georgia,serif">D</text>
+          <text x="219" y="76" font-size="14" font-family="Georgia,serif">C</text>
+          <text x="105" y="205" font-size="13" font-family="Georgia,serif">AB</text>
+          <text x="45" y="140" font-size="13" font-family="Georgia,serif">AD</text>
+          <text x="140" y="120" font-size="13" font-family="Georgia,serif" fill="#A83B49">AC = AB + AD</text>
+        </svg>
+        <figcaption>Quy tắc hình bình hành: \(\vec{AB}+\vec{AD}=\vec{AC}\)</figcaption>
+      </figure>
+
+      <div class="example-box">
+        <h4>Ví dụ 1 — Quy tắc hình bình hành</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Cho hình bình hành ABCD. Chứng minh \(\vec{AB}+\vec{AD}=\vec{AC}\).</p>
+          <p><b>Giải:</b> Vì ABCD là hình bình hành nên \(\vec{AD}=\vec{BC}\) (hai cạnh đối song song và bằng nhau, cùng hướng).</p>
+          <p>Áp dụng quy tắc ba điểm: \(\vec{AB}+\vec{BC}=\vec{AC}\).</p>
+          <p>Thay \(\vec{BC}=\vec{AD}\): \(\vec{AB}+\vec{AD}=\vec{AC}\) (đpcm).</p>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 2 — Đẳng thức vectơ với 4 điểm bất kỳ</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Cho bốn điểm A, B, C, D bất kỳ. Chứng minh \(\vec{AB}+\vec{CD}=\vec{AD}+\vec{CB}\).</p>
+          <p><b>Giải:</b> Ta có \((\vec{AB}+\vec{CD}) - (\vec{AD}+\vec{CB}) = (\vec{AB}-\vec{AD}) + (\vec{CD}-\vec{CB})\)</p>
+          <p>\(=\vec{DB}+\vec{BD}=\vec0\) &nbsp; (vì \(\vec{DB}\) và \(\vec{BD}\) là hai vectơ đối nhau)</p>
+          <p>Vậy \(\vec{AB}+\vec{CD}=\vec{AD}+\vec{CB}\) (đpcm).</p>
+        </div>
+      </div>
+
+      <div class="problems-head">Bài tập tự luyện — Khái niệm, tổng &amp; hiệu vectơ</div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.1</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Cho hình bình hành ABCD. Kể tên các vectơ khác \(\vec0\), cùng phương với \(\vec{AB}\), có điểm đầu và điểm cuối lấy trong các điểm A, B, C, D.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-1', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-1">
+          <p class="lbl">Lời giải</p>
+          <p>Các vectơ cùng phương với \(\vec{AB}\) (cùng giá, vì \(AB\parallel DC\)): \(\vec{BA},\ \vec{DC},\ \vec{CD}\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.2</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Cho tam giác ABC. Xác định các vectơ \(\vec{AB}+\vec{BC}\) và \(\vec{AB}-\vec{AC}\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-2', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-2">
+          <p class="lbl">Lời giải</p>
+          <p>\(\vec{AB}+\vec{BC}=\vec{AC}\) (quy tắc ba điểm).</p>
+          <p>\(\vec{AB}-\vec{AC}=\vec{CB}\) (quy tắc trừ hai vectơ cùng điểm đầu).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.3</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Cho hình bình hành ABCD. Chứng minh \(\vec{AB}=\vec{DC}\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-3', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-3">
+          <p class="lbl">Lời giải</p>
+          <p>Vì ABCD là hình bình hành nên \(AB\parallel DC\) và \(AB=DC\) (độ dài); đồng thời chiều từ A→B cùng hướng với chiều từ D→C (do cách sắp xếp các đỉnh liên tiếp của hình bình hành).</p>
+          <p>Vậy \(\vec{AB}=\vec{DC}\) (đpcm).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.4</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Cho hình bình hành ABCD tâm O. Chứng minh \(\vec{OA}+\vec{OB}+\vec{OC}+\vec{OD}=\vec0\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-4', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-4">
+          <p class="lbl">Lời giải</p>
+          <p>Vì O là tâm hình bình hành nên O là trung điểm của cả AC và BD.</p>
+          <p>O là trung điểm AC \(\Rightarrow \vec{OA}=-\vec{OC} \Rightarrow \vec{OA}+\vec{OC}=\vec0\).</p>
+          <p>O là trung điểm BD \(\Rightarrow \vec{OB}=-\vec{OD} \Rightarrow \vec{OB}+\vec{OD}=\vec0\).</p>
+          <p>Cộng hai đẳng thức: \(\vec{OA}+\vec{OB}+\vec{OC}+\vec{OD}=\vec0\) (đpcm).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.5</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Cho tam giác ABC, M là trung điểm BC. Chứng minh \(\vec{AB}+\vec{AC}=2\vec{AM}\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-5', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-5">
+          <p class="lbl">Lời giải</p>
+          <p>Vì M là trung điểm BC nên \(\vec{MB}+\vec{MC}=\vec0\).</p>
+          <p>\(\vec{AB}+\vec{AC} = (\vec{AM}+\vec{MB})+(\vec{AM}+\vec{MC}) = 2\vec{AM}+(\vec{MB}+\vec{MC}) = 2\vec{AM}+\vec0 = 2\vec{AM}\) (đpcm).</p>
+          <p><i>Đây là công thức trung điểm rất quan trọng, sẽ dùng lại nhiều ở phần sau.</i></p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ PHẦN 2 ============ -->
+  <section class="chapter" id="ch2">
+    <div class="chapter-tab"><span class="num">02</span><span class="name">Tích của vectơ với một số</span></div>
+    <div class="chapter-body">
+
+      <div class="theory-box">
+        <h4>Tóm tắt lý thuyết</h4>
+        <ul>
+          <li>Tích của số thực \(k\) với vectơ \(\vec a\) (\(k\) ≠ \(0,\ \vec a\) ≠ \(\vec0\)) là vectơ \(k\vec a\): cùng hướng với \(\vec a\) nếu \(k>0\), ngược hướng nếu \(k<0\), có độ dài \(|k\vec a|=|k|\cdot|\vec a|\).</li>
+          <li>Tính chất: \(k(\vec a+\vec b)=k\vec a+k\vec b\); &nbsp; \((k+h)\vec a=k\vec a+h\vec a\); &nbsp; \(k(h\vec a)=(kh)\vec a\); &nbsp; \((-1)\vec a=-\vec a\).</li>
+          <li><b>Điều kiện cùng phương:</b> \(\vec a\) và \(\vec b\ (\vec b\) ≠ \(\vec0)\) cùng phương \(\iff\) tồn tại số thực \(k\) sao cho \(\vec a=k\vec b\).</li>
+          <li><b>Công thức trung điểm:</b> I là trung điểm AB \(\iff \vec{IA}+\vec{IB}=\vec0\). Với điểm M bất kỳ: \(\vec{MA}+\vec{MB}=2\vec{MI}\).</li>
+          <li><b>Công thức trọng tâm:</b> G là trọng tâm tam giác ABC \(\iff \vec{GA}+\vec{GB}+\vec{GC}=\vec0\). Với điểm M bất kỳ: \(\vec{MA}+\vec{MB}+\vec{MC}=3\vec{MG}\).</li>
+        </ul>
+      </div>
+
+      <figure class="geo">
+        <svg viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="150,30 50,190 250,190" fill="none" stroke="#1B2624" stroke-width="2"/>
+          <line x1="150" y1="30" x2="150" y2="190" stroke="#39588F" stroke-width="1.8" stroke-dasharray="4 2"/>
+          <circle cx="150" cy="30" r="2.5" fill="#1B2624"/>
+          <circle cx="50" cy="190" r="2.5" fill="#1B2624"/>
+          <circle cx="250" cy="190" r="2.5" fill="#1B2624"/>
+          <circle cx="150" cy="190" r="2.5" fill="#1B2624"/>
+          <circle cx="150" cy="136.7" r="3.5" fill="#A83B49"/>
+          <text x="144" y="20" font-size="15" font-family="Georgia,serif">A</text>
+          <text x="30" y="205" font-size="15" font-family="Georgia,serif">B</text>
+          <text x="256" y="205" font-size="15" font-family="Georgia,serif">C</text>
+          <text x="154" y="204" font-size="14" font-family="Georgia,serif">M</text>
+          <text x="158" y="140" font-size="14" font-family="Georgia,serif" fill="#A83B49">G</text>
+        </svg>
+        <figcaption>M là trung điểm BC, G là trọng tâm: G nằm trên AM với \(AG=\dfrac23AM\)</figcaption>
+      </figure>
+
+      <div class="example-box">
+        <h4>Ví dụ 1 — Tính chất trọng tâm (dùng vectơ vị trí)</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Cho tam giác ABC, G là trọng tâm. Chứng minh \(\vec{GA}+\vec{GB}+\vec{GC}=\vec0\).</p>
+          <p><b>Giải:</b> Chọn một điểm O bất kỳ làm gốc, gọi \(\vec a=\vec{OA},\ \vec b=\vec{OB},\ \vec c=\vec{OC},\ \vec g=\vec{OG}\).</p>
+          <p>Vì G là trọng tâm nên \(\vec g=\dfrac{\vec a+\vec b+\vec c}{3}\).</p>
+          <p>\(\vec{GA}+\vec{GB}+\vec{GC}=(\vec a-\vec g)+(\vec b-\vec g)+(\vec c-\vec g) = (\vec a+\vec b+\vec c)-3\vec g = 3\vec g-3\vec g=\vec0\) (đpcm).</p>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 2 — Công thức trung điểm mở rộng</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Cho đoạn thẳng AB, I là trung điểm AB. Với điểm M bất kỳ, chứng minh \(\vec{MA}+\vec{MB}=2\vec{MI}\).</p>
+          <p><b>Giải:</b> \(\vec{MA}+\vec{MB}=(\vec{MI}+\vec{IA})+(\vec{MI}+\vec{IB})=2\vec{MI}+(\vec{IA}+\vec{IB})\)</p>
+          <p>Vì I là trung điểm AB nên \(\vec{IA}+\vec{IB}=\vec0\). Vậy \(\vec{MA}+\vec{MB}=2\vec{MI}\) (đpcm).</p>
+        </div>
+      </div>
+
+      <div class="problems-head">Bài tập tự luyện — Tích của vectơ với một số</div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.1</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Cho tam giác ABC, M là trung điểm BC. Biểu diễn \(\vec{AM}\) theo \(\vec{AB}\) và \(\vec{AC}\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-1', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-1">
+          <p class="lbl">Lời giải</p>
+          <p>Theo công thức trung điểm: \(\vec{AB}+\vec{AC}=2\vec{AM} \Rightarrow \vec{AM}=\dfrac12(\vec{AB}+\vec{AC})\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.2</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Cho tam giác ABC, G là trọng tâm, I là trung điểm BC. Biểu diễn \(\vec{AG}\) theo \(\vec{AI}\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-2', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-2">
+          <p class="lbl">Lời giải</p>
+          <p>G nằm trên đoạn AI với \(AG=\dfrac23AI\) (tính chất trọng tâm), và cùng hướng, nên \(\vec{AG}=\dfrac23\vec{AI}\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.3</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Cho \(\vec a,\vec b\) không cùng phương. Xét \(\vec u=2\vec a-3\vec b\) và \(\vec v=-4\vec a+6\vec b\). Chứng minh \(\vec u\) và \(\vec v\) cùng phương.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-3', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-3">
+          <p class="lbl">Lời giải</p>
+          <p>\(\vec v=-4\vec a+6\vec b = -2(2\vec a-3\vec b) = -2\vec u\)</p>
+          <p>Vì \(\vec v=-2\vec u\) (tồn tại số thực \(k=-2\)) nên \(\vec u\) và \(\vec v\) cùng phương.</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.4</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Cho tam giác ABC. Gọi D là điểm sao cho \(\vec{BD}=\dfrac13\vec{BC}\). Biểu diễn \(\vec{AD}\) theo \(\vec{AB}\) và \(\vec{AC}\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-4', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-4">
+          <p class="lbl">Lời giải</p>
+          <p>\(\vec{AD}=\vec{AB}+\vec{BD}=\vec{AB}+\dfrac13\vec{BC}=\vec{AB}+\dfrac13(\vec{AC}-\vec{AB})\)</p>
+          <p>\(=\dfrac23\vec{AB}+\dfrac13\vec{AC}\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.5</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Cho tam giác ABC, trọng tâm G, M là trung điểm BC. Chứng minh \(\vec{AG}=\dfrac23\vec{AM}\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-5', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-5">
+          <p class="lbl">Lời giải</p>
+          <p>Dùng công thức trọng tâm với gốc tại A: \(\vec{AG}=\dfrac13(\vec{AA}+\vec{AB}+\vec{AC})=\dfrac13(\vec{AB}+\vec{AC})\) (vì \(\vec{AA}=\vec0\)).</p>
+          <p>Theo công thức trung điểm: \(\vec{AB}+\vec{AC}=2\vec{AM}\).</p>
+          <p>Vậy \(\vec{AG}=\dfrac13\cdot2\vec{AM}=\dfrac23\vec{AM}\) (đpcm).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.6</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Cho tam giác ABC, D là trung điểm AB, E là trung điểm AC. Chứng minh \(\vec{DE}=\dfrac12\vec{BC}\) (đây chính là tính chất đường trung bình, chứng minh bằng vectơ).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-6', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-6">
+          <p class="lbl">Lời giải</p>
+          <p>\(\vec{DE}=\vec{AE}-\vec{AD}=\dfrac12\vec{AC}-\dfrac12\vec{AB}=\dfrac12(\vec{AC}-\vec{AB})=\dfrac12\vec{BC}\) (đpcm).</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ PHẦN 3 ============ -->
+  <section class="chapter" id="ch3">
+    <div class="chapter-tab"><span class="num">03</span><span class="name">Tích vô hướng của hai vectơ</span></div>
+    <div class="chapter-body">
+
+      <div class="theory-box">
+        <h4>Tóm tắt lý thuyết</h4>
+        <ul>
+          <li><b>Góc giữa hai vectơ</b> \(\vec a,\vec b\) (khác \(\vec0\)): là góc \((\vec a,\vec b)\) có số đo từ \(0^\circ\) đến \(180^\circ\), tạo bởi hai tia \(OA, OB\) khi \(\vec{OA}=\vec a,\ \vec{OB}=\vec b\).</li>
+          <li><b>Tích vô hướng:</b> \(\vec a\cdot\vec b = |\vec a|\cdot|\vec b|\cdot\cos(\vec a,\vec b)\).</li>
+          <li>\(\vec a\cdot\vec b=0 \iff \vec a\perp\vec b\) (hoặc một trong hai vectơ bằng \(\vec0\)). &nbsp; \(\vec a\cdot\vec a=|\vec a|^2\).</li>
+          <li>Tính chất: giao hoán \(\vec a\cdot\vec b=\vec b\cdot\vec a\); phân phối \(\vec a\cdot(\vec b+\vec c)=\vec a\cdot\vec b+\vec a\cdot\vec c\); \((k\vec a)\cdot\vec b=k(\vec a\cdot\vec b)\).</li>
+          <li><b>Biểu thức toạ độ:</b> nếu \(\vec a=(a_1;a_2),\ \vec b=(b_1;b_2)\) thì
+            \[\vec a\cdot\vec b=a_1b_1+a_2b_2,\qquad |\vec a|=\sqrt{a_1^2+a_2^2}\]
+            \[\cos(\vec a,\vec b)=\dfrac{a_1b_1+a_2b_2}{\sqrt{a_1^2+a_2^2}\cdot\sqrt{b_1^2+b_2^2}}\]</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 1 — Tích vô hướng từ định nghĩa hình học</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Cho tam giác đều ABC cạnh \(a\). Tính \(\vec{AB}\cdot\vec{AC}\).</p>
+          <p><b>Giải:</b> Góc giữa \(\vec{AB}\) và \(\vec{AC}\) chính là góc A của tam giác đều, bằng \(60^\circ\).</p>
+          <p>\(\vec{AB}\cdot\vec{AC}=|\vec{AB}|\cdot|\vec{AC}|\cdot\cos60^\circ = a\cdot a\cdot\dfrac12=\dfrac{a^2}{2}\)</p>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 2 — Tích vô hướng bằng toạ độ</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Trong mặt phẳng toạ độ, cho \(\vec a=(3;4),\ \vec b=(-1;2)\). Tính \(\vec a\cdot\vec b\) và góc giữa hai vectơ (làm tròn đến độ).</p>
+          <p><b>Giải:</b> \(\vec a\cdot\vec b=3(-1)+4(2)=-3+8=5\)</p>
+          <p>\(|\vec a|=\sqrt{9+16}=5,\quad |\vec b|=\sqrt{1+4}=\sqrt5\)</p>
+          <p>\(\cos(\vec a,\vec b)=\dfrac{5}{5\sqrt5}=\dfrac1{\sqrt5}\approx0{,}4472 \Rightarrow (\vec a,\vec b)\approx63^\circ\)</p>
+        </div>
+      </div>
+
+      <div class="problems-head">Bài tập tự luyện — Tích vô hướng của hai vectơ</div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.1</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Cho \(\vec a=(2;-1),\ \vec b=(3;4)\). Tính \(\vec a\cdot\vec b\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-1', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-1">
+          <p class="lbl">Lời giải</p>
+          <p>\(\vec a\cdot\vec b=2(3)+(-1)(4)=6-4=2\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.2</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Cho \(\vec a=(1;2)\). Tính \(|\vec a|\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-2', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-2">
+          <p class="lbl">Lời giải</p>
+          <p>\(|\vec a|=\sqrt{1^2+2^2}=\sqrt5\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.3</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Cho tam giác vuông cân tại A, \(AB=AC=a\). Tính \(\vec{AB}\cdot\vec{AC}\) và \(\vec{BA}\cdot\vec{BC}\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-3', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-3">
+          <p class="lbl">Lời giải</p>
+          <p>\(\vec{AB}\cdot\vec{AC}\): góc giữa hai vectơ này là góc A \(=90^\circ\) nên \(\vec{AB}\cdot\vec{AC}=0\).</p>
+          <p>\(\vec{BA}\cdot\vec{BC}\): góc giữa 2 vectơ này là góc B \(=45^\circ\) (tam giác vuông cân). Cạnh huyền \(BC=a\sqrt2\).</p>
+          <p>\(\vec{BA}\cdot\vec{BC}=|BA||BC|\cos45^\circ = a\cdot a\sqrt2\cdot\dfrac{\sqrt2}{2}=a^2\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.4</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Cho \(\vec a=(m;2),\ \vec b=(3;-1)\). Tìm \(m\) để \(\vec a\perp\vec b\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-4', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-4">
+          <p class="lbl">Lời giải</p>
+          <p>\(\vec a\perp\vec b \iff \vec a\cdot\vec b=0 \iff 3m-2=0 \iff m=\dfrac23\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.5</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Cho tam giác ABC có \(AB=5,\ AC=8,\ \widehat A=60^\circ\). Tính \(\vec{AB}\cdot\vec{AC}\), từ đó suy ra độ dài trung tuyến AM (M là trung điểm BC) bằng phương pháp vectơ.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-5', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-5">
+          <p class="lbl">Lời giải</p>
+          <p>\(\vec{AB}\cdot\vec{AC}=5\times8\times\cos60^\circ=40\times0{,}5=20\)</p>
+          <p>Vì \(\vec{AM}=\dfrac12(\vec{AB}+\vec{AC})\) nên:</p>
+          <p>\(AM^2=|\vec{AM}|^2=\dfrac14|\vec{AB}+\vec{AC}|^2=\dfrac14\left(AB^2+2\vec{AB}\cdot\vec{AC}+AC^2\right)\)</p>
+          <p>\(=\dfrac14(25+2(20)+64)=\dfrac14(129)=32{,}25\)</p>
+          <p>Vậy \(AM=\sqrt{32{,}25}\approx5{,}68\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.6</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Cho \(\vec a=(4;3)\). Tìm vectơ \(\vec b=(x;y)\) cùng phương với \(\vec a\) sao cho \(|\vec b|=10\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-6', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-6">
+          <p class="lbl">Lời giải</p>
+          <p>Vì \(\vec b\) cùng phương với \(\vec a\) nên \(\vec b=k\vec a=(4k;3k)\) với \(k\in\mathbb R\).</p>
+          <p>\(|\vec b|=|k|\cdot|\vec a|=|k|\cdot5=10 \Rightarrow |k|=2 \Rightarrow k=2\) hoặc \(k=-2\)</p>
+          <p>Vậy \(\vec b=(8;6)\) hoặc \(\vec b=(-8;-6)\).</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>Bài C.2 — Vectơ. Vectơ là ngôn ngữ nền tảng cho Toạ độ trong mặt phẳng (bài tiếp theo) và cho môn Vật lý — nắm chắc các quy tắc cộng, trừ, và tích vô hướng sẽ giúp các bài toán chứng minh hình học trở nên gọn gàng hơn rất nhiều.</p>
+  </footer>
+
+</div>
+
+<script>
+  function toggleSolution(id, btn){
+    var el = document.getElementById(id);
+    var isOpen = el.style.display === 'block';
+    if(isOpen){
+      el.style.display = 'none';
+      btn.textContent = 'Xem lời giải ▾';
+      btn.classList.remove('active');
+    } else {
+      el.style.display = 'block';
+      btn.textContent = 'Ẩn lời giải ▴';
+      btn.classList.add('active');
+    }
+  }
+  function showAll(){
+    document.querySelectorAll('.solution').forEach(function(el){ el.style.display = 'block'; });
+    document.querySelectorAll('.btn-toggle').forEach(function(btn){ btn.textContent = 'Ẩn lời giải ▴'; btn.classList.add('active'); });
+  }
+  function hideAll(){
+    document.querySelectorAll('.solution').forEach(function(el){ el.style.display = 'none'; });
+    document.querySelectorAll('.btn-toggle').forEach(function(btn){ btn.textContent = 'Xem lời giải ▾'; btn.classList.remove('active'); });
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    if(window.renderMathInElement){
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "\\[", right: "\\]", display: true},
+          {left: "\\(", right: "\\)", display: false}
+        ],
+        throwOnError: false
+      });
+    }
+  });
+</script>
+
+</body>
+</html>

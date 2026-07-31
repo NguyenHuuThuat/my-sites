@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phát hiện Khuôn mặt — Thị giác Máy tính</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<style>
+:root{
+  --paper:#f3f6f4;
+  --paper-deep:#eaefec;
+  --ink:#132036;
+  --ink-soft:#42506a;
+  --ink-faint:#7c8aa0;
+  --line:#d9e0da;
+  --forward:#0f8b8d;
+  --forward-soft:#e1f3f2;
+  --forward-ink:#0a5f60;
+  --backward:#d1495b;
+  --backward-soft:#fbe7ea;
+  --backward-ink:#9c2f3d;
+  --signal:#e8940f;
+  --signal-soft:#fdf0da;
+  --signal-ink:#a86608;
+  --panel:#ffffff;
+  --code-bg:#101c2c;
+  --code-text:#d7e2ee;
+  --radius:14px;
+  --serif-display:'Be Vietnam Pro', sans-serif;
+  --sans-body:'Inter', sans-serif;
+  --mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--paper); color:var(--ink-soft); font-family:var(--sans-body);
+  font-size:16px; line-height:1.7;
+  background-image:
+    linear-gradient(var(--paper) 0%, var(--paper) 100%),
+    repeating-linear-gradient(0deg, rgba(19,32,54,0.025) 0px, rgba(19,32,54,0.025) 1px, transparent 1px, transparent 28px),
+    repeating-linear-gradient(90deg, rgba(19,32,54,0.025) 0px, rgba(19,32,54,0.025) 1px, transparent 1px, transparent 28px);
+}
+h1,h2,h3,h4{font-family:var(--serif-display); color:var(--ink); margin:0 0 .5em 0; letter-spacing:-0.01em;}
+p{margin:0 0 1em 0;}
+a{color:var(--forward-ink);}
+strong{color:var(--ink);}
+code{font-family:var(--mono);}
+.layout{display:grid; grid-template-columns:272px minmax(0,1fr); max-width:1280px; margin:0 auto;}
+.rail{position:sticky; top:0; align-self:start; height:100vh; padding:32px 18px 32px 28px; border-right:1px solid var(--line); overflow-y:auto;}
+.rail-brand{font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--forward-ink); margin-bottom:22px; display:block;}
+.rail-list{list-style:none; margin:0; padding:0 0 0 18px; position:relative; border-left:2px solid var(--line);}
+.rail-item{position:relative; margin:0 0 4px 0;}
+.rail-item::before{content:''; position:absolute; left:-24px; top:13px; width:8px;height:8px; border-radius:50%; background:var(--paper); border:2px solid var(--ink-faint); transition:.2s;}
+.rail-item.active::before{background:var(--forward); border-color:var(--forward); box-shadow:0 0 0 4px var(--forward-soft);}
+.rail-link{display:block; padding:9px 10px; font-size:13.5px; color:var(--ink-soft); text-decoration:none; border-radius:8px; font-weight:500;}
+.rail-link .rail-num{font-family:var(--mono); color:var(--ink-faint); font-size:11px; display:block;}
+.rail-item.active .rail-link{color:var(--forward-ink); background:var(--forward-soft); font-weight:600;}
+.rail-item.active .rail-link .rail-num{color:var(--forward-ink);}
+.content{padding:0 0 40px 0; min-width:0;}
+.wrap{max-width:760px; margin:0 auto; padding:0 40px;}
+.hero{padding:70px 0 20px 0;}
+.hero-eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--forward-ink); background:var(--forward-soft); display:inline-block; padding:5px 12px; border-radius:20px; margin-bottom:20px;}
+.hero-title{font-size:clamp(34px,5vw,54px); font-weight:800; line-height:1.06;}
+.hero-title em{font-style:normal; color:var(--forward); position:relative;}
+.hero-sub{font-size:19px; color:var(--ink-soft); font-weight:500; max-width:600px; margin-bottom:26px;}
+.hero-lede{font-size:16px; max-width:640px;}
+.section{padding:64px 0; border-top:1px solid var(--line);}
+.section-eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:10px; display:flex; align-items:center; gap:10px;}
+.section-eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--forward);}
+.section-title{font-size:30px; margin-bottom:14px;}
+.section-lead{font-size:16.5px; color:var(--ink-soft); max-width:640px;}
+.subsection{margin-top:38px;}
+.subsection h3{font-size:21px; margin-bottom:10px;}
+.subsection h3 .tag{font-family:var(--mono); font-size:12px; color:var(--forward-ink); background:var(--forward-soft); padding:2px 8px; border-radius:6px; margin-right:8px; vertical-align:middle;}
+ul.plain, ol.plain{padding-left:22px; margin:0 0 1em 0;}
+ul.plain li, ol.plain li{margin-bottom:8px;}
+.callout{border-radius:var(--radius); padding:18px 20px; margin:22px 0; border:1px solid var(--line); background:var(--panel); font-size:15px;}
+.callout-head{font-weight:700; color:var(--ink); display:block; margin-bottom:6px; font-size:14px; text-transform:uppercase; letter-spacing:.04em;}
+.callout-note{border-left:4px solid var(--signal); background:var(--signal-soft);}
+.callout-note .callout-head{color:var(--signal-ink);}
+.callout-warn{border-left:4px solid var(--backward); background:var(--backward-soft);}
+.callout-warn .callout-head{color:var(--backward-ink);}
+.callout-result{border-left:4px solid var(--forward); background:var(--forward-soft);}
+.callout-result .callout-head{color:var(--forward-ink);}
+.figure{margin:26px 0; border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:24px;}
+.figure-caption{font-size:13.5px; color:var(--ink-faint); margin-top:14px; padding-top:12px; border-top:1px dashed var(--line);}
+.figure-caption b{color:var(--ink-soft);}
+.check{margin:26px 0; border-radius:var(--radius); border:1.5px dashed var(--forward); background:#fff; padding:18px 20px;}
+.check-tag{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#fff; background:var(--forward); padding:3px 9px; border-radius:6px; margin-right:8px;}
+.check-q{font-weight:600; color:var(--ink); font-size:15.5px;}
+.reveal-btn{margin-top:12px; border:1px solid var(--forward); color:var(--forward-ink); background:var(--forward-soft); font-family:var(--sans-body); font-weight:600; font-size:13.5px; padding:8px 16px; border-radius:8px; cursor:pointer; transition:.15s;}
+.reveal-btn:hover{background:var(--forward); color:#fff;}
+.reveal-content{display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); font-size:15px;}
+.reveal-content.show{display:block;}
+.code-window{margin:22px 0; border-radius:var(--radius); overflow:hidden; background:var(--code-bg); box-shadow:0 8px 24px -12px rgba(16,28,44,.5);}
+.code-titlebar{display:flex; align-items:center; gap:8px; padding:11px 16px; background:#0a1522; border-bottom:1px solid rgba(255,255,255,.06);}
+.code-dot{width:10px;height:10px;border-radius:50%;}
+.code-dot:nth-child(1){background:#e8594f;}
+.code-dot:nth-child(2){background:#e8b13f;}
+.code-dot:nth-child(3){background:#3fb556;}
+.code-filename{font-family:var(--mono); font-size:12.5px; color:#8fa2bd; margin-left:8px;}
+.code-window pre{margin:0 !important; padding:18px 20px !important; background:var(--code-bg) !important; font-size:13.3px !important; line-height:1.65 !important; overflow-x:auto;}
+.code-window code.hljs{background:var(--code-bg) !important;}
+.ref-table{width:100%; border-collapse:collapse; margin:20px 0; font-size:14.5px;}
+.ref-table th{text-align:left; font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); padding:10px 12px; border-bottom:2px solid var(--ink);}
+.ref-table td{padding:11px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+.ref-table code{background:var(--forward-soft); color:var(--forward-ink); padding:2px 6px; border-radius:5px; font-size:13px;}
+.footer{padding:50px 0 70px 0; border-top:1px solid var(--line); font-size:13.5px; color:var(--ink-faint);}
+.widget{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:26px; margin:26px 0;}
+.widget-label{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--forward-ink); margin-bottom:16px; display:block;}
+.btn{font-family:var(--sans-body); font-weight:600; font-size:13.5px; border-radius:8px; padding:9px 16px; border:1px solid var(--ink); background:var(--ink); color:#fff; cursor:pointer; transition:.15s;}
+.btn:hover{opacity:.85;}
+.btn:disabled{opacity:.35; cursor:not-allowed;}
+.btn-ghost{background:#fff; color:var(--ink); border:1px solid var(--line);}
+.btn-ghost:hover{border-color:var(--ink); opacity:1;}
+.btn-forward{background:var(--forward); border-color:var(--forward);}
+.btn-row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:16px;}
+.chart-row{display:flex; gap:24px; flex-wrap:wrap;}
+.chart-col{flex:1 1 260px;}
+.chart-title{font-size:13.5px; font-weight:700; margin-bottom:8px; color:var(--ink);}
+.chart-legend{display:flex; gap:16px; margin-top:8px; font-size:12.5px; color:var(--ink-soft);}
+.chart-legend span{display:inline-flex; align-items:center; gap:6px;}
+.legend-dot{width:10px; height:10px; border-radius:2px; display:inline-block;}
+.aug-grid{display:flex; gap:16px; flex-wrap:wrap;}
+.aug-item{display:flex; flex-direction:column; align-items:center; gap:8px;}
+.aug-box{width:72px; height:72px; border-radius:10px; background:#eef2f0; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:32px;}
+.aug-label{font-size:11.5px; color:var(--ink-faint); text-align:center; max-width:80px;}
+.tip-list{list-style:none; padding:0; margin:20px 0;}
+.tip-list li{display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); font-size:15px;}
+.tip-list li:last-child{border-bottom:none;}
+.tip-check{flex:0 0 auto; width:22px; height:22px; border-radius:50%; background:var(--forward-soft); color:var(--forward-ink); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;}
+.task-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:14px; margin:22px 0;}
+.task-card{border:1px solid var(--line); border-radius:12px; padding:16px; background:var(--panel);}
+.task-num{font-family:var(--mono); font-size:11px; color:var(--forward-ink); font-weight:700;}
+.task-card p{margin:8px 0 0 0; font-size:14.5px;}
+.task-card.advanced{border-color:var(--signal); background:var(--signal-soft);}
+.quiz-item{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:20px 22px; margin:18px 0;}
+.quiz-q{font-weight:700; color:var(--ink); font-size:15.5px; margin-bottom:14px;}
+.quiz-q .qnum{font-family:var(--mono); color:var(--forward-ink); margin-right:8px;}
+.quiz-options{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.quiz-opt{text-align:left; font-family:var(--sans-body); font-size:14px; padding:11px 14px; border-radius:9px; border:1px solid var(--line); background:#fff; cursor:pointer; color:var(--ink-soft); transition:.12s;}
+.quiz-opt:hover:not(:disabled){border-color:var(--forward); background:var(--forward-soft);}
+.quiz-opt:disabled{cursor:default;}
+.quiz-opt.correct{background:var(--forward-soft); border-color:var(--forward); color:var(--forward-ink); font-weight:700;}
+.quiz-opt.incorrect{background:var(--backward-soft); border-color:var(--backward); color:var(--backward-ink); font-weight:700;}
+.quiz-foot{display:flex; align-items:center; gap:12px; margin-top:14px; flex-wrap:wrap;}
+.hint-btn{font-family:var(--mono); font-size:12px; color:var(--signal-ink); background:var(--signal-soft); border:1px solid var(--signal); padding:6px 12px; border-radius:7px; cursor:pointer; font-weight:600;}
+.quiz-hint{display:none; font-size:13.5px; color:var(--signal-ink); background:var(--signal-soft); padding:10px 12px; border-radius:8px; width:100%; margin-top:10px;}
+.quiz-hint.show{display:block;}
+.quiz-explain{display:none; font-size:14px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); color:var(--ink-soft);}
+.quiz-explain.show{display:block;}
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr;}
+  .rail{position:sticky; height:auto; top:0; padding:12px 16px; border-right:none; border-bottom:1px solid var(--line); background:var(--paper); z-index:50; display:flex; align-items:center;}
+  .rail-brand{display:none;}
+  .rail-list{display:flex; gap:4px; overflow-x:auto; border-left:none; padding-left:0; -ms-overflow-style:none; scrollbar-width:none;}
+  .rail-list::-webkit-scrollbar{display:none;}
+  .rail-item{flex:0 0 auto; margin:0;}
+  .rail-item::before{display:none;}
+  .rail-link{white-space:nowrap; padding:8px 12px; font-size:12.5px;}
+  .rail-link .rail-num{display:none;}
+  .wrap{padding:0 20px;}
+}
+@media (max-width:640px){
+  .quiz-options{grid-template-columns:1fr;}
+}
+
+
+
+/* ============ CSS RIÊNG CHO WIDGET BÀI 9 ============ */
+
+/* --- Widget hero: Phát hiện vs Nhận diện --- */
+.detect-recog-demo svg{background:var(--paper-deep); border-radius:10px; display:block; width:100%; max-width:320px; margin:0 auto;}
+.dr-desc{margin-top:16px; font-size:14.5px; color:var(--ink-soft); min-height:44px;}
+.dr-examples{margin-top:10px; display:flex; flex-direction:column; gap:8px;}
+.dr-example{font-size:13.5px; color:var(--ink-soft); background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:9px 12px; display:flex; gap:8px; align-items:flex-start;}
+.dr-example::before{content:'—'; color:var(--forward-ink); font-weight:700; flex:0 0 auto;}
+
+/* --- Widget L2: anh tich phan mini --- */
+.integral-demo svg{background:var(--paper-deep); border-radius:10px; display:block; width:100%; max-width:320px; margin:0 auto;}
+.integral-cell{fill:#fff; stroke:var(--line); stroke-width:1.5; cursor:pointer; transition:.15s;}
+.integral-cell:hover{stroke:var(--forward); stroke-width:2;}
+.integral-cell.corner{fill:var(--signal-soft); stroke:var(--signal); stroke-width:2.5;}
+.integral-cell.in-rect{fill:var(--forward-soft); stroke:var(--forward); stroke-width:2;}
+.integral-value{font-family:var(--mono); font-size:15px; font-weight:700; fill:var(--ink); pointer-events:none;}
+.integral-readout{margin-top:16px; font-size:13.5px; color:var(--ink-soft); background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:14px 16px; line-height:1.75;}
+.integral-readout b{color:var(--forward-ink); font-family:var(--mono);}
+.integral-readout .ir-formula{display:block; margin-top:6px; font-family:var(--mono); font-size:13px; color:var(--ink);}
+
+/* --- Widget L2: cascade stepper --- */
+.cascade-demo svg{background:var(--paper-deep); border-radius:10px; display:block; width:100%;}
+.cascade-win rect{stroke-width:2; transition:.4s ease;}
+.cascade-win.is-face rect{fill:var(--forward-soft); stroke:var(--forward);}
+.cascade-win.is-bg rect{fill:#eceee9; stroke:var(--ink-faint);}
+.cascade-win.rejected rect{fill:none; stroke:var(--backward); stroke-dasharray:3 3; opacity:.3;}
+.cascade-win.rejected .cascade-face-icon, .cascade-win.rejected .cascade-bg-icon{opacity:.15;}
+.cascade-stage-row{display:flex; align-items:center; gap:12px; margin-top:16px; flex-wrap:wrap;}
+.cascade-stage-label{font-family:var(--mono); font-size:13px; color:var(--ink-soft); background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px 14px;}
+.cascade-stage-label b{color:var(--ink);}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="rail">
+  <span class="rail-brand">Thị giác máy tính · Bài giảng 9</span>
+  <ul class="rail-list" id="railList">
+    <li class="rail-item"><a class="rail-link" href="#top"><span class="rail-num">Mở đầu</span>Phát hiện vs Nhận diện</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l1"><span class="rail-num">Lớp 01</span>Bài toán phát hiện mặt</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l2"><span class="rail-num">Lớp 02</span>Viola–Jones cổ điển</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l3"><span class="rail-num">Lớp 03</span>Học sâu hiện đại</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l4"><span class="rail-num">Lớp 04</span>Sau khi phát hiện</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l5"><span class="rail-num">Lớp 05</span>Đánh giá</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l6"><span class="rail-num">Lớp 06</span>Sử dụng có trách nhiệm</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l7"><span class="rail-num">Bài tập</span>Thực hành</a></li>
+    <li class="rail-item"><a class="rail-link" href="#quiz"><span class="rail-num">Lớp ra</span>Trắc nghiệm tổng kết</a></li>
+  </ul>
+</nav>
+<main class="content">
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <span class="hero-eyebrow">Bài giảng Tutorial · Phần 9 · Tiếp nối Bài 6–7</span>
+    <h1 class="hero-title">Phát hiện<br><em>Khuôn mặt</em></h1>
+    <p class="hero-sub">Một trong những ứng dụng thị giác máy tính phổ biến nhất đời sống — và cũng nhạy cảm nhất.</p>
+    <p class="hero-lede">Ở Bài 6–7, bạn đã học phát hiện đối tượng tổng quát và YOLO. <strong>Phát hiện khuôn mặt</strong> là một trường hợp đặc biệt — chỉ <strong>một lớp duy nhất</strong> ("khuôn mặt") nhưng cực kỳ phổ biến: lấy nét máy ảnh, mở khoá điện thoại, gắn thẻ ảnh, làm mờ mặt bảo vệ riêng tư. Bài này đào sâu <strong>Viola–Jones</strong> (đã nhắc sơ ở Bài 6) với thí nghiệm <strong>chạy thật</strong> bằng OpenCV — kể cả các ca thất bại thật, giới thiệu các phương pháp <strong>học sâu hiện đại</strong> (MTCNN, RetinaFace), và dành một phần trang trọng cho <strong>sử dụng có trách nhiệm</strong> — vì đây là công nghệ chạm tới quyền riêng tư của con người thật.</p>
+
+    <div class="widget detect-recog-demo">
+      <span class="widget-label">Thử ngay · Bấm để xem cùng một khuôn mặt được xử lý khác nhau thế nào</span>
+      <svg id="drSvg" viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="150" cy="88" r="55" fill="#f0d9b5" stroke="#7c8aa0" stroke-width="2"></circle>
+        <circle cx="130" cy="78" r="6" fill="#132036"></circle>
+        <circle cx="170" cy="78" r="6" fill="#132036"></circle>
+        <path d="M124,108 Q150,124 176,108" stroke="#132036" stroke-width="3" fill="none" stroke-linecap="round"></path>
+        <rect id="drBox" x="85" y="28" width="130" height="125" fill="none" stroke="#0f8b8d" stroke-width="3"></rect>
+        <text id="drBoxLabel" x="150" y="18" text-anchor="middle" fill="#0a5f60" font-family="JetBrains Mono" font-size="12" font-weight="700">khuôn mặt (ẩn danh)</text>
+        <g id="drIdTag" style="display:none;">
+          <rect x="85" y="156" width="130" height="30" fill="#132036" rx="5"></rect>
+          <text x="150" y="176" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="11.5">"Nguyễn Văn A" · 98%</text>
+        </g>
+      </svg>
+      <div class="btn-row">
+        <button class="btn" id="drBtnDetect">Phát hiện</button>
+        <button class="btn btn-ghost" id="drBtnRecognize">Nhận diện</button>
+      </div>
+      <p class="dr-desc" id="drDesc">Phát hiện: chỉ trả lời "có khuôn mặt ở đâu" — hoàn toàn ẩn danh, không biết và không cần biết đó là ai.</p>
+      <div class="dr-examples" id="drExamples">
+        <div class="dr-example">Đếm số người ẩn danh đi qua một cửa hàng</div>
+        <div class="dr-example">Tự động làm mờ mặt người qua đường trong video</div>
+        <div class="dr-example">Lấy nét máy ảnh vào khuôn mặt khi chụp</div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l1">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 01 · Bài toán</span>
+    <h2 class="section-title">Bài toán phát hiện khuôn mặt</h2>
+    <p class="section-lead">Trước khi đi vào thuật toán, hãy chắc chắn ranh giới của bài toán này thật rõ ràng — vì đây là điểm dễ nhầm lẫn nhất, và cũng là điểm quan trọng nhất về mặt đạo đức.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">1.1</span>Định nghĩa &amp; tầm quan trọng</h3>
+      <p><strong>Phát hiện khuôn mặt</strong> là tìm <strong>vị trí của mọi khuôn mặt</strong> trong ảnh (thường bằng khung bao), không quan tâm <em>đó là ai</em>. Đây là một bài toán phát hiện đối tượng với <strong>một lớp duy nhất</strong> ("khuôn mặt"), nhưng cực kỳ quan trọng và phổ biến:</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 400 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:0 auto;">
+          <g>
+            <rect x="20" y="15" width="100" height="115" fill="none" stroke="#0f8b8d" stroke-width="2.5"></rect>
+            <circle cx="70" cy="70" r="38" fill="#f0d9b5" stroke="#7c8aa0" stroke-width="1.5"></circle>
+            <circle cx="58" cy="62" r="4" fill="#132036"></circle>
+            <circle cx="82" cy="62" r="4" fill="#132036"></circle>
+            <path d="M55,85 Q70,95 85,85" stroke="#132036" stroke-width="2.5" fill="none" stroke-linecap="round"></path>
+          </g>
+          <g>
+            <rect x="150" y="15" width="100" height="115" fill="none" stroke="#0f8b8d" stroke-width="2.5"></rect>
+            <circle cx="200" cy="70" r="38" fill="#e0c39a" stroke="#7c8aa0" stroke-width="1.5"></circle>
+            <circle cx="188" cy="62" r="4" fill="#132036"></circle>
+            <circle cx="212" cy="62" r="4" fill="#132036"></circle>
+            <path d="M185,88 Q200,80 215,88" stroke="#132036" stroke-width="2.5" fill="none" stroke-linecap="round"></path>
+          </g>
+          <g>
+            <rect x="280" y="15" width="100" height="115" fill="none" stroke="#0f8b8d" stroke-width="2.5"></rect>
+            <circle cx="330" cy="70" r="38" fill="#c99b6b" stroke="#7c8aa0" stroke-width="1.5"></circle>
+            <circle cx="318" cy="62" r="4" fill="#132036"></circle>
+            <circle cx="342" cy="62" r="4" fill="#132036"></circle>
+            <path d="M316,84 Q330,94 344,84" stroke="#132036" stroke-width="2.5" fill="none" stroke-linecap="round"></path>
+          </g>
+          <text x="200" y="150" text-anchor="middle" font-family="Inter" font-size="12" font-weight="700" fill="#0a5f60">3 khuôn mặt được định vị — không ai trong số này được xác định danh tính</text>
+        </svg>
+        <div class="figure-caption"><b>Hình 1.</b> Phát hiện khuôn mặt: định vị khuôn mặt bằng khung bao. Đây là "ở đâu", KHÔNG phải "là ai" (nhận diện danh tính).</div>
+      </div>
+
+      <div class="callout callout-note">
+        <span class="callout-head">Phân biệt quan trọng</span>
+        <p><strong>Phát hiện (detection)</strong> = tìm <em>vị trí</em> khuôn mặt (ẩn danh). <strong>Nhận diện (recognition)</strong> = xác định <em>danh tính</em> người đó. Đây là <strong>hai bài toán khác nhau</strong> với mức độ nhạy cảm về quyền riêng tư rất khác nhau. Bài này nói về <strong>phát hiện</strong>.</p>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Một hệ thống chỉ vẽ khung quanh mọi khuôn mặt xuất hiện trong video nhưng KHÔNG lưu trữ hay so khớp với bất kỳ cơ sở dữ liệu nào. Đây là phát hiện hay nhận diện?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Phát hiện.</strong> Nó chỉ trả lời "có khuôn mặt ở đâu", hoàn toàn không xác định "đó là ai" — đúng định nghĩa của phát hiện (detection), khác hẳn nhận diện (recognition) vốn cần so khớp với một cơ sở dữ liệu danh tính đã biết.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">1.2</span>Một trường hợp đặc biệt của phát hiện đối tượng</h3>
+      <p>Tuy chỉ có một lớp, phát hiện khuôn mặt có những đặc thù riêng: <strong>biến thiên nội lớp khổng lồ</strong> (vô số khuôn mặt khác nhau về tuổi, sắc tộc, biểu cảm), yêu cầu <strong>thời gian thực</strong> (camera, video), và thường cần phát hiện <strong>nhiều mặt nhỏ</strong> trong đám đông. Vì vai trò thương mại lớn, đây là lĩnh vực được nghiên cứu rất sâu, có những phương pháp <strong>chuyên biệt</strong>.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">1.3</span>Vì sao khó?</h3>
+      <p>Cùng một khuôn mặt trông rất khác nhau tuỳ điều kiện. Một bộ phát hiện tốt phải bền với <strong>nhiều yếu tố biến đổi cùng lúc</strong>:</p>
+      <div class="figure">
+        <svg viewBox="0 0 700 145" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:0 auto;">
+          <g transform="rotate(28 75 75)">
+            <circle cx="75" cy="75" r="34" fill="#f0d9b5" stroke="#7c8aa0" stroke-width="1.5"></circle>
+            <circle cx="63" cy="66" r="4" fill="#132036"></circle>
+            <circle cx="87" cy="66" r="4" fill="#132036"></circle>
+            <path d="M60,88 Q75,98 90,88" stroke="#132036" stroke-width="2.5" fill="none" stroke-linecap="round"></path>
+          </g>
+          <g transform="translate(215,75) scale(0.5) translate(-215,-75)">
+            <circle cx="215" cy="75" r="34" fill="#f0d9b5" stroke="#7c8aa0" stroke-width="1.5"></circle>
+            <circle cx="203" cy="66" r="4" fill="#132036"></circle>
+            <circle cx="227" cy="66" r="4" fill="#132036"></circle>
+            <path d="M200,88 Q215,98 230,88" stroke="#132036" stroke-width="2.5" fill="none" stroke-linecap="round"></path>
+          </g>
+          <g>
+            <circle cx="355" cy="75" r="34" fill="#f0d9b5" stroke="#7c8aa0" stroke-width="1.5"></circle>
+            <circle cx="343" cy="66" r="4" fill="#132036"></circle>
+            <circle cx="367" cy="66" r="4" fill="#132036"></circle>
+            <path d="M340,88 Q355,98 370,88" stroke="#132036" stroke-width="2.5" fill="none" stroke-linecap="round"></path>
+            <rect x="325" y="80" width="60" height="35" fill="#42506a"></rect>
+          </g>
+          <g>
+            <circle cx="495" cy="75" r="34" fill="#f0d9b5" stroke="#7c8aa0" stroke-width="1.5"></circle>
+            <circle cx="483" cy="66" r="4" fill="#132036"></circle>
+            <circle cx="507" cy="66" r="4" fill="#132036"></circle>
+            <path d="M480,88 Q495,98 510,88" stroke="#132036" stroke-width="2.5" fill="none" stroke-linecap="round"></path>
+            <circle cx="495" cy="75" r="34" fill="#132036" fill-opacity="0.55"></circle>
+          </g>
+          <g>
+            <circle cx="635" cy="75" r="34" fill="#f0d9b5" stroke="#7c8aa0" stroke-width="1.5"></circle>
+            <circle cx="623" cy="66" r="4" fill="#132036"></circle>
+            <circle cx="647" cy="66" r="4" fill="#132036"></circle>
+            <ellipse cx="635" cy="92" rx="14" ry="10" fill="#7a3b3b"></ellipse>
+          </g>
+          <g font-family="Inter" font-size="11" font-weight="600" fill="#42506a" text-anchor="middle">
+            <text x="75" y="132">Tư thế/góc nghiêng</text>
+            <text x="215" y="132">Tỉ lệ (xa–gần)</text>
+            <text x="355" y="132">Che khuất</text>
+            <text x="495" y="132">Ánh sáng</text>
+            <text x="635" y="132">Biểu cảm</text>
+          </g>
+        </svg>
+        <div class="figure-caption"><b>Hình 2.</b> Các thách thức của phát hiện khuôn mặt: tư thế/góc nghiêng, tỉ lệ (xa–gần), che khuất, ánh sáng và biểu cảm — thường biến đổi CÙNG LÚC trong thực tế.</div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Một khuôn mặt trong ảnh vừa nghiêng 20°, vừa ở xa (nhỏ), vừa bị che một phần bởi khẩu trang. Điều gì khiến trường hợp này khó hơn hẳn so với chỉ MỘT yếu tố biến đổi riêng lẻ?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì các yếu tố biến đổi thường xảy ra <strong>đồng thời</strong> trong thực tế, không phải riêng lẻ từng cái một. Một bộ phát hiện phải bền vững với <strong>tất cả</strong> các biến đổi cùng lúc (tư thế + tỉ lệ + che khuất + ánh sáng + biểu cảm), chứ không chỉ xử lý tốt từng yếu tố khi nó xuất hiện một mình. Đây chính là lý do phát hiện khuôn mặt trong điều kiện thực tế (ảnh chụp ngoài đời) khó hơn nhiều so với trong phòng thí nghiệm có kiểm soát.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l2">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 02 · Cổ điển</span>
+    <h2 class="section-title">Viola–Jones: bộ phát hiện kinh điển</h2>
+    <p class="section-lead">Trước khi có học sâu, Viola–Jones đã giải bài toán này đủ tốt để chạy trên hầu hết máy ảnh số suốt hai thập kỷ. Đáng để hiểu kỹ vì sao nó nhanh đến vậy.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">2.1</span>Bước đột phá năm 2001</h3>
+      <p><strong>Viola–Jones (2001)</strong> là bộ phát hiện khuôn mặt <strong>thời gian thực</strong> đầu tiên thực sự dùng được, và đã được tích hợp vào hầu hết máy ảnh số trong hai thập kỷ. Thành công của nó dựa trên ba ý tưởng then chốt: <strong>đặc trưng Haar-like</strong>, <strong>ảnh tích phân</strong>, và <strong>cascade</strong>.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.2</span>Đặc trưng Haar-like &amp; ảnh tích phân</h3>
+      <p><strong>Đặc trưng Haar-like</strong> so sánh tổng độ sáng giữa các vùng chữ nhật kề nhau — nắm bắt các mẫu như "vùng mắt tối hơn gò má". Để tính nhanh tổng độ sáng của <em>bất kỳ</em> hình chữ nhật nào, Viola–Jones dùng <strong>ảnh tích phân (integral image)</strong>: sau khi tính trước, tổng một hình chữ nhật bất kỳ chỉ cần <strong>4 phép cộng</strong>:</p>
+
+      <div class="figure">
+        <div class="chart-row">
+          <div class="chart-col">
+            <svg viewBox="0 0 260 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <ellipse cx="130" cy="90" rx="62" ry="78" fill="#f0d9b5" stroke="#7c8aa0" stroke-width="1.5"></ellipse>
+              <rect x="80" y="70" width="100" height="24" fill="#42506a" fill-opacity="0.4" stroke="#d1495b" stroke-width="2"></rect>
+              <rect x="80" y="96" width="100" height="24" fill="#fff" fill-opacity="0.6" stroke="#d1495b" stroke-width="2"></rect>
+              <circle cx="107" cy="82" r="6" fill="#132036"></circle>
+              <circle cx="153" cy="82" r="6" fill="#132036"></circle>
+              <path d="M105,132 Q130,145 155,132" stroke="#132036" stroke-width="2.5" fill="none"></path>
+              <text x="130" y="60" text-anchor="middle" font-family="Inter" font-size="10.5" fill="#9c2f3d" font-weight="700">vùng mắt (tối) vs gò má (sáng)</text>
+              <g transform="translate(20,180)" font-family="Inter" font-size="9" fill="#42506a">
+                <rect x="0" y="0" width="34" height="14" fill="#42506a"></rect>
+                <rect x="34" y="0" width="34" height="14" fill="#fff" stroke="#42506a" stroke-width="1"></rect>
+                <rect x="76" y="0" width="16" height="14" fill="#42506a"></rect>
+                <rect x="92" y="0" width="16" height="14" fill="#fff" stroke="#42506a" stroke-width="1"></rect>
+                <rect x="108" y="0" width="16" height="14" fill="#42506a"></rect>
+                <rect x="140" y="0" width="34" height="7" fill="#42506a"></rect>
+                <rect x="140" y="7" width="34" height="7" fill="#fff" stroke="#42506a" stroke-width="1"></rect>
+              </g>
+              <text x="130" y="212" text-anchor="middle" font-family="Inter" font-size="10" fill="#7c8aa0">một vài mẫu Haar-like cổ điển</text>
+            </svg>
+          </div>
+          <div class="chart-col">
+            <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <defs>
+                <linearGradient id="iiGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#1a1f3d"></stop>
+                  <stop offset="50%" stop-color="#2f6690"></stop>
+                  <stop offset="100%" stop-color="#e8d44d"></stop>
+                </linearGradient>
+              </defs>
+              <text x="110" y="16" text-anchor="middle" font-family="Inter" font-size="11.5" font-weight="700" fill="#132036">Ảnh tích phân (thật)</text>
+              <rect x="30" y="26" width="160" height="150" fill="url(#iiGrad)" stroke="#132036" stroke-width="1.5"></rect>
+              <text x="110" y="196" text-anchor="middle" font-family="Inter" font-size="10" fill="#7c8aa0">tăng dần: góc trên-trái → dưới-phải</text>
+            </svg>
+          </div>
+        </div>
+        <div class="figure-caption"><b>Hình 3.</b> Bí quyết tốc độ: các mẫu đặc trưng Haar-like (trái) và ảnh tích phân thật (phải, tô màu theo <code>cmap='viridis'</code>) cho phép tính tổng vùng chữ nhật cực nhanh.</div>
+      </div>
+
+      <div class="widget integral-demo">
+        <span class="widget-label">Thử ngay · Bấm 2 ô để chọn 2 góc đối của một vùng chữ nhật</span>
+        <svg id="integralSvg" viewBox="0 0 270 270" xmlns="http://www.w3.org/2000/svg">
+          <g id="integralCells"></g>
+        </svg>
+        <div class="integral-readout" id="integralReadout">Bấm ô đầu tiên để chọn góc thứ nhất của vùng cần tính tổng.</div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Nếu KHÔNG dùng ảnh tích phân, tính tổng độ sáng của một vùng 50×50 pixel cần khoảng bao nhiêu phép cộng?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Khoảng <strong>2.500 phép cộng</strong> (50×50 = 2.500 pixel, mỗi pixel cộng một lần). Với ảnh tích phân, như bạn vừa thấy ở widget trên, chỉ cần đúng <strong>4 phép cộng/trừ</strong> — bất kể vùng đó lớn hay nhỏ. Đây chính là lý do Viola–Jones có thể quét hàng chục nghìn cửa sổ ứng viên ở nhiều kích thước mà vẫn đạt thời gian thực.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.3</span>Cascade — chuỗi tầng phân loại</h3>
+      <p>Phần lớn cửa sổ trong ảnh <strong>không phải</strong> khuôn mặt. <strong>Cascade</strong> xếp các bộ phân loại thành chuỗi tầng: tầng đầu <strong>đơn giản và rẻ</strong> loại ngay đa số vùng nền; chỉ những cửa sổ giống mặt mới đi qua các tầng sau. Nhờ vậy tốc độ rất nhanh:</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 660 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:0 auto;">
+          <g font-family="Inter" font-size="10.5" font-weight="700">
+            <rect x="0" y="30" width="118" height="60" rx="8" fill="#eceee9" stroke="#7c8aa0" stroke-width="1.5"></rect>
+            <text x="59" y="55" text-anchor="middle" fill="#42506a">Mọi cửa sổ</text>
+            <text x="59" y="70" text-anchor="middle" fill="#42506a" font-size="9">ứng viên</text>
+            <rect x="133" y="30" width="118" height="60" rx="8" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"></rect>
+            <text x="192" y="55" text-anchor="middle" fill="#a86608">Tầng 1</text>
+            <text x="192" y="70" text-anchor="middle" fill="#a86608" font-size="9">~2 đặc trưng</text>
+            <rect x="266" y="30" width="118" height="60" rx="8" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"></rect>
+            <text x="325" y="55" text-anchor="middle" fill="#a86608">Tầng 2</text>
+            <text x="325" y="70" text-anchor="middle" fill="#a86608" font-size="9">~10 đặc trưng</text>
+            <rect x="399" y="30" width="118" height="60" rx="8" fill="#fbe7ea" stroke="#d1495b" stroke-width="1.5"></rect>
+            <text x="458" y="55" text-anchor="middle" fill="#9c2f3d">Tầng N</text>
+            <text x="458" y="70" text-anchor="middle" fill="#9c2f3d" font-size="9">hàng trăm đặc trưng</text>
+            <rect x="532" y="30" width="118" height="60" rx="8" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="591" y="55" text-anchor="middle" fill="#0a5f60">Khuôn mặt</text>
+            <text x="591" y="70" text-anchor="middle" fill="#0a5f60" font-size="9">(còn lại)</text>
+          </g>
+          <g stroke="#b7c2c8" stroke-width="1.5" fill="none" marker-end="url(#arrH4cas)">
+            <line x1="118" y1="60" x2="131" y2="60"></line>
+            <line x1="251" y1="60" x2="264" y2="60"></line>
+            <line x1="384" y1="60" x2="397" y2="60"></line>
+            <line x1="517" y1="60" x2="530" y2="60"></line>
+          </g>
+          <defs><marker id="arrH4cas" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7c2c8"></path></marker></defs>
+        </svg>
+        <div class="figure-caption"><b>Hình 4.</b> Cascade: mỗi tầng loại nhanh các cửa sổ không phải mặt; chỉ ít cửa sổ đi hết chuỗi → đạt thời gian thực.</div>
+      </div>
+
+      <div class="widget cascade-demo">
+        <span class="widget-label">Thử ngay · Bấm "Qua tầng tiếp theo" và xem cửa sổ nền bị loại dần</span>
+        <svg id="cascadeSvg" viewBox="0 0 740 120" xmlns="http://www.w3.org/2000/svg">
+          <g id="cascadeWindows">
+<g class="cascade-win is-bg" id="cwin0" data-face="0"><rect x="10" y="30" width="50" height="50" rx="7"></rect><g class="cascade-bg-icon"><line x1="20" y1="40" x2="50" y2="70" stroke="#b7c2c8" stroke-width="1.5"></line><line x1="50" y1="40" x2="20" y2="70" stroke="#b7c2c8" stroke-width="1.5"></line><line x1="35" y1="35" x2="35" y2="75" stroke="#b7c2c8" stroke-width="1"></line></g></g>
+<g class="cascade-win is-bg" id="cwin1" data-face="0"><rect x="70" y="30" width="50" height="50" rx="7"></rect><g class="cascade-bg-icon"><line x1="80" y1="40" x2="110" y2="70" stroke="#b7c2c8" stroke-width="1.5"></line><line x1="110" y1="40" x2="80" y2="70" stroke="#b7c2c8" stroke-width="1.5"></line><line x1="95" y1="35" x2="95" y2="75" stroke="#b7c2c8" stroke-width="1"></line></g></g>
+<g class="cascade-win is-face" id="cwin2" data-face="1"><rect x="130" y="30" width="50" height="50" rx="7"></rect><g class="cascade-face-icon"><circle cx="155" cy="55" r="15" fill="#f0d9b5" stroke="#0a5f60" stroke-width="1.2"></circle><circle cx="149" cy="52" r="1.8" fill="#132036"></circle><circle cx="161" cy="52" r="1.8" fill="#132036"></circle><path d="M149,61 Q155,65 161,61" stroke="#132036" stroke-width="1.3" fill="none"></path></g></g>
+<g class="cascade-win is-bg" id="cwin3" data-face="0"><rect x="190" y="30" width="50" height="50" rx="7"></rect><g class="cascade-bg-icon"><line x1="200" y1="40" x2="230" y2="70" stroke="#b7c2c8" stroke-width="1.5"></line><line x1="230" y1="40" x2="200" y2="70" stroke="#b7c2c8" stroke-width="1.5"></line><line x1="215" y1="35" x2="215" y2="75" stroke="#b7c2c8" stroke-width="1"></line></g></g>
+<g class="cascade-win is-bg" id="cwin4" data-face="0"><rect x="250" y="30" width="50" height="50" rx="7"></rect><g class="cascade-bg-icon"><line x1="260" y1="40" x2="290" y2="70" stroke="#b7c2c8" stroke-width="1.5"></line><line x1="290" y1="40" x2="260" y2="70" stroke="#b7c2c8" stroke-width="1.5"></line><line x1="275" y1="35" x2="275" y2="75" stroke="#b7c2c8" stroke-width="1"></line></g></g>
+<g class="cascade-win is-bg" id="cwin5" data-face="0"><rect x="310" y="30" width="50" height="50" rx="7"></rect><g class="cascade-bg-icon"><line x1="320" y1="40" x2="350" y2="70" stroke="#b7c2c8" stroke-width="1.5"></line><line x1="350" y1="40" x2="320" y2="70" stroke="#b7c2c8" stroke-width="1.5"></line><line x1="335" y1="35" x2="335" y2="75" stroke="#b7c2c8" stroke-width="1"></line></g></g>
+<g class="cascade-win is-face" id="cwin6" data-face="1"><rect x="370" y="30" width="50" height="50" rx="7"></rect><g class="cascade-face-icon"><circle cx="395" cy="55" r="15" fill="#f0d9b5" stroke="#0a5f60" stroke-width="1.2"></circle><circle cx="389" cy="52" r="1.8" fill="#132036"></circle><circle cx="401" cy="52" r="1.8" fill="#132036"></circle><path d="M389,61 Q395,65 401,61" stroke="#132036" stroke-width="1.3" fill="none"></path></g></g>
+<g class="cascade-win is-bg" id="cwin7" data-face="0"><rect x="430" y="30" width="50" height="50" rx="7"></rect><g class="cascade-bg-icon"><line x1="440" y1="40" x2="470" y2="70" stroke="#b7c2c8" stroke-width="1.5"></line><line x1="470" y1="40" x2="440" y2="70" stroke="#b7c2c8" stroke-width="1.5"></line><line x1="455" y1="35" x2="455" y2="75" stroke="#b7c2c8" stroke-width="1"></line></g></g>
+<g class="cascade-win is-bg" id="cwin8" data-face="0"><rect x="490" y="30" width="50" height="50" rx="7"></rect><g class="cascade-bg-icon"><line x1="500" y1="40" x2="530" y2="70" stroke="#b7c2c8" stroke-width="1.5"></line><line x1="530" y1="40" x2="500" y2="70" stroke="#b7c2c8" stroke-width="1.5"></line><line x1="515" y1="35" x2="515" y2="75" stroke="#b7c2c8" stroke-width="1"></line></g></g>
+<g class="cascade-win is-face" id="cwin9" data-face="1"><rect x="550" y="30" width="50" height="50" rx="7"></rect><g class="cascade-face-icon"><circle cx="575" cy="55" r="15" fill="#f0d9b5" stroke="#0a5f60" stroke-width="1.2"></circle><circle cx="569" cy="52" r="1.8" fill="#132036"></circle><circle cx="581" cy="52" r="1.8" fill="#132036"></circle><path d="M569,61 Q575,65 581,61" stroke="#132036" stroke-width="1.3" fill="none"></path></g></g>
+<g class="cascade-win is-bg" id="cwin10" data-face="0"><rect x="610" y="30" width="50" height="50" rx="7"></rect><g class="cascade-bg-icon"><line x1="620" y1="40" x2="650" y2="70" stroke="#b7c2c8" stroke-width="1.5"></line><line x1="650" y1="40" x2="620" y2="70" stroke="#b7c2c8" stroke-width="1.5"></line><line x1="635" y1="35" x2="635" y2="75" stroke="#b7c2c8" stroke-width="1"></line></g></g>
+<g class="cascade-win is-bg" id="cwin11" data-face="0"><rect x="670" y="30" width="50" height="50" rx="7"></rect><g class="cascade-bg-icon"><line x1="680" y1="40" x2="710" y2="70" stroke="#b7c2c8" stroke-width="1.5"></line><line x1="710" y1="40" x2="680" y2="70" stroke="#b7c2c8" stroke-width="1.5"></line><line x1="695" y1="35" x2="695" y2="75" stroke="#b7c2c8" stroke-width="1"></line></g></g>
+          </g>
+        </svg>
+        <div class="cascade-stage-row">
+          <button class="btn btn-forward" id="cascadeNextBtn">Qua tầng tiếp theo</button>
+          <button class="btn btn-ghost" id="cascadeResetBtn">Đặt lại</button>
+          <span class="cascade-stage-label">Tầng hiện tại: <b id="cascadeStageNum">0 (ảnh gốc)</b></span>
+          <span class="cascade-stage-label">Còn lại: <b id="cascadeRemainCount">12</b> / 12 cửa sổ</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao cascade đặt các tầng ĐƠN GIẢN VÀ RẺ ở ĐẦU chuỗi, thay vì tầng phức tạp nhất ngay từ đầu?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì phần lớn cửa sổ trong ảnh <strong>không phải</strong> khuôn mặt. Đặt tầng rẻ, đơn giản ở đầu giúp loại nhanh đa số cửa sổ nền chỉ với vài phép tính rẻ — như bạn vừa thấy ở widget trên, tầng 1 chỉ dùng ~2 đặc trưng nhưng đã loại được phần lớn cửa sổ không phải mặt. Chỉ những cửa sổ "khả nghi" mới cần đi tiếp qua các tầng phức tạp, tốn kém hơn ở sau — nhờ vậy chi phí tính toán trung bình trên toàn ảnh giảm mạnh.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.4</span>Thực nghiệm thật với OpenCV</h3>
+      <p>OpenCV có sẵn các bộ Haar cascade đã huấn luyện cho mặt, mắt và miệng cười. Ta chạy thử đồng thời nhiều bộ:</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:260px;display:block;margin:0 auto;">
+          <rect x="10" y="10" width="240" height="240" fill="#e9e4da" stroke="#d9e0da" stroke-width="1.5"></rect>
+          <ellipse cx="130" cy="140" rx="70" ry="90" fill="#e0c39a"></ellipse>
+          <circle cx="107" cy="120" r="10" fill="#3a2e22"></circle>
+          <circle cx="153" cy="120" r="10" fill="#3a2e22"></circle>
+          <path d="M105,170 Q130,182 155,170" stroke="#3a2e22" stroke-width="3" fill="none"></path>
+          <rect x="55" y="55" width="150" height="185" fill="none" stroke="#22c55e" stroke-width="3.5"></rect>
+          <text x="130" y="45" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#15803d" font-weight="700">face_cascade</text>
+          <rect x="90" y="105" width="35" height="28" fill="none" stroke="#2563eb" stroke-width="2.5"></rect>
+          <rect x="135" y="105" width="35" height="28" fill="none" stroke="#2563eb" stroke-width="2.5"></rect>
+          <text x="130" y="252" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#1d4ed8" font-weight="700">eye_cascade (trong vùng mặt)</text>
+        </svg>
+        <div class="figure-caption"><b>Hình 5.</b> Phát hiện thật bằng OpenCV: khung mặt (xanh lá) + mắt (xanh dương) qua các Haar cascade riêng cho từng bộ phận. Mắt chỉ được tìm BÊN TRONG vùng mặt đã phát hiện — nhanh hơn và ít nhầm hơn.</div>
+      </div>
+
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">haar_mat_mat.py</span></div>
+        <pre><code class="language-python">import cv2
+
+img  = cv2.imread("anh.jpg")
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+eye_cascade  = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_eye.xml")
+
+faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(60, 60))
+for (x, y, w, h) in faces:
+    cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+    roi = gray[y:y+h, x:x+w]                       # tim mat BEN TRONG vung mat
+    for (ex, ey, ew, eh) in eye_cascade.detectMultiScale(roi):
+        cv2.rectangle(img, (x+ex, y+ey), (x+ex+ew, y+ey+eh), (255, 0, 0), 2)</code></pre>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.5</span>Giới hạn của Viola–Jones</h3>
+      <p>Haar cascade rất nhanh nhưng có điểm yếu rõ rệt. Ta kiểm chứng thật bằng cách biến đổi cùng một khuôn mặt (ảnh mẫu <code>astronaut</code> của scikit-image):</p>
+
+      <div class="figure">
+        <div class="chart-row">
+          <div class="chart-col">
+            <svg viewBox="0 0 160 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <rect x="10" y="10" width="140" height="130" fill="#eef1ec" stroke="#d9e0da"></rect>
+              <ellipse cx="80" cy="75" rx="42" ry="52" fill="#e0c39a"></ellipse>
+              <circle cx="65" cy="65" r="6" fill="#3a2e22"></circle>
+              <circle cx="95" cy="65" r="6" fill="#3a2e22"></circle>
+              <path d="M64,92 Q80,100 96,92" stroke="#3a2e22" stroke-width="2" fill="none"></path>
+              <rect x="42" y="26" width="76" height="100" fill="none" stroke="#22c55e" stroke-width="3"></rect>
+              <text x="80" y="155" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#15803d">Chính diện, đủ lớn ✓</text>
+            </svg>
+          </div>
+          <div class="chart-col">
+            <svg viewBox="0 0 160 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <rect x="10" y="10" width="140" height="130" fill="#eef1ec" stroke="#d9e0da"></rect>
+              <g transform="rotate(35 80 75)">
+                <ellipse cx="80" cy="75" rx="42" ry="52" fill="#e0c39a"></ellipse>
+                <circle cx="65" cy="65" r="6" fill="#3a2e22"></circle>
+                <circle cx="95" cy="65" r="6" fill="#3a2e22"></circle>
+                <path d="M64,92 Q80,100 96,92" stroke="#3a2e22" stroke-width="2" fill="none"></path>
+              </g>
+              <text x="80" y="155" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#9c2f3d">Xoay 35° ✗</text>
+            </svg>
+          </div>
+          <div class="chart-col">
+            <svg viewBox="0 0 160 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <rect x="10" y="10" width="140" height="130" fill="#eef1ec" stroke="#d9e0da"></rect>
+              <ellipse cx="80" cy="75" rx="14" ry="17" fill="#e0c39a"></ellipse>
+              <circle cx="75" cy="72" r="2" fill="#3a2e22"></circle>
+              <circle cx="85" cy="72" r="2" fill="#3a2e22"></circle>
+              <text x="80" y="155" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#9c2f3d">Quá nhỏ ✗</text>
+            </svg>
+          </div>
+        </div>
+        <div class="figure-caption"><b>Hình 6.</b> Giới hạn (thật): Haar mạnh với mặt chính diện đủ lớn (kể cả hơi mờ), nhưng dễ bỏ sót khi mặt xoay nhiều (thử nghiệm thật: xoay 35°) hoặc quá nhỏ (thử nghiệm thật: thu nhỏ còn 140×140 pixel).</div>
+      </div>
+
+      <p>Nó chủ yếu hoạt động tốt với <strong>mặt chính diện, thẳng đứng, đủ lớn</strong>; dễ thất bại khi mặt <strong>xoay/nghiêng</strong>, <strong>quá nhỏ</strong>, hoặc bị che nhiều. Những hạn chế này thúc đẩy sự chuyển dịch sang <strong>học sâu</strong>.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Thí nghiệm thật cho thấy Haar cascade phát hiện được khuôn mặt trên ảnh gốc, nhưng KHÔNG còn phát hiện được sau khi xoay ảnh 35°. Điều này nói lên điều gì về đặc trưng Haar-like?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Đặc trưng Haar-like (so sánh vùng chữ nhật kề nhau, ví dụ mắt–gò má) được thiết kế cho khuôn mặt ở <strong>tư thế chính diện</strong>. Khi xoay 35°, vị trí tương đối của mắt/mũi/miệng trong khung hình thay đổi hoàn toàn — các vùng chữ nhật cố định không còn khớp với mẫu đã huấn luyện nữa. Đây là giới hạn cố hữu của đặc trưng <strong>thủ công, không xoay-bất-biến</strong>, khác với học sâu vốn có thể tự học đặc trưng bền vững hơn với nhiều tư thế — chủ đề của Lớp 03.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l3">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 03 · Học sâu</span>
+    <h2 class="section-title">Phương pháp học sâu hiện đại</h2>
+    <p class="section-lead">Những giới hạn của Haar cascade ở Lớp 02 chính là động lực cho cả một thế hệ detector khuôn mặt bằng học sâu.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">3.1</span>Vì sao học sâu vượt trội</h3>
+      <p>Giống như với phân loại và phát hiện tổng quát, học sâu <strong>tự học đặc trưng</strong> từ dữ liệu thay vì dùng đặc trưng thủ công. Các bộ phát hiện mặt bằng học sâu xử lý <strong>tư thế, che khuất, tỉ lệ và ánh sáng</strong> tốt hơn hẳn Viola–Jones, và phát hiện được cả những khuôn mặt nhỏ trong đám đông.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.2</span>MTCNN — cascade ba mạng CNN</h3>
+      <p><strong>MTCNN (2016)</strong> là một thiết kế kinh điển và vẫn rất phổ biến: ba mạng CNN nối tiếp, mỗi mạng <strong>lọc và tinh chỉnh</strong> dần các khung, đồng thời cho ra <strong>5 điểm mốc</strong> khuôn mặt (hai mắt, mũi, hai khoé miệng):</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 660 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:0 auto;">
+          <g font-family="Inter" font-size="11" font-weight="700">
+            <rect x="0" y="20" width="140" height="60" rx="8" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="70" y="45" text-anchor="middle" fill="#0a5f60">Ảnh</text>
+            <text x="70" y="60" text-anchor="middle" fill="#0a5f60">đầu vào</text>
+            <rect x="155" y="20" width="140" height="60" rx="8" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"></rect>
+            <text x="225" y="45" text-anchor="middle" fill="#a86608">P-Net</text>
+            <text x="225" y="60" text-anchor="middle" fill="#a86608" font-size="9.5" font-weight="500">đề xuất nhanh</text>
+            <rect x="310" y="20" width="140" height="60" rx="8" fill="#e6e9f7" stroke="#5762c7" stroke-width="1.5"></rect>
+            <text x="380" y="45" text-anchor="middle" fill="#3a3f8c">R-Net</text>
+            <text x="380" y="60" text-anchor="middle" fill="#3a3f8c" font-size="9.5" font-weight="500">lọc, tinh chỉnh</text>
+            <rect x="465" y="20" width="140" height="60" rx="8" fill="#fbe7ea" stroke="#d1495b" stroke-width="1.5"></rect>
+            <text x="535" y="45" text-anchor="middle" fill="#9c2f3d">O-Net</text>
+            <text x="535" y="60" text-anchor="middle" fill="#9c2f3d" font-size="9.5" font-weight="500">khung cuối</text>
+          </g>
+          <g stroke="#b7c2c8" stroke-width="1.5" fill="none" marker-end="url(#arrH7mtcnn)">
+            <line x1="140" y1="50" x2="153" y2="50"></line>
+            <line x1="295" y1="50" x2="308" y2="50"></line>
+            <line x1="450" y1="50" x2="463" y2="50"></line>
+            <line x1="535" y1="80" x2="535" y2="106"></line>
+          </g>
+          <defs><marker id="arrH7mtcnn" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#b7c2c8"></path></marker></defs>
+          <circle cx="535" cy="140" r="30" fill="#f0d9b5" stroke="#7c8aa0" stroke-width="1.5"></circle>
+          <circle cx="524" cy="132" r="3" fill="#d1495b"></circle>
+          <circle cx="546" cy="132" r="3" fill="#d1495b"></circle>
+          <circle cx="535" cy="142" r="3" fill="#d1495b"></circle>
+          <circle cx="525" cy="153" r="3" fill="#d1495b"></circle>
+          <circle cx="545" cy="153" r="3" fill="#d1495b"></circle>
+          <text x="535" y="188" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#9c2f3d" font-weight="700">+ 5 điểm mốc</text>
+        </svg>
+        <div class="figure-caption"><b>Hình 7.</b> MTCNN: cascade ba mạng (P-Net đề xuất nhanh → R-Net lọc → O-Net cho khung cuối + 5 điểm mốc: hai mắt, mũi, hai khoé miệng).</div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao MTCNN dùng BA mạng nối tiếp (P-Net → R-Net → O-Net) thay vì một mạng duy nhất xử lý hết?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Đây là chiến lược "thô đến tinh": <strong>P-Net</strong> rất nhanh, quét toàn ảnh đề xuất rất nhiều vùng ứng viên thô; <strong>R-Net</strong> lọc bớt, chỉ giữ lại các vùng khả nghi hơn; <strong>O-Net</strong> (mạng lớn nhất, chậm nhất) chỉ cần xử lý một số ÍT vùng còn lại để cho ra khung cuối cùng chính xác + 5 điểm mốc. Cách này cùng tinh thần <strong>cascade</strong> của Viola–Jones ở Lớp 02: lọc dần từ rẻ đến đắt, giúp tổng thể vẫn nhanh dù dùng mạng CNN phức tạp hơn nhiều so với Haar.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.3</span>Các bộ phát hiện single-shot</h3>
+      <p>Lấy cảm hứng từ các detector một giai đoạn (Bài 6–7), nhiều bộ phát hiện mặt hiện đại dự đoán <strong>trong một lượt</strong>:</p>
+      <table class="ref-table">
+        <tr><th>Mô hình</th><th>Đặc điểm</th></tr>
+        <tr><td><code>MTCNN</code></td><td>Cascade 3 mạng CNN; kèm 5 điểm mốc; nhẹ, rất phổ biến.</td></tr>
+        <tr><td><code>SSD / SSH</code></td><td>Single-shot; nhanh; nền tảng cho nhiều detector mặt.</td></tr>
+        <tr><td><code>RetinaFace</code></td><td>Single-shot + 5 điểm mốc + thông tin 3D; rất chính xác.</td></tr>
+        <tr><td><code>YOLO-face</code></td><td>Dựa trên YOLO; cực nhanh, hợp thời gian thực.</td></tr>
+      </table>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.4</span>Thực hành với thư viện</h3>
+      <p>Các bộ phát hiện hiện đại có sẵn trong thư viện, dùng chỉ vài dòng (vd MTCNN qua <code>facenet-pytorch</code>):</p>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">mtcnn_demo.py</span></div>
+        <pre><code class="language-python"># pip install facenet-pytorch
+from facenet_pytorch import MTCNN
+from PIL import Image
+
+detector = MTCNN(keep_all=True)          # phat hien NHIEU mat
+img = Image.open("anh.jpg")
+
+boxes, probs, landmarks = detector.detect(img, landmarks=True)
+for box, p in zip(boxes, probs):
+    print("khung:", box.astype(int), "│ do tin cay:", round(float(p), 2))</code></pre>
+      </div>
+      <div class="callout callout-note">
+        <span class="callout-head">Lưu ý môi trường</span>
+        <p>Các thư viện học sâu <strong>tải trọng số pretrained</strong> từ internet ở lần đầu. Trong môi trường biên soạn tài liệu này không tải được, nên phần chạy thật ở Lớp 02 dùng <strong>Haar cascade của OpenCV</strong> (đã đóng gói sẵn). Đoạn code MTCNN ở trên hoạt động đầy đủ khi bạn có mạng.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.5</span>Dòng thời gian phát triển</h3>
+      <div class="figure">
+        <svg viewBox="0 0 620 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:0 auto;">
+          <line x1="30" y1="70" x2="595" y2="70" stroke="#b7c2c8" stroke-width="2" marker-end="url(#arrH8time)"></line>
+          <defs><marker id="arrH8time" markerWidth="9" markerHeight="9" refX="5" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#b7c2c8"></path></marker></defs>
+
+          <circle cx="60" cy="70" r="7" fill="#0f8b8d"></circle>
+          <text x="60" y="53" text-anchor="middle" font-family="Inter" font-size="12" font-weight="700" fill="#132036">Viola–Jones</text>
+          <text x="60" y="39" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#0a5f60">2001</text>
+
+          <circle cx="185" cy="70" r="6" fill="#f3f6f4" stroke="#0f8b8d" stroke-width="2"></circle>
+          <text x="185" y="95" text-anchor="middle" font-family="Inter" font-size="12" font-weight="700" fill="#132036">HOG</text>
+
+          <circle cx="320" cy="70" r="7" fill="#0f8b8d"></circle>
+          <text x="320" y="53" text-anchor="middle" font-family="Inter" font-size="12" font-weight="700" fill="#132036">MTCNN</text>
+          <text x="320" y="39" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#0a5f60">2016</text>
+
+          <circle cx="450" cy="70" r="6" fill="#f3f6f4" stroke="#0f8b8d" stroke-width="2"></circle>
+          <text x="450" y="95" text-anchor="middle" font-family="Inter" font-size="12" font-weight="700" fill="#132036">SSH / SSD</text>
+
+          <circle cx="565" cy="70" r="6" fill="#f3f6f4" stroke="#0f8b8d" stroke-width="2"></circle>
+          <text x="565" y="53" text-anchor="middle" font-family="Inter" font-size="12" font-weight="700" fill="#132036">RetinaFace</text>
+        </svg>
+        <div class="figure-caption"><b>Hình 8.</b> Tiến hoá của phát hiện khuôn mặt: từ Viola–Jones (2001, số liệu thật) và HOG, đến MTCNN (2016, số liệu thật), SSH/SSD và RetinaFace. Vị trí của HOG, SSH/SSD, RetinaFace trên trục thể hiện đúng thứ tự phát triển; chỉ hai mốc Viola–Jones và MTCNN có năm chính xác từ tài liệu gốc.</div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l4">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 04 · Quy trình</span>
+    <h2 class="section-title">Sau khi phát hiện: quy trình phân tích khuôn mặt</h2>
+    <p class="section-lead">Phát hiện thường chỉ là bước đầu tiên trong một chuỗi dài hơn. Hiểu toàn cảnh giúp bạn biết chính xác bài này dừng ở đâu — và đâu là ranh giới nhạy cảm.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">4.1</span>Điểm mốc &amp; căn chỉnh</h3>
+      <p>Sau khi có khung mặt, nhiều ứng dụng cần <strong>điểm mốc khuôn mặt (facial landmarks)</strong> — các điểm chính như mắt, mũi, miệng (5 điểm) hoặc chi tiết hơn (68 điểm). Từ điểm mốc, ta <strong>căn chỉnh (alignment)</strong> — xoay/co giãn khuôn mặt về một <strong>tư thế chuẩn</strong>, giúp các bước sau chính xác hơn:</p>
+
+      <div class="figure">
+        <div class="chart-row">
+          <div class="chart-col">
+            <svg viewBox="0 0 180 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <g transform="rotate(-15 90 80)">
+                <ellipse cx="90" cy="80" rx="45" ry="55" fill="#f0d9b5" stroke="#7c8aa0" stroke-width="1.5"></ellipse>
+                <circle cx="75" cy="70" r="4" fill="#d1495b"></circle>
+                <circle cx="105" cy="70" r="4" fill="#d1495b"></circle>
+                <circle cx="90" cy="85" r="4" fill="#d1495b"></circle>
+                <circle cx="78" cy="100" r="4" fill="#d1495b"></circle>
+                <circle cx="102" cy="100" r="4" fill="#d1495b"></circle>
+              </g>
+              <text x="90" y="150" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#42506a">Trước căn chỉnh (nghiêng)</text>
+            </svg>
+          </div>
+          <div class="chart-col">
+            <svg viewBox="0 0 180 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <ellipse cx="90" cy="80" rx="45" ry="55" fill="#f0d9b5" stroke="#0f8b8d" stroke-width="2"></ellipse>
+              <circle cx="75" cy="68" r="4" fill="#0f8b8d"></circle>
+              <circle cx="105" cy="68" r="4" fill="#0f8b8d"></circle>
+              <circle cx="90" cy="85" r="4" fill="#0f8b8d"></circle>
+              <circle cx="78" cy="100" r="4" fill="#0f8b8d"></circle>
+              <circle cx="102" cy="100" r="4" fill="#0f8b8d"></circle>
+              <text x="90" y="150" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#0a5f60">Sau căn chỉnh (chuẩn hoá)</text>
+            </svg>
+          </div>
+        </div>
+        <div class="figure-caption"><b>Hình 9.</b> Điểm mốc khuôn mặt (minh hoạ 5 điểm) và căn chỉnh: dùng điểm mốc để xoay mặt về tư thế chuẩn, giúp các bước phân tích sau chính xác hơn.</div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">4.2</span>Quy trình đầy đủ &amp; vị trí của phát hiện</h3>
+      <p>Phát hiện khuôn mặt thường chỉ là <strong>bước đầu tiên</strong> trong một chuỗi dài hơn. Các bước sau phát hiện gồm <strong>trích đặc trưng (embedding)</strong> — biến khuôn mặt thành một vector — rồi <strong>nhận diện</strong> (so vector với cơ sở dữ liệu để biết <em>là ai</em>) hoặc <strong>xác minh</strong> (so hai mặt xem có cùng người không). <strong>Càng về sau, mức độ ảnh hưởng tới quyền riêng tư càng lớn.</strong></p>
+
+      <div class="figure">
+        <svg viewBox="0 0 660 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:0 auto;">
+          <g font-family="Inter" font-size="10.5" font-weight="700">
+            <rect x="0" y="25" width="120" height="60" rx="8" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="2.5"></rect>
+            <text x="60" y="48" text-anchor="middle" fill="#0a5f60">Phát hiện</text>
+            <text x="60" y="62" text-anchor="middle" fill="#0a5f60" font-size="8.5" font-weight="500">BẠN ĐANG Ở ĐÂY</text>
+            <rect x="135" y="25" width="120" height="60" rx="8" fill="#e7f0e6" stroke="#5a9c56" stroke-width="1.5"></rect>
+            <text x="195" y="50" text-anchor="middle" fill="#3d6b3a">Điểm mốc</text>
+            <rect x="270" y="25" width="120" height="60" rx="8" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"></rect>
+            <text x="330" y="50" text-anchor="middle" fill="#a86608">Căn chỉnh</text>
+            <rect x="405" y="25" width="120" height="60" rx="8" fill="#fbe3d0" stroke="#c9722f" stroke-width="1.5"></rect>
+            <text x="465" y="48" text-anchor="middle" fill="#8a4d1f">Trích đặc trưng</text>
+            <text x="465" y="62" text-anchor="middle" fill="#8a4d1f" font-size="9" font-weight="500">(embedding)</text>
+            <rect x="540" y="25" width="120" height="60" rx="8" fill="#fbe7ea" stroke="#d1495b" stroke-width="2.5"></rect>
+            <text x="600" y="48" text-anchor="middle" fill="#9c2f3d">Nhận diện /</text>
+            <text x="600" y="62" text-anchor="middle" fill="#9c2f3d">Xác minh</text>
+          </g>
+          <g stroke="#b7c2c8" stroke-width="1.5" fill="none" marker-end="url(#arrH10pipe)">
+            <line x1="120" y1="55" x2="133" y2="55"></line>
+            <line x1="255" y1="55" x2="268" y2="55"></line>
+            <line x1="390" y1="55" x2="403" y2="55"></line>
+            <line x1="525" y1="55" x2="538" y2="55"></line>
+          </g>
+          <defs><marker id="arrH10pipe" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#b7c2c8"></path></marker></defs>
+          <text x="330" y="112" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#9c2f3d">càng sang phải, mức độ nhạy cảm quyền riêng tư càng tăng →</text>
+        </svg>
+        <div class="figure-caption"><b>Hình 10.</b> Quy trình phân tích khuôn mặt: phát hiện → điểm mốc → căn chỉnh → trích đặc trưng → nhận diện/xác minh. Bài này dừng ở bước phát hiện.</div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao bước "trích đặc trưng (embedding)" và các bước SAU nó lại nhạy cảm về quyền riêng tư hơn hẳn so với bước "phát hiện" đơn thuần?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì embedding biến khuôn mặt thành một <strong>vector đại diện</strong> có thể dùng để <strong>so khớp với một cơ sở dữ liệu danh tính</strong> — từ đó biết được "đây là ai". Bước phát hiện chỉ trả lời "có mặt ở đâu", hoàn toàn ẩn danh, không tạo ra bất kỳ thông tin nào có thể dùng để xác định danh tính một cá nhân cụ thể. Đây là ranh giới quan trọng cần luôn ghi nhớ khi xây dựng hệ thống — bạn sẽ thấy rõ hơn ở Lớp 06.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l5">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 05 · Đánh giá</span>
+    <h2 class="section-title">Đánh giá bộ phát hiện khuôn mặt</h2>
+    <p class="section-lead">Đánh giá dùng đúng các thước đo phát hiện ở <strong>Bài 6</strong>: một dự đoán đúng khi <strong>IoU với khung thật ≥ ngưỡng</strong>; từ precision/recall theo độ tin cậy ta tính <strong>AP</strong>. Bộ benchmark tiêu chuẩn là <strong>WIDER FACE</strong> — chia ba mức độ khó (Easy / Medium / Hard) tuỳ kích thước mặt, mức che khuất và tư thế.</p>
+
+    <div class="figure">
+      <div class="chart-row">
+        <div class="chart-col">
+          <svg viewBox="0 0 180 150" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+            <rect x="5" y="5" width="170" height="110" rx="8" fill="#eef1ec" stroke="#d9e0da"></rect>
+            <circle cx="90" cy="60" r="42" fill="#0f8b8d" stroke="#0a5f60" stroke-width="1.5"></circle>
+            <text x="90" y="135" text-anchor="middle" font-family="Inter" font-size="12" font-weight="700" fill="#0a5f60">Easy</text>
+          </svg>
+        </div>
+        <div class="chart-col">
+          <svg viewBox="0 0 180 150" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+            <rect x="5" y="5" width="170" height="110" rx="8" fill="#eef1ec" stroke="#d9e0da"></rect>
+            <circle cx="60" cy="55" r="24" fill="#e8940f" stroke="#a86608" stroke-width="1.5"></circle>
+            <circle cx="120" cy="70" r="20" fill="#e8940f" stroke="#a86608" stroke-width="1.5"></circle>
+            <text x="90" y="135" text-anchor="middle" font-family="Inter" font-size="12" font-weight="700" fill="#a86608">Medium</text>
+          </svg>
+        </div>
+        <div class="chart-col">
+          <svg viewBox="0 0 180 150" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+            <rect x="5" y="5" width="170" height="110" rx="8" fill="#eef1ec" stroke="#d9e0da"></rect>
+            <g fill="#d1495b" stroke="#9c2f3d" stroke-width="1">
+              <circle cx="35" cy="40" r="9"></circle><circle cx="60" cy="55" r="7"></circle>
+              <circle cx="85" cy="35" r="8"></circle><circle cx="110" cy="60" r="6"></circle>
+              <circle cx="135" cy="42" r="9"></circle><circle cx="150" cy="70" r="7"></circle>
+              <circle cx="45" cy="75" r="7"></circle><circle cx="95" cy="80" r="8"></circle>
+              <circle cx="145" cy="90" r="6"></circle>
+            </g>
+            <text x="90" y="135" text-anchor="middle" font-family="Inter" font-size="12" font-weight="700" fill="#9c2f3d">Hard</text>
+          </svg>
+        </div>
+      </div>
+      <div class="figure-caption"><b>Hình 11.</b> Ba mức độ khó của WIDER FACE (minh hoạ): Easy (mặt lớn, rõ) → Medium (vừa, biến đổi tư thế/ánh sáng) → Hard (rất nhỏ, che khuất nặng, đám đông).</div>
+    </div>
+
+    <ul class="plain">
+      <li><strong>Easy:</strong> mặt lớn, rõ, chính diện — hầu hết mô hình làm tốt.</li>
+      <li><strong>Medium:</strong> mặt vừa, có biến đổi tư thế/ánh sáng.</li>
+      <li><strong>Hard:</strong> mặt <strong>rất nhỏ</strong>, che khuất nặng, đám đông — đây là thử thách thật sự phân biệt các mô hình.</li>
+    </ul>
+
+    <div class="callout callout-note">
+      <span class="callout-head">Liên hệ Bài 5–6</span>
+      <p>Như mọi bài toán phát hiện, hãy báo cáo <strong>AP/mAP trên cùng benchmark</strong> (vd WIDER FACE Hard) khi so sánh mô hình — và để ý đặc biệt tới <strong>mặt nhỏ</strong>, vốn là điểm yếu chung.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Mô hình A báo cáo AP=0.95 trên WIDER FACE Easy; mô hình B báo cáo AP=0.80 trên WIDER FACE Hard. Có thể kết luận A tốt hơn B không?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Không thể kết luận.</strong> Đây là so sánh khập khiễng vì hai mô hình được đánh giá trên <strong>hai mức độ khó khác nhau</strong>. Easy vốn dễ đạt AP cao (mặt lớn, rõ, chính diện), trong khi Hard vốn khó hơn nhiều (mặt rất nhỏ, che khuất nặng, đám đông) nên AP thường thấp hơn đáng kể ngay cả với mô hình tốt. Để so sánh công bằng, phải đối chiếu AP của cả hai mô hình trên <strong>cùng một mức độ khó</strong> (ví dụ cùng là WIDER FACE Hard).</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l6">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 06 · Đạo đức &amp; pháp lý</span>
+    <h2 class="section-title">Sử dụng có trách nhiệm</h2>
+    <p class="section-lead">Công nghệ khuôn mặt mạnh mẽ nhưng <strong>nhạy cảm</strong>. Là người xây dựng hệ thống, bạn cần cân nhắc các khía cạnh đạo đức và pháp lý <strong>ngay từ đầu</strong> — không chỉ độ chính xác kỹ thuật. Phần này quan trọng ngang các phần kỹ thuật trước đó, dù không có một dòng code nào.</p>
+
+    <div class="callout callout-warn">
+      <span class="callout-head">Quyền riêng tư &amp; sự đồng thuận</span>
+      <p>Khuôn mặt là <strong>dữ liệu sinh trắc học</strong> nhạy cảm. Nhiều nơi (vd theo <strong>GDPR</strong> ở châu Âu) yêu cầu <strong>sự đồng thuận</strong> và có quy định chặt. Chỉ thu thập/lưu trữ khi thực sự cần, và minh bạch với người dùng.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">6.1</span>Những điều cần lưu tâm</h3>
+
+      <div class="callout callout-warn">
+        <span class="callout-head">Thiên lệch (bias)</span>
+        <p>Nhiều hệ thống nhận diện có <strong>độ chính xác chênh lệch</strong> giữa các nhóm (theo tông da, giới tính, độ tuổi). Hãy <strong>kiểm thử công bằng</strong> trên nhiều nhóm và công bố giới hạn.</p>
+      </div>
+
+      <div class="callout callout-note">
+        <span class="callout-head">Phân biệt mục đích</span>
+        <p>Ứng dụng <strong>hợp lý</strong> (lấy nét máy ảnh, <strong>làm mờ mặt để bảo vệ riêng tư</strong>, hỗ trợ tiếp cận, đếm người ẩn danh) khác hẳn việc <strong>giám sát hàng loạt không có sự đồng thuận</strong>.</p>
+      </div>
+
+      <ul class="tip-list">
+        <li><span class="tip-check">✓</span><span><strong>Giảm thiểu dữ liệu:</strong> ưu tiên xử lý <strong>trên thiết bị</strong>, không lưu ảnh khi không cần; tách bạch <strong>phát hiện</strong> (ẩn danh) khỏi <strong>nhận diện</strong> (định danh).</span></li>
+        <li><span class="tip-check">✓</span><span><strong>Tuân thủ pháp luật &amp; minh bạch:</strong> nắm quy định địa phương; cho người dùng biết <strong>khi nào và vì sao</strong> khuôn mặt của họ được xử lý.</span></li>
+      </ul>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Cửa hàng A lắp camera CHỈ để đếm số lượt khách ẩn danh (không lưu ảnh, không biết là ai). Cửa hàng B lắp camera để tự động nhận diện VÀ lưu hồ sơ mua sắm của từng khách cụ thể mà không thông báo. Hai trường hợp có mức độ rủi ro quyền riêng tư như nhau không?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Không — hoàn toàn khác nhau.</strong> Cửa hàng A chỉ dùng <strong>phát hiện ẩn danh</strong> (đếm số lượng, không biết là ai, không lưu trữ danh tính) — rủi ro thấp, gần giống ví dụ "làm mờ mặt bảo vệ riêng tư". Cửa hàng B là <strong>nhận diện</strong> kết hợp lưu trữ hồ sơ cá nhân <strong>mà không có sự đồng thuận/minh bạch</strong> — đây chính xác là kiểu "giám sát hàng loạt không có sự đồng thuận" mà phần này cảnh báo, rủi ro quyền riêng tư cao hơn rất nhiều và có thể vi phạm các quy định như GDPR.</p>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao "kiểm thử công bằng trên nhiều nhóm" (theo tông da, giới tính, độ tuổi) là một bước BẮT BUỘC, không phải tuỳ chọn, khi triển khai hệ thống nhận diện khuôn mặt trong thực tế?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì nhiều hệ thống thực tế đã cho thấy độ chính xác <strong>chênh lệch đáng kể</strong> giữa các nhóm. Nếu chỉ đo độ chính xác trung bình trên toàn bộ dữ liệu kiểm định, con số tổng thể có thể trông tốt trong khi một số nhóm cụ thể lại bị sai sót nhiều hơn hẳn. Trong các ứng dụng có hậu quả thực (xác thực danh tính, an ninh...), sai sót lệch theo nhóm có thể gây ra đối xử bất công nghiêm trọng cho những nhóm bị ảnh hưởng — đây là lý do kiểm thử công bằng và công bố giới hạn là <strong>trách nhiệm nghề nghiệp</strong>, không phải một bước "nếu có thời gian mới làm".</p>
+      </div>
+    </div>
+
+    <div class="callout callout-result">
+      <span class="callout-head">Tin tốt</span>
+      <p>Bản thân <strong>phát hiện khuôn mặt</strong> (chỉ tìm vị trí, ẩn danh) thường <strong>ít rủi ro hơn nhiều</strong> so với nhận diện danh tính, và còn được dùng <em>để bảo vệ</em> riêng tư — ví dụ tự động <strong>làm mờ mặt</strong> người qua đường trong video.</p>
+    </div>
+  </div>
+</section>
+<section class="section" id="l7">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Bài tập · Thực hành</span>
+    <h2 class="section-title">Bài tập thực hành</h2>
+    <p class="section-lead">Năm bài đầu rèn kỹ thuật; bài cuối — suy ngẫm — rèn tư duy trách nhiệm. Đừng bỏ qua bài cuối chỉ vì nó không có code.</p>
+
+    <div class="task-grid">
+      <div class="task-card"><span class="task-num">Bài tập 01</span><p>Chạy <strong>Haar cascade</strong> của OpenCV trên 5 ảnh khác nhau (chính diện, nghiêng, nhóm người, thiếu sáng). Thống kê tỉ lệ phát hiện đúng và các ca bỏ sót.</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 02</span><p>Thay đổi <code>scaleFactor</code> và <code>minNeighbors</code> trong <code>detectMultiScale</code>. Chúng ảnh hưởng thế nào tới số mặt phát hiện và số báo nhầm?</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 03</span><p>Giải thích bằng lời: vì sao <strong>ảnh tích phân</strong> giúp tính đặc trưng Haar-like nhanh, và vì sao <strong>cascade</strong> giúp tăng tốc tổng thể.</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 04</span><p>So sánh (qua tài liệu) <strong>Haar cascade</strong> với <strong>MTCNN/RetinaFace</strong> về: tốc độ, độ chính xác với mặt nghiêng/nhỏ, và điểm mốc.</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 05</span><p>Phân biệt <strong>phát hiện</strong> và <strong>nhận diện</strong> khuôn mặt. Cho một ví dụ ứng dụng chỉ cần phát hiện (không cần danh tính).</p></div>
+      <div class="task-card advanced"><span class="task-num">Suy ngẫm</span><p>Nêu một ứng dụng phát hiện khuôn mặt <strong>hỗ trợ</strong> quyền riêng tư và một ứng dụng <strong>đe doạ</strong> nó. Cần biện pháp gì để dùng có trách nhiệm?</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="quiz">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp ra · Trắc nghiệm tổng kết</span>
+    <h2 class="section-title">Kiểm tra lại toàn bài</h2>
+    <p class="section-lead">10 câu trắc nghiệm rải đều qua các Lớp 01–06 — bao gồm cả phần kỹ thuật lẫn phần đạo đức/trách nhiệm. Chọn một đáp án để xem giải thích.</p>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 1.</span>Phát hiện khuôn mặt (detection) khác nhận diện khuôn mặt (recognition) ở điểm nào?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Phát hiện chỉ hoạt động trên video; nhận diện chỉ hoạt động trên ảnh tĩnh.</button>
+        <button class="quiz-opt" data-key="B">B. Phát hiện tìm VỊ TRÍ khuôn mặt (ẩn danh); nhận diện xác định DANH TÍNH người đó.</button>
+        <button class="quiz-opt" data-key="C">C. Phát hiện cần học sâu; nhận diện dùng phương pháp cổ điển.</button>
+        <button class="quiz-opt" data-key="D">D. Hai khái niệm này thực chất là một, chỉ khác tên gọi.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Nhớ lại widget đầu bài và callout "Phân biệt quan trọng" ở mục 1.1.</p>
+      <p class="quiz-explain">Phát hiện (detection) chỉ trả lời "có khuôn mặt ở đâu" — hoàn toàn ẩn danh. Nhận diện (recognition) trả lời thêm "đây là ai" — cần so khớp với một cơ sở dữ liệu danh tính. Đây là hai bài toán với mức độ nhạy cảm quyền riêng tư rất khác nhau.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="D">
+      <p class="quiz-q"><span class="qnum">Câu 2.</span>Vì sao phát hiện khuôn mặt trong điều kiện thực tế khó hơn nhiều so với trong phòng thí nghiệm có kiểm soát?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Vì máy ảnh ngoài đời có độ phân giải thấp hơn.</button>
+        <button class="quiz-opt" data-key="B">B. Vì ngoài đời luôn có nhiều khuôn mặt hơn trong phòng thí nghiệm.</button>
+        <button class="quiz-opt" data-key="C">C. Vì phòng thí nghiệm không cho phép chụp ảnh khuôn mặt.</button>
+        <button class="quiz-opt" data-key="D">D. Vì các yếu tố biến đổi (tư thế, tỉ lệ, che khuất, ánh sáng, biểu cảm) thường xảy ra ĐỒNG THỜI, không phải riêng lẻ.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại Hình 2 ở mục 1.3.</p>
+      <p class="quiz-explain">Trong thực tế, một khuôn mặt hiếm khi chỉ biến đổi một yếu tố duy nhất — nó thường vừa nghiêng, vừa xa, vừa bị che, vừa thiếu sáng cùng lúc. Một bộ phát hiện tốt phải bền vững với tất cả các biến đổi đồng thời này, khó hơn nhiều so với xử lý từng yếu tố riêng lẻ trong điều kiện kiểm soát.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="C">
+      <p class="quiz-q"><span class="qnum">Câu 3.</span>Ảnh tích phân (integral image) giúp ích gì cho Viola–Jones?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Giúp tăng độ phân giải ảnh đầu vào.</button>
+        <button class="quiz-opt" data-key="B">B. Giúp tự động xoay ảnh về đúng chiều.</button>
+        <button class="quiz-opt" data-key="C">C. Giúp tính tổng độ sáng của bất kỳ vùng chữ nhật nào chỉ bằng 4 phép cộng, bất kể vùng đó lớn hay nhỏ.</button>
+        <button class="quiz-opt" data-key="D">D. Giúp nén ảnh để giảm dung lượng lưu trữ.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Nhớ lại widget ảnh tích phân ở mục 2.2.</p>
+      <p class="quiz-explain">Ảnh tích phân cho phép tính tổng độ sáng của bất kỳ vùng chữ nhật nào chỉ bằng đúng 4 phép cộng/trừ, bất kể vùng đó rộng hay hẹp — thay vì phải cộng từng pixel một. Đây là bí quyết giúp Viola–Jones quét được rất nhiều cửa sổ ứng viên mà vẫn nhanh.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="A">
+      <p class="quiz-q"><span class="qnum">Câu 4.</span>Vì sao cascade đặt các tầng phân loại đơn giản, rẻ tiền ở ĐẦU chuỗi?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Để loại nhanh đa số cửa sổ không phải khuôn mặt; chỉ cửa sổ khả nghi mới cần xử lý ở các tầng đắt tiền hơn sau đó.</button>
+        <button class="quiz-opt" data-key="B">B. Vì quy định kỹ thuật yêu cầu bắt buộc phải làm vậy.</button>
+        <button class="quiz-opt" data-key="C">C. Để tăng độ chính xác lên mức tối đa ngay từ đầu.</button>
+        <button class="quiz-opt" data-key="D">D. Vì tầng đơn giản luôn chính xác hơn tầng phức tạp.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Nhớ lại widget cascade stepper ở mục 2.3.</p>
+      <p class="quiz-explain">Phần lớn cửa sổ trong một bức ảnh không phải khuôn mặt. Đặt tầng rẻ, đơn giản ở đầu giúp loại nhanh đa số cửa sổ nền chỉ với vài phép tính rẻ; chỉ cửa sổ khả nghi mới cần đi tiếp qua các tầng phức tạp, tốn kém hơn — giúp chi phí tính toán trung bình trên toàn ảnh giảm mạnh.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="C">
+      <p class="quiz-q"><span class="qnum">Câu 5.</span>Vì sao Haar cascade dễ bỏ sót khuôn mặt bị xoay nghiêng nhiều?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Vì Haar cascade chỉ hoạt động trên ảnh màu, không hoạt động trên ảnh xám.</button>
+        <button class="quiz-opt" data-key="B">B. Vì Haar cascade cần internet để chạy.</button>
+        <button class="quiz-opt" data-key="C">C. Vì đặc trưng Haar-like được thiết kế cho tư thế chính diện, không xoay-bất-biến — khi xoay, vị trí tương đối các vùng chữ nhật không còn khớp mẫu đã huấn luyện.</button>
+        <button class="quiz-opt" data-key="D">D. Vì ảnh tích phân không tính được với ảnh bị xoay.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại Hình 6 và thí nghiệm thật ở mục 2.5.</p>
+      <p class="quiz-explain">Đặc trưng Haar-like so sánh các vùng chữ nhật cố định (ví dụ mắt–gò má) được thiết kế cho tư thế chính diện. Khi khuôn mặt xoay, vị trí tương đối của mắt/mũi/miệng trong khung hình thay đổi hoàn toàn, khiến các vùng chữ nhật cố định không còn khớp với mẫu đã huấn luyện — một giới hạn cố hữu của đặc trưng thủ công.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="A">
+      <p class="quiz-q"><span class="qnum">Câu 6.</span>MTCNN dùng cấu trúc ba mạng CNN nối tiếp (P-Net → R-Net → O-Net) theo chiến lược nào?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Thô đến tinh — mạng nhanh/rẻ lọc trước, mạng chậm/đắt chỉ xử lý số ít ứng viên còn lại.</button>
+        <button class="quiz-opt" data-key="B">B. Ba mạng chạy song song rồi lấy trung bình kết quả.</button>
+        <button class="quiz-opt" data-key="C">C. Ba mạng học ba lớp đối tượng khác nhau.</button>
+        <button class="quiz-opt" data-key="D">D. Ba mạng là ba phiên bản dự phòng khi mạng chính lỗi.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại Hình 7 ở mục 3.2.</p>
+      <p class="quiz-explain">P-Net (nhanh, rẻ) đề xuất rất nhiều vùng ứng viên thô; R-Net lọc bớt; O-Net (chậm, đắt nhất) chỉ cần xử lý số ít ứng viên còn lại để cho khung cuối + 5 điểm mốc. Đây cùng tinh thần cascade của Viola–Jones: lọc dần từ rẻ đến đắt.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="D">
+      <p class="quiz-q"><span class="qnum">Câu 7.</span>Vì sao bước "trích đặc trưng (embedding)" trở đi nhạy cảm về quyền riêng tư hơn hẳn bước "phát hiện"?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Vì embedding cần nhiều bộ nhớ hơn.</button>
+        <button class="quiz-opt" data-key="B">B. Vì embedding chạy chậm hơn phát hiện.</button>
+        <button class="quiz-opt" data-key="C">C. Vì embedding chỉ hoạt động với ảnh màu.</button>
+        <button class="quiz-opt" data-key="D">D. Vì embedding tạo ra vector có thể so khớp với cơ sở dữ liệu để xác định danh tính, trong khi phát hiện hoàn toàn ẩn danh.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại Hình 10 ở mục 4.2.</p>
+      <p class="quiz-explain">Embedding biến khuôn mặt thành một vector đại diện có thể dùng để so khớp với một cơ sở dữ liệu danh tính — từ đó biết được "đây là ai". Phát hiện chỉ trả lời "có mặt ở đâu", hoàn toàn ẩn danh, không tạo ra thông tin nào có thể xác định danh tính.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 8.</span>Mô hình A đạt AP cao trên WIDER FACE Easy; mô hình B đạt AP thấp hơn trên WIDER FACE Hard. Có thể kết luận A tốt hơn B không?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Có, vì AP của A cao hơn.</button>
+        <button class="quiz-opt" data-key="B">B. Không — phải so sánh AP của cả hai trên CÙNG một mức độ khó mới công bằng.</button>
+        <button class="quiz-opt" data-key="C">C. Có, vì Easy luôn là chuẩn đánh giá đúng nhất.</button>
+        <button class="quiz-opt" data-key="D">D. Không thể so sánh hai mô hình phát hiện mặt trong bất kỳ trường hợp nào.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại callout "Liên hệ Bài 5–6" ở Lớp 05.</p>
+      <p class="quiz-explain">Đây là so sánh khập khiễng vì Easy và Hard là hai mức độ khó rất khác nhau — Hard (mặt nhỏ, che khuất, đám đông) vốn khó hơn nhiều nên AP thường thấp hơn ngay cả với mô hình tốt. Phải so sánh trên cùng một mức độ khó mới công bằng.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="A">
+      <p class="quiz-q"><span class="qnum">Câu 9.</span>Vì sao "kiểm thử công bằng trên nhiều nhóm" (tông da, giới tính, độ tuổi) là bước quan trọng khi triển khai hệ thống nhận diện khuôn mặt?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Vì độ chính xác trung bình có thể che giấu sự chênh lệch đáng kể giữa các nhóm, gây rủi ro đối xử bất công cho nhóm bị ảnh hưởng.</button>
+        <button class="quiz-opt" data-key="B">B. Vì luật pháp mọi quốc gia đều quy định con số kiểm thử tối thiểu giống nhau.</button>
+        <button class="quiz-opt" data-key="C">C. Vì việc này giúp mô hình chạy nhanh hơn.</button>
+        <button class="quiz-opt" data-key="D">D. Vì đây chỉ là bước tuỳ chọn khi có thời gian rảnh.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại callout "Thiên lệch (bias)" ở Lớp 06.</p>
+      <p class="quiz-explain">Độ chính xác trung bình trên toàn bộ dữ liệu có thể che giấu sự chênh lệch đáng kể giữa các nhóm cụ thể. Trong các ứng dụng có hậu quả thực (xác thực danh tính, an ninh), sai sót lệch theo nhóm có thể gây đối xử bất công nghiêm trọng — kiểm thử công bằng là trách nhiệm nghề nghiệp, không phải tuỳ chọn.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="C">
+      <p class="quiz-q"><span class="qnum">Câu 10.</span>Một ứng dụng tự động làm mờ mặt người qua đường để bảo vệ riêng tư, và một hệ thống giám sát hàng loạt nhận diện danh tính không có sự đồng thuận — hai ứng dụng này có nên được nhìn nhận như nhau về mặt đạo đức không?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Có, vì cả hai đều dùng chung công nghệ phát hiện/nhận diện khuôn mặt.</button>
+        <button class="quiz-opt" data-key="B">B. Có, vì cả hai đều cần bị cấm hoàn toàn.</button>
+        <button class="quiz-opt" data-key="C">C. Không — mục đích sử dụng khác nhau căn bản: một BẢO VỆ quyền riêng tư (ẩn danh hoá), một XÂM PHẠM quyền riêng tư (giám sát không đồng thuận).</button>
+        <button class="quiz-opt" data-key="D">D. Không thể đánh giá vì công nghệ khuôn mặt luôn trung lập về đạo đức trong mọi trường hợp.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại callout "Phân biệt mục đích" ở Lớp 06.</p>
+      <p class="quiz-explain">Mục đích sử dụng là yếu tố quyết định về mặt đạo đức, không chỉ bản thân công nghệ. Làm mờ mặt để bảo vệ riêng tư là ứng dụng hợp lý, ẩn danh hoá dữ liệu. Giám sát hàng loạt không đồng thuận là xâm phạm quyền riêng tư. Cùng một công nghệ nền tảng nhưng mục đích và cách triển khai quyết định nó bảo vệ hay đe doạ quyền riêng tư.</p>
+    </div>
+  </div>
+</section>
+<section class="section" id="end">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Tổng kết</span>
+    <h2 class="section-title">Chính xác thôi chưa đủ — còn cần đúng đắn</h2>
+    <p>Bạn vừa tìm hiểu một ứng dụng tiêu biểu và phổ biến nhất của phát hiện đối tượng. <strong>Phát hiện khuôn mặt</strong> định vị mọi khuôn mặt trong ảnh — khác với <strong>nhận diện danh tính</strong>. Bạn đã nắm phương pháp cổ điển <strong>Viola–Jones</strong> (đặc trưng Haar-like + ảnh tích phân + cascade) và tự chạy thật bằng OpenCV, kể cả thấy rõ <strong>giới hạn</strong> của nó với mặt xoay/nhỏ; hiểu vì sao <strong>học sâu</strong> (MTCNN, RetinaFace) vượt trội; nắm <strong>quy trình phân tích khuôn mặt</strong> đầy đủ và biết phát hiện chỉ là bước đầu; biết <strong>đánh giá</strong> trên WIDER FACE; và quan trọng không kém — ý thức về <strong>sử dụng có trách nhiệm</strong>.</p>
+    <p>Phát hiện khuôn mặt minh hoạ cách những nguyên lý chung bạn đã học xuyên suốt series (phát hiện, đánh giá, học sâu, transfer learning) được vận dụng vào một bài toán cụ thể — có giá trị thực tiễn lớn nhưng cũng đòi hỏi cân nhắc đạo đức. Đây cũng là bước nền cho chặng tiếp theo: ở <strong>Bài 10 — Nhận diện khuôn mặt</strong>, bạn sẽ đi tiếp đúng quy trình đã vẽ ra ở Lớp 04 — từ khung mặt đã phát hiện, qua điểm mốc, căn chỉnh, tới trích đặc trưng (embedding) và xác định danh tính. Hãy làm các bài tập — đặc biệt là bài suy ngẫm về trách nhiệm — vì một kỹ sư thị giác máy tính giỏi không chỉ xây được hệ thống chính xác, mà còn xây nó một cách <strong>đúng đắn</strong>.</p>
+  </div>
+</section>
+
+<div class="footer">
+  <div class="wrap">
+    Học sâu cho Thị giác Máy tính — Bài giảng Tutorial 9 · Phát hiện Khuôn mặt
+  </div>
+</div>
+
+</main>
+</div>
+<script>
+/* ---------- Reveal / Hint toggles ---------- */
+function toggleReveal(btn){
+  const box = btn.nextElementSibling;
+  box.classList.toggle('show');
+  btn.textContent = box.classList.contains('show') ? 'Ẩn đáp án' : 'Hiện đáp án';
+}
+function toggleHint(btn){
+  const hint = btn.closest('.quiz-item').querySelector('.quiz-hint');
+  hint.classList.toggle('show');
+  btn.textContent = hint.classList.contains('show') ? 'Ẩn gợi ý' : 'Gợi ý';
+}
+
+/* ---------- Quiz logic (giữ nguyên cho mọi bài) ---------- */
+document.querySelectorAll('.quiz-item').forEach(item=>{
+  const answer = item.dataset.answer;
+  const opts = item.querySelectorAll('.quiz-opt');
+  const explain = item.querySelector('.quiz-explain');
+  opts.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(item.classList.contains('answered')) return;
+      item.classList.add('answered');
+      opts.forEach(o=>o.disabled=true);
+      if(opt.dataset.key === answer){
+        opt.classList.add('correct');
+      } else {
+        opt.classList.add('incorrect');
+        const correctBtn = item.querySelector('.quiz-opt[data-key="'+answer+'"]');
+        if(correctBtn) correctBtn.classList.add('correct');
+      }
+      if(explain) explain.classList.add('show');
+    });
+  });
+});
+
+/* ---------- Rail scrollspy (giữ nguyên cho mọi bài) ---------- */
+(function railScrollSpy(){
+  const map={};
+  document.querySelectorAll('.rail-item').forEach(item=>{
+    const a=item.querySelector('a');
+    if(a){ map[a.getAttribute('href').slice(1)] = item; }
+  });
+  const targets=Object.keys(map).map(id=>document.getElementById(id)).filter(Boolean);
+  const observer=new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        Object.values(map).forEach(it=>it.classList.remove('active'));
+        const item=map[entry.target.id];
+        if(item) item.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-35% 0px -55% 0px', threshold:0});
+  targets.forEach(t=>observer.observe(t));
+})();
+
+/* ---------- Syntax highlighting (giữ nguyên cho mọi bài) ---------- */
+if(window.hljs){ hljs.highlightAll(); }
+
+/* ---------- BÊN DƯỚI: JS riêng cho widget của bài này ---------- */
+
+/* ---------- Widget 1 (hero): Phat hien vs Nhan dien ---------- */
+(function(){
+  const btnDetect = document.getElementById('drBtnDetect');
+  if(!btnDetect) return;
+  const btnRecognize = document.getElementById('drBtnRecognize');
+  const boxLabel = document.getElementById('drBoxLabel');
+  const idTag = document.getElementById('drIdTag');
+  const desc = document.getElementById('drDesc');
+  const examplesEl = document.getElementById('drExamples');
+
+  const MODES = {
+    detect: {
+      label: 'khuôn mặt (ẩn danh)',
+      showId: false,
+      desc: 'Phát hiện: chỉ trả lời "có khuôn mặt ở đâu" — hoàn toàn ẩn danh, không biết và không cần biết đó là ai.',
+      examples: [
+        'Đếm số người ẩn danh đi qua một cửa hàng',
+        'Tự động làm mờ mặt người qua đường trong video',
+        'Lấy nét máy ảnh vào khuôn mặt khi chụp'
+      ]
+    },
+    recognize: {
+      label: 'khuôn mặt (đã nhận diện)',
+      showId: true,
+      desc: 'Nhận diện: trả lời thêm "đây LÀ AI" — so khớp với một cơ sở dữ liệu danh tính đã biết. Mức độ nhạy cảm quyền riêng tư cao hơn hẳn.',
+      examples: [
+        'Mở khoá điện thoại bằng khuôn mặt',
+        'Tự động gắn thẻ tên trong ảnh',
+        'Tìm kiếm một người cụ thể trong hệ thống camera'
+      ]
+    }
+  };
+
+  function setMode(mode){
+    const cfg = MODES[mode];
+    boxLabel.textContent = cfg.label;
+    idTag.style.display = cfg.showId ? '' : 'none';
+    desc.textContent = cfg.desc;
+    examplesEl.innerHTML = cfg.examples.map(e=>'<div class="dr-example">'+e+'</div>').join('');
+    btnDetect.className = (mode==='detect') ? 'btn' : 'btn btn-ghost';
+    btnRecognize.className = (mode==='recognize') ? 'btn' : 'btn btn-ghost';
+  }
+
+  btnDetect.addEventListener('click', ()=> setMode('detect'));
+  btnRecognize.addEventListener('click', ()=> setMode('recognize'));
+  setMode('detect');
+})();
+
+/* ---------- Widget 2 (L2): Anh tich phan mini ---------- */
+(function(){
+  const container = document.getElementById('integralCells');
+  if(!container) return;
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const CELL = 45;
+  const raw = [
+    [2,3,1,4,2,3],
+    [1,5,2,3,4,1],
+    [3,2,6,1,2,4],
+    [2,4,3,5,1,2],
+    [1,3,2,4,3,5],
+    [4,2,1,3,2,6]
+  ];
+  const ROWS = 6, COLS = 6;
+
+  const ii = [];
+  for(let r=0; r<ROWS; r++){
+    ii.push([]);
+    for(let c=0; c<COLS; c++){
+      let v = raw[r][c];
+      if(r>0) v += ii[r-1][c];
+      if(c>0) v += ii[r][c-1];
+      if(r>0 && c>0) v -= ii[r-1][c-1];
+      ii[r].push(v);
+    }
+  }
+  function IIat(r,c){
+    if(r<0 || c<0) return 0;
+    return ii[r][c];
+  }
+
+  const cellEls = [];
+  for(let r=0; r<ROWS; r++){
+    for(let c=0; c<COLS; c++){
+      const rect = document.createElementNS(svgNS,'rect');
+      rect.setAttribute('class','integral-cell');
+      rect.setAttribute('x', c*CELL);
+      rect.setAttribute('y', r*CELL);
+      rect.setAttribute('width', CELL);
+      rect.setAttribute('height', CELL);
+      rect.dataset.row = r; rect.dataset.col = c;
+      rect.addEventListener('click', ()=> onCellClick(r,c));
+      container.appendChild(rect);
+
+      const text = document.createElementNS(svgNS,'text');
+      text.setAttribute('class','integral-value');
+      text.setAttribute('x', c*CELL + CELL/2);
+      text.setAttribute('y', r*CELL + CELL/2 + 5);
+      text.setAttribute('text-anchor','middle');
+      text.textContent = raw[r][c];
+      container.appendChild(text);
+
+      cellEls.push(rect);
+    }
+  }
+
+  let corners = [];
+  const readout = document.getElementById('integralReadout');
+
+  function clearHighlight(){
+    cellEls.forEach(el=> el.classList.remove('corner','in-rect'));
+  }
+
+  function onCellClick(r, c){
+    if(corners.length === 0 || corners.length === 2){
+      corners = [[r,c]];
+      clearHighlight();
+      const el = cellEls.find(e=> +e.dataset.row===r && +e.dataset.col===c);
+      if(el) el.classList.add('corner');
+      readout.innerHTML = 'Đã chọn góc thứ nhất: hàng '+(r+1)+', cột '+(c+1)+'. Bấm ô thứ hai để chọn góc đối diện.';
+      return;
+    }
+    corners.push([r,c]);
+    const r0 = corners[0][0], c0 = corners[0][1];
+    const r1 = corners[1][0], c1 = corners[1][1];
+    const rTop = Math.min(r0,r1), rBot = Math.max(r0,r1);
+    const cLeft = Math.min(c0,c1), cRight = Math.max(c0,c1);
+
+    clearHighlight();
+    cellEls.forEach(el=>{
+      const er = +el.dataset.row, ec = +el.dataset.col;
+      if(er>=rTop && er<=rBot && ec>=cLeft && ec<=cRight){
+        el.classList.add('in-rect');
+      }
+    });
+
+    const D = IIat(rBot, cRight);
+    const A = IIat(rTop-1, cRight);
+    const B = IIat(rBot, cLeft-1);
+    const C = IIat(rTop-1, cLeft-1);
+    const result = D - A - B + C;
+
+    let directSum = 0;
+    for(let rr=rTop; rr<=rBot; rr++){
+      for(let cc=cLeft; cc<=cRight; cc++){
+        directSum += raw[rr][cc];
+      }
+    }
+    const nCells = (rBot-rTop+1)*(cRight-cLeft+1);
+
+    readout.innerHTML =
+      'Vùng đã chọn: hàng '+(rTop+1)+'–'+(rBot+1)+', cột '+(cLeft+1)+'–'+(cRight+1)+' ('+nCells+' ô).' +
+      '<span class="ir-formula">S = II[r2,c2] − II[r1−1,c2] − II[r2,c1−1] + II[r1−1,c1−1]</span>' +
+      '<span class="ir-formula">S = '+D+' − '+A+' − '+B+' + '+C+' = <b>'+result+'</b></span>' +
+      '<span class="ir-formula">Kiểm tra cộng trực tiếp '+nCells+' ô: '+directSum+' '+(directSum===result ? '✓ khớp nhau' : '')+'</span>';
+  }
+})();
+
+/* ---------- Widget 3 (L2): Cascade stepper ---------- */
+(function(){
+  const nextBtn = document.getElementById('cascadeNextBtn');
+  if(!nextBtn) return;
+  const resetBtn = document.getElementById('cascadeResetBtn');
+  const stageNumEl = document.getElementById('cascadeStageNum');
+  const remainEl = document.getElementById('cascadeRemainCount');
+
+  const STAGES = [
+    {label:'1 (~2 đặc trưng)', eliminate:[0,3,5,8,11]},
+    {label:'2 (~10 đặc trưng)', eliminate:[1,4,10]},
+    {label:'3 (hàng trăm đặc trưng)', eliminate:[7]}
+  ];
+
+  let stage = 0;
+  let remaining = 12;
+
+  function windowEl(i){ return document.getElementById('cwin'+i); }
+
+  function applyStage(){
+    if(stage >= STAGES.length) return;
+    const s = STAGES[stage];
+    s.eliminate.forEach(i=>{
+      const el = windowEl(i);
+      if(el) el.classList.add('rejected');
+    });
+    remaining -= s.eliminate.length;
+    stage++;
+    stageNumEl.textContent = 'Tầng ' + s.label;
+    remainEl.textContent = remaining;
+    if(stage >= STAGES.length){ nextBtn.disabled = true; }
+  }
+
+  function reset(){
+    for(let i=0; i<12; i++){
+      const el = windowEl(i);
+      if(el) el.classList.remove('rejected');
+    }
+    stage = 0;
+    remaining = 12;
+    stageNumEl.textContent = '0 (ảnh gốc)';
+    remainEl.textContent = 12;
+    nextBtn.disabled = false;
+  }
+
+  nextBtn.addEventListener('click', applyStage);
+  resetBtn.addEventListener('click', reset);
+})();
+</script>
+</body>
+</html>

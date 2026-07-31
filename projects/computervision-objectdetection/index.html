@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phát hiện Đối tượng — Thị giác Máy tính</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<style>
+:root{
+  --paper:#f3f6f4;
+  --paper-deep:#eaefec;
+  --ink:#132036;
+  --ink-soft:#42506a;
+  --ink-faint:#7c8aa0;
+  --line:#d9e0da;
+  --forward:#0f8b8d;
+  --forward-soft:#e1f3f2;
+  --forward-ink:#0a5f60;
+  --backward:#d1495b;
+  --backward-soft:#fbe7ea;
+  --backward-ink:#9c2f3d;
+  --signal:#e8940f;
+  --signal-soft:#fdf0da;
+  --signal-ink:#a86608;
+  --panel:#ffffff;
+  --code-bg:#101c2c;
+  --code-text:#d7e2ee;
+  --radius:14px;
+  --serif-display:'Be Vietnam Pro', sans-serif;
+  --sans-body:'Inter', sans-serif;
+  --mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--paper); color:var(--ink-soft); font-family:var(--sans-body);
+  font-size:16px; line-height:1.7;
+  background-image:
+    linear-gradient(var(--paper) 0%, var(--paper) 100%),
+    repeating-linear-gradient(0deg, rgba(19,32,54,0.025) 0px, rgba(19,32,54,0.025) 1px, transparent 1px, transparent 28px),
+    repeating-linear-gradient(90deg, rgba(19,32,54,0.025) 0px, rgba(19,32,54,0.025) 1px, transparent 1px, transparent 28px);
+}
+h1,h2,h3,h4{font-family:var(--serif-display); color:var(--ink); margin:0 0 .5em 0; letter-spacing:-0.01em;}
+p{margin:0 0 1em 0;}
+a{color:var(--forward-ink);}
+strong{color:var(--ink);}
+code{font-family:var(--mono);}
+.layout{display:grid; grid-template-columns:272px minmax(0,1fr); max-width:1280px; margin:0 auto;}
+.rail{position:sticky; top:0; align-self:start; height:100vh; padding:32px 18px 32px 28px; border-right:1px solid var(--line); overflow-y:auto;}
+.rail-brand{font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--forward-ink); margin-bottom:22px; display:block;}
+.rail-list{list-style:none; margin:0; padding:0 0 0 18px; position:relative; border-left:2px solid var(--line);}
+.rail-item{position:relative; margin:0 0 4px 0;}
+.rail-item::before{content:''; position:absolute; left:-24px; top:13px; width:8px;height:8px; border-radius:50%; background:var(--paper); border:2px solid var(--ink-faint); transition:.2s;}
+.rail-item.active::before{background:var(--forward); border-color:var(--forward); box-shadow:0 0 0 4px var(--forward-soft);}
+.rail-link{display:block; padding:9px 10px; font-size:13.5px; color:var(--ink-soft); text-decoration:none; border-radius:8px; font-weight:500;}
+.rail-link .rail-num{font-family:var(--mono); color:var(--ink-faint); font-size:11px; display:block;}
+.rail-item.active .rail-link{color:var(--forward-ink); background:var(--forward-soft); font-weight:600;}
+.rail-item.active .rail-link .rail-num{color:var(--forward-ink);}
+.content{padding:0 0 40px 0; min-width:0;}
+.wrap{max-width:760px; margin:0 auto; padding:0 40px;}
+.hero{padding:70px 0 20px 0;}
+.hero-eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--forward-ink); background:var(--forward-soft); display:inline-block; padding:5px 12px; border-radius:20px; margin-bottom:20px;}
+.hero-title{font-size:clamp(34px,5vw,54px); font-weight:800; line-height:1.06;}
+.hero-title em{font-style:normal; color:var(--forward); position:relative;}
+.hero-sub{font-size:19px; color:var(--ink-soft); font-weight:500; max-width:600px; margin-bottom:26px;}
+.hero-lede{font-size:16px; max-width:640px;}
+.section{padding:64px 0; border-top:1px solid var(--line);}
+.section-eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:10px; display:flex; align-items:center; gap:10px;}
+.section-eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--forward);}
+.section-title{font-size:30px; margin-bottom:14px;}
+.section-lead{font-size:16.5px; color:var(--ink-soft); max-width:640px;}
+.subsection{margin-top:38px;}
+.subsection h3{font-size:21px; margin-bottom:10px;}
+.subsection h3 .tag{font-family:var(--mono); font-size:12px; color:var(--forward-ink); background:var(--forward-soft); padding:2px 8px; border-radius:6px; margin-right:8px; vertical-align:middle;}
+ul.plain, ol.plain{padding-left:22px; margin:0 0 1em 0;}
+ul.plain li, ol.plain li{margin-bottom:8px;}
+.callout{border-radius:var(--radius); padding:18px 20px; margin:22px 0; border:1px solid var(--line); background:var(--panel); font-size:15px;}
+.callout-head{font-weight:700; color:var(--ink); display:block; margin-bottom:6px; font-size:14px; text-transform:uppercase; letter-spacing:.04em;}
+.callout-note{border-left:4px solid var(--signal); background:var(--signal-soft);}
+.callout-note .callout-head{color:var(--signal-ink);}
+.callout-warn{border-left:4px solid var(--backward); background:var(--backward-soft);}
+.callout-warn .callout-head{color:var(--backward-ink);}
+.callout-result{border-left:4px solid var(--forward); background:var(--forward-soft);}
+.callout-result .callout-head{color:var(--forward-ink);}
+.figure{margin:26px 0; border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:24px;}
+.figure-caption{font-size:13.5px; color:var(--ink-faint); margin-top:14px; padding-top:12px; border-top:1px dashed var(--line);}
+.figure-caption b{color:var(--ink-soft);}
+.check{margin:26px 0; border-radius:var(--radius); border:1.5px dashed var(--forward); background:#fff; padding:18px 20px;}
+.check-tag{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#fff; background:var(--forward); padding:3px 9px; border-radius:6px; margin-right:8px;}
+.check-q{font-weight:600; color:var(--ink); font-size:15.5px;}
+.reveal-btn{margin-top:12px; border:1px solid var(--forward); color:var(--forward-ink); background:var(--forward-soft); font-family:var(--sans-body); font-weight:600; font-size:13.5px; padding:8px 16px; border-radius:8px; cursor:pointer; transition:.15s;}
+.reveal-btn:hover{background:var(--forward); color:#fff;}
+.reveal-content{display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); font-size:15px;}
+.reveal-content.show{display:block;}
+.code-window{margin:22px 0; border-radius:var(--radius); overflow:hidden; background:var(--code-bg); box-shadow:0 8px 24px -12px rgba(16,28,44,.5);}
+.code-titlebar{display:flex; align-items:center; gap:8px; padding:11px 16px; background:#0a1522; border-bottom:1px solid rgba(255,255,255,.06);}
+.code-dot{width:10px;height:10px;border-radius:50%;}
+.code-dot:nth-child(1){background:#e8594f;}
+.code-dot:nth-child(2){background:#e8b13f;}
+.code-dot:nth-child(3){background:#3fb556;}
+.code-filename{font-family:var(--mono); font-size:12.5px; color:#8fa2bd; margin-left:8px;}
+.code-window pre{margin:0 !important; padding:18px 20px !important; background:var(--code-bg) !important; font-size:13.3px !important; line-height:1.65 !important; overflow-x:auto;}
+.code-window code.hljs{background:var(--code-bg) !important;}
+.ref-table{width:100%; border-collapse:collapse; margin:20px 0; font-size:14.5px;}
+.ref-table th{text-align:left; font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); padding:10px 12px; border-bottom:2px solid var(--ink);}
+.ref-table td{padding:11px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+.ref-table code{background:var(--forward-soft); color:var(--forward-ink); padding:2px 6px; border-radius:5px; font-size:13px;}
+.footer{padding:50px 0 70px 0; border-top:1px solid var(--line); font-size:13.5px; color:var(--ink-faint);}
+.widget{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:26px; margin:26px 0;}
+.widget-label{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--forward-ink); margin-bottom:16px; display:block;}
+.btn{font-family:var(--sans-body); font-weight:600; font-size:13.5px; border-radius:8px; padding:9px 16px; border:1px solid var(--ink); background:var(--ink); color:#fff; cursor:pointer; transition:.15s;}
+.btn:hover{opacity:.85;}
+.btn:disabled{opacity:.35; cursor:not-allowed;}
+.btn-ghost{background:#fff; color:var(--ink); border:1px solid var(--line);}
+.btn-ghost:hover{border-color:var(--ink); opacity:1;}
+.btn-forward{background:var(--forward); border-color:var(--forward);}
+.btn-row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:16px;}
+.chart-row{display:flex; gap:24px; flex-wrap:wrap;}
+.chart-col{flex:1 1 260px;}
+.chart-title{font-size:13.5px; font-weight:700; margin-bottom:8px; color:var(--ink);}
+.chart-legend{display:flex; gap:16px; margin-top:8px; font-size:12.5px; color:var(--ink-soft);}
+.chart-legend span{display:inline-flex; align-items:center; gap:6px;}
+.legend-dot{width:10px; height:10px; border-radius:2px; display:inline-block;}
+.aug-grid{display:flex; gap:16px; flex-wrap:wrap;}
+.aug-item{display:flex; flex-direction:column; align-items:center; gap:8px;}
+.aug-box{width:72px; height:72px; border-radius:10px; background:#eef2f0; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:32px;}
+.aug-label{font-size:11.5px; color:var(--ink-faint); text-align:center; max-width:80px;}
+.tip-list{list-style:none; padding:0; margin:20px 0;}
+.tip-list li{display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); font-size:15px;}
+.tip-list li:last-child{border-bottom:none;}
+.tip-check{flex:0 0 auto; width:22px; height:22px; border-radius:50%; background:var(--forward-soft); color:var(--forward-ink); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;}
+.task-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:14px; margin:22px 0;}
+.task-card{border:1px solid var(--line); border-radius:12px; padding:16px; background:var(--panel);}
+.task-num{font-family:var(--mono); font-size:11px; color:var(--forward-ink); font-weight:700;}
+.task-card p{margin:8px 0 0 0; font-size:14.5px;}
+.task-card.advanced{border-color:var(--signal); background:var(--signal-soft);}
+.quiz-item{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:20px 22px; margin:18px 0;}
+.quiz-q{font-weight:700; color:var(--ink); font-size:15.5px; margin-bottom:14px;}
+.quiz-q .qnum{font-family:var(--mono); color:var(--forward-ink); margin-right:8px;}
+.quiz-options{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.quiz-opt{text-align:left; font-family:var(--sans-body); font-size:14px; padding:11px 14px; border-radius:9px; border:1px solid var(--line); background:#fff; cursor:pointer; color:var(--ink-soft); transition:.12s;}
+.quiz-opt:hover:not(:disabled){border-color:var(--forward); background:var(--forward-soft);}
+.quiz-opt:disabled{cursor:default;}
+.quiz-opt.correct{background:var(--forward-soft); border-color:var(--forward); color:var(--forward-ink); font-weight:700;}
+.quiz-opt.incorrect{background:var(--backward-soft); border-color:var(--backward); color:var(--backward-ink); font-weight:700;}
+.quiz-foot{display:flex; align-items:center; gap:12px; margin-top:14px; flex-wrap:wrap;}
+.hint-btn{font-family:var(--mono); font-size:12px; color:var(--signal-ink); background:var(--signal-soft); border:1px solid var(--signal); padding:6px 12px; border-radius:7px; cursor:pointer; font-weight:600;}
+.quiz-hint{display:none; font-size:13.5px; color:var(--signal-ink); background:var(--signal-soft); padding:10px 12px; border-radius:8px; width:100%; margin-top:10px;}
+.quiz-hint.show{display:block;}
+.quiz-explain{display:none; font-size:14px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); color:var(--ink-soft);}
+.quiz-explain.show{display:block;}
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr;}
+  .rail{position:sticky; height:auto; top:0; padding:12px 16px; border-right:none; border-bottom:1px solid var(--line); background:var(--paper); z-index:50; display:flex; align-items:center;}
+  .rail-brand{display:none;}
+  .rail-list{display:flex; gap:4px; overflow-x:auto; border-left:none; padding-left:0; -ms-overflow-style:none; scrollbar-width:none;}
+  .rail-list::-webkit-scrollbar{display:none;}
+  .rail-item{flex:0 0 auto; margin:0;}
+  .rail-item::before{display:none;}
+  .rail-link{white-space:nowrap; padding:8px 12px; font-size:12.5px;}
+  .rail-link .rail-num{display:none;}
+  .wrap{padding:0 20px;}
+}
+@media (max-width:640px){
+  .quiz-options{grid-template-columns:1fr;}
+}
+
+/* ============ EXTRA WIDGETS (Bài 6) ============ */
+
+/* --- NMS demo (hero, widget "chu ky") --- */
+.nms-demo svg{background:var(--paper-deep); border-radius:10px; display:block; width:100%;}
+.nms-box rect{fill:rgba(19,32,54,0.03); stroke:var(--ink-faint); stroke-width:2; transition:.4s ease;}
+.nms-box text{font-family:var(--mono); font-size:12px; font-weight:700; fill:var(--ink-soft); transition:.4s ease;}
+.nms-box.kept rect{fill:rgba(15,139,141,0.14); stroke:var(--forward); stroke-width:3.5;}
+.nms-box.kept text{fill:var(--forward-ink);}
+.nms-box.dropped rect{fill:none; stroke:var(--backward); stroke-dasharray:5 4; opacity:.4;}
+.nms-box.dropped text{fill:var(--backward-ink); opacity:.55; text-decoration:line-through;}
+.nms-controls{margin-top:16px;}
+.nms-controls label{font-family:var(--mono); font-size:12.5px; color:var(--ink-soft); display:flex; justify-content:space-between; margin-bottom:6px;}
+.nms-controls input[type=range]{width:100%; accent-color:var(--forward);}
+.nms-readout{display:flex; gap:22px; margin-top:16px; flex-wrap:wrap;}
+.nms-stat{font-size:13.5px; color:var(--ink-soft);}
+.nms-stat strong{font-family:var(--mono); color:var(--ink); font-size:17px;}
+.nms-log{margin-top:14px; font-size:12.8px; color:var(--ink-soft); display:flex; flex-direction:column; gap:5px; max-height:190px; overflow-y:auto; background:var(--paper-deep); border-radius:8px; padding:12px 14px;}
+.nms-log .log-keep{color:var(--forward-ink); font-weight:600;}
+.nms-log .log-drop{color:var(--backward-ink);}
+.nms-log .log-empty{color:var(--ink-faint); font-style:italic;}
+
+/* --- Anchor box visualizer --- */
+.anchor-demo svg{background:var(--paper-deep); border-radius:10px; display:block; margin:0 auto;}
+.anchor-cell{fill:transparent; stroke:rgba(19,32,54,.08); stroke-width:1; cursor:pointer; transition:.15s;}
+.anchor-cell:hover{fill:rgba(15,139,141,.12);}
+.anchor-pos-label{margin-top:12px; font-family:var(--mono); font-size:12.5px; color:var(--ink-faint); text-align:center;}
+
+/* --- Sliding window cost counter --- */
+.sw-controls{display:flex; flex-direction:column; gap:16px; margin-top:6px;}
+.sw-row label{display:flex; justify-content:space-between; font-family:var(--mono); font-size:12.5px; color:var(--ink-soft); margin-bottom:6px;}
+.sw-row input[type=range]{width:100%; accent-color:var(--backward);}
+.sw-total{margin-top:18px; text-align:center; padding:20px; border-radius:var(--radius); background:var(--backward-soft); border:1px solid var(--backward);}
+.sw-total .sw-num{font-family:var(--mono); font-size:36px; font-weight:700; color:var(--backward-ink); display:block; line-height:1.2;}
+.sw-total .sw-caption{font-size:13px; color:var(--backward-ink); margin-top:6px;}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="rail">
+  <span class="rail-brand">Thị giác máy tính · Bài giảng 6</span>
+  <ul class="rail-list" id="railList">
+    <li class="rail-item"><a class="rail-link" href="#top"><span class="rail-num">Mở đầu</span>Nhập môn</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l1"><span class="rail-num">Lớp 01</span>Bài toán phát hiện</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l2"><span class="rail-num">Lớp 02</span>Trước học sâu</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l3"><span class="rail-num">Lớp 03</span>Khối xây dựng</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l4"><span class="rail-num">Lớp 04</span>Hai trường phái</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l5"><span class="rail-num">Lớp 05</span>Đánh giá detector</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l6"><span class="rail-num">Lớp 06</span>Tổng quan &amp; khi nào dùng</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l7"><span class="rail-num">Bài tập</span>Thực hành</a></li>
+    <li class="rail-item"><a class="rail-link" href="#quiz"><span class="rail-num">Lớp ra</span>Trắc nghiệm tổng kết</a></li>
+  </ul>
+</nav>
+<main class="content">
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <span class="hero-eyebrow">Bài giảng Tutorial · Phần 6 · Tiếp nối Bài 5</span>
+    <h1 class="hero-title">Phát hiện<br><em>Đối tượng</em></h1>
+    <p class="hero-sub">Không chỉ "ảnh này là gì" — mà "có bao nhiêu vật thể, chúng là gì, và nằm chính xác ở đâu".</p>
+    <p class="hero-lede">Ba bài trước, bạn đã dựng CNN (Bài 3), huấn luyện một bộ phân loại CIFAR-10 chuyên sâu (Bài 4), rồi học tư duy chọn bài toán và thang đo — trong đó <strong>IoU</strong> và <strong>mAP</strong> đã xuất hiện lần đầu (Bài 5). <strong>Phát hiện đối tượng</strong> là nơi những khái niệm ấy phát huy trọn vẹn: thay vì một nhãn cho cả bức ảnh, mô hình phải trả lời đồng thời <em>có những vật thể nào</em> và <em>chúng nằm ở đâu</em> — bài toán đứng sau xe tự lái, camera giám sát, kiểm tra sản phẩm hay ảnh y tế. Bài này đi từ các phương pháp cổ điển (cửa sổ trượt, Viola–Jones — bạn sẽ tự chạy thật bằng OpenCV) đến những khối xây dựng của mọi detector hiện đại: <strong>anchor box</strong>, <strong>Non-Maximum Suppression</strong> (chạy thật ngay dưới đây), và cấu trúc <strong>backbone–neck–head</strong>. Bài 7 sẽ mổ xẻ YOLO — họ một giai đoạn phổ biến nhất — nên các khái niệm ở đây cần nắm thật chắc trước khi đi tiếp.</p>
+
+    <div class="widget nms-demo">
+      <span class="widget-label">Thử ngay · Chạy Non-Max Suppression thật trên 8 khung chồng lấn</span>
+      <svg id="nmsSvg" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg">
+        <text x="145" y="286" text-anchor="middle" fill="#9aa6b8" font-family="JetBrains Mono" font-size="11">Vật thể A</text>
+        <text x="480" y="286" text-anchor="middle" fill="#9aa6b8" font-family="JetBrains Mono" font-size="11">Vật thể B</text>
+
+        <g class="nms-box" id="nmsBox0" data-id="0">
+          <rect x="50" y="70" width="180" height="160" rx="6"></rect>
+          <text x="58" y="90">0.95</text>
+        </g>
+        <g class="nms-box" id="nmsBox1" data-id="1">
+          <rect x="65" y="85" width="180" height="160" rx="6"></rect>
+          <text x="73" y="105">0.81</text>
+        </g>
+        <g class="nms-box" id="nmsBox2" data-id="2">
+          <rect x="40" y="60" width="175" height="155" rx="6"></rect>
+          <text x="48" y="80">0.74</text>
+        </g>
+        <g class="nms-box" id="nmsBox3" data-id="3">
+          <rect x="75" y="95" width="175" height="155" rx="6"></rect>
+          <text x="83" y="115">0.62</text>
+        </g>
+
+        <g class="nms-box" id="nmsBox4" data-id="4">
+          <rect x="400" y="60" width="160" height="190" rx="6"></rect>
+          <text x="408" y="80">0.93</text>
+        </g>
+        <g class="nms-box" id="nmsBox5" data-id="5">
+          <rect x="415" y="75" width="160" height="185" rx="6"></rect>
+          <text x="423" y="95">0.86</text>
+        </g>
+        <g class="nms-box" id="nmsBox6" data-id="6">
+          <rect x="385" y="50" width="160" height="185" rx="6"></rect>
+          <text x="393" y="70">0.70</text>
+        </g>
+        <g class="nms-box" id="nmsBox7" data-id="7">
+          <rect x="420" y="80" width="160" height="185" rx="6"></rect>
+          <text x="428" y="100">0.58</text>
+        </g>
+      </svg>
+
+      <div class="nms-controls">
+        <label>Ngưỡng IoU cho NMS <span id="nmsThreshVal">0.50</span></label>
+        <input type="range" id="nmsThresh" min="0.10" max="0.90" step="0.05" value="0.50">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-forward" id="nmsRunBtn">Chạy NMS</button>
+        <button class="btn btn-ghost" id="nmsResetBtn">Đặt lại</button>
+      </div>
+      <div class="nms-readout">
+        <span class="nms-stat">Trước NMS: <strong>8</strong> khung</span>
+        <span class="nms-stat">Sau NMS: <strong id="nmsKeptCount">—</strong> khung</span>
+      </div>
+      <div class="nms-log" id="nmsLog"><span class="log-empty">Bấm "Chạy NMS" để xem thuật toán chọn khung nào, loại khung nào — và vì sao.</span></div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l1">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 01 · Bài toán</span>
+    <h2 class="section-title">Bài toán phát hiện đối tượng</h2>
+    <p class="section-lead">Trước khi đi vào phương pháp cụ thể, ta cần hiểu chính xác bài toán đang giải quyết là gì — và vì sao nó khó hơn hẳn bài toán phân loại đã quen thuộc từ Bài 3–4.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">1.1</span>Phát hiện khác phân loại như thế nào?</h3>
+      <p><strong>Phân loại</strong> (Bài 3–4) trả lời câu hỏi <em>ảnh này là gì</em> — một nhãn cho cả ảnh. <strong>Phát hiện đối tượng</strong> trả lời câu hỏi khó hơn: <em>có những vật thể nào và chúng nằm ở đâu</em>. Tức là <strong>định vị (localization)</strong> cộng với <strong>phân loại</strong> cho <strong>nhiều vật thể</strong> cùng lúc. Đầu ra là một <strong>danh sách</strong> các phát hiện, mỗi phát hiện gồm: <strong>khung bao (bounding box)</strong>, <strong>lớp</strong>, và <strong>độ tin cậy (confidence)</strong>.</p>
+
+      <div class="figure">
+        <div class="chart-row">
+          <div class="chart-col">
+            <div class="chart-title">Phân loại — 1 nhãn cho cả ảnh</div>
+            <svg viewBox="0 0 200 170" style="width:100%;display:block;">
+              <rect x="10" y="30" width="180" height="120" rx="8" fill="#eef2f0" stroke="#d9e0da"></rect>
+              <circle cx="70" cy="100" r="26" fill="#0f8b8d" fill-opacity="0.35"></circle>
+              <rect x="112" y="78" width="52" height="58" rx="6" fill="#d1495b" fill-opacity="0.3"></rect>
+              <rect x="52" y="10" width="96" height="24" rx="12" fill="#132036"></rect>
+              <text x="100" y="26" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="10.5" font-weight="700">Nhãn: "Có xe"</text>
+            </svg>
+          </div>
+          <div class="chart-col">
+            <div class="chart-title">Phát hiện — danh sách khung + lớp + độ tin cậy</div>
+            <svg viewBox="0 0 200 170" style="width:100%;display:block;">
+              <rect x="10" y="12" width="180" height="148" rx="8" fill="#eef2f0" stroke="#d9e0da"></rect>
+              <circle cx="70" cy="102" r="26" fill="#0f8b8d" fill-opacity="0.35"></circle>
+              <rect x="112" y="80" width="52" height="58" rx="6" fill="#d1495b" fill-opacity="0.3"></rect>
+              <rect x="43" y="75" width="54" height="54" rx="4" fill="none" stroke="#0f8b8d" stroke-width="2.2"></rect>
+              <text x="45" y="70" fill="#0a5f60" font-family="JetBrains Mono" font-size="9.5">Xe 0.94</text>
+              <rect x="109" y="77" width="58" height="63" rx="4" fill="none" stroke="#d1495b" stroke-width="2.2"></rect>
+              <text x="111" y="72" fill="#9c2f3d" font-family="JetBrains Mono" font-size="9.5">Người 0.88</text>
+            </svg>
+          </div>
+        </div>
+        <div class="figure-caption"><b>Hình 1.</b> Phân loại cho một nhãn cả ảnh; phát hiện cho khung bao + lớp + độ tin cậy riêng cho từng vật thể. (Khung minh hoạ định dạng đầu ra, không phải ảnh thật.)</div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">1.2</span>Vì sao phát hiện khó hơn nhiều?</h3>
+      <ul class="plain">
+        <li><strong>Số lượng vật thể thay đổi:</strong> một ảnh có thể chứa 0, 1 hay hàng chục vật thể — đầu ra <strong>không có kích thước cố định</strong>, khác với phân loại luôn xuất 1 nhãn.</li>
+        <li><strong>Kích thước &amp; tỉ lệ đa dạng:</strong> vật thể có thể rất to hoặc rất nhỏ, gần hoặc xa — mô hình phải xử lý <strong>đa tỉ lệ</strong>.</li>
+        <li><strong>Yêu cầu định vị chính xác:</strong> không chỉ biết "có ô tô" mà phải khoanh đúng vị trí — sai lệch khung bị phạt qua IoU.</li>
+        <li><strong>Chồng lấn &amp; che khuất:</strong> nhiều vật thể sát nhau, che nhau, khiến việc tách bạch khó hơn.</li>
+      </ul>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Nếu một bức ảnh chứa 5 con mèo kích thước khác nhau đứng cạnh nhau, vì sao bài toán phát hiện lại khó hơn nhiều so với chỉ phân loại "ảnh này có mèo hay không"?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì phát hiện phải xử lý đồng thời cả bốn khó khăn ở trên: số lượng vật thể không cố định (ở đây là 5, nhưng ảnh khác có thể là 0 hay 50 — đầu ra không có kích thước cố định như phân loại), các con mèo to nhỏ khác nhau (đa tỉ lệ), phải khoanh đúng vị trí <em>từng con</em> (định vị chính xác, đo bằng IoU), và nếu chúng đứng sát nhau thì việc tách bạch từng con cũng khó hơn (chồng lấn/che khuất). Trong khi đó, phân loại chỉ cần trả lời đúng một câu hỏi nhị phân duy nhất cho <strong>cả</strong> bức ảnh, bất kể có 1 hay 5 con mèo trong đó.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">1.3</span>Ứng dụng thực tế</h3>
+      <p>Phát hiện đối tượng có mặt khắp nơi, từ đời sống đến công nghiệp:</p>
+      <div class="aug-grid">
+        <div class="aug-item"><div class="aug-box">🚗</div><div class="aug-label">Xe tự lái — người đi bộ, xe, biển báo</div></div>
+        <div class="aug-item"><div class="aug-box">🎥</div><div class="aug-label">Giám sát an ninh — người, hành vi</div></div>
+        <div class="aug-item"><div class="aug-box">🛒</div><div class="aug-label">Bán lẻ — đếm, nhận diện sản phẩm trên kệ</div></div>
+        <div class="aug-item"><div class="aug-box">🏥</div><div class="aug-label">Y tế — khoanh vùng tổn thương</div></div>
+        <div class="aug-item"><div class="aug-box">🌾</div><div class="aug-label">Nông nghiệp — đếm cây, quả</div></div>
+        <div class="aug-item"><div class="aug-box">🏭</div><div class="aug-label">Công nghiệp — phát hiện lỗi</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l2">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 02 · Trước học sâu</span>
+    <h2 class="section-title">Trước học sâu: các phương pháp cổ điển</h2>
+    <p class="section-lead">Trước khi học sâu chiếm lĩnh, người ta đã có những cách tiếp cận thông minh nhưng rất tốn kém để giải bài toán phát hiện. Hiểu chúng — và giới hạn của chúng — giúp thấy rõ vì sao bước ngoặt học sâu lại quan trọng đến vậy.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">2.1</span>Cửa sổ trượt + bộ phân loại</h3>
+      <p>Ý tưởng trực tiếp nhất: biến phát hiện thành <strong>nhiều bài phân loại</strong>. Ta <strong>trượt một cửa sổ</strong> khắp ảnh, ở <strong>nhiều vị trí và nhiều tỉ lệ</strong>, và với mỗi cửa sổ chạy một bộ phân loại để hỏi "có vật thể không?".</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 400 220" style="width:100%;max-width:460px;display:block;margin:0 auto;">
+          <rect x="20" y="20" width="360" height="180" rx="6" fill="#eef2f0" stroke="#d9e0da"></rect>
+          <g fill="none" stroke="#e8940f" stroke-width="1.5" opacity="0.6">
+            <rect x="30" y="30" width="70" height="70"></rect>
+            <rect x="95" y="30" width="70" height="70"></rect>
+            <rect x="160" y="30" width="70" height="70"></rect>
+            <rect x="225" y="30" width="70" height="70"></rect>
+            <rect x="290" y="30" width="70" height="70"></rect>
+            <rect x="30" y="95" width="70" height="70"></rect>
+            <rect x="95" y="95" width="70" height="70"></rect>
+            <rect x="160" y="95" width="70" height="70"></rect>
+            <rect x="225" y="95" width="70" height="70"></rect>
+            <rect x="290" y="95" width="70" height="70"></rect>
+          </g>
+          <rect x="60" y="45" width="140" height="140" fill="none" stroke="#d1495b" stroke-width="2.5" stroke-dasharray="5 3"></rect>
+          <text x="63" y="40" fill="#9c2f3d" font-family="JetBrains Mono" font-size="10">tỉ lệ khác</text>
+        </svg>
+        <div class="figure-caption"><b>Hình 2.</b> Cửa sổ trượt: quét mọi vị trí (lưới cam) và nhiều tỉ lệ (khung đỏ nét đứt minh hoạ một tỉ lệ khác) — mỗi cửa sổ đưa qua một bộ phân loại. Vét cạn nên rất chậm.</div>
+      </div>
+
+      <p>Cách này <strong>vét cạn</strong> nên cực kỳ tốn kém: một ảnh có thể sinh ra <strong>hàng triệu</strong> cửa sổ cần phân loại. Tự tay chỉnh ba thông số dưới đây để thấy con số này bùng nổ nhanh thế nào:</p>
+
+      <div class="widget sw-demo">
+        <span class="widget-label">Thử ngay · Tự tính số cửa sổ cần quét cho một ảnh</span>
+        <div class="sw-controls">
+          <div class="sw-row">
+            <label>Kích thước ảnh (N × N px) <span id="swSizeVal">600px</span></label>
+            <input type="range" id="swSize" min="200" max="1200" step="20" value="600">
+          </div>
+          <div class="sw-row">
+            <label>Bước trượt — stride (px) <span id="swStrideVal">16px</span></label>
+            <input type="range" id="swStride" min="4" max="64" step="2" value="16">
+          </div>
+          <div class="sw-row">
+            <label>Số tỉ lệ cửa sổ quét (scales) <span id="swScalesVal">5</span></label>
+            <input type="range" id="swScales" min="1" max="8" step="1" value="5">
+          </div>
+        </div>
+        <div class="sw-total">
+          <span class="sw-num" id="swTotalNum">—</span>
+          <span class="sw-caption">cửa sổ cần đưa qua bộ phân loại — chỉ cho MỘT bức ảnh duy nhất.</span>
+        </div>
+      </div>
+
+      <p>Chỉ cần kéo <strong>bước trượt nhỏ lại</strong> một chút hoặc <strong>tăng số tỉ lệ</strong> quét, con số có thể vọt lên tới hàng trăm nghìn — thậm chí gần cả triệu — chỉ cho <strong>một</strong> bức ảnh duy nhất. Đây là lý do cửa sổ trượt vét cạn gần như không còn được dùng trực tiếp; nó chỉ còn giá trị giúp hiểu vì sao các detector hiện đại ở Lớp 03 được thiết kế để <strong>tránh</strong> kiểu vét cạn này.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Trong widget ở trên, nếu bạn giảm <strong>bước trượt (stride)</strong> xuống còn một nửa (vd từ 16px xuống 8px) mà giữ nguyên các thông số khác, tổng số cửa sổ sẽ tăng khoảng bao nhiêu lần?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Khoảng <strong>4 lần</strong>, chứ không phải 2 lần — hãy thử ngay trên widget để kiểm chứng. Cửa sổ quét trên một lưới <strong>hai chiều</strong> (ngang × dọc): giảm stride một nửa khiến số vị trí quét theo chiều ngang tăng gấp đôi, <em>và</em> số vị trí theo chiều dọc cũng tăng gấp đôi — nhân hai chiều lại, tổng số cửa sổ tăng gần <strong>bình phương</strong> của mức giảm. Đây là lý do một điều chỉnh nhỏ trên thanh trượt lại khiến con số bùng nổ nhanh đến vậy: chi phí sliding window tăng theo bình phương nghịch đảo của stride, không phải tuyến tính.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.2</span>Đặc trưng thủ công &amp; Viola–Jones</h3>
+      <p>Để chạy đủ nhanh, các phương pháp cổ điển dùng <strong>đặc trưng thủ công</strong>: <strong>HOG</strong> (Histogram of Oriented Gradients) cho phát hiện người, và <strong>đặc trưng Haar</strong> cho khuôn mặt. Bộ phát hiện <strong>Viola–Jones (2001)</strong> — thường gọi là <strong>Haar cascade</strong> — là một cột mốc: nó phát hiện khuôn mặt <strong>thời gian thực</strong> bằng một chuỗi (cascade) các bộ phân loại đơn giản, và từng được tích hợp trong hầu hết máy ảnh số.</p>
+      <p>Cụ thể, quy trình Viola–Jones gồm bốn bước chính: <strong>(1) đặc trưng Haar</strong> — hiệu độ sáng giữa các vùng hình chữ nhật kề nhau; <strong>(2) ảnh tích phân (integral image)</strong> — cho phép tính tổng độ sáng của bất kỳ vùng chữ nhật nào gần như tức thời (bạn sẽ gặp lại chi tiết này ở Bài 9); <strong>(3) AdaBoost</strong> — tự động chọn ra khoảng <strong>6.000 đặc trưng</strong> tốt nhất trong hơn <strong>160.000</strong> đặc trưng ứng viên; và <strong>(4) cascade</strong> — xếp các bộ phân loại thành nhiều tầng lọc, loại nhanh phần lớn vùng rõ ràng không phải khuôn mặt ngay từ những tầng đầu tiên.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.3</span>Thực nghiệm thật: Haar cascade</h3>
+      <p>OpenCV có sẵn các bộ Haar cascade đã huấn luyện. Ta chạy thử phát hiện <strong>khuôn mặt và mắt</strong> trên một ảnh thật:</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 260 260" style="width:100%;max-width:260px;display:block;margin:0 auto;">
+          <rect x="0" y="0" width="260" height="260" rx="8" fill="#eef2f0"></rect>
+          <circle cx="130" cy="140" r="80" fill="#f4dcc4" stroke="#c9a678" stroke-width="2"></circle>
+          <circle cx="100" cy="120" r="10" fill="#132036"></circle>
+          <circle cx="160" cy="120" r="10" fill="#132036"></circle>
+          <path d="M 100 175 Q 130 195 160 175" stroke="#132036" stroke-width="3" fill="none" stroke-linecap="round"></path>
+          <rect x="55" y="65" width="150" height="150" rx="10" fill="none" stroke="#2fa84f" stroke-width="3"></rect>
+          <text x="58" y="58" fill="#0a7d33" font-family="JetBrains Mono" font-size="11" font-weight="700">face</text>
+          <rect x="84" y="106" width="34" height="28" rx="4" fill="none" stroke="#3f7fe0" stroke-width="2.5"></rect>
+          <rect x="142" y="106" width="34" height="28" rx="4" fill="none" stroke="#3f7fe0" stroke-width="2.5"></rect>
+        </svg>
+        <div class="figure-caption"><b>Hình 3.</b> Minh hoạ kết quả của đoạn code Haar cascade bên dưới khi chạy trên một ảnh khuôn mặt thật: khung xanh lá (đúng màu <code>(0, 255, 0)</code> trong code) quanh khuôn mặt, khung xanh dương quanh từng mắt.</div>
+      </div>
+
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">haar_face.py</span></div>
+        <pre><code class="language-python">import cv2
+
+img  = cv2.imread("anh.jpg")
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# Tai bo Haar cascade co san trong OpenCV
+face_cascade = cv2.CascadeClassifier(
+    cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+
+# Phat hien khuon mat (tra ve danh sach khung [x, y, w, h])
+faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+for (x, y, w, h) in faces:
+    cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)</code></pre>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.4</span>Giới hạn → học sâu thay đổi cuộc chơi</h3>
+      <p>Phương pháp cổ điển có nhược điểm lớn: <strong>chậm</strong>, đặc trưng thủ công <strong>kém tổng quát</strong> (Haar cho mặt khó mở rộng sang hàng chục lớp khác), và <strong>kém bền</strong> với thay đổi góc/ánh sáng. Năm <strong>2014, R-CNN</strong> mở ra kỷ nguyên phát hiện bằng học sâu, và từ đó độ chính xác lẫn tốc độ đều tiến vượt bậc.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Đặc trưng Haar được thiết kế thủ công để bắt các mẫu sáng-tối đặc trưng cho khuôn mặt. Vì sao cách này lại "kém tổng quát", khó mở rộng sang phát hiện hàng chục lớp vật thể khác (ô tô, xe đạp, chó, biển báo...)?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì đặc trưng Haar được thiết kế thủ công dựa trên hiểu biết cụ thể về cấu trúc sáng-tối của khuôn mặt (ví dụ vùng mắt tối hơn gò má) — nó không tự học được đặc trưng phù hợp cho một loại vật thể hoàn toàn khác. Muốn phát hiện ô tô hay chó, người ta phải thiết kế lại bộ đặc trưng thủ công từ đầu cho từng lớp, rất tốn công và không mở rộng được. Ngược lại, mạng học sâu <strong>tự học</strong> đặc trưng phù hợp trực tiếp từ dữ liệu, nên chỉ cần đổi tập huấn luyện là có thể phát hiện lớp vật thể mới — đây chính là lý do R-CNN (2014) mở ra một bước ngoặt.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l3">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 03 · Khối xây dựng</span>
+    <h2 class="section-title">Khối xây dựng của detector hiện đại</h2>
+    <p class="section-lead">Từ đây, mọi detector học sâu hiện đại — dù thuộc trường phái nào — đều được ráp từ cùng một bộ khối xây dựng. Nắm chắc bốn khối này, Bài 7 (YOLO) sẽ chỉ còn là chuyện lắp chúng lại theo một cách cụ thể.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">3.1</span>Bounding box &amp; IoU (ôn nhanh)</h3>
+      <p><strong>Bounding box</strong> thường biểu diễn bằng <code>(x, y, w, h)</code> (góc trên-trái + rộng/cao) hoặc <code>(x1, y1, x2, y2)</code> (hai góc đối). Để đo độ chính xác định vị, ta dùng <strong>IoU (Intersection over Union)</strong> đã học kỹ ở Bài 5: tỉ lệ phần giao trên phần hợp giữa khung dự đoán và khung thật. Một dự đoán thường được tính là <strong>đúng</strong> khi IoU ≥ 0.5.</p>
+      <div class="figure">
+        <svg viewBox="0 0 300 150" style="width:100%;max-width:340px;display:block;margin:0 auto;">
+          <rect x="70" y="30" width="100" height="80" fill="#0f8b8d" fill-opacity="0.22" stroke="#0f8b8d" stroke-width="2"></rect>
+          <rect x="110" y="55" width="100" height="80" fill="#d1495b" fill-opacity="0.22" stroke="#d1495b" stroke-width="2" stroke-dasharray="5 3"></rect>
+          <text x="70" y="24" fill="#0a5f60" font-family="JetBrains Mono" font-size="11">Khung thật (GT)</text>
+          <text x="150" y="146" fill="#9c2f3d" font-family="JetBrains Mono" font-size="11" text-anchor="middle">Khung dự đoán</text>
+        </svg>
+        <div class="figure-caption"><b>Hình 4.</b> IoU = diện tích phần giao (vùng chồng của hai khung) chia cho diện tích phần hợp. Demo kéo-thả chi tiết đã có ở Bài 5 — đây là viên gạch đầu tiên cho mọi khối xây dựng tiếp theo trong bài này.</div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.2</span>Anchor boxes</h3>
+      <p>Thay vì dò mọi khung có thể, nhiều detector đặt sẵn các <strong>khung mẫu (anchor boxes)</strong> tại mỗi vị trí của feature map — với <strong>nhiều tỉ lệ và kích thước</strong> khác nhau. Mô hình chỉ cần học <strong>điều chỉnh (offset)</strong> từ anchor sang khung thật, cùng điểm "có vật thể" và lớp:</p>
+
+      <div class="widget anchor-demo">
+        <span class="widget-label">Thử ngay · Bấm vào một ô lưới để di chuyển tâm anchor</span>
+        <svg id="anchorSvg" viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:480px;">
+          <g id="anchorGrid"></g>
+          <rect id="anchorWide" x="0" y="0" width="0" height="0" fill="none" stroke="#e8940f" stroke-width="2.5" stroke-dasharray="3 3" rx="4"></rect>
+          <rect id="anchorTall" x="0" y="0" width="0" height="0" fill="none" stroke="#d1495b" stroke-width="2.5" stroke-dasharray="3 3" rx="4"></rect>
+          <rect id="anchorSquare" x="0" y="0" width="0" height="0" fill="rgba(15,139,141,0.10)" stroke="#0f8b8d" stroke-width="2.5" rx="4"></rect>
+          <circle id="anchorCenterDot" cx="0" cy="0" r="4" fill="#132036"></circle>
+        </svg>
+        <div class="chart-legend">
+          <span><span class="legend-dot" style="background:#0f8b8d;"></span>Vuông (1:1)</span>
+          <span><span class="legend-dot" style="background:#e8940f;"></span>Ngang (~2:1)</span>
+          <span><span class="legend-dot" style="background:#d1495b;"></span>Dọc (~1:2)</span>
+        </div>
+        <p class="anchor-pos-label" id="anchorPosLabel">Tâm anchor: hàng 2, cột 3 — bấm ô khác trong lưới để di chuyển.</p>
+      </div>
+
+      <p>Đây gọi là cách tiếp cận <strong>dựa trên anchor (anchor-based)</strong>. Nhiều mô hình mới hơn theo hướng <strong>không anchor (anchor-free)</strong> — dự đoán trực tiếp tâm và kích thước vật thể, đơn giản hơn.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Nếu một detector chỉ dùng <strong>duy nhất</strong> một loại anchor hình vuông tại mỗi vị trí, nó sẽ gặp khó khăn gì khi phát hiện một chiếc ô tô nằm ngang (rất rộng, không cao) hay một cột đèn giao thông (rất cao, hẹp)?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Anchor vuông có tỉ lệ khung hình 1:1, trong khi ô tô nằm ngang rộng hơn nhiều so với chiều cao, còn cột đèn thì ngược lại — cả hai đều lệch xa so với hình vuông. Mô hình phải học một độ điều chỉnh (offset) rất lớn từ anchor vuông để khớp được khung thật, khiến việc học khó hội tụ và kém chính xác hơn. Đây chính là lý do các detector đặt <strong>nhiều</strong> anchor với tỉ lệ khung hình khác nhau (vuông, ngang, dọc) tại mỗi vị trí — như bạn vừa thấy trong widget — để luôn có ít nhất một anchor gần với hình dạng thật của vật thể, giúp mô hình chỉ cần học một offset nhỏ.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.3</span>Non-Maximum Suppression (NMS)</h3>
+      <p>Một detector thường xuất <strong>nhiều khung trùng lặp</strong> cho cùng một vật thể. <strong>NMS</strong> dọn dẹp điều đó: giữ lại khung có <strong>điểm tin cậy cao nhất</strong>, rồi <strong>loại bỏ</strong> các khung khác trùng nhiều với nó (IoU vượt ngưỡng).</p>
+      <p>Đây chính xác là thuật toán bạn đã tự chạy ở widget đầu bài: từ 8 khung chồng lấn ban đầu, NMS ở ngưỡng hợp lý giữ lại đúng <strong>2 khung</strong> — mỗi vật thể một khung. Nếu chưa thử, hãy cuộn lên đầu bài, kéo thanh trượt ngưỡng IoU sang vài giá trị khác nhau rồi bấm "Chạy NMS" để xem nhật ký thuật toán quyết định giữ/loại từng khung.</p>
+
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">nms_thu_cong.py</span></div>
+        <pre><code class="language-python">import numpy as np
+
+def iou(a, b):
+    """Tinh IoU giua 2 box dang [x1, y1, x2, y2]."""
+    # Toa do vung giao: goc tren-trai lay MAX, goc duoi-phai lay MIN
+    x1 = max(a[0], b[0]); y1 = max(a[1], b[1])
+    x2 = min(a[2], b[2]); y2 = min(a[3], b[3])
+    inter = max(0, x2 - x1) * max(0, y2 - y1)
+    union = (a[2]-a[0])*(a[3]-a[1]) + (b[2]-b[0])*(b[3]-b[1]) - inter
+    return inter / union if union &gt; 0 else 0
+
+def nms(boxes, scores, iou_threshold=0.5):
+    """Non-Maximum Suppression: tu cai dat, khong dung thu vien."""
+    idx = list(np.argsort(scores)[::-1])   # sap xep chi so theo score giam dan
+    keep = []
+    while idx:
+        i = idx.pop(0)                     # box diem cao nhat con lai -&gt; giu
+        keep.append(i)
+        # loai moi box con lai co IoU voi box vua giu vuot nguong
+        idx = [j for j in idx if iou(boxes[i], boxes[j]) &lt; iou_threshold]
+    return keep</code></pre>
+      </div>
+
+      <p>NMS gần như là bước <strong>hậu xử lý bắt buộc</strong> ở mọi detector dựa trên anchor. Cài đặt thủ công như trên giúp hiểu rõ cơ chế bên trong — cũng chính là nội dung Bài tập 02 ở cuối bài. Trong thực hành, PyTorch đã có sẵn hàm được tối ưu tốc độ:</p>
+
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">nms_torchvision.py</span></div>
+        <pre><code class="language-python">import torch
+from torchvision.ops import nms
+
+# boxes: tensor [N,4] dang (x1,y1,x2,y2); scores: tensor [N]
+keep = nms(boxes, scores, iou_threshold=0.5)   # tra ve chi so cac khung duoc giu
+final_boxes = boxes[keep]</code></pre>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Nếu bạn đặt ngưỡng IoU của NMS quá <strong>cao</strong> (ví dụ 0.95) trong widget ở đầu bài, điều gì xảy ra với số khung được giữ lại — và đó có phải kết quả mong muốn không?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Ngưỡng quá cao nghĩa là chỉ những khung gần như trùng khít hoàn toàn (IoU ≥ 0.95) mới bị loại — hầu hết các khung chồng lấn ở mức "bình thường" (IoU khoảng 0.5–0.9, vốn vẫn cùng chỉ về một vật thể) sẽ <strong>không</strong> bị loại. Kết quả là mô hình vẫn xuất ra nhiều khung trùng lặp cho cùng một vật thể thay vì đúng một khung — ngược với mục đích của NMS. Đây không phải kết quả mong muốn; ngưỡng cần đủ thấp để gom các khung thực sự trùng nhau, nhưng không quá thấp đến mức vô tình loại luôn khung của một vật thể <em>thật sự khác</em> đứng gần đó.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.4</span>Cấu trúc Backbone – Neck – Head</h3>
+      <p>Hầu hết detector hiện đại chia làm ba phần: <strong>Backbone</strong> (mạng trích đặc trưng, vd ResNet — chính là phần bạn học ở Bài 4), <strong>Neck</strong> (thường là <strong>FPN — Feature Pyramid Network</strong>, gộp đặc trưng ở <strong>nhiều tỉ lệ</strong> để phát hiện được cả vật thể to lẫn nhỏ), và <strong>Head</strong> (dự đoán khung bao + lớp).</p>
+      <div class="figure">
+        <svg viewBox="0 0 620 130" style="width:100%;display:block;margin:0 auto;">
+          <g font-family="Inter" font-size="12" font-weight="700">
+            <rect x="0" y="30" width="112" height="60" rx="10" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="56" y="55" text-anchor="middle" fill="#0a5f60">Ảnh</text>
+            <text x="56" y="70" text-anchor="middle" fill="#0a5f60">đầu vào</text>
+            <rect x="127" y="30" width="112" height="60" rx="10" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"></rect>
+            <text x="183" y="55" text-anchor="middle" fill="#a86608">Backbone</text>
+            <text x="183" y="70" text-anchor="middle" fill="#a86608">(vd. ResNet)</text>
+            <rect x="254" y="30" width="112" height="60" rx="10" fill="#e6e9f7" stroke="#5762c7" stroke-width="1.5"></rect>
+            <text x="310" y="55" text-anchor="middle" fill="#3a3f8c">Neck</text>
+            <text x="310" y="70" text-anchor="middle" fill="#3a3f8c">(FPN, đa tỉ lệ)</text>
+            <rect x="381" y="30" width="112" height="60" rx="10" fill="#fbe7ea" stroke="#d1495b" stroke-width="1.5"></rect>
+            <text x="437" y="55" text-anchor="middle" fill="#9c2f3d">Head</text>
+            <text x="437" y="70" text-anchor="middle" fill="#9c2f3d">(khung + lớp)</text>
+            <rect x="508" y="30" width="112" height="60" rx="10" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="564" y="55" text-anchor="middle" fill="#0a5f60">Danh sách</text>
+            <text x="564" y="70" text-anchor="middle" fill="#0a5f60">phát hiện</text>
+          </g>
+          <g stroke="#b7c2c8" stroke-width="1.5" fill="none" marker-end="url(#arrhBNH)">
+            <line x1="112" y1="60" x2="125" y2="60"></line>
+            <line x1="239" y1="60" x2="252" y2="60"></line>
+            <line x1="366" y1="60" x2="379" y2="60"></line>
+            <line x1="493" y1="60" x2="506" y2="60"></line>
+          </g>
+          <defs><marker id="arrhBNH" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7c2c8"></path></marker></defs>
+        </svg>
+        <div class="figure-caption"><b>Hình 5.</b> Giải phẫu detector: Backbone (trích đặc trưng) → Neck/FPN (gộp đa tỉ lệ) → Head (dự đoán khung + lớp) → danh sách phát hiện, sau khi đã qua NMS.</div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao một detector chỉ có Backbone và Head, <strong>không</strong> có Neck/FPN, thường gặp khó khăn khi ảnh chứa cả một chiếc xe tải rất to lẫn một biển báo rất nhỏ?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Backbone trích đặc trưng qua nhiều lớp; đặc trưng ở lớp <strong>càng sâu</strong> thì độ phân giải không gian càng thấp nhưng ngữ nghĩa càng mạnh — phù hợp vật thể to; đặc trưng ở lớp <strong>nông hơn</strong> giữ độ phân giải cao hơn, phù hợp vật thể nhỏ. Nếu Head chỉ nhận MỘT bản đồ đặc trưng duy nhất (thường là lớp sâu nhất), vật thể nhỏ như biển báo có thể đã "mất dấu" qua nhiều lần giảm kích thước. Neck/FPN giải quyết việc này bằng cách gộp đặc trưng ở <strong>nhiều tỉ lệ</strong> khác nhau, giúp Head phát hiện tốt cả vật thể rất to lẫn rất nhỏ trong cùng một ảnh.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l4">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 04 · Kiến trúc</span>
+    <h2 class="section-title">Hai trường phái kiến trúc</h2>
+    <p class="section-lead">Với đủ khối xây dựng trong tay, các detector hiện đại chia thành hai trường phái lớn — khác nhau ở một câu hỏi duy nhất: có tách riêng bước đề xuất vùng hay không.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">4.1</span>Hai giai đoạn (Two-stage): họ R-CNN</h3>
+      <p>Trường phái <strong>hai giai đoạn</strong> tách bài toán làm hai bước: (1) <strong>đề xuất vùng (region proposals)</strong> — tìm ra hàng nghìn vùng <em>có thể</em> chứa vật thể; (2) <strong>phân loại và tinh chỉnh khung</strong> cho từng vùng đó.</p>
+      <div class="figure">
+        <svg viewBox="0 0 620 130" style="width:100%;display:block;margin:0 auto;">
+          <g font-family="Inter" font-size="11.5" font-weight="700">
+            <rect x="0" y="30" width="140" height="60" rx="10" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="70" y="64" text-anchor="middle" fill="#0a5f60">Ảnh đầu vào</text>
+            <rect x="153" y="30" width="140" height="60" rx="10" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"></rect>
+            <text x="223" y="55" text-anchor="middle" fill="#a86608">Đề xuất vùng</text>
+            <text x="223" y="70" text-anchor="middle" fill="#a86608">(hàng nghìn)</text>
+            <rect x="306" y="30" width="140" height="60" rx="10" fill="#e6e9f7" stroke="#5762c7" stroke-width="1.5"></rect>
+            <text x="376" y="55" text-anchor="middle" fill="#3a3f8c">Phân loại +</text>
+            <text x="376" y="70" text-anchor="middle" fill="#3a3f8c">tinh chỉnh khung</text>
+            <rect x="459" y="30" width="140" height="60" rx="10" fill="#fbe7ea" stroke="#d1495b" stroke-width="1.5"></rect>
+            <text x="529" y="55" text-anchor="middle" fill="#9c2f3d">NMS</text>
+            <text x="529" y="70" text-anchor="middle" fill="#9c2f3d">→ Kết quả</text>
+          </g>
+          <g stroke="#b7c2c8" stroke-width="1.5" fill="none" marker-end="url(#arrhTwoStage)">
+            <line x1="140" y1="60" x2="151" y2="60"></line>
+            <line x1="293" y1="60" x2="304" y2="60"></line>
+            <line x1="446" y1="60" x2="457" y2="60"></line>
+          </g>
+          <defs><marker id="arrhTwoStage" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7c2c8"></path></marker></defs>
+        </svg>
+        <div class="figure-caption"><b>Hình 6.</b> Hai giai đoạn: đề xuất vùng → phân loại &amp; tinh chỉnh từng vùng → NMS. Họ R-CNN chính xác cao nhưng chậm hơn.</div>
+      </div>
+      <p>Họ này tiến hóa qua <strong>R-CNN → Fast R-CNN → Faster R-CNN</strong> (giai đoạn đề xuất vùng được học bằng mạng RPN). Ưu điểm: <strong>độ chính xác cao</strong>. Nhược điểm: <strong>chậm hơn</strong> do phải qua hai bước — khó đạt thời gian thực.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">4.2</span>Một giai đoạn (One-stage): YOLO, SSD</h3>
+      <p>Trường phái <strong>một giai đoạn</strong> bỏ bước đề xuất vùng riêng: <strong>một mạng duy nhất</strong> dự đoán <strong>thẳng</strong> khung bao và lớp trên toàn ảnh, chỉ trong <strong>một lượt truyền xuôi</strong>.</p>
+      <div class="figure">
+        <svg viewBox="0 0 620 130" style="width:100%;display:block;margin:0 auto;">
+          <g font-family="Inter" font-size="11.5" font-weight="700">
+            <rect x="20" y="30" width="180" height="60" rx="10" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="110" y="64" text-anchor="middle" fill="#0a5f60">Ảnh đầu vào</text>
+            <rect x="220" y="30" width="180" height="60" rx="10" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"></rect>
+            <text x="310" y="55" text-anchor="middle" fill="#a86608">Một mạng CNN</text>
+            <text x="310" y="70" text-anchor="middle" fill="#a86608">dự đoán trực tiếp</text>
+            <rect x="420" y="30" width="180" height="60" rx="10" fill="#fbe7ea" stroke="#d1495b" stroke-width="1.5"></rect>
+            <text x="510" y="55" text-anchor="middle" fill="#9c2f3d">NMS</text>
+            <text x="510" y="70" text-anchor="middle" fill="#9c2f3d">→ Kết quả</text>
+          </g>
+          <g stroke="#b7c2c8" stroke-width="1.5" fill="none" marker-end="url(#arrhOneStage)">
+            <line x1="200" y1="60" x2="218" y2="60"></line>
+            <line x1="400" y1="60" x2="418" y2="60"></line>
+          </g>
+          <defs><marker id="arrhOneStage" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7c2c8"></path></marker></defs>
+        </svg>
+        <div class="figure-caption"><b>Hình 7.</b> Một giai đoạn: một mạng dự đoán dày đặc khung + lớp trong một lượt, rồi NMS. YOLO/SSD/RetinaNet nhanh, hợp thời gian thực.</div>
+      </div>
+      <p>Tiêu biểu là <strong>YOLO</strong>, <strong>SSD</strong>, và <strong>RetinaNet</strong> (mạng này dùng <strong>Focal Loss</strong> để xử lý mất cân bằng giữa vùng nền và vùng vật thể — một dạng mất cân bằng lớp như Bài 4). Ưu điểm: <strong>nhanh</strong>, phù hợp thời gian thực.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Một hệ thống kiểm tra lỗi bề mặt kính, chạy ngoại tuyến (offline) sau ca sản xuất, không có ràng buộc thời gian thực nhưng cần độ chính xác cao nhất để không bỏ sót lỗi. Nên ưu tiên trường phái nào?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Nên ưu tiên trường phái <strong>hai giai đoạn</strong> (ví dụ Faster R-CNN). Vì hệ thống chạy ngoại tuyến, ràng buộc tốc độ không quan trọng bằng độ chính xác — đúng thế mạnh của hai giai đoạn: tách riêng bước đề xuất vùng rồi phân loại/tinh chỉnh kỹ từng vùng, cho độ chính xác cao hơn dù chậm hơn. Nếu đây là một dây chuyền cần phát hiện <em>ngay</em> lúc sản phẩm chạy qua camera (thời gian thực), lựa chọn hợp lý sẽ đảo ngược sang một giai đoạn.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">4.3</span>So sánh &amp; lựa chọn</h3>
+      <p>Theo truyền thống, hai giai đoạn <strong>chính xác hơn</strong> còn một giai đoạn <strong>nhanh hơn</strong> — nhưng khoảng cách đã <strong>thu hẹp</strong> đáng kể với các YOLO hiện đại. Việc chọn trường phái nào quay về đúng tư duy ở Bài 5: cân giữa <strong>độ chính xác</strong> và <strong>ràng buộc tốc độ/triển khai</strong>:</p>
+      <div class="figure">
+        <svg viewBox="0 0 300 190" style="width:100%;max-width:420px;display:block;margin:0 auto;">
+          <g font-family="JetBrains Mono" font-size="10.5" fill="#42506a">
+            <line x1="40" y1="160" x2="290" y2="160" stroke="#d9e0da"></line>
+            <line x1="40" y1="10" x2="40" y2="160" stroke="#d9e0da"></line>
+            <text x="165" y="182" text-anchor="middle" fill="#7c8aa0">Tốc độ (FPS) →</text>
+            <text x="18" y="90" text-anchor="middle" fill="#7c8aa0" transform="rotate(-90,18,90)">Độ chính xác →</text>
+            <circle cx="75" cy="35" r="26" fill="#0f8b8d" fill-opacity="0.65"></circle>
+            <text x="75" y="78" text-anchor="middle" fill="#0a5f60" font-weight="700">Faster</text>
+            <text x="75" y="90" text-anchor="middle" fill="#0a5f60" font-weight="700">R-CNN</text>
+            <circle cx="155" cy="78" r="19" fill="#e8940f" fill-opacity="0.7"></circle>
+            <text x="155" y="50" text-anchor="middle" fill="#a86608" font-weight="700">RetinaNet</text>
+            <circle cx="205" cy="110" r="17" fill="#e8940f" fill-opacity="0.7"></circle>
+            <text x="205" y="136" text-anchor="middle" fill="#a86608" font-weight="700">YOLO</text>
+            <circle cx="248" cy="138" r="13" fill="#e8940f" fill-opacity="0.7"></circle>
+            <text x="248" y="162" text-anchor="middle" fill="#a86608" font-weight="700">SSD</text>
+          </g>
+        </svg>
+        <div class="figure-caption"><b>Hình 8.</b> Đánh đổi: họ hai giai đoạn (xanh) chính xác hơn; họ một giai đoạn (cam) nhanh hơn, phù hợp thời gian thực. RetinaNet dùng Focal Loss nên chính xác hơn hẳn so với các one-stage khác. (Số liệu minh hoạ.)</div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">4.4</span>Hướng mới: Transformer &amp; dòng thời gian</h3>
+      <p>Gần đây, <strong>DETR</strong> (DEtection TRansformer) đưa ra cách tiếp cận <strong>đầu-cuối (end-to-end)</strong> dựa trên Transformer, <strong>bỏ luôn anchor và NMS</strong> bằng cơ chế "dự đoán tập hợp" — gọn và thanh lịch về mặt khái niệm. Dòng thời gian phát triển của lĩnh vực:</p>
+      <div class="figure">
+        <svg viewBox="0 0 620 150" style="width:100%;display:block;margin:0 auto;">
+          <line x1="30" y1="75" x2="575" y2="75" stroke="#b7c2c8" stroke-width="2" marker-end="url(#arrhTimeline)"></line>
+          <defs><marker id="arrhTimeline" markerWidth="9" markerHeight="9" refX="5" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#b7c2c8"></path></marker></defs>
+
+          <circle cx="50" cy="75" r="7" fill="#0f8b8d"></circle>
+          <text x="50" y="58" text-anchor="middle" font-family="Inter" font-size="12" font-weight="700" fill="#132036">R-CNN</text>
+          <text x="50" y="44" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#0a5f60">2014</text>
+
+          <circle cx="146" cy="75" r="6" fill="#f3f6f4" stroke="#0f8b8d" stroke-width="2"></circle>
+          <text x="146" y="95" text-anchor="middle" font-family="Inter" font-size="11.5" font-weight="700" fill="#132036">Fast/Faster</text>
+          <text x="146" y="110" text-anchor="middle" font-family="Inter" font-size="11.5" font-weight="700" fill="#132036">R-CNN</text>
+
+          <circle cx="242" cy="75" r="6" fill="#f3f6f4" stroke="#0f8b8d" stroke-width="2"></circle>
+          <text x="242" y="58" text-anchor="middle" font-family="Inter" font-size="12" font-weight="700" fill="#132036">YOLO / SSD</text>
+          <text x="242" y="44" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="#7c8aa0">real-time</text>
+
+          <circle cx="338" cy="75" r="6" fill="#f3f6f4" stroke="#0f8b8d" stroke-width="2"></circle>
+          <text x="338" y="95" text-anchor="middle" font-family="Inter" font-size="12" font-weight="700" fill="#132036">RetinaNet</text>
+          <text x="338" y="110" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="#7c8aa0">Focal Loss</text>
+
+          <circle cx="434" cy="75" r="6" fill="#f3f6f4" stroke="#0f8b8d" stroke-width="2"></circle>
+          <text x="434" y="58" text-anchor="middle" font-family="Inter" font-size="12" font-weight="700" fill="#132036">DETR</text>
+          <text x="434" y="44" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="#7c8aa0">Transformer</text>
+
+          <circle cx="530" cy="75" r="6" fill="#f3f6f4" stroke="#0f8b8d" stroke-width="2"></circle>
+          <text x="530" y="95" text-anchor="middle" font-family="Inter" font-size="12" font-weight="700" fill="#132036">YOLO hiện đại</text>
+          <text x="530" y="110" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="#7c8aa0">(Bài 7)</text>
+        </svg>
+        <div class="figure-caption"><b>Hình 9.</b> Dòng thời gian các bộ phát hiện tiêu biểu, từ R-CNN (2014) đến các YOLO hiện đại. Chỉ mốc R-CNN có năm chính xác từ tài liệu gốc; vị trí các mốc sau mang tính minh hoạ thứ tự phát triển, không phải năm chính xác tuyệt đối.</div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>DETR bỏ được cả anchor lẫn NMS — hai khối xây dựng quan trọng bạn vừa học ở Lớp 03. Điều này khiến pipeline của DETR trở nên phức tạp hơn hay đơn giản hơn về mặt khái niệm?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Đơn giản hơn</strong> về mặt khái niệm (dù cơ chế Transformer bên trong không hề đơn giản). Vì không cần thiết kế thủ công bộ anchor (bao nhiêu tỉ lệ, kích thước nào hợp lý) và không cần bước hậu xử lý NMS riêng để dọn khung trùng lặp, pipeline của DETR trở thành một mạng <strong>đầu-cuối (end-to-end)</strong> dự đoán trực tiếp một <strong>tập hợp</strong> các phát hiện cuối cùng — gọn và thanh lịch hơn hẳn về mặt thiết kế tổng thể so với việc phải ráp riêng từng khối anchor + NMS + backbone-neck-head như các detector trước đó.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l5">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 05 · Đánh giá</span>
+    <h2 class="section-title">Đánh giá bộ phát hiện: mAP</h2>
+    <p class="section-lead">Bạn đã gặp mAP ở Bài 5 như một chỉ số tổng quát để xếp hạng mô hình. Cách đánh giá ở đây áp dụng trực tiếp những gì bạn học ở đó — chỉ khác một điểm mấu chốt: định nghĩa thế nào là "đúng" trong bài toán phát hiện.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">5.1</span>True Positive trong bài toán phát hiện</h3>
+      <p>Một dự đoán được tính là <strong>đúng (TP)</strong> khi thỏa <strong>đồng thời cả hai</strong> điều kiện: <strong>IoU với khung thật ≥ ngưỡng</strong> (thường 0.5) <em>và</em> <strong>đúng lớp</strong>. Thiếu một trong hai, dự đoán đó bị tính là sai — dù đôi khi mô hình chỉ lệch khung một chút, hoặc chỉ nhầm lớp một chút.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.2</span>AP và mAP</h3>
+      <p>Quét theo độ tin cậy (confidence), ta dựng được đường cong <strong>Precision–Recall</strong> cho mỗi lớp — đã học ở Bài 4/5. Diện tích dưới đường cong đó là <strong>Average Precision (AP)</strong> của lớp; trung bình AP qua tất cả các lớp là <strong>mAP (mean Average Precision)</strong> — thước đo chuẩn để xếp hạng detector.</p>
+
+      <div class="callout callout-note">
+        <span class="callout-head">Hai cách tính mAP — đừng nhầm lẫn khi so sánh</span>
+        <p><code>mAP@0.5</code>: dùng ngưỡng IoU = 0.5 — dễ hơn, con số cao hơn.<br><code>mAP@[.5:.95]</code>: trung bình qua nhiều ngưỡng IoU (0.5 → 0.95, mỗi bước 0.05) — nghiêm ngặt hơn nhiều, chính là <strong>chuẩn đánh giá của COCO</strong>.</p>
+        <p>Cùng một mô hình, <strong>mAP@0.5 luôn cao hơn mAP@[.5:.95]</strong>. Khi so sánh các mô hình, hãy chắc chắn chúng được báo cáo trên <strong>cùng một thang đo và cùng bộ dữ liệu</strong> — nếu không, so sánh sẽ vô nghĩa.</p>
+      </div>
+
+      <div class="figure">
+        <svg viewBox="0 0 200 170" style="width:100%;max-width:260px;display:block;margin:0 auto;">
+          <line x1="20" y1="140" x2="180" y2="140" stroke="#d9e0da"></line>
+          <rect x="40" y="52" width="50" height="88" rx="4" fill="#0f8b8d" fill-opacity="0.75"></rect>
+          <text x="65" y="44" text-anchor="middle" font-family="JetBrains Mono" font-size="13" font-weight="700" fill="#0a5f60">0.68</text>
+          <text x="65" y="156" text-anchor="middle" font-family="Inter" font-size="10.5" fill="#42506a">mAP@0.5</text>
+          <rect x="110" y="83" width="50" height="57" rx="4" fill="#d1495b" fill-opacity="0.7"></rect>
+          <text x="135" y="75" text-anchor="middle" font-family="JetBrains Mono" font-size="13" font-weight="700" fill="#9c2f3d">0.44</text>
+          <text x="135" y="156" text-anchor="middle" font-family="Inter" font-size="10.5" fill="#42506a">mAP@[.5:.95]</text>
+        </svg>
+        <div class="figure-caption"><b>Hình 10.</b> Trên cùng một mô hình, mAP@0.5 luôn cao hơn mAP@[.5:.95] vì ngưỡng IoU khắt khe hơn ở vế sau. Số 0.68 / 0.44 là ví dụ minh hoạ, không phải số liệu đo thật.</div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.3</span>Bộ dữ liệu chuẩn: Pascal VOC &amp; COCO</h3>
+      <p>Hai bộ dữ liệu chuẩn để huấn luyện và đánh giá detector: <strong>Pascal VOC</strong> (<strong>20 lớp</strong>) và <strong>COCO</strong> (<strong>80 lớp</strong>) — COCO hiện là <strong>chuẩn so sánh phổ biến nhất</strong>, và cũng là nơi quy ước <code>mAP@[.5:.95]</code> ra đời.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Một bài báo báo cáo mô hình A đạt <code>mAP@0.5 = 0.91</code> trên tập dữ liệu riêng của nhóm tác giả, còn mô hình B đạt <code>mAP@[.5:.95] = 0.55</code> trên COCO. Có thể kết luận A tốt hơn B không?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Không thể kết luận.</strong> Đây là phép so sánh khập khiễng ở cả hai khía cạnh: (1) <strong>khác thang đo</strong> — mAP@0.5 vốn dễ đạt điểm cao hơn mAP@[.5:.95] ngay trên <em>cùng một</em> mô hình, nên đặt 0.91 cạnh 0.55 không nói lên điều gì; (2) <strong>khác bộ dữ liệu</strong> — tập dữ liệu riêng của nhóm tác giả có thể dễ hơn nhiều so với COCO. Để so sánh công bằng, cả hai mô hình phải được báo cáo trên <strong>cùng một thang đo mAP và cùng một bộ dữ liệu</strong>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="l6">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 06 · Tổng quan</span>
+    <h2 class="section-title">Tổng quan các họ &amp; khi nào dùng</h2>
+    <p class="section-lead">Bảng dưới tổng hợp lại các họ detector đã nhắc tới trong bài, để bạn có một điểm tra cứu nhanh khi cần chọn kiến trúc cho một bài toán cụ thể — đúng tinh thần quy trình quyết định đã học ở Bài 5.</p>
+
+    <table class="ref-table">
+      <tr><th>Họ / Mô hình</th><th>Loại &amp; đặc điểm</th><th>Khi nào dùng</th></tr>
+      <tr><td><code>Faster R-CNN</code></td><td>Hai giai đoạn; chính xác cao, chậm hơn.</td><td>Ưu tiên độ chính xác, không cần real-time.</td></tr>
+      <tr><td><code>YOLO</code></td><td>Một giai đoạn; nhanh, cân bằng tốt.</td><td>Thời gian thực; phổ biến nhất (xem Bài 7).</td></tr>
+      <tr><td><code>SSD</code></td><td>Một giai đoạn; nhanh, đơn giản.</td><td>Thiết bị hạn chế tài nguyên, real-time.</td></tr>
+      <tr><td><code>RetinaNet</code></td><td>Một giai đoạn + Focal Loss; khá chính xác.</td><td>Cần one-stage nhưng độ chính xác cao.</td></tr>
+      <tr><td><code>DETR / RT-DETR</code></td><td>Transformer, đầu-cuối (không anchor/NMS).</td><td>Pipeline gọn, hướng nghiên cứu mới.</td></tr>
+    </table>
+
+    <p>Trong số đó, <strong>YOLO</strong> là họ một giai đoạn <strong>phổ biến nhất</strong> nhờ cân bằng xuất sắc giữa tốc độ và độ chính xác, cùng hệ sinh thái công cụ dễ dùng. Đó chính là chủ đề ta sẽ <strong>đào sâu và thực hành ở Bài 7</strong>.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">6.1</span>Mẹo &amp; lưu ý</h3>
+      <ul class="tip-list">
+        <li><span class="tip-check">✓</span><span>Bắt đầu từ một detector <strong>pretrained</strong> rồi tinh chỉnh (transfer learning, Bài 4) — gần như không bao giờ huấn luyện từ đầu.</span></li>
+        <li><span class="tip-check">✓</span><span>Chọn trường phái theo <strong>ràng buộc</strong>: cần real-time trên thiết bị → một giai đoạn; cần chính xác tối đa ngoại tuyến → cân nhắc hai giai đoạn.</span></li>
+        <li><span class="tip-check">✓</span><span><strong>FPN (neck)</strong> rất quan trọng khi ảnh có vật thể <strong>kích thước chênh lệch lớn</strong> (vừa rất nhỏ vừa rất to).</span></li>
+        <li><span class="tip-check">✓</span><span>Tinh chỉnh <strong>ngưỡng NMS</strong> và <strong>ngưỡng tin cậy</strong> khi triển khai — ảnh hưởng trực tiếp số khung giữ lại.</span></li>
+        <li><span class="tip-check">✓</span><span>Luôn đối chiếu mAP trên <strong>cùng thang đo &amp; bộ dữ liệu</strong> khi so sánh mô hình.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="section" id="l7">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Bài tập · Thực hành</span>
+    <h2 class="section-title">Bài tập thực hành</h2>
+    <p class="section-lead">Sáu bài tập dưới đây bám sát các khối kiến thức vừa học. Đặc biệt bài số 2 — tự cài đặt NMS — nên làm kỹ, vì nó là cơ chế nền của mọi detector bạn sẽ gặp trong các bài tiếp theo.</p>
+
+    <div class="task-grid">
+      <div class="task-card"><span class="task-num">Bài tập 01</span><p>Chạy lại <strong>Haar cascade</strong> trên vài ảnh khác nhau (có nhiều mặt, mặt nghiêng, bị che). Khi nào nó phát hiện sai hoặc bỏ sót? Vì sao?</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 02</span><p>Tự cài đặt <strong>NMS</strong> và thử các ngưỡng IoU khác nhau (0.3, 0.5, 0.7). Ngưỡng quá cao hoặc quá thấp gây lỗi gì?</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 03</span><p>Cho hai ứng dụng: (a) ô tô tự lái cần real-time, (b) đếm tế bào trong ảnh hiển vi ngoại tuyến. Với mỗi ứng dụng, chọn <strong>trường phái detector</strong> và giải thích.</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 04</span><p>Giải thích vai trò của <strong>FPN (neck)</strong> khi cần phát hiện đồng thời vật thể <strong>rất nhỏ và rất to</strong> trong cùng ảnh.</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 05</span><p>Vì sao <strong>phát hiện cần NMS</strong> trong khi <strong>phân loại thì không</strong>? Liên hệ với cách hai bài toán sinh ra dự đoán.</p></div>
+      <div class="task-card advanced"><span class="task-num">Nâng cao</span><p>Tìm hiểu cách <strong>DETR</strong> loại bỏ anchor và NMS bằng cơ chế "dự đoán tập hợp (set prediction)". Ưu/nhược so với detector dựa trên anchor?</p></div>
+    </div>
+  </div>
+</section>
+<section class="section" id="quiz">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp ra · Trắc nghiệm tổng kết</span>
+    <h2 class="section-title">Kiểm tra lại toàn bài</h2>
+    <p class="section-lead">10 câu trắc nghiệm dưới đây rải đều qua các Lớp 01–05. Chọn một đáp án để xem giải thích — cứ thử trước, sai không sao, đó là cách học nhanh nhất.</p>
+
+    <div class="quiz-item" data-answer="A">
+      <p class="quiz-q"><span class="qnum">Câu 1.</span>Điểm khác biệt cốt lõi giữa bài toán phân loại ảnh (classification) và phát hiện đối tượng (detection) là gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Detection vừa định vị (khung bao) vừa phân loại cho từng vật thể, còn classification chỉ gán một nhãn cho cả ảnh.</button>
+        <button class="quiz-opt" data-key="B">B. Detection chỉ hoạt động trên ảnh xám, classification hoạt động trên ảnh màu.</button>
+        <button class="quiz-opt" data-key="C">C. Classification luôn chính xác hơn detection trên mọi bài toán.</button>
+        <button class="quiz-opt" data-key="D">D. Detection không thể dùng mạng CNN.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại mục 1.1 — cụm từ khoá là "định vị + phân loại".</p>
+      <p class="quiz-explain">Classification gán một nhãn duy nhất cho toàn ảnh — mô hình chỉ trả lời "ảnh này là gì". Detection phải trả lời đồng thời "có những vật thể nào" (phân loại) và "chúng ở đâu" (định vị bằng khung bao) cho từng vật thể riêng lẻ trong ảnh — đây chính là lý do detection khó hơn classification.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="C">
+      <p class="quiz-q"><span class="qnum">Câu 2.</span>Vì sao phát hiện đối tượng khó hơn phân loại ảnh?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Vì phát hiện chỉ hoạt động tốt với đúng một vật thể trong ảnh.</button>
+        <button class="quiz-opt" data-key="B">B. Vì phát hiện không thể huấn luyện bằng dữ liệu có gán nhãn.</button>
+        <button class="quiz-opt" data-key="C">C. Vì số lượng vật thể không cố định, kích thước/tỉ lệ đa dạng, cần định vị chính xác, và vật thể có thể bị che khuất.</button>
+        <button class="quiz-opt" data-key="D">D. Vì phát hiện luôn cần ảnh độ phân giải thấp hơn phân loại.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Nhớ lại 4 lý do được liệt kê ở mục 1.2.</p>
+      <p class="quiz-explain">Phát hiện khó hơn phân loại vì phải xử lý cùng lúc nhiều yếu tố: số lượng vật thể trong ảnh không biết trước, các vật thể có kích thước/tỉ lệ rất khác nhau, cần định vị chính xác vị trí (không chỉ gán nhãn), và vật thể có thể bị che khuất một phần bởi vật khác.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="D">
+      <p class="quiz-q"><span class="qnum">Câu 3.</span>Trong phương pháp cửa sổ trượt (sliding window) cổ điển, điều gì khiến chi phí tính toán tăng nhanh nhất?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Chỉ dùng một kích thước cửa sổ duy nhất trên toàn ảnh.</button>
+        <button class="quiz-opt" data-key="B">B. Ảnh đầu vào luôn có độ phân giải cực thấp.</button>
+        <button class="quiz-opt" data-key="C">C. Chỉ quét một hàng ngang duy nhất qua ảnh.</button>
+        <button class="quiz-opt" data-key="D">D. Phải quét nhiều vị trí và nhiều tỉ lệ (scale) khác nhau, khiến số cửa sổ cần phân loại tăng rất nhanh.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Liên hệ widget đếm số cửa sổ ở mục 2.1 — thử kéo thanh trượt "số tỉ lệ".</p>
+      <p class="quiz-explain">Sliding window phải thử mọi vị trí trên ảnh, ở mọi tỉ lệ khác nhau (để bắt được vật thể to lẫn nhỏ). Số vị trí tăng theo diện tích ảnh, còn số tỉ lệ nhân thêm một hệ số nữa — khiến tổng số cửa sổ cần phân loại bùng nổ rất nhanh, đó là lý do phương pháp này quá chậm để dùng thực tế.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 4.</span>Milestone nào được xem là bước ngoặt của phương pháp cổ điển trong phát hiện khuôn mặt thời gian thực?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. R-CNN (2014), mở đầu kỷ nguyên học sâu cho phát hiện.</button>
+        <button class="quiz-opt" data-key="B">B. Viola–Jones (2001), dùng đặc trưng Haar + AdaBoost + Cascade.</button>
+        <button class="quiz-opt" data-key="C">C. YOLO, đại diện trường phái một giai đoạn.</button>
+        <button class="quiz-opt" data-key="D">D. DETR, dựa trên kiến trúc Transformer.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Milestone này gắn liền với đặc trưng Haar, được OpenCV cài sẵn dưới dạng cascade.</p>
+      <p class="quiz-explain">Viola–Jones (2001) là bước ngoặt: kết hợp đặc trưng Haar, ảnh tích phân (tính tổng nhanh gần như tức thời), AdaBoost (chọn ra khoảng 6.000 đặc trưng tốt nhất trong hơn 160.000 đặc trưng ứng viên) và Cascade (loại nhanh vùng rõ ràng không phải mặt) — lần đầu cho phép phát hiện khuôn mặt thời gian thực trên phần cứng khi đó.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="A">
+      <p class="quiz-q"><span class="qnum">Câu 5.</span>Anchor box giải quyết vấn đề gì trong detector dựa trên anchor?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Thay vì dò mọi khung có thể ở mọi vị trí/kích thước, mô hình chỉ cần học điều chỉnh (offset) từ một tập khung mẫu định sẵn sang khung thật.</button>
+        <button class="quiz-opt" data-key="B">B. Anchor box thay thế hoàn toàn cho bước phân loại lớp.</button>
+        <button class="quiz-opt" data-key="C">C. Anchor box chỉ tồn tại trong giai đoạn đánh giá, không dùng khi huấn luyện.</button>
+        <button class="quiz-opt" data-key="D">D. Anchor box làm tăng độ phân giải của ảnh đầu vào.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Nhớ lại 3 loại anchor bạn vừa thử trong widget ở mục 3.2 (vuông/ngang/dọc).</p>
+      <p class="quiz-explain">Nếu phải dò mọi khung có thể ở mọi vị trí và mọi kích thước, chi phí sẽ bùng nổ y như sliding window ở Lớp 02. Anchor box đặt sẵn một tập khung mẫu với nhiều tỉ lệ khung hình tại mỗi vị trí của feature map; mô hình chỉ cần học một độ điều chỉnh nhỏ từ anchor gần nhất sang khung thật, thay vì học từ đầu — giúp bài toán dễ hội tụ hơn nhiều.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="C">
+      <p class="quiz-q"><span class="qnum">Câu 6.</span>NMS (Non-Maximum Suppression) hoạt động theo nguyên tắc nào?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Loại bỏ khung có điểm tin cậy cao nhất, chỉ giữ các khung còn lại.</button>
+        <button class="quiz-opt" data-key="B">B. Giữ lại tất cả các khung, chỉ đổi màu khung trùng lặp để phân biệt.</button>
+        <button class="quiz-opt" data-key="C">C. Giữ lại khung có điểm tin cậy cao nhất trong nhóm khung trùng lặp, loại các khung khác có IoU với nó vượt ngưỡng.</button>
+        <button class="quiz-opt" data-key="D">D. Chỉ áp dụng cho detector hai giai đoạn, không áp dụng cho một giai đoạn.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Đây đúng là thuật toán bạn đã chạy ở widget đầu bài.</p>
+      <p class="quiz-explain">NMS sắp xếp các khung theo điểm tin cậy giảm dần, luôn giữ khung điểm cao nhất còn lại, rồi loại mọi khung khác có IoU với nó vượt ngưỡng — lặp lại tới khi không còn khung nào để xét. Kết quả: mỗi vật thể chỉ còn đúng một khung đại diện, như bạn đã thấy widget rút 8 khung chồng lấn xuống còn 2.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="D">
+      <p class="quiz-q"><span class="qnum">Câu 7.</span>Vai trò chính của Neck (thường là FPN) trong kiến trúc backbone-neck-head là gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Thay thế hoàn toàn Backbone bằng một mạng nông hơn.</button>
+        <button class="quiz-opt" data-key="B">B. Thực hiện bước NMS cuối cùng thay cho Head.</button>
+        <button class="quiz-opt" data-key="C">C. Chỉ xuất hiện trong các detector dựa trên Transformer như DETR.</button>
+        <button class="quiz-opt" data-key="D">D. Gộp đặc trưng ở nhiều tỉ lệ khác nhau, giúp phát hiện tốt cả vật thể rất nhỏ lẫn rất to trong cùng một ảnh.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Liên hệ tình huống ảnh có cả xe tải to và biển báo nhỏ ở mục 3.4.</p>
+      <p class="quiz-explain">Backbone trích đặc trưng qua nhiều lớp; lớp sâu có ngữ nghĩa mạnh nhưng độ phân giải thấp (hợp vật to), lớp nông giữ độ phân giải cao hơn (hợp vật nhỏ). Neck/FPN gộp đặc trưng từ nhiều lớp — nhiều tỉ lệ — lại với nhau, để Head có đủ thông tin phát hiện tốt cả vật thể rất nhỏ lẫn rất to trong cùng một ảnh.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="A">
+      <p class="quiz-q"><span class="qnum">Câu 8.</span>So sánh hai trường phái kiến trúc, phát biểu nào đúng theo truyền thống?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Hai giai đoạn (họ R-CNN) thường chính xác hơn nhưng chậm hơn; một giai đoạn nhanh hơn, phù hợp thời gian thực — dù khoảng cách đã thu hẹp với các YOLO hiện đại.</button>
+        <button class="quiz-opt" data-key="B">B. Một giai đoạn luôn chính xác hơn hai giai đoạn trong mọi trường hợp.</button>
+        <button class="quiz-opt" data-key="C">C. Cả hai trường phái đều không thể chạy thời gian thực.</button>
+        <button class="quiz-opt" data-key="D">D. DETR thuộc trường phái hai giai đoạn cổ điển.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Liên hệ Hình 8 (biểu đồ đánh đổi chính xác–tốc độ) ở mục 4.3.</p>
+      <p class="quiz-explain">Hai giai đoạn (Faster R-CNN...) tách riêng bước đề xuất vùng rồi xử lý kỹ từng vùng, nên chính xác hơn nhưng chậm hơn. Một giai đoạn (YOLO, SSD...) dự đoán trực tiếp trong một lượt, nhanh hơn nhiều nên phù hợp thời gian thực — dù các YOLO hiện đại đã thu hẹp đáng kể khoảng cách chính xác so với hai giai đoạn.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="C">
+      <p class="quiz-q"><span class="qnum">Câu 9.</span>DETR khác biệt với các detector dựa trên anchor ở điểm nào?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. DETR sử dụng nhiều anchor hơn để tăng độ chính xác định vị.</button>
+        <button class="quiz-opt" data-key="B">B. DETR là một biến thể cải tiến của Haar cascade.</button>
+        <button class="quiz-opt" data-key="C">C. DETR bỏ cả anchor lẫn bước NMS, dự đoán trực tiếp một tập hợp kết quả cuối cùng bằng cơ chế Transformer đầu-cuối.</button>
+        <button class="quiz-opt" data-key="D">D. DETR chỉ hoạt động trên ảnh xám, không hỗ trợ ảnh màu.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại cụm từ "dự đoán tập hợp (set prediction)" ở mục 4.4.</p>
+      <p class="quiz-explain">DETR dùng kiến trúc Transformer để dự đoán trực tiếp một tập hợp các phát hiện cuối cùng, nên không cần thiết kế thủ công bộ anchor và cũng không cần bước hậu xử lý NMS riêng để dọn khung trùng lặp — pipeline gọn và thanh lịch hơn về mặt khái niệm so với các detector dựa trên anchor.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 10.</span>Phát biểu nào đúng khi so sánh mAP@0.5 và mAP@[.5:.95] trên cùng một mô hình?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Hai chỉ số này luôn cho kết quả bằng nhau vì cùng đo trên một mô hình.</button>
+        <button class="quiz-opt" data-key="B">B. mAP@0.5 luôn cao hơn mAP@[.5:.95], vì mAP@0.5 dùng ngưỡng IoU dễ đạt hơn còn mAP@[.5:.95] đòi hỏi khớp chính xác hơn ở nhiều ngưỡng cao.</button>
+        <button class="quiz-opt" data-key="C">C. mAP@[.5:.95] luôn cao hơn mAP@0.5 vì tính trung bình qua nhiều ngưỡng.</button>
+        <button class="quiz-opt" data-key="D">D. Không thể so sánh hai chỉ số này trong bất kỳ trường hợp nào, kể cả cùng dữ liệu.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại ô lưu ý (callout) ở mục 5.2.</p>
+      <p class="quiz-explain">mAP@0.5 chỉ đòi hỏi IoU ≥ 0.5 để tính là khớp đúng — một ngưỡng khá dễ đạt. mAP@[.5:.95] lấy trung bình qua nhiều ngưỡng IoU từ 0.5 đến 0.95, tức đòi hỏi khung dự đoán khớp chính xác hơn nhiều ở các ngưỡng cao — nên trên cùng một mô hình, mAP@0.5 luôn cao hơn mAP@[.5:.95]. Đây cũng là lý do phải luôn so sánh hai mô hình trên cùng một thang đo.</p>
+    </div>
+  </div>
+</section>
+<section class="section" id="end">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Tổng kết</span>
+    <h2 class="section-title">Đủ bản đồ khái niệm để bước vào YOLO</h2>
+    <p>Bạn vừa nắm trọn <strong>nền tảng của bài toán phát hiện đối tượng</strong>: từ việc hiểu nó là <strong>định vị + phân loại nhiều vật thể</strong> và vì sao khó hơn phân loại, qua các phương pháp <strong>cổ điển</strong> (cửa sổ trượt, Viola–Jones mà bạn đã chạy thật), đến các <strong>khối xây dựng</strong> của detector hiện đại — bounding box, IoU, anchor, <strong>NMS</strong> (cũng chạy thật ngay trong bài), và cấu trúc backbone–neck–head. Bạn cũng phân biệt được <strong>hai trường phái</strong> (hai giai đoạn chính xác vs một giai đoạn nhanh) và biết <strong>đánh giá</strong> bằng mAP.</p>
+    <p>Giờ bạn đã có đủ bản đồ khái niệm để đi sâu vào mô hình phát hiện phổ biến nhất. <strong>Bài 7 — YOLO</strong> sẽ mổ xẻ cách YOLO biến ý tưởng "một giai đoạn" thành hiện thực: chia ảnh thành lưới, dự đoán trực tiếp, và quan trọng nhất — <strong>thực hành chạy và huấn luyện YOLO</strong> trên dữ liệu thật. Hãy hoàn thành các bài tập ở phần trên trước khi đi tiếp, đặc biệt là tự cài đặt NMS, vì nó sẽ giúp bạn hiểu sâu hơn cơ chế bên trong mọi detector.</p>
+  </div>
+</section>
+
+<div class="footer">
+  <div class="wrap">
+    Học sâu cho Thị giác Máy tính — Bài giảng Tutorial 6 · Phát hiện Đối tượng
+  </div>
+</div>
+
+</main>
+</div>
+<script>
+/* ---------- Reveal / Hint toggles ---------- */
+function toggleReveal(btn){
+  const box = btn.nextElementSibling;
+  box.classList.toggle('show');
+  btn.textContent = box.classList.contains('show') ? 'Ẩn đáp án' : 'Hiện đáp án';
+}
+function toggleHint(btn){
+  const hint = btn.closest('.quiz-item').querySelector('.quiz-hint');
+  hint.classList.toggle('show');
+  btn.textContent = hint.classList.contains('show') ? 'Ẩn gợi ý' : 'Gợi ý';
+}
+
+/* ---------- Quiz logic (giữ nguyên cho mọi bài) ---------- */
+document.querySelectorAll('.quiz-item').forEach(item=>{
+  const answer = item.dataset.answer;
+  const opts = item.querySelectorAll('.quiz-opt');
+  const explain = item.querySelector('.quiz-explain');
+  opts.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(item.classList.contains('answered')) return;
+      item.classList.add('answered');
+      opts.forEach(o=>o.disabled=true);
+      if(opt.dataset.key === answer){
+        opt.classList.add('correct');
+      } else {
+        opt.classList.add('incorrect');
+        const correctBtn = item.querySelector('.quiz-opt[data-key="'+answer+'"]');
+        if(correctBtn) correctBtn.classList.add('correct');
+      }
+      if(explain) explain.classList.add('show');
+    });
+  });
+});
+
+/* ---------- Rail scrollspy (giữ nguyên cho mọi bài) ---------- */
+(function railScrollSpy(){
+  const map={};
+  document.querySelectorAll('.rail-item').forEach(item=>{
+    const a=item.querySelector('a');
+    if(a){ map[a.getAttribute('href').slice(1)] = item; }
+  });
+  const targets=Object.keys(map).map(id=>document.getElementById(id)).filter(Boolean);
+  const observer=new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        Object.values(map).forEach(it=>it.classList.remove('active'));
+        const item=map[entry.target.id];
+        if(item) item.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-35% 0px -55% 0px', threshold:0});
+  targets.forEach(t=>observer.observe(t));
+})();
+
+/* ---------- Syntax highlighting (giữ nguyên cho mọi bài) ---------- */
+if(window.hljs){ hljs.highlightAll(); }
+
+/* ---------- BÊN DƯỚI: JS riêng cho widget của bài này ---------- */
+
+/* ---------- Widget 1: Non-Maximum Suppression (hero) ---------- */
+(function(){
+  const boxData = [
+    {x1:50,  y1:70, x2:230, y2:230, score:0.95, group:'A'},
+    {x1:65,  y1:85, x2:245, y2:245, score:0.81, group:'A'},
+    {x1:40,  y1:60, x2:215, y2:215, score:0.74, group:'A'},
+    {x1:75,  y1:95, x2:250, y2:250, score:0.62, group:'A'},
+    {x1:400, y1:60, x2:560, y2:250, score:0.93, group:'B'},
+    {x1:415, y1:75, x2:575, y2:260, score:0.86, group:'B'},
+    {x1:385, y1:50, x2:545, y2:235, score:0.70, group:'B'},
+    {x1:420, y1:80, x2:580, y2:265, score:0.58, group:'B'}
+  ];
+
+  function boxIoU(a, b){
+    const x1 = Math.max(a.x1, b.x1), y1 = Math.max(a.y1, b.y1);
+    const x2 = Math.min(a.x2, b.x2), y2 = Math.min(a.y2, b.y2);
+    const inter = Math.max(0, x2 - x1) * Math.max(0, y2 - y1);
+    const areaA = (a.x2 - a.x1) * (a.y2 - a.y1);
+    const areaB = (b.x2 - b.x1) * (b.y2 - b.y1);
+    const union = areaA + areaB - inter;
+    return union > 0 ? inter / union : 0;
+  }
+
+  function runNMS(thresh){
+    let idx = boxData.map((b,i)=>i).sort((i,j)=> boxData[j].score - boxData[i].score);
+    const keep = [];
+    const log = [];
+    while(idx.length){
+      const i = idx.shift();
+      keep.push(i);
+      log.push({type:'keep', i:i});
+      const remaining = [];
+      idx.forEach(j=>{
+        const v = boxIoU(boxData[i], boxData[j]);
+        if(v < thresh){
+          remaining.push(j);
+        } else {
+          log.push({type:'drop', j:j, withI:i, iou:v});
+        }
+      });
+      idx = remaining;
+    }
+    return {keep:keep, log:log};
+  }
+
+  const threshInput = document.getElementById('nmsThresh');
+  const threshVal   = document.getElementById('nmsThreshVal');
+  const runBtn      = document.getElementById('nmsRunBtn');
+  const resetBtn    = document.getElementById('nmsResetBtn');
+  const keptCountEl = document.getElementById('nmsKeptCount');
+  const logEl       = document.getElementById('nmsLog');
+  const boxEls      = boxData.map((b,i)=> document.getElementById('nmsBox'+i));
+
+  if(threshInput){
+    threshInput.addEventListener('input', ()=>{
+      threshVal.textContent = parseFloat(threshInput.value).toFixed(2);
+    });
+  }
+
+  function resetVisual(){
+    boxEls.forEach(el=>{ if(el) el.classList.remove('kept','dropped'); });
+    keptCountEl.textContent = '—';
+    logEl.innerHTML = '<span class="log-empty">Bấm "Chạy NMS" để xem thuật toán chọn khung nào, loại khung nào — và vì sao.</span>';
+  }
+
+  if(runBtn){
+    runBtn.addEventListener('click', ()=>{
+      const thresh = parseFloat(threshInput.value);
+      resetVisual();
+      const result = runNMS(thresh);
+      const keepSet = new Set(result.keep);
+      boxEls.forEach((el,i)=>{
+        if(el) el.classList.add(keepSet.has(i) ? 'kept' : 'dropped');
+      });
+      keptCountEl.textContent = result.keep.length;
+      const lines = result.log.map(l=>{
+        if(l.type === 'keep'){
+          return '<div class="log-keep">Giữ khung #'+l.i+' (điểm '+boxData[l.i].score.toFixed(2)+') — điểm tin cậy cao nhất còn lại.</div>';
+        }
+        return '<div class="log-drop">Loại khung #'+l.j+' (điểm '+boxData[l.j].score.toFixed(2)+') — IoU với khung #'+l.withI+' = '+l.iou.toFixed(2)+' ≥ ngưỡng '+thresh.toFixed(2)+'.</div>';
+      });
+      logEl.innerHTML = lines.join('');
+    });
+  }
+
+  if(resetBtn){
+    resetBtn.addEventListener('click', ()=>{
+      threshInput.value = 0.50;
+      threshVal.textContent = '0.50';
+      resetVisual();
+    });
+  }
+})();
+
+/* ---------- Widget 2: Dem so cua so truot ---------- */
+(function(){
+  const sizeInput   = document.getElementById('swSize');
+  const strideInput = document.getElementById('swStride');
+  const scalesInput = document.getElementById('swScales');
+  const sizeVal     = document.getElementById('swSizeVal');
+  const strideVal   = document.getElementById('swStrideVal');
+  const scalesVal   = document.getElementById('swScalesVal');
+  const totalEl     = document.getElementById('swTotalNum');
+  if(!sizeInput) return;
+
+  function formatVN(n){
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+
+  function compute(){
+    const N = parseInt(sizeInput.value, 10);
+    const stride = parseInt(strideInput.value, 10);
+    const scales = parseInt(scalesInput.value, 10);
+    let total = 0;
+    for(let i = 0; i < scales; i++){
+      const w = Math.round(64 * Math.pow(1.15, i));
+      if(w >= N) continue;
+      const pos = Math.floor((N - w) / stride) + 1;
+      total += pos * pos;
+    }
+    sizeVal.textContent = N + 'px';
+    strideVal.textContent = stride + 'px';
+    scalesVal.textContent = scales;
+    totalEl.textContent = formatVN(total);
+  }
+
+  [sizeInput, strideInput, scalesInput].forEach(el=>{
+    el.addEventListener('input', compute);
+  });
+  compute();
+})();
+
+/* ---------- Widget 3: Anchor box ---------- */
+(function(){
+  const grid = document.getElementById('anchorGrid');
+  if(!grid) return;
+  const ROWS = 4, COLS = 6, CELL = 80;
+  const svgNS = 'http://www.w3.org/2000/svg';
+
+  const squareEl = document.getElementById('anchorSquare');
+  const wideEl   = document.getElementById('anchorWide');
+  const tallEl   = document.getElementById('anchorTall');
+  const dotEl    = document.getElementById('anchorCenterDot');
+  const labelEl  = document.getElementById('anchorPosLabel');
+
+  function moveAnchor(r, c){
+    const cx = c * CELL + CELL / 2;
+    const cy = r * CELL + CELL / 2;
+    squareEl.setAttribute('x', cx - 28); squareEl.setAttribute('y', cy - 28);
+    squareEl.setAttribute('width', 56);  squareEl.setAttribute('height', 56);
+    wideEl.setAttribute('x', cx - 39);   wideEl.setAttribute('y', cy - 20);
+    wideEl.setAttribute('width', 78);    wideEl.setAttribute('height', 40);
+    tallEl.setAttribute('x', cx - 20);   tallEl.setAttribute('y', cy - 39);
+    tallEl.setAttribute('width', 40);    tallEl.setAttribute('height', 78);
+    dotEl.setAttribute('cx', cx); dotEl.setAttribute('cy', cy);
+    labelEl.textContent = 'Tâm anchor: hàng ' + (r+1) + ', cột ' + (c+1) + ' — bấm ô khác trong lưới để di chuyển.';
+  }
+
+  for(let r = 0; r < ROWS; r++){
+    for(let c = 0; c < COLS; c++){
+      const rect = document.createElementNS(svgNS, 'rect');
+      rect.setAttribute('class', 'anchor-cell');
+      rect.setAttribute('x', c * CELL);
+      rect.setAttribute('y', r * CELL);
+      rect.setAttribute('width', CELL);
+      rect.setAttribute('height', CELL);
+      rect.dataset.row = r;
+      rect.dataset.col = c;
+      rect.addEventListener('click', ()=> moveAnchor(r, c));
+      grid.appendChild(rect);
+    }
+  }
+
+  moveAnchor(1, 2); /* vi tri mac dinh: hang 2, cot 3 (hien thi 1-indexed) */
+})();
+</script>
+</body>
+</html>

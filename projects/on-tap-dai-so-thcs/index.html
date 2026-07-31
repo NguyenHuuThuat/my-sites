@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ôn tập Đại số THCS – Chuẩn bị vào lớp 10</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<style>
+  :root{
+    --paper:#F4F5F0;
+    --paper-alt:#ECEEE6;
+    --ink:#1B2624;
+    --ink-soft:#4B5A56;
+    --rule:#D8DBCF;
+    --c1:#1F8A82; /* Căn bậc hai */
+    --c1-bg:#E3F2EF;
+    --c2:#39588F; /* Hàm bậc nhất */
+    --c2-bg:#E5EAF3;
+    --c3:#B4741C; /* Hàm bậc hai */
+    --c3-bg:#F5EADA;
+    --c4:#A83B49; /* PT bậc hai - Vi-ét */
+    --c4-bg:#F5E1E2;
+    --c5:#6B4E9E; /* Hệ phương trình */
+    --c5-bg:#EBE3F4;
+    --c6:#3F7D4A; /* Toán lập pt */
+    --c6-bg:#E1EEE1;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65;
+    font-size:16px;
+  }
+  h1,h2,h3,h4{
+    font-family:Georgia,"Palatino Linotype","Times New Roman",serif;
+    font-weight:700;
+    line-height:1.25;
+    margin:0 0 .5em 0;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:0 18px 80px;}
+
+  /* ===== Header ===== */
+  .top{
+    background:var(--ink);
+    color:var(--paper);
+    padding:38px 18px 30px;
+  }
+  .top .wrap{padding:0;}
+  .eyebrow{
+    font-family:"SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:12.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:#B9C4B7;
+    margin-bottom:10px;
+  }
+  .top h1{font-size:clamp(26px,5vw,38px);color:#FBFBF6;margin-bottom:8px;}
+  .top p.sub{color:#C9D0C4;font-size:15.5px;max-width:56ch;margin:0;}
+  .meta-row{
+    display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;
+  }
+  .meta-chip{
+    font-size:12.5px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;
+    border:1px solid #4C5A55;color:#D6DCD1;
+    padding:5px 10px;border-radius:20px;
+  }
+
+  /* ===== TOC ===== */
+  .toc{
+    display:flex;gap:8px;overflow-x:auto;padding:14px 18px;
+    background:var(--paper-alt);border-bottom:1px solid var(--rule);
+    position:sticky;top:0;z-index:50;
+    -webkit-overflow-scrolling:touch;
+  }
+  .toc a{
+    flex:0 0 auto;
+    text-decoration:none;
+    font-size:13px;
+    font-weight:600;
+    padding:8px 13px;
+    border-radius:8px;
+    white-space:nowrap;
+    color:var(--ink);
+    border:1px solid var(--rule);
+    background:var(--paper);
+  }
+  .toc a b{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:700;margin-right:5px;opacity:.55;}
+
+  /* ===== Controls ===== */
+  .controls{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    margin:22px 0 6px;
+  }
+  .controls button{
+    font-family:inherit;font-size:13.5px;font-weight:600;
+    padding:9px 15px;border-radius:8px;border:1px solid var(--ink);
+    background:var(--ink);color:var(--paper);cursor:pointer;
+  }
+  .controls button.ghost{background:transparent;color:var(--ink);}
+  .controls span.hint{font-size:13px;color:var(--ink-soft);}
+
+  /* ===== Intro ===== */
+  .intro{padding:26px 0 6px;}
+  .intro p{color:var(--ink-soft);max-width:64ch;}
+
+  /* ===== Chapter ===== */
+  .chapter{margin-top:56px;scroll-margin-top:70px;}
+  .chapter-tab{
+    display:inline-flex;align-items:baseline;gap:10px;
+    padding:9px 16px 10px;
+    border-radius:10px 10px 0 0;
+    color:#fff;
+  }
+  .chapter-tab .num{
+    font-family:"SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:13px;opacity:.85;
+  }
+  .chapter-tab .name{font-family:Georgia,serif;font-weight:700;font-size:20px;}
+  .chapter-body{
+    border-radius:0 10px 10px 10px;
+    border:1px solid var(--rule);
+    background:#fff;
+    padding:26px 22px 30px;
+  }
+
+  /* ===== Theory box ===== */
+  .theory-box{
+    background:var(--box-bg,var(--paper-alt));
+    border-left:4px solid var(--box-c,var(--ink));
+    border-radius:6px;
+    padding:16px 18px;
+    margin:16px 0 22px;
+  }
+  .theory-box h4{font-size:13px;text-transform:uppercase;letter-spacing:.07em;font-family:"SFMono-Regular",Consolas,Menlo,monospace;color:var(--box-c,var(--ink));margin-bottom:10px;}
+  .theory-box ul{margin:0;padding-left:20px;}
+  .theory-box li{margin-bottom:8px;}
+  .theory-box li:last-child{margin-bottom:0;}
+
+  /* ===== Example box ===== */
+  .example-box{
+    border:1px dashed var(--box-c,var(--ink-soft));
+    border-radius:6px;
+    padding:16px 18px;
+    margin:16px 0 22px;
+    background:#FCFCF9;
+  }
+  .example-box h4{
+    font-size:13px;text-transform:uppercase;letter-spacing:.07em;
+    font-family:"SFMono-Regular",Consolas,Menlo,monospace;
+    color:var(--box-c,var(--ink));margin-bottom:10px;
+  }
+  .example-box .steps p{margin:.5em 0;}
+
+  /* ===== Problems ===== */
+  .problems-head{
+    font-size:13px;text-transform:uppercase;letter-spacing:.07em;
+    font-family:"SFMono-Regular",Consolas,Menlo,monospace;
+    color:var(--ink-soft);margin:26px 0 12px;
+    border-top:1px solid var(--rule);padding-top:18px;
+  }
+  .problem{
+    border:1px solid var(--rule);
+    border-radius:8px;
+    padding:16px 18px;
+    margin-bottom:14px;
+    background:var(--paper);
+  }
+  .problem-head{
+    display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
+    margin-bottom:6px;
+  }
+  .problem-num{
+    font-family:"SFMono-Regular",Consolas,Menlo,monospace;
+    font-weight:700;color:var(--box-c,var(--ink));font-size:14px;flex:0 0 auto;
+  }
+  .badge{
+    font-size:10.5px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;
+    text-transform:uppercase;letter-spacing:.05em;
+    padding:3px 8px;border-radius:20px;flex:0 0 auto;
+    border:1px solid currentColor;opacity:.8;
+  }
+  .b-nb{color:#2F7D6B;}
+  .b-th{color:#3E5C9A;}
+  .b-vd{color:#B4741C;}
+  .b-vdc{color:#A83B49;}
+  .problem-text{margin:6px 0 10px;}
+  .btn-toggle{
+    font-family:"SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:12.5px;font-weight:600;
+    background:transparent;
+    border:1px solid var(--box-c,var(--ink));
+    color:var(--box-c,var(--ink));
+    padding:6px 12px;border-radius:20px;cursor:pointer;
+  }
+  .btn-toggle.active{background:var(--box-c,var(--ink));color:#fff;}
+  .solution{
+    display:none;
+    margin-top:14px;
+    padding:14px 16px;
+    border-radius:6px;
+    background:var(--box-bg,var(--paper-alt));
+    border-left:3px solid var(--box-c,var(--ink));
+  }
+  .solution p{margin:.45em 0;}
+  .solution .lbl{
+    font-family:"SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--box-c,var(--ink));margin-bottom:8px;font-weight:700;
+  }
+
+  /* per-chapter color hooks */
+  #ch1{--box-c:var(--c1);--box-bg:var(--c1-bg);}
+  #ch2{--box-c:var(--c2);--box-bg:var(--c2-bg);}
+  #ch3{--box-c:var(--c3);--box-bg:var(--c3-bg);}
+  #ch4{--box-c:var(--c4);--box-bg:var(--c4-bg);}
+  #ch5{--box-c:var(--c5);--box-bg:var(--c5-bg);}
+  #ch6{--box-c:var(--c6);--box-bg:var(--c6-bg);}
+  #ch1 .chapter-tab{background:var(--c1);}
+  #ch2 .chapter-tab{background:var(--c2);}
+  #ch3 .chapter-tab{background:var(--c3);}
+  #ch4 .chapter-tab{background:var(--c4);}
+  #ch5 .chapter-tab{background:var(--c5);}
+  #ch6 .chapter-tab{background:var(--c6);}
+
+  footer{
+    margin-top:60px;padding-top:20px;border-top:1px solid var(--rule);
+    color:var(--ink-soft);font-size:13px;
+  }
+
+  @media print{
+    .toc,.controls,.btn-toggle{display:none !important;}
+    .solution{display:block !important;}
+    .top{background:#fff !important;color:#000 !important;}
+    .top .eyebrow,.top .sub,.meta-chip{color:#333 !important;}
+    .top h1{color:#000 !important;}
+  }
+  @media (max-width:600px){
+    .chapter-tab .name{font-size:17px;}
+    .chapter-body{padding:20px 14px 24px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wrap">
+    <div class="eyebrow">Tài liệu ôn tập &nbsp;•&nbsp; Toán 9 &nbsp;•&nbsp; Chuẩn bị vào lớp 10</div>
+    <h1>Ôn tập Đại số THCS</h1>
+    <p class="sub">Hệ thống hoá lý thuyết và bài tập trọng tâm phần Đại số lớp 9 — nền tảng bắt buộc trước khi bước vào chương trình Toán 10.</p>
+    <div class="meta-row">
+      <span class="meta-chip">6 chuyên đề</span>
+      <span class="meta-chip">45 bài tập có lời giải chi tiết</span>
+      <span class="meta-chip">10 ví dụ minh hoạ</span>
+    </div>
+  </div>
+</div>
+
+<nav class="toc">
+  <a href="#ch1"><b>01</b>Căn bậc hai – Căn bậc ba</a>
+  <a href="#ch2"><b>02</b>Hàm số bậc nhất</a>
+  <a href="#ch3"><b>03</b>Hàm số bậc hai</a>
+  <a href="#ch4"><b>04</b>PT bậc hai – Vi-ét</a>
+  <a href="#ch5"><b>05</b>Hệ phương trình</a>
+  <a href="#ch6"><b>06</b>Giải toán bằng lập PT</a>
+</nav>
+
+<div class="wrap">
+
+  <div class="controls">
+    <button onclick="showAll()">Hiện tất cả lời giải</button>
+    <button class="ghost" onclick="hideAll()">Ẩn tất cả lời giải</button>
+    <span class="hint">Bấm “Xem lời giải” ở từng bài để hiện/ẩn đáp án.</span>
+  </div>
+
+  <div class="intro">
+    <p>Mỗi chuyên đề gồm ba phần: <b>tóm tắt lý thuyết</b> cần nhớ, <b>ví dụ minh hoạ</b> có lời giải đầy đủ, và <b>bài tập tự luyện</b> theo mức độ tăng dần (Nhận biết → Thông hiểu → Vận dụng → Vận dụng cao). Lời giải mặc định ẩn — hãy tự làm trước khi bấm xem đáp án.</p>
+  </div>
+
+  <!-- ============ CHƯƠNG 1 ============ -->
+  <section class="chapter" id="ch1">
+    <div class="chapter-tab"><span class="num">01</span><span class="name">Căn bậc hai – Căn bậc ba</span></div>
+    <div class="chapter-body">
+
+      <div class="theory-box">
+        <h4>Tóm tắt lý thuyết</h4>
+        <ul>
+          <li>Với \(a \ge 0\): \(\sqrt{a}\) là số không âm sao cho \((\sqrt{a})^2 = a\). Biểu thức \(\sqrt{A}\) xác định khi \(A \ge 0\).</li>
+          <li>Hằng đẳng thức căn bậc hai: \(\sqrt{A^2} = |A|\).</li>
+          <li>Khai phương một tích, một thương (với điều kiện các biểu thức có nghĩa):
+            \(\sqrt{A\cdot B} = \sqrt{A}\cdot\sqrt{B}\;(A,B\ge 0)\), &nbsp; \(\sqrt{\dfrac{A}{B}} = \dfrac{\sqrt{A}}{\sqrt{B}}\;(A\ge 0, B>0)\).</li>
+          <li>Đưa thừa số ra ngoài / vào trong dấu căn: \(\sqrt{A^2B} = |A|\sqrt{B}\;(B\ge 0)\).</li>
+          <li>Trục căn thức ở mẫu: \(\dfrac{1}{\sqrt{A}} = \dfrac{\sqrt{A}}{A}\;(A>0)\); &nbsp; \(\dfrac{1}{\sqrt{A}\pm\sqrt{B}} = \dfrac{\sqrt{A}\mp\sqrt{B}}{A-B}\;(A,B\ge0,\,A\) ≠ \(B)\).</li>
+          <li>Căn bậc ba \(\sqrt[3]{a}\): mọi số thực \(a\) đều có đúng một căn bậc ba; \((\sqrt[3]{a})^3=a\); \(\sqrt[3]{A\cdot B}=\sqrt[3]{A}\cdot\sqrt[3]{B}\).</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 1 — Rút gọn biểu thức chứa căn</h4>
+        <div class="steps">
+          <p><b>Tính:</b> \(\sqrt{75} - \sqrt{27} + \sqrt{3}\)</p>
+          <p><b>Giải:</b></p>
+          <p>\(\sqrt{75} - \sqrt{27} + \sqrt{3} = \sqrt{25\cdot 3} - \sqrt{9\cdot 3} + \sqrt{3} = 5\sqrt{3} - 3\sqrt{3} + \sqrt{3} = 3\sqrt{3}\)</p>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 2 — Rút gọn biểu thức tổng hợp (có điều kiện)</h4>
+        <div class="steps">
+          <p><b>Rút gọn:</b> \(B = \dfrac{\sqrt{x}}{\sqrt{x}-2} + \dfrac{\sqrt{x}}{\sqrt{x}+2} - \dfrac{x+2}{x-4}\) &nbsp; với \(x \ge 0,\ x\) ≠ \(4\).</p>
+          <p><b>Giải:</b> Ta có \(x - 4 = (\sqrt{x}-2)(\sqrt{x}+2)\), quy đồng mẫu chung \(x-4\):</p>
+          <p>\(B = \dfrac{\sqrt{x}(\sqrt{x}+2) + \sqrt{x}(\sqrt{x}-2) - (x+2)}{x-4} = \dfrac{(x+2\sqrt{x}) + (x-2\sqrt{x}) - x - 2}{x-4}\)</p>
+          <p>\(B = \dfrac{2x - x - 2}{x-4} = \dfrac{x-2}{x-4}\)</p>
+          <p>Vậy \(B = \dfrac{x-2}{x-4}\) với \(x\ge 0,\ x\) ≠ \(4\).</p>
+        </div>
+      </div>
+
+      <div class="problems-head">Bài tập tự luyện — Căn bậc hai, căn bậc ba</div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.1</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Tìm điều kiện xác định của biểu thức \(\sqrt{2x-6}\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-1', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-1">
+          <p class="lbl">Lời giải</p>
+          <p>Biểu thức \(\sqrt{2x-6}\) xác định \(\iff 2x - 6 \ge 0 \iff x \ge 3\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.2</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Tính giá trị biểu thức: \(\sqrt{49} - \sqrt{16} + \sqrt{25}\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-2', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-2">
+          <p class="lbl">Lời giải</p>
+          <p>\(\sqrt{49} - \sqrt{16} + \sqrt{25} = 7 - 4 + 5 = 8\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.3</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Rút gọn biểu thức: \(\sqrt{20} + \sqrt{45} - \sqrt{80}\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-3', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-3">
+          <p class="lbl">Lời giải</p>
+          <p>\(\sqrt{20}=2\sqrt5,\quad \sqrt{45}=3\sqrt5,\quad \sqrt{80}=4\sqrt5\)</p>
+          <p>\(\Rightarrow \sqrt{20}+\sqrt{45}-\sqrt{80} = 2\sqrt5+3\sqrt5-4\sqrt5 = \sqrt5\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.4</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Rút gọn biểu thức: \((\sqrt3-\sqrt2)^2 + 2\sqrt6\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-4', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-4">
+          <p class="lbl">Lời giải</p>
+          <p>\((\sqrt3-\sqrt2)^2 = 3 - 2\sqrt6 + 2 = 5 - 2\sqrt6\)</p>
+          <p>\(\Rightarrow (\sqrt3-\sqrt2)^2+2\sqrt6 = 5-2\sqrt6+2\sqrt6 = 5\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.5</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Trục căn thức ở mẫu và rút gọn: \(A = \dfrac{3}{\sqrt5+2}\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-5', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-5">
+          <p class="lbl">Lời giải</p>
+          <p>Nhân cả tử và mẫu với \(\sqrt5-2\):</p>
+          <p>\(A = \dfrac{3(\sqrt5-2)}{(\sqrt5+2)(\sqrt5-2)} = \dfrac{3(\sqrt5-2)}{5-4} = 3\sqrt5-6\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.6</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">So sánh hai số \(2\sqrt3\) và \(3\sqrt2\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-6', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-6">
+          <p class="lbl">Lời giải</p>
+          <p>\(2\sqrt3 = \sqrt{4\cdot3} = \sqrt{12}\)</p>
+          <p>\(3\sqrt2 = \sqrt{9\cdot2} = \sqrt{18}\)</p>
+          <p>Vì \(12 < 18\) nên \(\sqrt{12} < \sqrt{18}\), tức là \(2\sqrt3 < 3\sqrt2\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.7</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Tìm \(x\), biết: \(\sqrt{x-1} = 3\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-7', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-7">
+          <p class="lbl">Lời giải</p>
+          <p>Điều kiện: \(x \ge 1\). Bình phương hai vế: \(x - 1 = 9 \Rightarrow x = 10\).</p>
+          <p>Đối chiếu điều kiện \(x=10\ge 1\): thoả mãn. Vậy \(x = 10\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 1.8</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Rút gọn biểu thức: \(P = \dfrac{\sqrt{x}}{\sqrt{x}-1} - \dfrac{1}{x-\sqrt{x}}\), với \(x>0,\ x\) ≠ \(1\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-1-8', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-1-8">
+          <p class="lbl">Lời giải</p>
+          <p>Ta có \(x - \sqrt{x} = \sqrt{x}(\sqrt{x}-1)\), nên mẫu chung là \(\sqrt{x}(\sqrt{x}-1)\):</p>
+          <p>\(P = \dfrac{\sqrt{x}\cdot\sqrt{x}}{\sqrt{x}(\sqrt{x}-1)} - \dfrac{1}{\sqrt{x}(\sqrt{x}-1)} = \dfrac{x - 1}{\sqrt{x}(\sqrt{x}-1)}\)</p>
+          <p>Vì \(x - 1 = (\sqrt{x}-1)(\sqrt{x}+1)\), rút gọn \((\sqrt{x}-1)\):</p>
+          <p>\(P = \dfrac{(\sqrt{x}-1)(\sqrt{x}+1)}{\sqrt{x}(\sqrt{x}-1)} = \dfrac{\sqrt{x}+1}{\sqrt{x}}\)</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ CHƯƠNG 2 ============ -->
+  <section class="chapter" id="ch2">
+    <div class="chapter-tab"><span class="num">02</span><span class="name">Hàm số bậc nhất</span></div>
+    <div class="chapter-body">
+
+      <div class="theory-box">
+        <h4>Tóm tắt lý thuyết</h4>
+        <ul>
+          <li>Hàm số bậc nhất có dạng \(y = ax + b\ (a\) ≠ \(0)\), xác định với mọi \(x \in \mathbb{R}\).</li>
+          <li>Nếu \(a>0\): hàm số đồng biến trên \(\mathbb{R}\). Nếu \(a<0\): hàm số nghịch biến trên \(\mathbb{R}\).</li>
+          <li>Đồ thị là đường thẳng cắt trục tung tại điểm \((0;b)\) và cắt trục hoành tại điểm \(\left(-\dfrac{b}{a};0\right)\); \(a\) gọi là hệ số góc.</li>
+          <li>Cho hai đường thẳng \((d)\!:y=ax+b\) và \((d')\!:y=a'x+b'\) \((a,a'\) ≠ \(0)\):
+            <br>— Song song \(\iff a=a',\ b\) ≠ \(b'\) &nbsp;&nbsp; — Trùng nhau \(\iff a=a',\ b=b'\)
+            <br>— Cắt nhau \(\iff a\) ≠ \(a'\) &nbsp;&nbsp; — Vuông góc \(\iff a\cdot a' = -1\)</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 1 — Tính giá trị hàm số &amp; xét biến thiên</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Cho hàm số \(y = 2x - 3\). Tính \(f(0), f(-1), f(2)\) và cho biết hàm số đồng biến hay nghịch biến.</p>
+          <p><b>Giải:</b> Vì \(a = 2 > 0\) nên hàm số đồng biến trên \(\mathbb{R}\).</p>
+          <p>\(f(0) = 2(0)-3 = -3\)</p>
+          <p>\(f(-1) = 2(-1)-3 = -5\)</p>
+          <p>\(f(2) = 2(2)-3 = 1\)</p>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 2 — Viết phương trình đường thẳng</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Viết phương trình đường thẳng đi qua điểm \(A(1;2)\) và song song với đường thẳng \(y = 3x + 1\).</p>
+          <p><b>Giải:</b> Vì song song với \(y=3x+1\) nên đường thẳng cần tìm có dạng \(y = 3x + b\ (b\) ≠ \(1)\).</p>
+          <p>Đường thẳng đi qua \(A(1;2)\): \(2 = 3(1) + b \Rightarrow b = -1\) (thoả \(b\) ≠ \(1\)).</p>
+          <p>Vậy phương trình cần tìm: \(y = 3x - 1\).</p>
+        </div>
+      </div>
+
+      <div class="problems-head">Bài tập tự luyện — Hàm số bậc nhất</div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.1</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Cho hàm số \(y = (m-1)x + 2\). Tìm \(m\) để hàm số đồng biến trên \(\mathbb{R}\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-1', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-1">
+          <p class="lbl">Lời giải</p>
+          <p>Hàm số đồng biến \(\iff m - 1 > 0 \iff m > 1\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.2</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Tìm \(m\) để \(y = (2m+1)x - 3\) là hàm số bậc nhất.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-2', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-2">
+          <p class="lbl">Lời giải</p>
+          <p>Hàm số bậc nhất cần hệ số \(a\) ≠ \(0\): \(2m+1\) ≠ \(0 \iff m\) ≠ \(-\dfrac12\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.3</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Xác định \(a, b\) biết đồ thị hàm số \(y=ax+b\) đi qua hai điểm \(A(0;3)\) và \(B(2;7)\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-3', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-3">
+          <p class="lbl">Lời giải</p>
+          <p>Qua \(A(0;3)\): \(3 = a\cdot0 + b \Rightarrow b = 3\).</p>
+          <p>Qua \(B(2;7)\): \(7 = 2a + 3 \Rightarrow a = 2\).</p>
+          <p>Vậy \(y = 2x + 3\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.4</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Tìm giao điểm của đường thẳng \(y = 2x - 4\) với hai trục toạ độ.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-4', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-4">
+          <p class="lbl">Lời giải</p>
+          <p>Giao với \(Ox\) (\(y=0\)): \(0 = 2x-4 \Rightarrow x=2\) → điểm \((2;0)\).</p>
+          <p>Giao với \(Oy\) (\(x=0\)): \(y = -4\) → điểm \((0;-4)\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.5</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Tìm \(m\) để hai đường thẳng \(y=(m+2)x+1\) và \(y=3x-2\) song song với nhau.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-5', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-5">
+          <p class="lbl">Lời giải</p>
+          <p>Song song \(\iff m+2 = 3\) và \(1\) ≠ \(-2\) (luôn đúng) \(\Rightarrow m = 1\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.6</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Viết phương trình đường thẳng đi qua hai điểm \(M(1;-2)\) và \(N(3;4)\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-6', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-6">
+          <p class="lbl">Lời giải</p>
+          <p>Gọi đường thẳng cần tìm là \(y = ax+b\). Hệ số góc: \(a = \dfrac{4-(-2)}{3-1} = \dfrac{6}{2} = 3\).</p>
+          <p>Qua \(M(1;-2)\): \(-2 = 3(1) + b \Rightarrow b = -5\).</p>
+          <p>Vậy phương trình đường thẳng: \(y = 3x - 5\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.7</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Tìm \(m\) để ba đường thẳng \(y=2x-1\), \(y=-x+5\) và \(y=mx+3\) đồng quy (cắt nhau tại một điểm).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-7', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-7">
+          <p class="lbl">Lời giải</p>
+          <p>Tìm giao điểm của hai đường thẳng đầu: \(2x-1 = -x+5 \Rightarrow 3x = 6 \Rightarrow x=2,\ y=3\). Giao điểm là \((2;3)\).</p>
+          <p>Để ba đường đồng quy, đường thẳng thứ ba phải đi qua \((2;3)\): \(3 = 2m + 3 \Rightarrow m = 0\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 2.8</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Cho đường thẳng \((d)\!: y=(2-m)x+m-1\). a) Tìm \(m\) để \((d)\) đi qua gốc toạ độ \(O\). b) Tìm \(m\) để \((d)\) cắt trục hoành tại điểm có hoành độ bằng 3.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-2-8', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-2-8">
+          <p class="lbl">Lời giải</p>
+          <p><b>a)</b> \((d)\) qua \(O(0;0)\): \(0 = (2-m)\cdot 0 + m - 1 \Rightarrow m = 1\) (thoả \(2-m\) ≠ \(0\)).</p>
+          <p><b>b)</b> \((d)\) cắt \(Ox\) tại \(x=3 \Rightarrow y=0\): \(0 = 3(2-m) + m - 1 = 5 - 2m \Rightarrow m = 2{,}5\) (thoả \(2-m = -0{,}5\) ≠ \(0\)).</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ CHƯƠNG 3 ============ -->
+  <section class="chapter" id="ch3">
+    <div class="chapter-tab"><span class="num">03</span><span class="name">Hàm số bậc hai \(y=ax^2\)</span></div>
+    <div class="chapter-body">
+
+      <div class="theory-box">
+        <h4>Tóm tắt lý thuyết</h4>
+        <ul>
+          <li>Hàm số \(y = ax^2\ (a\) ≠ \(0)\) xác định với mọi \(x \in \mathbb{R}\).</li>
+          <li>Nếu \(a>0\): nghịch biến khi \(x<0\), đồng biến khi \(x>0\), đạt GTNN \(y=0\) tại \(x=0\) (bề lõm quay lên).</li>
+          <li>Nếu \(a<0\): đồng biến khi \(x<0\), nghịch biến khi \(x>0\), đạt GTLN \(y=0\) tại \(x=0\) (bề lõm quay xuống).</li>
+          <li>Đồ thị là parabol nhận trục \(Oy\) làm trục đối xứng, đỉnh tại gốc toạ độ.</li>
+          <li>Toạ độ giao điểm của \((P)\!:y=ax^2\) và \((d)\!:y=mx+n\) là nghiệm của phương trình hoành độ giao điểm: \(ax^2 = mx+n\).</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ — Tìm giao điểm của Parabol và đường thẳng</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Cho \((P)\!: y=x^2\) và \((d)\!: y=2x+3\). Tìm toạ độ giao điểm của \((P)\) và \((d)\).</p>
+          <p><b>Giải:</b> Phương trình hoành độ giao điểm: \(x^2 = 2x+3 \iff x^2-2x-3=0 \iff (x+1)(x-3)=0\)</p>
+          <p>\(\Rightarrow x=-1\) hoặc \(x=3\). Với \(x=-1 \Rightarrow y=1\); với \(x=3 \Rightarrow y=9\).</p>
+          <p>Vậy \((P)\) và \((d)\) cắt nhau tại hai điểm \((-1;1)\) và \((3;9)\).</p>
+        </div>
+      </div>
+
+      <div class="problems-head">Bài tập tự luyện — Hàm số bậc hai</div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.1</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Cho hàm số \(y = 2x^2\). Tính giá trị của \(y\) khi \(x=-1,\ x=0,\ x=3\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-1', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-1">
+          <p class="lbl">Lời giải</p>
+          <p>\(x=-1 \Rightarrow y = 2(-1)^2 = 2\)</p>
+          <p>\(x=0 \Rightarrow y=0\)</p>
+          <p>\(x=3 \Rightarrow y = 2(3)^2 = 18\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.2</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Tìm \(m\) để hàm số \(y=(m-3)x^2\) đồng biến khi \(x>0\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-2', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-2">
+          <p class="lbl">Lời giải</p>
+          <p>Hàm số đồng biến khi \(x>0 \iff\) hệ số \(a = m-3 > 0 \iff m>3\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.3</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Điểm \(A(2;8)\) có thuộc đồ thị hàm số \(y=2x^2\) hay không?</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-3', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-3">
+          <p class="lbl">Lời giải</p>
+          <p>Thay \(x=2\) vào hàm số: \(y = 2(2)^2 = 8\). Vì kết quả bằng tung độ của \(A\) nên \(A(2;8)\) thuộc đồ thị.</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.4</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Xác định \(a\) để \((P)\!:y=ax^2\) đi qua điểm \(B(-2;4)\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-4', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-4">
+          <p class="lbl">Lời giải</p>
+          <p>Thay \(x=-2,\ y=4\): \(4 = a(-2)^2 = 4a \Rightarrow a = 1\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.5</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Tìm toạ độ giao điểm của \((P)\!: y=-x^2\) và \((d)\!: y=x-2\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-5', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-5">
+          <p class="lbl">Lời giải</p>
+          <p>Phương trình hoành độ giao điểm: \(-x^2 = x-2 \iff x^2+x-2=0 \iff (x+2)(x-1)=0\)</p>
+          <p>\(\Rightarrow x=-2\) hoặc \(x=1\). Với \(x=-2 \Rightarrow y=-4\); với \(x=1 \Rightarrow y=-1\).</p>
+          <p>Vậy hai giao điểm là \((-2;-4)\) và \((1;-1)\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 3.6</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Tìm \(m\) để đường thẳng \(y=2x+m\) tiếp xúc với parabol \(y=x^2\) (có đúng một điểm chung).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-3-6', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-3-6">
+          <p class="lbl">Lời giải</p>
+          <p>Phương trình hoành độ giao điểm: \(x^2 = 2x+m \iff x^2-2x-m=0\)</p>
+          <p>Tiếp xúc \(\iff\) phương trình có nghiệm kép \(\iff \Delta' = 1+m = 0 \iff m=-1\).</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ CHƯƠNG 4 ============ -->
+  <section class="chapter" id="ch4">
+    <div class="chapter-tab"><span class="num">04</span><span class="name">Phương trình bậc hai – Định lí Vi-ét</span></div>
+    <div class="chapter-body">
+
+      <div class="theory-box">
+        <h4>Tóm tắt lý thuyết</h4>
+        <ul>
+          <li>Phương trình bậc hai: \(ax^2+bx+c=0\ (a\) ≠ \(0)\). Đặt \(\Delta = b^2-4ac\):
+            <br>— \(\Delta>0\): 2 nghiệm phân biệt \(x_{1,2}=\dfrac{-b\pm\sqrt{\Delta}}{2a}\)
+            <br>— \(\Delta=0\): nghiệm kép \(x_1=x_2=-\dfrac{b}{2a}\)
+            <br>— \(\Delta<0\): phương trình vô nghiệm</li>
+          <li>Công thức nghiệm thu gọn (khi \(b=2b'\)): \(\Delta' = b'^2-ac\), \(x_{1,2} = \dfrac{-b'\pm\sqrt{\Delta'}}{a}\).</li>
+          <li><b>Định lí Vi-ét:</b> nếu \(x_1, x_2\) là hai nghiệm của \(ax^2+bx+c=0\ (a\) ≠ \(0)\) thì:
+            \(S = x_1+x_2 = -\dfrac{b}{a}\), &nbsp; \(P = x_1x_2 = \dfrac{c}{a}\).</li>
+          <li>Nhẩm nghiệm nhanh: nếu \(a+b+c=0\) thì \(x_1=1,\ x_2=\dfrac{c}{a}\); nếu \(a-b+c=0\) thì \(x_1=-1,\ x_2=-\dfrac{c}{a}\).</li>
+          <li>Hai số có tổng \(S\) và tích \(P\) là hai nghiệm của phương trình \(X^2 - SX + P = 0\) (điều kiện tồn tại: \(S^2 \ge 4P\)).</li>
+          <li>Biểu thức đối xứng thường gặp: \(x_1^2+x_2^2 = S^2-2P\); &nbsp; \(\left(x_1-x_2\right)^2 = S^2-4P\).</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 1 — Giải phương trình bậc hai bằng công thức nghiệm</h4>
+        <div class="steps">
+          <p><b>Giải phương trình:</b> \(2x^2-5x+2=0\)</p>
+          <p><b>Giải:</b> \(\Delta = (-5)^2 - 4(2)(2) = 25-16=9 > 0,\ \sqrt{\Delta}=3\)</p>
+          <p>\(x_1 = \dfrac{5+3}{4} = 2,\qquad x_2 = \dfrac{5-3}{4} = 0{,}5\)</p>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 2 — Điều kiện có nghiệm theo tham số</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Cho phương trình \(x^2-2(m+1)x+m^2+2=0\). Tìm \(m\) để phương trình có hai nghiệm phân biệt.</p>
+          <p><b>Giải:</b> \(\Delta' = (m+1)^2 - (m^2+2) = m^2+2m+1-m^2-2 = 2m-1\)</p>
+          <p>Phương trình có 2 nghiệm phân biệt \(\iff \Delta' > 0 \iff 2m-1>0 \iff m > \dfrac12\).</p>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 3 — Ứng dụng định lí Vi-ét</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Cho phương trình \(x^2-5x+3=0\) có hai nghiệm \(x_1,x_2\). Không giải phương trình, tính \(x_1^2+x_2^2\).</p>
+          <p><b>Giải:</b> Theo Vi-ét: \(S=x_1+x_2=5,\ P=x_1x_2=3\).</p>
+          <p>\(x_1^2+x_2^2 = S^2-2P = 25-6=19\)</p>
+        </div>
+      </div>
+
+      <div class="problems-head">Bài tập tự luyện — Phương trình bậc hai &amp; Vi-ét</div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 4.1</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Giải phương trình bằng cách nhẩm nghiệm: \(x^2-3x+2=0\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-4-1', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-4-1">
+          <p class="lbl">Lời giải</p>
+          <p>Ta có \(a+b+c = 1+(-3)+2 = 0\) nên phương trình có nghiệm \(x_1=1\) và \(x_2 = \dfrac{c}{a} = 2\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 4.2</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Giải phương trình: \(3x^2+5x-2=0\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-4-2', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-4-2">
+          <p class="lbl">Lời giải</p>
+          <p>\(\Delta = 25+24=49>0,\ \sqrt\Delta=7\)</p>
+          <p>\(x_1 = \dfrac{-5+7}{6}=\dfrac13,\qquad x_2=\dfrac{-5-7}{6}=-2\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 4.3</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Giải phương trình: \(x^2-6x+9=0\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-4-3', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-4-3">
+          <p class="lbl">Lời giải</p>
+          <p>\(\Delta = 36-36=0\) → phương trình có nghiệm kép \(x_1=x_2 = \dfrac{6}{2}=3\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 4.4</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Tìm \(m\) để phương trình \(x^2-2x+m=0\) có nghiệm.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-4-4', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-4-4">
+          <p class="lbl">Lời giải</p>
+          <p>\(\Delta' = 1-m \ge 0 \iff m \le 1\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 4.5</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Tìm \(m\) để phương trình \(x^2+mx+m-1=0\) có nghiệm kép, tìm nghiệm kép đó.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-4-5', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-4-5">
+          <p class="lbl">Lời giải</p>
+          <p>\(\Delta = m^2-4(m-1) = m^2-4m+4 = (m-2)^2\)</p>
+          <p>Nghiệm kép \(\iff \Delta=0 \iff (m-2)^2=0 \iff m=2\).</p>
+          <p>Khi đó nghiệm kép: \(x_1=x_2 = -\dfrac{m}{2} = -1\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 4.6</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Cho phương trình \(x^2-7x+10=0\) có hai nghiệm \(x_1,x_2\). Không giải phương trình, tính \(x_1^2+x_2^2\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-4-6', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-4-6">
+          <p class="lbl">Lời giải</p>
+          <p>Theo Vi-ét: \(S=x_1+x_2=7,\ P=x_1x_2=10\)</p>
+          <p>\(x_1^2+x_2^2 = S^2-2P = 49-20=29\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 4.7</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Cho phương trình \(2x^2-3x-5=0\) có hai nghiệm \(x_1,x_2\). Không giải phương trình, tính \(A = \dfrac{1}{x_1}+\dfrac{1}{x_2}\).</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-4-7', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-4-7">
+          <p class="lbl">Lời giải</p>
+          <p>Theo Vi-ét: \(S = x_1+x_2 = \dfrac32,\quad P = x_1x_2 = -\dfrac52\)</p>
+          <p>\(A = \dfrac{1}{x_1}+\dfrac{1}{x_2} = \dfrac{x_1+x_2}{x_1x_2} = \dfrac{S}{P} = \dfrac{3/2}{-5/2} = -\dfrac35\)</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 4.8</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Tìm hai số biết tổng của chúng bằng 9 và tích của chúng bằng 20.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-4-8', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-4-8">
+          <p class="lbl">Lời giải</p>
+          <p>Hai số cần tìm là nghiệm của phương trình: \(X^2-9X+20=0\)</p>
+          <p>\(\Delta = 81-80=1>0,\ \sqrt\Delta=1 \Rightarrow X_1=\dfrac{9+1}{2}=5,\ X_2=\dfrac{9-1}{2}=4\)</p>
+          <p>Vậy hai số cần tìm là 4 và 5.</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 4.9</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Cho phương trình \(x^2-2(m-1)x+m^2-3=0\). Tìm \(m\) để phương trình có hai nghiệm phân biệt trái dấu.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-4-9', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-4-9">
+          <p class="lbl">Lời giải</p>
+          <p>Phương trình có hai nghiệm trái dấu \(\iff a\cdot c < 0 \iff 1\cdot(m^2-3) < 0 \iff m^2 < 3\)</p>
+          <p>\(\iff -\sqrt3 < m < \sqrt3\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 4.10</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Cho phương trình \(x^2-mx+m-1=0\). a) Chứng minh phương trình luôn có nghiệm với mọi \(m\). b) Tính \(x_1^2+x_2^2\) theo \(m\) và tìm \(m\) để biểu thức này đạt giá trị nhỏ nhất.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-4-10', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-4-10">
+          <p class="lbl">Lời giải</p>
+          <p><b>a)</b> \(\Delta = m^2-4(m-1) = m^2-4m+4 = (m-2)^2 \ge 0\) với mọi \(m\) → phương trình luôn có nghiệm.</p>
+          <p><b>b)</b> Theo Vi-ét: \(S=m,\ P=m-1\).</p>
+          <p>\(x_1^2+x_2^2 = S^2-2P = m^2-2(m-1) = m^2-2m+2 = (m-1)^2+1 \ge 1\)</p>
+          <p>Dấu "=" xảy ra khi \(m=1\). Vậy GTNN của \(x_1^2+x_2^2\) là \(1\), đạt được khi \(m=1\).</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ CHƯƠNG 5 ============ -->
+  <section class="chapter" id="ch5">
+    <div class="chapter-tab"><span class="num">05</span><span class="name">Hệ phương trình bậc nhất hai ẩn</span></div>
+    <div class="chapter-body">
+
+      <div class="theory-box">
+        <h4>Tóm tắt lý thuyết</h4>
+        <ul>
+          <li>Hệ hai phương trình bậc nhất hai ẩn có dạng: \(\begin{cases}a_1x+b_1y=c_1\\a_2x+b_2y=c_2\end{cases}\)</li>
+          <li><b>Phương pháp thế:</b> rút một ẩn từ một phương trình rồi thế vào phương trình còn lại.</li>
+          <li><b>Phương pháp cộng đại số:</b> nhân hai vế của mỗi phương trình với hệ số thích hợp rồi cộng/trừ hai phương trình để khử một ẩn.</li>
+          <li>Xét số nghiệm theo tỉ số các hệ số:
+            <br>— \(\dfrac{a_1}{a_2}\) ≠ \(\dfrac{b_1}{b_2}\): hệ có nghiệm duy nhất
+            <br>— \(\dfrac{a_1}{a_2}=\dfrac{b_1}{b_2}\) ≠ \(\dfrac{c_1}{c_2}\): hệ vô nghiệm
+            <br>— \(\dfrac{a_1}{a_2}=\dfrac{b_1}{b_2}=\dfrac{c_1}{c_2}\): hệ vô số nghiệm</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 1 — Giải hệ bằng phương pháp cộng đại số</h4>
+        <div class="steps">
+          <p><b>Giải hệ:</b> \(\begin{cases}2x+y=5\\x-y=1\end{cases}\)</p>
+          <p><b>Giải:</b> Cộng hai phương trình theo vế: \(3x = 6 \Rightarrow x=2\).</p>
+          <p>Thay vào phương trình thứ hai: \(2-y=1 \Rightarrow y=1\). Vậy hệ có nghiệm \((x;y) = (2;1)\).</p>
+        </div>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ 2 — Giải hệ bằng phương pháp thế</h4>
+        <div class="steps">
+          <p><b>Giải hệ:</b> \(\begin{cases}x+2y=4\\3x-y=5\end{cases}\)</p>
+          <p><b>Giải:</b> Từ phương trình (1): \(x = 4-2y\). Thế vào (2): \(3(4-2y)-y=5 \Rightarrow 12-6y-y=5\)</p>
+          <p>\(\Rightarrow -7y=-7 \Rightarrow y=1 \Rightarrow x = 4-2(1)=2\). Vậy nghiệm của hệ là \((2;1)\).</p>
+        </div>
+      </div>
+
+      <div class="problems-head">Bài tập tự luyện — Hệ phương trình</div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 5.1</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Giải hệ phương trình: \(\begin{cases}x+y=7\\x-y=1\end{cases}\)</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-5-1', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-5-1">
+          <p class="lbl">Lời giải</p>
+          <p>Cộng hai phương trình: \(2x=8 \Rightarrow x=4\). Thay vào (1): \(y = 7-4=3\).</p>
+          <p>Vậy nghiệm của hệ là \((4;3)\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 5.2</span><span class="badge b-nb">Nhận biết</span></div>
+        <div class="problem-text">Giải hệ phương trình: \(\begin{cases}2x+3y=13\\2x-y=1\end{cases}\)</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-5-2', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-5-2">
+          <p class="lbl">Lời giải</p>
+          <p>Trừ hai phương trình theo vế: \(4y=12 \Rightarrow y=3\). Thay vào (2): \(2x-3=1 \Rightarrow x=2\).</p>
+          <p>Vậy nghiệm của hệ là \((2;3)\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 5.3</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Giải hệ phương trình bằng phương pháp thế: \(\begin{cases}3x-2y=4\\x+y=3\end{cases}\)</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-5-3', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-5-3">
+          <p class="lbl">Lời giải</p>
+          <p>Từ (2): \(x = 3-y\). Thế vào (1): \(3(3-y)-2y=4 \Rightarrow 9-3y-2y=4 \Rightarrow -5y=-5 \Rightarrow y=1\)</p>
+          <p>\(\Rightarrow x = 3-1=2\). Vậy nghiệm của hệ là \((2;1)\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 5.4</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Tìm \(m\) để hệ phương trình \(\begin{cases}mx+y=3\\x+my=3\end{cases}\) có nghiệm duy nhất.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-5-4', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-5-4">
+          <p class="lbl">Lời giải</p>
+          <p>Hệ có nghiệm duy nhất \(\iff \dfrac{m}{1}\) ≠ \(\dfrac{1}{m} \iff m^2\) ≠ \(1 \iff m\) ≠ \(\pm1\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 5.5</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Giải hệ phương trình: \(\begin{cases}5x+2y=9\\3x-2y=-1\end{cases}\)</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-5-5', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-5-5">
+          <p class="lbl">Lời giải</p>
+          <p>Cộng hai phương trình: \(8x=8 \Rightarrow x=1\). Thay vào (1): \(5+2y=9 \Rightarrow y=2\).</p>
+          <p>Vậy nghiệm của hệ là \((1;2)\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 5.6</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Giải hệ phương trình theo tham số \(m\): \(\begin{cases}2x+y=5m\\x-y=m\end{cases}\)</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-5-6', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-5-6">
+          <p class="lbl">Lời giải</p>
+          <p>Cộng hai phương trình: \(3x = 6m \Rightarrow x = 2m\). Thay vào (2): \(2m - y = m \Rightarrow y = m\).</p>
+          <p>Vậy nghiệm của hệ theo \(m\) là \((x;y) = (2m; m)\).</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 5.7</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Tìm hai số biết tổng của chúng bằng 15 và hiệu của chúng bằng 3.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-5-7', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-5-7">
+          <p class="lbl">Lời giải</p>
+          <p>Gọi hai số cần tìm là \(x, y\). Ta có hệ: \(\begin{cases}x+y=15\\x-y=3\end{cases}\)</p>
+          <p>Cộng hai phương trình: \(2x=18 \Rightarrow x=9 \Rightarrow y = 15-9=6\).</p>
+          <p>Vậy hai số cần tìm là 9 và 6.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ CHƯƠNG 6 ============ -->
+  <section class="chapter" id="ch6">
+    <div class="chapter-tab"><span class="num">06</span><span class="name">Giải bài toán bằng cách lập phương trình / hệ phương trình</span></div>
+    <div class="chapter-body">
+
+      <div class="theory-box">
+        <h4>Tóm tắt lý thuyết — Các bước giải</h4>
+        <ul>
+          <li><b>Bước 1 — Lập phương trình (hệ phương trình):</b> chọn ẩn số và đặt điều kiện thích hợp cho ẩn; biểu diễn các đại lượng chưa biết theo ẩn và các đại lượng đã biết; lập phương trình (hệ phương trình) biểu thị mối quan hệ giữa các đại lượng.</li>
+          <li><b>Bước 2 — Giải phương trình (hệ phương trình)</b> vừa lập được.</li>
+          <li><b>Bước 3 — Đối chiếu điều kiện,</b> kết luận nghiệm nào thoả mãn bài toán thực tế.</li>
+          <li>Các dạng thường gặp: toán chuyển động (\(S = v \cdot t\)), toán năng suất – công việc, toán phần trăm, toán có nội dung hình học, toán tìm số.</li>
+        </ul>
+      </div>
+
+      <div class="example-box">
+        <h4>Ví dụ — Toán chuyển động (ca nô xuôi/ngược dòng)</h4>
+        <div class="steps">
+          <p><b>Đề bài:</b> Một ca nô xuôi dòng từ bến A đến bến B mất 4 giờ và ngược dòng từ B về A mất 5 giờ. Biết vận tốc dòng nước là 2 km/h. Tính vận tốc thực của ca nô và quãng đường AB.</p>
+          <p><b>Giải:</b> Gọi vận tốc thực của ca nô là \(x\) (km/h), điều kiện \(x>2\).</p>
+          <p>Vận tốc xuôi dòng: \(x+2\) (km/h); vận tốc ngược dòng: \(x-2\) (km/h).</p>
+          <p>Quãng đường AB tính theo hai chiều phải bằng nhau: \(4(x+2) = 5(x-2)\)</p>
+          <p>\(\Rightarrow 4x+8 = 5x-10 \Rightarrow x = 18\) (thoả điều kiện).</p>
+          <p>Vận tốc thực của ca nô là \(18\) km/h. Quãng đường AB \(= 4(18+2) = 80\) km.</p>
+          <p><i>Kiểm tra:</i> chiều ngược dòng: \(5(18-2)=80\) km ✓.</p>
+        </div>
+      </div>
+
+      <div class="problems-head">Bài tập tự luyện — Giải bài toán bằng cách lập phương trình</div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 6.1</span><span class="badge b-th">Thông hiểu</span></div>
+        <div class="problem-text">Tìm hai số tự nhiên biết tổng của chúng là 1006. Nếu lấy số lớn chia cho số nhỏ thì được thương là 2 và số dư là 124.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-6-1', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-6-1">
+          <p class="lbl">Lời giải</p>
+          <p>Gọi số lớn là \(x\), số nhỏ là \(y\) (\(x,y \in \mathbb{N}\), \(y>124\)).</p>
+          <p>Theo đề bài ta có hệ: \(\begin{cases}x+y=1006\\x=2y+124\end{cases}\)</p>
+          <p>Thế vào phương trình đầu: \(2y+124+y=1006 \Rightarrow 3y=882 \Rightarrow y=294 \Rightarrow x=712\)</p>
+          <p>Vậy số lớn là 712, số nhỏ là 294. <i>(Kiểm tra: \(712 = 2\cdot294+124\) ✓)</i></p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 6.2</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Năm ngoái, tổng số dân của hai tỉnh A và B là 4 triệu người. Năm nay, dân số tỉnh A tăng 1,1%, dân số tỉnh B tăng 1,2%; tổng số dân của hai tỉnh năm nay là 4 045 000 người. Tính số dân mỗi tỉnh năm ngoái.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-6-2', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-6-2">
+          <p class="lbl">Lời giải</p>
+          <p>Gọi số dân tỉnh A, tỉnh B năm ngoái lần lượt là \(x, y\) (người), điều kiện \(x,y>0\).</p>
+          <p>Tổng dân số năm ngoái: \(x+y = 4\,000\,000\)</p>
+          <p>Tổng dân số năm nay: \(1{,}011x + 1{,}012y = 4\,045\,000\)</p>
+          <p>Từ (1): \(x = 4\,000\,000-y\). Thế vào (2): \(1{,}011(4\,000\,000-y)+1{,}012y = 4\,045\,000\)</p>
+          <p>\(4\,044\,000 + 0{,}001y = 4\,045\,000 \Rightarrow y = 1\,000\,000 \Rightarrow x=3\,000\,000\)</p>
+          <p>Vậy năm ngoái tỉnh A có 3 000 000 người, tỉnh B có 1 000 000 người.</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 6.3</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Hai đội công nhân cùng làm chung một công việc thì sau 12 ngày xong. Nếu đội một làm một mình trong 8 ngày, sau đó đội hai làm tiếp trong 6 ngày thì được \(\dfrac35\) công việc. Hỏi mỗi đội làm một mình thì bao lâu xong việc?</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-6-3', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-6-3">
+          <p class="lbl">Lời giải</p>
+          <p>Gọi thời gian đội một, đội hai làm một mình xong việc lần lượt là \(x, y\) (ngày), điều kiện \(x,y>0\).</p>
+          <p>Mỗi ngày đội một làm được \(\dfrac1x\) công việc, đội hai làm được \(\dfrac1y\) công việc.</p>
+          <p>Làm chung 12 ngày xong: \(\dfrac1x+\dfrac1y = \dfrac{1}{12}\) &nbsp; (1)</p>
+          <p>Đội một làm 8 ngày, đội hai làm 6 ngày được \(\dfrac35\) việc: \(\dfrac8x+\dfrac6y = \dfrac35\) &nbsp; (2)</p>
+          <p>Đặt \(a=\dfrac1x, b=\dfrac1y\). Từ (1): \(a = \dfrac{1}{12}-b\). Thế vào (2): \(8\left(\dfrac1{12}-b\right)+6b = \dfrac35\)</p>
+          <p>\(\dfrac23 - 8b+6b = \dfrac35 \Rightarrow -2b = \dfrac35-\dfrac23 = -\dfrac{1}{15} \Rightarrow b=\dfrac{1}{30}\)</p>
+          <p>\(\Rightarrow a = \dfrac1{12}-\dfrac1{30} = \dfrac1{20}\)</p>
+          <p>Vậy \(x = 20\) ngày, \(y=30\) ngày: đội một làm một mình 20 ngày xong, đội hai làm một mình 30 ngày xong.</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 6.4</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Một người đi xe đạp từ A đến B cách nhau 60km. Sau đó 1 giờ, một người đi xe máy cũng đi từ A đến B với vận tốc lớn hơn vận tốc xe đạp 15km/h nên đến B sớm hơn xe đạp 1 giờ. Tính vận tốc mỗi xe.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-6-4', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-6-4">
+          <p class="lbl">Lời giải</p>
+          <p>Gọi vận tốc xe đạp là \(x\) (km/h, \(x>0\)); vận tốc xe máy là \(x+15\) (km/h).</p>
+          <p>Thời gian xe đạp đi hết quãng đường: \(\dfrac{60}{x}\) (giờ). Thời gian xe máy đi: \(\dfrac{60}{x+15}\) (giờ).</p>
+          <p>Xe máy khởi hành sau 1 giờ và đến sớm hơn 1 giờ, nên thời gian xe đạp đi nhiều hơn xe máy 2 giờ:</p>
+          <p>\(\dfrac{60}{x} - \dfrac{60}{x+15} = 2\)</p>
+          <p>\(\Rightarrow 60(x+15) - 60x = 2x(x+15) \Rightarrow 900 = 2x^2+30x \Rightarrow x^2+15x-450=0\)</p>
+          <p>\(\Delta = 225+1800=2025 = 45^2 \Rightarrow x = \dfrac{-15+45}{2}=15\) (nhận vì \(x>0\))</p>
+          <p>Vậy vận tốc xe đạp là 15 km/h, vận tốc xe máy là 30 km/h.</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 6.5</span><span class="badge b-vdc">Vận dụng cao</span></div>
+        <div class="problem-text">Một khu vườn hình chữ nhật có chu vi 280m. Người ta làm lối đi xung quanh vườn rộng 2m (thuộc đất vườn), phần diện tích còn lại để trồng trọt là 4256 m². Tính chiều dài và chiều rộng của khu vườn.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-6-5', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-6-5">
+          <p class="lbl">Lời giải</p>
+          <p>Gọi chiều dài, chiều rộng khu vườn lần lượt là \(x, y\) (m), điều kiện \(x>y>4\).</p>
+          <p>Chu vi: \(2(x+y)=280 \Rightarrow x+y=140\) &nbsp; (1)</p>
+          <p>Sau khi trừ lối đi rộng 2m mỗi bên, kích thước còn lại là \((x-4)\) và \((y-4)\):</p>
+          <p>\((x-4)(y-4) = 4256 \Rightarrow xy - 4(x+y)+16 = 4256 \Rightarrow xy - 560+16=4256 \Rightarrow xy = 4800\) &nbsp; (2)</p>
+          <p>Từ (1) và (2): \(x, y\) là nghiệm của phương trình \(X^2-140X+4800=0\)</p>
+          <p>\(\Delta = 19600-19200=400=20^2 \Rightarrow X = \dfrac{140\pm20}{2} \Rightarrow X_1=80,\ X_2=60\)</p>
+          <p>Vậy chiều dài khu vườn là 80m, chiều rộng là 60m.</p>
+        </div>
+      </div>
+
+      <div class="problem">
+        <div class="problem-head"><span class="problem-num">Bài 6.6</span><span class="badge b-vd">Vận dụng</span></div>
+        <div class="problem-text">Tìm một số tự nhiên có hai chữ số, biết tổng hai chữ số của nó bằng 10; nếu đổi chỗ hai chữ số cho nhau thì được số mới lớn hơn số ban đầu 54 đơn vị.</div>
+        <button class="btn-toggle" onclick="toggleSolution('sol-6-6', this)">Xem lời giải ▾</button>
+        <div class="solution" id="sol-6-6">
+          <p class="lbl">Lời giải</p>
+          <p>Gọi chữ số hàng chục là \(x\), chữ số hàng đơn vị là \(y\) (\(x,y\in\mathbb N,\ 1\le x\le9,\ 0\le y\le9\)).</p>
+          <p>Số ban đầu: \(\overline{xy} = 10x+y\). Số sau khi đổi chỗ: \(\overline{yx}=10y+x\).</p>
+          <p>Theo đề: \(\begin{cases}x+y=10\\ (10y+x)-(10x+y)=54\end{cases} \iff \begin{cases}x+y=10\\y-x=6\end{cases}\)</p>
+          <p>Cộng hai phương trình: \(2y=16 \Rightarrow y=8 \Rightarrow x=2\)</p>
+          <p>Vậy số cần tìm là 28. <i>(Kiểm tra: đổi chỗ được 82, và \(82-28=54\) ✓)</i></p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>Tài liệu ôn tập Đại số THCS — biên soạn để chuẩn bị nền tảng Toán trước khi vào lớp 10. Khuyến khích học sinh tự giải trước khi đối chiếu lời giải.</p>
+  </footer>
+
+</div>
+
+<script>
+  function toggleSolution(id, btn){
+    var el = document.getElementById(id);
+    var isOpen = el.style.display === 'block';
+    if(isOpen){
+      el.style.display = 'none';
+      btn.textContent = 'Xem lời giải ▾';
+      btn.classList.remove('active');
+    } else {
+      el.style.display = 'block';
+      btn.textContent = 'Ẩn lời giải ▴';
+      btn.classList.add('active');
+    }
+  }
+  function showAll(){
+    document.querySelectorAll('.solution').forEach(function(el){ el.style.display = 'block'; });
+    document.querySelectorAll('.btn-toggle').forEach(function(btn){ btn.textContent = 'Ẩn lời giải ▴'; btn.classList.add('active'); });
+  }
+  function hideAll(){
+    document.querySelectorAll('.solution').forEach(function(el){ el.style.display = 'none'; });
+    document.querySelectorAll('.btn-toggle').forEach(function(btn){ btn.textContent = 'Xem lời giải ▾'; btn.classList.remove('active'); });
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    if(window.renderMathInElement){
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "\\[", right: "\\]", display: true},
+          {left: "\\(", right: "\\)", display: false}
+        ],
+        throwOnError: false
+      });
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YOLO — Thị giác Máy tính</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<style>
+:root{
+  --paper:#f3f6f4;
+  --paper-deep:#eaefec;
+  --ink:#132036;
+  --ink-soft:#42506a;
+  --ink-faint:#7c8aa0;
+  --line:#d9e0da;
+  --forward:#0f8b8d;
+  --forward-soft:#e1f3f2;
+  --forward-ink:#0a5f60;
+  --backward:#d1495b;
+  --backward-soft:#fbe7ea;
+  --backward-ink:#9c2f3d;
+  --signal:#e8940f;
+  --signal-soft:#fdf0da;
+  --signal-ink:#a86608;
+  --panel:#ffffff;
+  --code-bg:#101c2c;
+  --code-text:#d7e2ee;
+  --radius:14px;
+  --serif-display:'Be Vietnam Pro', sans-serif;
+  --sans-body:'Inter', sans-serif;
+  --mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--paper); color:var(--ink-soft); font-family:var(--sans-body);
+  font-size:16px; line-height:1.7;
+  background-image:
+    linear-gradient(var(--paper) 0%, var(--paper) 100%),
+    repeating-linear-gradient(0deg, rgba(19,32,54,0.025) 0px, rgba(19,32,54,0.025) 1px, transparent 1px, transparent 28px),
+    repeating-linear-gradient(90deg, rgba(19,32,54,0.025) 0px, rgba(19,32,54,0.025) 1px, transparent 1px, transparent 28px);
+}
+h1,h2,h3,h4{font-family:var(--serif-display); color:var(--ink); margin:0 0 .5em 0; letter-spacing:-0.01em;}
+p{margin:0 0 1em 0;}
+a{color:var(--forward-ink);}
+strong{color:var(--ink);}
+code{font-family:var(--mono);}
+.layout{display:grid; grid-template-columns:272px minmax(0,1fr); max-width:1280px; margin:0 auto;}
+.rail{position:sticky; top:0; align-self:start; height:100vh; padding:32px 18px 32px 28px; border-right:1px solid var(--line); overflow-y:auto;}
+.rail-brand{font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--forward-ink); margin-bottom:22px; display:block;}
+.rail-list{list-style:none; margin:0; padding:0 0 0 18px; position:relative; border-left:2px solid var(--line);}
+.rail-item{position:relative; margin:0 0 4px 0;}
+.rail-item::before{content:''; position:absolute; left:-24px; top:13px; width:8px;height:8px; border-radius:50%; background:var(--paper); border:2px solid var(--ink-faint); transition:.2s;}
+.rail-item.active::before{background:var(--forward); border-color:var(--forward); box-shadow:0 0 0 4px var(--forward-soft);}
+.rail-link{display:block; padding:9px 10px; font-size:13.5px; color:var(--ink-soft); text-decoration:none; border-radius:8px; font-weight:500;}
+.rail-link .rail-num{font-family:var(--mono); color:var(--ink-faint); font-size:11px; display:block;}
+.rail-item.active .rail-link{color:var(--forward-ink); background:var(--forward-soft); font-weight:600;}
+.rail-item.active .rail-link .rail-num{color:var(--forward-ink);}
+.content{padding:0 0 40px 0; min-width:0;}
+.wrap{max-width:760px; margin:0 auto; padding:0 40px;}
+.hero{padding:70px 0 20px 0;}
+.hero-eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--forward-ink); background:var(--forward-soft); display:inline-block; padding:5px 12px; border-radius:20px; margin-bottom:20px;}
+.hero-title{font-size:clamp(34px,5vw,54px); font-weight:800; line-height:1.06;}
+.hero-title em{font-style:normal; color:var(--forward); position:relative;}
+.hero-sub{font-size:19px; color:var(--ink-soft); font-weight:500; max-width:600px; margin-bottom:26px;}
+.hero-lede{font-size:16px; max-width:640px;}
+.section{padding:64px 0; border-top:1px solid var(--line);}
+.section-eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:10px; display:flex; align-items:center; gap:10px;}
+.section-eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--forward);}
+.section-title{font-size:30px; margin-bottom:14px;}
+.section-lead{font-size:16.5px; color:var(--ink-soft); max-width:640px;}
+.subsection{margin-top:38px;}
+.subsection h3{font-size:21px; margin-bottom:10px;}
+.subsection h3 .tag{font-family:var(--mono); font-size:12px; color:var(--forward-ink); background:var(--forward-soft); padding:2px 8px; border-radius:6px; margin-right:8px; vertical-align:middle;}
+ul.plain, ol.plain{padding-left:22px; margin:0 0 1em 0;}
+ul.plain li, ol.plain li{margin-bottom:8px;}
+.callout{border-radius:var(--radius); padding:18px 20px; margin:22px 0; border:1px solid var(--line); background:var(--panel); font-size:15px;}
+.callout-head{font-weight:700; color:var(--ink); display:block; margin-bottom:6px; font-size:14px; text-transform:uppercase; letter-spacing:.04em;}
+.callout-note{border-left:4px solid var(--signal); background:var(--signal-soft);}
+.callout-note .callout-head{color:var(--signal-ink);}
+.callout-warn{border-left:4px solid var(--backward); background:var(--backward-soft);}
+.callout-warn .callout-head{color:var(--backward-ink);}
+.callout-result{border-left:4px solid var(--forward); background:var(--forward-soft);}
+.callout-result .callout-head{color:var(--forward-ink);}
+.figure{margin:26px 0; border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:24px;}
+.figure-caption{font-size:13.5px; color:var(--ink-faint); margin-top:14px; padding-top:12px; border-top:1px dashed var(--line);}
+.figure-caption b{color:var(--ink-soft);}
+.check{margin:26px 0; border-radius:var(--radius); border:1.5px dashed var(--forward); background:#fff; padding:18px 20px;}
+.check-tag{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#fff; background:var(--forward); padding:3px 9px; border-radius:6px; margin-right:8px;}
+.check-q{font-weight:600; color:var(--ink); font-size:15.5px;}
+.reveal-btn{margin-top:12px; border:1px solid var(--forward); color:var(--forward-ink); background:var(--forward-soft); font-family:var(--sans-body); font-weight:600; font-size:13.5px; padding:8px 16px; border-radius:8px; cursor:pointer; transition:.15s;}
+.reveal-btn:hover{background:var(--forward); color:#fff;}
+.reveal-content{display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); font-size:15px;}
+.reveal-content.show{display:block;}
+.code-window{margin:22px 0; border-radius:var(--radius); overflow:hidden; background:var(--code-bg); box-shadow:0 8px 24px -12px rgba(16,28,44,.5);}
+.code-titlebar{display:flex; align-items:center; gap:8px; padding:11px 16px; background:#0a1522; border-bottom:1px solid rgba(255,255,255,.06);}
+.code-dot{width:10px;height:10px;border-radius:50%;}
+.code-dot:nth-child(1){background:#e8594f;}
+.code-dot:nth-child(2){background:#e8b13f;}
+.code-dot:nth-child(3){background:#3fb556;}
+.code-filename{font-family:var(--mono); font-size:12.5px; color:#8fa2bd; margin-left:8px;}
+.code-window pre{margin:0 !important; padding:18px 20px !important; background:var(--code-bg) !important; font-size:13.3px !important; line-height:1.65 !important; overflow-x:auto;}
+.code-window code.hljs{background:var(--code-bg) !important;}
+.ref-table{width:100%; border-collapse:collapse; margin:20px 0; font-size:14.5px;}
+.ref-table th{text-align:left; font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); padding:10px 12px; border-bottom:2px solid var(--ink);}
+.ref-table td{padding:11px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+.ref-table code{background:var(--forward-soft); color:var(--forward-ink); padding:2px 6px; border-radius:5px; font-size:13px;}
+.footer{padding:50px 0 70px 0; border-top:1px solid var(--line); font-size:13.5px; color:var(--ink-faint);}
+.widget{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:26px; margin:26px 0;}
+.widget-label{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--forward-ink); margin-bottom:16px; display:block;}
+.btn{font-family:var(--sans-body); font-weight:600; font-size:13.5px; border-radius:8px; padding:9px 16px; border:1px solid var(--ink); background:var(--ink); color:#fff; cursor:pointer; transition:.15s;}
+.btn:hover{opacity:.85;}
+.btn:disabled{opacity:.35; cursor:not-allowed;}
+.btn-ghost{background:#fff; color:var(--ink); border:1px solid var(--line);}
+.btn-ghost:hover{border-color:var(--ink); opacity:1;}
+.btn-forward{background:var(--forward); border-color:var(--forward);}
+.btn-row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:16px;}
+.chart-row{display:flex; gap:24px; flex-wrap:wrap;}
+.chart-col{flex:1 1 260px;}
+.chart-title{font-size:13.5px; font-weight:700; margin-bottom:8px; color:var(--ink);}
+.chart-legend{display:flex; gap:16px; margin-top:8px; font-size:12.5px; color:var(--ink-soft);}
+.chart-legend span{display:inline-flex; align-items:center; gap:6px;}
+.legend-dot{width:10px; height:10px; border-radius:2px; display:inline-block;}
+.aug-grid{display:flex; gap:16px; flex-wrap:wrap;}
+.aug-item{display:flex; flex-direction:column; align-items:center; gap:8px;}
+.aug-box{width:72px; height:72px; border-radius:10px; background:#eef2f0; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:32px;}
+.aug-label{font-size:11.5px; color:var(--ink-faint); text-align:center; max-width:80px;}
+.tip-list{list-style:none; padding:0; margin:20px 0;}
+.tip-list li{display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); font-size:15px;}
+.tip-list li:last-child{border-bottom:none;}
+.tip-check{flex:0 0 auto; width:22px; height:22px; border-radius:50%; background:var(--forward-soft); color:var(--forward-ink); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;}
+.task-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:14px; margin:22px 0;}
+.task-card{border:1px solid var(--line); border-radius:12px; padding:16px; background:var(--panel);}
+.task-num{font-family:var(--mono); font-size:11px; color:var(--forward-ink); font-weight:700;}
+.task-card p{margin:8px 0 0 0; font-size:14.5px;}
+.task-card.advanced{border-color:var(--signal); background:var(--signal-soft);}
+.quiz-item{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:20px 22px; margin:18px 0;}
+.quiz-q{font-weight:700; color:var(--ink); font-size:15.5px; margin-bottom:14px;}
+.quiz-q .qnum{font-family:var(--mono); color:var(--forward-ink); margin-right:8px;}
+.quiz-options{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.quiz-opt{text-align:left; font-family:var(--sans-body); font-size:14px; padding:11px 14px; border-radius:9px; border:1px solid var(--line); background:#fff; cursor:pointer; color:var(--ink-soft); transition:.12s;}
+.quiz-opt:hover:not(:disabled){border-color:var(--forward); background:var(--forward-soft);}
+.quiz-opt:disabled{cursor:default;}
+.quiz-opt.correct{background:var(--forward-soft); border-color:var(--forward); color:var(--forward-ink); font-weight:700;}
+.quiz-opt.incorrect{background:var(--backward-soft); border-color:var(--backward); color:var(--backward-ink); font-weight:700;}
+.quiz-foot{display:flex; align-items:center; gap:12px; margin-top:14px; flex-wrap:wrap;}
+.hint-btn{font-family:var(--mono); font-size:12px; color:var(--signal-ink); background:var(--signal-soft); border:1px solid var(--signal); padding:6px 12px; border-radius:7px; cursor:pointer; font-weight:600;}
+.quiz-hint{display:none; font-size:13.5px; color:var(--signal-ink); background:var(--signal-soft); padding:10px 12px; border-radius:8px; width:100%; margin-top:10px;}
+.quiz-hint.show{display:block;}
+.quiz-explain{display:none; font-size:14px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); color:var(--ink-soft);}
+.quiz-explain.show{display:block;}
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr;}
+  .rail{position:sticky; height:auto; top:0; padding:12px 16px; border-right:none; border-bottom:1px solid var(--line); background:var(--paper); z-index:50; display:flex; align-items:center;}
+  .rail-brand{display:none;}
+  .rail-list{display:flex; gap:4px; overflow-x:auto; border-left:none; padding-left:0; -ms-overflow-style:none; scrollbar-width:none;}
+  .rail-list::-webkit-scrollbar{display:none;}
+  .rail-item{flex:0 0 auto; margin:0;}
+  .rail-item::before{display:none;}
+  .rail-link{white-space:nowrap; padding:8px 12px; font-size:12.5px;}
+  .rail-link .rail-num{display:none;}
+  .wrap{padding:0 20px;}
+}
+@media (max-width:640px){
+  .quiz-options{grid-template-columns:1fr;}
+}
+
+/* ============ CSS RIÊNG CHO WIDGET BÀI 7 ============ */
+
+/* --- Widget hero: "Ô lưới nào chịu trách nhiệm?" --- */
+.grid-resp-demo svg{background:var(--paper-deep); border-radius:10px; display:block; width:100%; cursor:crosshair;}
+.grid-resp-cell{fill:transparent; stroke:rgba(19,32,54,.10); stroke-width:1;}
+.grid-resp-cell.active{fill:rgba(15,139,141,.16); stroke:var(--forward); stroke-width:2;}
+.grid-resp-readout{margin-top:16px; display:grid; grid-template-columns:repeat(2,1fr); gap:10px 18px;}
+.grid-resp-stat{font-size:13px; color:var(--ink-soft); display:flex; justify-content:space-between; border-bottom:1px dashed var(--line); padding-bottom:6px;}
+.grid-resp-stat b{font-family:var(--mono); color:var(--ink); font-weight:700;}
+.grid-resp-classes{grid-column:1 / -1; font-size:13px; color:var(--ink-soft);}
+.grid-resp-classes b{font-family:var(--mono); color:var(--forward-ink);}
+.grid-resp-hint{font-size:12.5px; color:var(--ink-faint); margin-top:10px; font-style:italic;}
+
+/* --- Widget L4: 8400 = 80²+40²+20² --- */
+.scale-demo{display:flex; gap:20px; align-items:flex-end; flex-wrap:wrap; justify-content:center; margin-top:8px;}
+.scale-block{display:flex; flex-direction:column; align-items:center; gap:10px; cursor:pointer;}
+.scale-box{background:var(--forward-soft); border:2px solid var(--forward); border-radius:6px; transition:.15s; background-size:cover;}
+.scale-block:hover .scale-box, .scale-block.active .scale-box{background:var(--forward); box-shadow:0 6px 18px -8px rgba(15,139,141,.6);}
+.scale-block-label{font-family:var(--mono); font-size:12.5px; color:var(--ink-soft); text-align:center; font-weight:600;}
+.scale-readout{margin-top:18px; border-radius:var(--radius); background:var(--panel); border:1px solid var(--line); padding:16px 18px; font-size:14px; color:var(--ink-soft); min-height:26px;}
+.scale-readout b{color:var(--forward-ink); font-family:var(--mono);}
+.scale-sum{margin-top:14px; text-align:center; font-family:var(--mono); font-size:14px; color:var(--ink-faint);}
+.scale-sum b{color:var(--ink); font-size:16px;}
+
+/* --- Widget L2: pipeline hau xu ly (loc nguong -> NMS) --- */
+.postproc-demo svg{background:var(--paper-deep); border-radius:10px; display:block; width:100%;}
+.pp-box rect{fill:rgba(19,32,54,0.03); stroke:var(--ink-faint); stroke-width:1.8; transition:.35s ease;}
+.pp-box text{font-family:var(--mono); font-size:11px; font-weight:700; fill:var(--ink-soft); transition:.35s ease;}
+.pp-box.pp-noise rect{stroke:var(--signal-ink); stroke-dasharray:3 2;}
+.pp-box.removed-conf rect{fill:none; stroke:var(--backward); stroke-dasharray:4 3; opacity:.35;}
+.pp-box.removed-conf text{fill:var(--backward-ink); opacity:.4; text-decoration:line-through;}
+.pp-box.removed-nms rect{fill:none; stroke:var(--backward); stroke-dasharray:4 3; opacity:.35;}
+.pp-box.removed-nms text{fill:var(--backward-ink); opacity:.4; text-decoration:line-through;}
+.pp-box.kept-final rect{fill:rgba(15,139,141,0.16); stroke:var(--forward); stroke-width:3.2;}
+.pp-box.kept-final text{fill:var(--forward-ink);}
+.pp-steps{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; align-items:center;}
+.pp-stepnum{font-family:var(--mono); font-size:11px; color:#fff; background:var(--ink-faint); width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin-right:6px;}
+.pp-stepnum.done{background:var(--forward);}
+.pp-readout{display:flex; gap:22px; margin-top:14px; flex-wrap:wrap;}
+.pp-stat{font-size:13.5px; color:var(--ink-soft);}
+.pp-stat strong{font-family:var(--mono); color:var(--ink); font-size:17px;}
+.pp-note{margin-top:12px; font-size:12.5px; color:var(--ink-faint); font-style:italic;}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="rail">
+  <span class="rail-brand">Thị giác máy tính · Bài giảng 7</span>
+  <ul class="rail-list" id="railList">
+    <li class="rail-item"><a class="rail-link" href="#top"><span class="rail-num">Mở đầu</span>YOLO là gì?</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l1"><span class="rail-num">Lớp 01</span>Ý tưởng cốt lõi</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l2"><span class="rail-num">Lớp 02</span>Cơ chế hoạt động</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l3"><span class="rail-num">Lớp 03</span>Anchor &amp; tiến hoá</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l4"><span class="rail-num">Lớp 04</span>Kiến trúc YOLO</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l5"><span class="rail-num">Lớp 05</span>Thực hành Ultralytics</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l6"><span class="rail-num">Lớp 06</span>Mẹo &amp; khi nào dùng</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l7"><span class="rail-num">Bài tập</span>Thực hành</a></li>
+    <li class="rail-item"><a class="rail-link" href="#quiz"><span class="rail-num">Lớp ra</span>Trắc nghiệm tổng kết</a></li>
+  </ul>
+</nav>
+<main class="content">
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <span class="hero-eyebrow">Bài giảng Tutorial · Phần 7 · Tiếp nối Bài 6</span>
+    <h1 class="hero-title">YOLO<br><em>chỉ nhìn một lần</em></h1>
+    <p class="hero-sub">Một mạng, một lượt truyền xuôi, toàn bộ khung và lớp — dự đoán cùng lúc.</p>
+    <p class="hero-lede">Ở Bài 6, bạn đã nắm nền tảng phát hiện đối tượng và hai trường phái kiến trúc — trong đó <strong>YOLO</strong> là đại diện <strong>một giai đoạn</strong> phổ biến nhất, dùng đúng các khối xây dựng bạn đã biết: <strong>anchor</strong>, <strong>NMS</strong>, cấu trúc <strong>backbone–neck–head</strong> (xin nhắc lại chứ không định nghĩa lại). Bài này mổ xẻ chính xác YOLO hoạt động ra sao: cơ chế <strong>chia lưới</strong>, cấu trúc tensor đầu ra <strong>thật</strong> (<strong>84 × 8400</strong>, lấy từ việc dựng YOLO11n thật từ cấu hình), hành trình tiến hoá <strong>v1 → v11</strong>, và — quan trọng nhất — <strong>thực hành chạy suy luận và huấn luyện</strong> với thư viện Ultralytics chỉ trong vài dòng code.</p>
+
+    <div class="widget grid-resp-demo">
+      <span class="widget-label">Thử ngay · Bấm vào một ô lưới bất kỳ (giả lập tâm một vật thể)</span>
+      <svg id="gridRespSvg" viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg" style="max-width:420px;margin:0 auto;display:block;">
+        <g id="gridRespCells"></g>
+        <rect id="gridRespBox" x="0" y="0" width="0" height="0" fill="none" stroke="#d1495b" stroke-width="2.5" stroke-dasharray="5 3" rx="4"></rect>
+        <circle id="gridRespDot" cx="0" cy="0" r="5" fill="#d1495b"></circle>
+      </svg>
+      <div class="grid-resp-readout">
+        <span class="grid-resp-stat">Ô chịu trách nhiệm <b id="gridRespCellLabel">—</b></span>
+        <span class="grid-resp-stat">Tâm (x, y) chuẩn hoá <b id="gridRespXY">—</b></span>
+        <span class="grid-resp-stat">Kích thước (w, h) <b id="gridRespWH">—</b></span>
+        <span class="grid-resp-stat">Objectness <b id="gridRespObj">—</b></span>
+        <span class="grid-resp-classes">Top-3 lớp (giá trị minh hoạ): <b id="gridRespClasses">—</b></span>
+      </div>
+      <p class="grid-resp-hint">Quy ước cốt lõi của YOLO: ô lưới nào chứa <strong>tâm</strong> vật thể thì ô đó chịu trách nhiệm dự đoán vật thể ấy. Lưới minh hoạ ở đây là 8×8 cho dễ quan sát — YOLO11n thật dùng ba lưới lớn hơn nhiều (80×80, 40×40, 20×20), bạn sẽ gặp lại ở Lớp 04.</p>
+    </div>
+  </div>
+</section>
+<section class="section" id="l1">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 01 · Ý tưởng cốt lõi</span>
+    <h2 class="section-title">You Only Look Once</h2>
+    <p class="section-lead">Tên gọi YOLO chính là triết lý thiết kế của nó. Hiểu đúng ý tưởng này, mọi phần còn lại của bài — cơ chế lưới, tensor đầu ra, kiến trúc ba đầu dự đoán — sẽ chỉ là chi tiết triển khai của MỘT ý tưởng duy nhất.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">1.1</span>Từ "nhìn nhiều lần" đến "nhìn một lần"</h3>
+      <p>Họ hai giai đoạn (R-CNN, Bài 6) <strong>nhìn ảnh nhiều lần</strong>: đề xuất hàng nghìn vùng, rồi phân loại từng vùng một. YOLO làm khác hẳn: chỉ <strong>một lượt truyền xuôi</strong> qua một mạng duy nhất, dự đoán <strong>đồng thời</strong> mọi khung bao và lớp trên toàn ảnh.</p>
+
+      <div class="figure">
+        <div class="chart-row">
+          <div class="chart-col">
+            <svg viewBox="0 0 220 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <rect x="10" y="10" width="200" height="140" rx="8" fill="#fbe7ea" stroke="#d1495b" stroke-width="1.5"></rect>
+              <rect x="24" y="30" width="34" height="34" rx="5" fill="none" stroke="#9c2f3d" stroke-width="1.5"></rect>
+              <text x="41" y="52" text-anchor="middle" fill="#9c2f3d" font-family="JetBrains Mono" font-size="12" font-weight="700">1</text>
+              <line x1="60" y1="47" x2="80" y2="47" stroke="#9c2f3d" stroke-width="1.8" marker-end="url(#arrH1a)"></line>
+              <rect x="83" y="30" width="34" height="34" rx="5" fill="none" stroke="#9c2f3d" stroke-width="1.5"></rect>
+              <text x="100" y="52" text-anchor="middle" fill="#9c2f3d" font-family="JetBrains Mono" font-size="12" font-weight="700">2</text>
+              <line x1="119" y1="47" x2="139" y2="47" stroke="#9c2f3d" stroke-width="1.8" marker-end="url(#arrH1a)"></line>
+              <rect x="142" y="30" width="34" height="34" rx="5" fill="none" stroke="#9c2f3d" stroke-width="1.5"></rect>
+              <text x="159" y="52" text-anchor="middle" fill="#9c2f3d" font-family="JetBrains Mono" font-size="12" font-weight="700">…</text>
+              <defs><marker id="arrH1a" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#9c2f3d"></path></marker></defs>
+              <text x="110" y="95" text-anchor="middle" fill="#9c2f3d" font-family="Inter" font-size="11.5">hàng nghìn vùng đề xuất</text>
+              <text x="110" y="112" text-anchor="middle" fill="#9c2f3d" font-family="Inter" font-size="11.5">→ phân loại từng vùng</text>
+              <text x="110" y="140" text-anchor="middle" fill="#9c2f3d" font-family="Inter" font-size="12" font-weight="700">R-CNN — nhìn nhiều lần</text>
+            </svg>
+          </div>
+          <div class="chart-col">
+            <svg viewBox="0 0 220 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <rect x="10" y="10" width="200" height="140" rx="8" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+              <rect x="24" y="55" width="36" height="44" fill="none" stroke="#0a5f60" stroke-width="1.5"></rect>
+              <line x1="60" y1="77" x2="82" y2="77" stroke="#0a5f60" stroke-width="2" marker-end="url(#arrH1b)"></line>
+              <rect x="85" y="55" width="60" height="44" rx="6" fill="#0f8b8d"></rect>
+              <text x="115" y="82" text-anchor="middle" fill="#fff" font-family="Inter" font-size="12" font-weight="700">CNN</text>
+              <line x1="145" y1="77" x2="167" y2="77" stroke="#0a5f60" stroke-width="2" marker-end="url(#arrH1b)"></line>
+              <rect x="170" y="52" width="30" height="26" fill="none" stroke="#9c2f3d" stroke-width="1.5"></rect>
+              <rect x="172" y="85" width="26" height="22" fill="none" stroke="#0a5f60" stroke-width="1.5"></rect>
+              <defs><marker id="arrH1b" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#0a5f60"></path></marker></defs>
+              <text x="110" y="125" text-anchor="middle" fill="#0a5f60" font-family="Inter" font-size="11.5">một lượt duy nhất</text>
+              <text x="110" y="140" text-anchor="middle" fill="#0a5f60" font-family="Inter" font-size="12" font-weight="700">YOLO — nhìn một lần</text>
+            </svg>
+          </div>
+        </div>
+        <div class="figure-caption"><b>Hình 1.</b> R-CNN nhìn ảnh nhiều lần qua hai bước tách rời (đề xuất vùng → phân loại). YOLO nhìn một lần: một mạng CNN duy nhất dự đoán đồng thời mọi khung và lớp, không có bước đề xuất vùng riêng.</div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">1.2</span>Vì sao YOLO nhanh?</h3>
+      <p>Vì không có bước đề xuất vùng riêng và mọi dự đoán được tính trong <strong>một lượt</strong>, YOLO tận dụng tối đa khả năng <strong>song song</strong> của GPU. Đây là lý do YOLO trở thành lựa chọn hàng đầu cho ứng dụng <strong>thời gian thực</strong>: camera giám sát, xe tự lái, phân tích video trực tiếp.</p>
+
+      <div class="callout callout-note">
+        <span class="callout-head">Đánh đổi ban đầu</span>
+        <p>Phiên bản đầu tiên (v1) kém với <strong>vật thể nhỏ</strong> và <strong>cụm vật thể sát nhau</strong>. Nhược điểm này không phải là giới hạn vĩnh viễn của ý tưởng "nhìn một lần" — nó được khắc phục dần qua các phiên bản sau (đa tỉ lệ, anchor, rồi anchor-free), như bạn sẽ thấy ở Lớp 03.</p>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Đâu là lý do CHÍNH khiến YOLO tận dụng GPU hiệu quả hơn hẳn so với R-CNN, dù cả hai đều dùng mạng CNN?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>GPU mạnh nhất khi xử lý <strong>song song</strong> một khối tính toán lớn, chứ không phải nhiều bước nhỏ nối tiếp nhau. R-CNN phải chờ bước đề xuất vùng xong rồi mới phân loại được <em>từng vùng một</em> — mang tính tuần tự theo số lượng vùng. YOLO gói toàn bộ dự đoán (mọi khung, mọi lớp, trên toàn ảnh) vào đúng <strong>một lượt truyền xuôi</strong> qua một mạng duy nhất — đúng kiểu tính toán mà GPU song song hoá hiệu quả nhất, nên nhanh hơn nhiều dù cùng dùng CNN.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l2">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 02 · Cơ chế hoạt động</span>
+    <h2 class="section-title">Bên trong một lượt nhìn của YOLO</h2>
+    <p class="section-lead">"Nhìn một lần" nghe đơn giản, nhưng cụ thể mạng nhìn thấy gì và xuất ra gì trong lượt đó? Đây là phần lõi kỹ thuật của bài — nắm chắc phần này, các Lớp sau chỉ là mở rộng.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">2.1</span>Chia ảnh thành lưới</h3>
+      <p>YOLO chia ảnh thành một <strong>lưới S×S</strong>. Quy ước cốt lõi: ô lưới nào <strong>chứa tâm</strong> của một vật thể thì ô đó <strong>chịu trách nhiệm</strong> dự đoán vật thể ấy — đúng như bạn vừa tự tay thử ở widget đầu bài.</p>
+      <div class="figure">
+        <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:280px;display:block;margin:0 auto;">
+          <rect x="150" y="100" width="50" height="50" fill="#e1f3f2"></rect>
+          <g stroke="#d9e0da" stroke-width="1.5">
+            <line x1="0" y1="50" x2="300" y2="50"></line>
+            <line x1="0" y1="100" x2="300" y2="100"></line>
+            <line x1="0" y1="150" x2="300" y2="150"></line>
+            <line x1="0" y1="200" x2="300" y2="200"></line>
+            <line x1="0" y1="250" x2="300" y2="250"></line>
+            <line x1="50" y1="0" x2="50" y2="300"></line>
+            <line x1="100" y1="0" x2="100" y2="300"></line>
+            <line x1="150" y1="0" x2="150" y2="300"></line>
+            <line x1="200" y1="0" x2="200" y2="300"></line>
+            <line x1="250" y1="0" x2="250" y2="300"></line>
+          </g>
+          <rect x="1" y="1" width="298" height="298" fill="none" stroke="#7c8aa0" stroke-width="1.5"></rect>
+          <rect x="150" y="100" width="50" height="50" fill="none" stroke="#0f8b8d" stroke-width="2.5"></rect>
+          <ellipse cx="175" cy="135" rx="52" ry="68" fill="none" stroke="#42506a" stroke-width="1.5" stroke-dasharray="4 3"></ellipse>
+          <circle cx="175" cy="125" r="5" fill="#d1495b"></circle>
+          <text x="175" y="280" text-anchor="middle" fill="#0a5f60" font-family="JetBrains Mono" font-size="11" font-weight="700">Ô này chịu trách nhiệm</text>
+        </svg>
+        <div class="figure-caption"><b>Hình 2.</b> Ảnh chia thành lưới S×S. Vật thể (đường viền chấm) có tâm (chấm đỏ) rơi vào một ô — chỉ ô đó chịu trách nhiệm dự đoán vật thể này, các ô khác thì không.</div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.2</span>Mỗi ô dự đoán những gì?</h3>
+      <p>Mỗi vị trí dự đoán gồm: toạ độ khung <strong>(x, y, w, h)</strong>, một điểm <strong>objectness</strong> ("ô này có vật thể không"), và <strong>xác suất cho từng lớp</strong>. Gộp tất cả lại tạo thành <strong>tensor đầu ra</strong> của mạng. Với mô hình <strong>YOLO11n thật</strong> trên ảnh 640×640, đầu ra là một tensor <strong>(84 × 8400)</strong>:</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 500 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:0 auto;">
+          <text x="259" y="18" text-anchor="middle" fill="#132036" font-family="Inter" font-size="13" font-weight="700">Mỗi dự đoán = 84 giá trị</text>
+          <rect x="10" y="35" width="22" height="42" fill="#e8940f" stroke="#a86608" stroke-width="1.5"></rect>
+          <rect x="32" y="35" width="454" height="42" fill="#0f8b8d" stroke="#0a5f60" stroke-width="1.5"></rect>
+          <text x="21" y="61" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="12" font-weight="700">4</text>
+          <text x="259" y="61" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="13" font-weight="700">80 (một điểm cho mỗi lớp COCO)</text>
+          <text x="21" y="95" text-anchor="middle" fill="#a86608" font-family="Inter" font-size="10.5">toạ độ</text>
+          <text x="21" y="108" text-anchor="middle" fill="#a86608" font-family="Inter" font-size="10.5">(x,y,w,h)</text>
+          <text x="259" y="118" text-anchor="middle" fill="#7c8aa0" font-family="JetBrains Mono" font-size="10.5">nhân với 8400 vị trí → tensor (84 × 8400)</text>
+        </svg>
+        <div class="figure-caption"><b>Hình 3.</b> Cấu trúc đầu ra thật của YOLO11n: mỗi dự đoán có 84 giá trị (4 toạ độ + 80 điểm lớp COCO), nhân với 8400 vị trí trên ảnh.</div>
+      </div>
+
+      <p>Con số <strong>84 = 4 + 80</strong> (4 toạ độ khung + 80 lớp của bộ dữ liệu COCO). Con số <strong>8400 = 80² + 40² + 20²</strong> đến từ việc YOLO dự đoán ở <strong>ba tỉ lệ</strong> khác nhau (lưới 80×80 cho vật nhỏ, 40×40 cho vật vừa, 20×20 cho vật to) — ta sẽ thấy rõ ở Lớp 04.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Nếu huấn luyện lại YOLO cho một bộ dữ liệu chỉ có <strong>20 lớp</strong> (như Pascal VOC, Bài 6) thay vì 80 lớp COCO, con số "84" ở mỗi dự đoán sẽ đổi thành bao nhiêu?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>24</strong> (= 4 + 20). Bốn toạ độ khung <code>(x,y,w,h)</code> không đổi vì đó là cấu trúc chung của bài toán định vị, nhưng phần "điểm cho từng lớp" phụ thuộc <em>trực tiếp</em> vào số lớp của bộ dữ liệu đang huấn luyện. Con số 84 không phải hằng số cố định của kiến trúc YOLO nói chung — nó là <code>4 + (số lớp)</code>, và 84 chỉ đúng khi số lớp = 80 (COCO).</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.3</span>Từ dự đoán thô đến kết quả cuối</h3>
+      <p>8400 dự đoán là <strong>rất nhiều khung trùng lặp</strong>. Hậu xử lý biến chúng thành vài phát hiện sạch, qua đúng các bước đã học ở Bài 6:</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 620 130" style="width:100%;display:block;margin:0 auto;">
+          <g font-family="Inter" font-size="11" font-weight="700">
+            <rect x="0" y="30" width="140" height="60" rx="10" fill="#fbe7ea" stroke="#d1495b" stroke-width="1.5"></rect>
+            <text x="70" y="55" text-anchor="middle" fill="#9c2f3d">8400 dự đoán</text>
+            <text x="70" y="70" text-anchor="middle" fill="#9c2f3d">thô</text>
+            <rect x="153" y="30" width="140" height="60" rx="10" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"></rect>
+            <text x="223" y="55" text-anchor="middle" fill="#a86608">Lọc ngưỡng</text>
+            <text x="223" y="70" text-anchor="middle" fill="#a86608">tin cậy</text>
+            <rect x="306" y="30" width="140" height="60" rx="10" fill="#e6e9f7" stroke="#5762c7" stroke-width="1.5"></rect>
+            <text x="376" y="65" text-anchor="middle" fill="#3a3f8c">NMS</text>
+            <rect x="459" y="30" width="140" height="60" rx="10" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="529" y="55" text-anchor="middle" fill="#0a5f60">Vài khung</text>
+            <text x="529" y="70" text-anchor="middle" fill="#0a5f60">kết quả</text>
+          </g>
+          <g stroke="#b7c2c8" stroke-width="1.5" fill="none" marker-end="url(#arrH4)">
+            <line x1="140" y1="60" x2="151" y2="60"></line>
+            <line x1="293" y1="60" x2="304" y2="60"></line>
+            <line x1="446" y1="60" x2="457" y2="60"></line>
+          </g>
+          <defs><marker id="arrH4" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7c2c8"></path></marker></defs>
+        </svg>
+        <div class="figure-caption"><b>Hình 4.</b> Hậu xử lý: 8400 dự đoán thô → lọc theo ngưỡng tin cậy → NMS → vài khung kết quả.</div>
+      </div>
+
+      <div class="widget postproc-demo">
+        <span class="widget-label">Thử ngay · Từ 17 khung thô (thu nhỏ từ 8400) đến kết quả cuối, từng bước một</span>
+        <svg id="ppSvg" viewBox="0 0 640 330" xmlns="http://www.w3.org/2000/svg">
+          <g id="ppBoxContainer"></g>
+        </svg>
+        <div class="chart-legend">
+          <span><span class="legend-dot" style="background:#42506a;"></span>Khung thuộc vật thể thật (3 cụm)</span>
+          <span><span class="legend-dot" style="background:#a86608;"></span>Khung "nhiễu" điểm thấp, không thuộc vật thể nào</span>
+        </div>
+        <div class="pp-steps">
+          <button class="btn btn-forward" id="ppStep1Btn"><span class="pp-stepnum" id="ppStepNum1">1</span>Lọc theo ngưỡng tin cậy (≥ 0.35)</button>
+          <button class="btn btn-forward" id="ppStep2Btn" disabled><span class="pp-stepnum" id="ppStepNum2">2</span>Chạy NMS</button>
+          <button class="btn btn-ghost" id="ppResetBtn">Đặt lại</button>
+        </div>
+        <div class="pp-readout">
+          <span class="pp-stat">Ban đầu: <strong>17</strong> khung</span>
+          <span class="pp-stat">Hiện tại: <strong id="ppCurrentCount">17</strong> khung</span>
+        </div>
+        <p class="pp-note">Toạ độ và điểm tin cậy ở đây là số minh hoạ (thu nhỏ từ 8400 xuống 17 để dễ quan sát bằng mắt); thuật toán lọc ngưỡng và NMS chạy thật.</p>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao cần bước <strong>lọc ngưỡng tin cậy</strong> TRƯỚC, rồi mới chạy NMS — thay vì chỉ chạy NMS ngay trên toàn bộ dự đoán thô?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì hai bước giải quyết <strong>hai vấn đề khác nhau</strong>. NMS chỉ loại khung <strong>trùng lặp</strong> (IoU cao) cho <em>cùng một</em> vật thể — nó không đụng tới một khung điểm thấp đứng <strong>riêng lẻ</strong>, không chồng lấn với khung nào khác (như các khung "nhiễu" trong widget trên). Muốn loại những khung nhiễu điểm thấp đó, phải dùng lọc ngưỡng tin cậy trước. Làm ngược lại — chỉ chạy NMS mà bỏ qua lọc ngưỡng — sẽ để sót toàn bộ khung nhiễu điểm thấp trong kết quả cuối, vì NMS không có cơ chế nào để loại chúng.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">2.4</span>Hàm mất mát</h3>
+      <p>YOLO được huấn luyện với một hàm mất mát <strong>kết hợp ba thành phần</strong>: lỗi <strong>định vị</strong> (sai lệch toạ độ khung), lỗi <strong>objectness</strong> (dự đoán có/không có vật thể), và lỗi <strong>phân loại</strong> (sai lớp). Ba thành phần được tối ưu <strong>đồng thời</strong> trong một lần huấn luyện duy nhất.</p>
+    </div>
+  </div>
+</section>
+<section class="section" id="l3">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 03 · Anchor &amp; tiến hoá</span>
+    <h2 class="section-title">Anchor &amp; sự tiến hoá qua các phiên bản</h2>
+    <p class="section-lead">Cách YOLO sinh ra khung bao đã thay đổi nhiều lần qua các phiên bản. Hiểu đúng trục tiến hoá này giúp bạn đọc tài liệu YOLO ở bất kỳ phiên bản nào mà không bị rối.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">3.1</span>Anchor-based và anchor-free</h3>
+      <p><strong>v1</strong> dự đoán khung <strong>trực tiếp</strong>; <strong>v2–v7</strong> dùng <strong>anchor boxes</strong> (khung mẫu định sẵn, Bài 6) để mô hình tinh chỉnh; còn <strong>v8 và v11</strong> quay lại hướng <strong>anchor-free</strong> — dự đoán thẳng tâm và kích thước, giúp <strong>đơn giản hơn và ít siêu tham số hơn</strong>.</p>
+
+      <div class="figure">
+        <div class="chart-row">
+          <div class="chart-col">
+            <svg viewBox="0 0 220 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <rect x="10" y="10" width="200" height="140" rx="8" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"></rect>
+              <rect x="75" y="40" width="70" height="70" fill="none" stroke="#c9a26a" stroke-width="1" stroke-dasharray="2 2"></rect>
+              <rect x="90" y="55" width="40" height="40" fill="none" stroke="#0f8b8d" stroke-width="1.8"></rect>
+              <rect x="78" y="68" width="64" height="30" fill="none" stroke="#e8940f" stroke-width="1.8" stroke-dasharray="3 2"></rect>
+              <rect x="100" y="46" width="20" height="58" fill="none" stroke="#d1495b" stroke-width="1.8" stroke-dasharray="3 2"></rect>
+              <text x="110" y="140" text-anchor="middle" fill="#a86608" font-family="Inter" font-size="11.5" font-weight="700">Anchor-based (v2–v7)</text>
+            </svg>
+          </div>
+          <div class="chart-col">
+            <svg viewBox="0 0 220 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+              <rect x="10" y="10" width="200" height="140" rx="8" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+              <rect x="75" y="40" width="70" height="70" fill="none" stroke="#8fb9b8" stroke-width="1" stroke-dasharray="2 2"></rect>
+              <rect x="85" y="52" width="50" height="46" fill="none" stroke="#0a5f60" stroke-width="2"></rect>
+              <circle cx="110" cy="75" r="5" fill="#d1495b"></circle>
+              <text x="110" y="140" text-anchor="middle" fill="#0a5f60" font-family="Inter" font-size="11.5" font-weight="700">Anchor-free (v8, v11)</text>
+            </svg>
+          </div>
+        </div>
+        <div class="figure-caption"><b>Hình 5.</b> Anchor-based: nhiều khung mẫu (vuông/ngang/dọc) đặt sẵn mỗi ô, mô hình học điều chỉnh từ đó. Anchor-free: dự đoán thẳng tâm (chấm đỏ) và kích thước khung, không cần khung mẫu.</div>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Anchor-free (v8, v11) bỏ hẳn bộ khung mẫu định sẵn. Điều này giúp ích gì khi bạn huấn luyện YOLO trên một bộ dữ liệu hoàn toàn mới?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Với anchor-based, người huấn luyện phải <strong>tự chọn trước</strong> bộ anchor (bao nhiêu khung, tỉ lệ nào) sao cho phù hợp với hình dạng vật thể trong dữ liệu của mình — một siêu tham số phải cân nhắc thủ công, đúng như bạn đã thấy với anchor box ở Bài 6. Anchor-free bỏ hẳn bước này: mô hình dự đoán thẳng tâm và kích thước, nên <strong>ít siêu tham số hơn</strong> và đơn giản hơn nhiều khi áp dụng cho dữ liệu mới — không còn phải lo "bộ anchor này có khớp với vật thể của tôi không".</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.2</span>Dòng thời gian v1 → v11</h3>
+      <p>YOLO tiến hoá rất nhanh. Mỗi phiên bản mang một cải tiến đáng kể:</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 640 150" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:0 auto;">
+          <line x1="30" y1="75" x2="605" y2="75" stroke="#b7c2c8" stroke-width="2" marker-end="url(#arrH6)"></line>
+          <defs><marker id="arrH6" markerWidth="9" markerHeight="9" refX="5" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#b7c2c8"></path></marker></defs>
+
+          <circle cx="60" cy="75" r="7" fill="#0f8b8d"></circle>
+          <text x="60" y="58" text-anchor="middle" font-family="Inter" font-size="13" font-weight="700" fill="#132036">YOLOv1</text>
+          <text x="60" y="44" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#0a5f60">2016</text>
+
+          <circle cx="190" cy="75" r="6" fill="#f3f6f4" stroke="#0f8b8d" stroke-width="2"></circle>
+          <text x="190" y="95" text-anchor="middle" font-family="Inter" font-size="13" font-weight="700" fill="#132036">YOLOv3</text>
+          <text x="190" y="110" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#7c8aa0">2018</text>
+
+          <circle cx="320" cy="75" r="6" fill="#f3f6f4" stroke="#0f8b8d" stroke-width="2"></circle>
+          <text x="320" y="58" text-anchor="middle" font-family="Inter" font-size="13" font-weight="700" fill="#132036">YOLOv5</text>
+          <text x="320" y="44" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#0a5f60">2020</text>
+
+          <circle cx="450" cy="75" r="6" fill="#f3f6f4" stroke="#0f8b8d" stroke-width="2"></circle>
+          <text x="450" y="95" text-anchor="middle" font-family="Inter" font-size="13" font-weight="700" fill="#132036">YOLOv8</text>
+          <text x="450" y="110" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#7c8aa0">2023</text>
+
+          <circle cx="580" cy="75" r="7" fill="#0f8b8d"></circle>
+          <text x="580" y="58" text-anchor="middle" font-family="Inter" font-size="13" font-weight="700" fill="#132036">YOLO11</text>
+          <text x="580" y="44" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#0a5f60">2024</text>
+        </svg>
+        <div class="figure-caption"><b>Hình 6.</b> Dòng thời gian YOLO (số liệu thật): YOLOv1 (2016, phát hiện thời gian thực đầu tiên — một lần forward pass) → YOLOv3 (2018, phát hiện đa tỉ lệ, 3 tỉ lệ) → YOLOv5 (2020, Ultralytics đưa lên PyTorch, dễ dùng) → YOLOv8 (2023, anchor-free) → YOLO11 (2024, kiến trúc cải tiến, hiệu năng cao hơn).</div>
+      </div>
+
+      <p>Mốc quan trọng nhất với người thực hành: <strong>YOLOv5</strong> (và các bản sau) được phát triển bởi <strong>Ultralytics</strong> trên PyTorch với API cực kỳ dễ dùng, biến YOLO từ công cụ nghiên cứu thành thứ ai cũng có thể chạy chỉ trong vài dòng — như ta sẽ làm ở Lớp 05.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Mốc nào trong dòng thời gian trên quan trọng nhất với một người MỚI muốn thực hành YOLO (không phải nhà nghiên cứu), và vì sao?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>YOLOv5 (2020)</strong>. Đây là mốc Ultralytics đưa YOLO lên PyTorch với API cực kỳ dễ dùng — biến YOLO từ một công cụ nghiên cứu phức tạp thành thứ ai cũng chạy được chỉ trong vài dòng code, không cần hiểu hết chi tiết bên trong. Đây chính là thư viện (và dòng dõi các bản kế nhiệm gồm cả YOLO11) bạn sẽ thực hành trực tiếp ở Lớp 05.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l4">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 04 · Kiến trúc</span>
+    <h2 class="section-title">Kiến trúc YOLO</h2>
+    <p class="section-lead">YOLO theo đúng cấu trúc Backbone–Neck–Head đã học ở Bài 6, nhưng có một nét đặc trưng riêng làm nên con số 8400: <strong>ba đầu dự đoán ở ba tỉ lệ khác nhau</strong>.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">4.1</span>Backbone – Neck – 3 đầu dự đoán</h3>
+      <p>Backbone (thường là <strong>CSPDarknet</strong>) trích đặc trưng; <strong>Neck (PAN/FPN)</strong> gộp đặc trưng đa tỉ lệ; ba <strong>head</strong> dự đoán ở lưới <strong>80×80</strong>, <strong>40×40</strong> và <strong>20×20</strong>. Cộng lại: <strong>80² + 40² + 20² = 8400</strong> dự đoán — đúng con số ta thấy trong tensor đầu ra thật ở Lớp 02.</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:0 auto;">
+          <g font-family="Inter" font-weight="700">
+            <rect x="0" y="100" width="110" height="60" rx="10" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"></rect>
+            <text x="55" y="125" text-anchor="middle" font-size="12" fill="#a86608">Backbone</text>
+            <text x="55" y="140" text-anchor="middle" font-size="10" fill="#a86608" font-weight="500">CSPDarknet</text>
+
+            <rect x="140" y="100" width="110" height="60" rx="10" fill="#e6e9f7" stroke="#5762c7" stroke-width="1.5"></rect>
+            <text x="195" y="125" text-anchor="middle" font-size="12" fill="#3a3f8c">Neck</text>
+            <text x="195" y="140" text-anchor="middle" font-size="10" fill="#3a3f8c" font-weight="500">PAN/FPN</text>
+
+            <rect x="290" y="20" width="140" height="50" rx="8" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="360" y="40" text-anchor="middle" font-size="11" fill="#0a5f60">Head 1 · 80×80</text>
+            <text x="360" y="55" text-anchor="middle" font-size="9.5" fill="#0a5f60" font-weight="500">vật thể NHỎ</text>
+
+            <rect x="290" y="105" width="140" height="50" rx="8" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="360" y="125" text-anchor="middle" font-size="11" fill="#0a5f60">Head 2 · 40×40</text>
+            <text x="360" y="140" text-anchor="middle" font-size="9.5" fill="#0a5f60" font-weight="500">vật thể VỪA</text>
+
+            <rect x="290" y="190" width="140" height="50" rx="8" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"></rect>
+            <text x="360" y="210" text-anchor="middle" font-size="11" fill="#0a5f60">Head 3 · 20×20</text>
+            <text x="360" y="225" text-anchor="middle" font-size="9.5" fill="#0a5f60" font-weight="500">vật thể TO</text>
+
+            <rect x="480" y="100" width="150" height="60" rx="10" fill="#fbe7ea" stroke="#d1495b" stroke-width="1.5"></rect>
+            <text x="555" y="125" text-anchor="middle" font-size="12" fill="#9c2f3d">8400</text>
+            <text x="555" y="140" text-anchor="middle" font-size="10" fill="#9c2f3d" font-weight="500">dự đoán</text>
+          </g>
+          <g stroke="#b7c2c8" stroke-width="1.5" fill="none">
+            <line x1="110" y1="130" x2="138" y2="130" marker-end="url(#arrH7a)"></line>
+            <line x1="250" y1="130" x2="288" y2="45" marker-end="url(#arrH7a)"></line>
+            <line x1="250" y1="130" x2="288" y2="130" marker-end="url(#arrH7a)"></line>
+            <line x1="250" y1="130" x2="288" y2="215" marker-end="url(#arrH7a)"></line>
+            <line x1="430" y1="45" x2="478" y2="130" marker-end="url(#arrH7a)"></line>
+            <line x1="430" y1="130" x2="478" y2="130" marker-end="url(#arrH7a)"></line>
+            <line x1="430" y1="215" x2="478" y2="130" marker-end="url(#arrH7a)"></line>
+          </g>
+          <defs><marker id="arrH7a" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#b7c2c8"></path></marker></defs>
+        </svg>
+        <div class="figure-caption"><b>Hình 7.</b> Kiến trúc YOLO: Backbone (CSPDarknet) → Neck (PAN/FPN) → 3 head ở 3 tỉ lệ (80²/40²/20²), tổng cộng 8400 dự đoán.</div>
+      </div>
+
+      <div class="widget">
+        <span class="widget-label">Thử ngay · Bấm vào từng lưới để xem ý nghĩa</span>
+        <div class="scale-demo">
+          <div class="scale-block" id="scaleBlock80">
+            <div class="scale-box" style="width:152px;height:152px;"></div>
+            <span class="scale-block-label">Lưới 80×80</span>
+          </div>
+          <div class="scale-block" id="scaleBlock40">
+            <div class="scale-box" style="width:76px;height:76px;"></div>
+            <span class="scale-block-label">Lưới 40×40</span>
+          </div>
+          <div class="scale-block" id="scaleBlock20">
+            <div class="scale-box" style="width:38px;height:38px;"></div>
+            <span class="scale-block-label">Lưới 20×20</span>
+          </div>
+        </div>
+        <div class="scale-readout" id="scaleReadout">Bấm vào một lưới phía trên để xem số ô và ý nghĩa của nó trong việc bắt vật thể theo kích thước.</div>
+        <div class="scale-sum">80² + 40² + 20² = <b>8400</b> dự đoán</div>
+      </div>
+
+      <p>Con số 2.624.080 tham số và tensor (84 × 8400) không phải ước lượng — đây là kết quả chạy thật khi dựng kiến trúc YOLO11n từ file cấu hình (không cần tải trọng số, nên chạy được cả khi không có mạng):</p>
+
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">kiem_tra_kien_truc.py</span></div>
+        <pre><code class="language-python">import torch
+from ultralytics import YOLO
+
+# Khoi tao tu YAML (cau hinh kien truc) - KHONG tai trong so -&gt; chay offline
+m = YOLO('yolo11n.yaml')
+n = sum(p.numel() for p in m.model.parameters())
+print(f'YOLO11n: {n:,} tham so')
+
+m.model.eval()
+with torch.no_grad():
+    out = m.model(torch.zeros(1, 3, 640, 640))   # anh gia 640x640
+
+print('Kich thuoc dau ra:')
+for o in out:
+    if hasattr(o, 'shape'): print(f'  {tuple(o.shape)}')
+# (1, 84, 8400): batch=1, 84 gia tri/box (4 toa do + 80 lop), 8400 vi tri</code></pre>
+      </div>
+
+      <div class="callout callout-result">
+        <span class="callout-head">Số liệu thật</span>
+        <p>Chạy đoạn code trên cho kết quả: <strong>YOLO11n có 2.624.080 tham số</strong> và xuất tensor <strong>(1, 84, 8400)</strong> trên đầu vào 640×640 — batch=1, khớp chính xác với con số <strong>84 × 8400</strong> đã nêu ở Lớp 02. Đây là số liệu kiểm chứng trực tiếp bằng cách xây kiến trúc, không phải ước lượng.</p>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao YOLO cần tới BA head ở ba tỉ lệ, thay vì chỉ dùng MỘT lưới thật mịn (vd 80×80) cho mọi kích thước vật thể?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Mỗi head lấy đặc trưng từ một <strong>độ sâu khác nhau</strong> của mạng (qua Neck/FPN, Bài 6): lớp nông cho lưới mịn (80×80) có độ phân giải không gian cao nhưng vùng nhìn (receptive field) hẹp — hợp vật <strong>nhỏ</strong>; lớp sâu hơn cho lưới thưa (20×20) có vùng nhìn rộng, ngữ nghĩa mạnh hơn — hợp vật <strong>to</strong>. Nếu chỉ dùng một lưới 80×80 duy nhất, mọi ô đều có vùng nhìn hẹp như nhau — không đủ ngữ cảnh để nhận diện chính xác một vật thể rất to chiếm phần lớn bức ảnh.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">4.2</span>Các biến thể n / s / m / l / x</h3>
+      <p>YOLO11 (và các bản gần đây) phát hành theo <strong>năm cỡ</strong> cùng kiến trúc nhưng khác độ sâu/rộng — bạn chọn theo ràng buộc tốc độ/độ chính xác (đúng tư duy Bài 5):</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 400 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:440px;display:block;margin:0 auto;">
+          <line x1="20" y1="150" x2="380" y2="150" stroke="#d9e0da"></line>
+          <rect x="35" y="125" width="45" height="25" fill="#0f8b8d" fill-opacity="0.75"></rect>
+          <text x="57" y="164" text-anchor="middle" font-family="Inter" font-size="11.5" font-weight="700" fill="#0a5f60">n</text>
+          <rect x="105" y="105" width="45" height="45" fill="#0f8b8d" fill-opacity="0.65"></rect>
+          <text x="127" y="164" text-anchor="middle" font-family="Inter" font-size="11.5" font-weight="700" fill="#42506a">s</text>
+          <rect x="175" y="78" width="45" height="72" fill="#0f8b8d" fill-opacity="0.55"></rect>
+          <text x="197" y="164" text-anchor="middle" font-family="Inter" font-size="11.5" font-weight="700" fill="#42506a">m</text>
+          <rect x="245" y="48" width="45" height="102" fill="#0f8b8d" fill-opacity="0.45"></rect>
+          <text x="267" y="164" text-anchor="middle" font-family="Inter" font-size="11.5" font-weight="700" fill="#42506a">l</text>
+          <rect x="315" y="20" width="45" height="130" fill="#0f8b8d" fill-opacity="0.35"></rect>
+          <text x="337" y="164" text-anchor="middle" font-family="Inter" font-size="11.5" font-weight="700" fill="#42506a">x</text>
+          <text x="57" y="117" text-anchor="middle" font-family="JetBrains Mono" font-size="9.5" fill="#0a5f60" font-weight="700">2,62M</text>
+        </svg>
+        <div class="figure-caption"><b>Hình 8.</b> Các biến thể YOLO: từ nano (nhanh nhất, ~2,62 triệu tham số thật) đến xlarge (chính xác nhất, chậm hơn). Chiều cao cột từ s→x mang tính minh hoạ xu hướng tăng kích thước, không phải số liệu đo thật như cột n.</div>
+      </div>
+
+      <table class="ref-table">
+        <tr><th>Biến thể</th><th>Đặc điểm</th><th>Khi nào dùng</th></tr>
+        <tr><td><code>yolo11n</code></td><td>Nhỏ nhất (~2,62 triệu tham số), nhanh nhất.</td><td>Thiết bị biên, real-time, ít tài nguyên.</td></tr>
+        <tr><td><code>yolo11s</code></td><td>Nhỏ, cân bằng tốc độ/chính xác.</td><td>Ứng dụng real-time phổ thông.</td></tr>
+        <tr><td><code>yolo11m</code></td><td>Trung bình.</td><td>Cân bằng tốt trên GPU tầm trung.</td></tr>
+        <tr><td><code>yolo11l / x</code></td><td>Lớn, chính xác nhất, chậm hơn.</td><td>Ưu tiên độ chính xác, có GPU mạnh.</td></tr>
+      </table>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Một ứng dụng chạy trên camera IP giá rẻ, cần thời gian thực nhưng phần cứng rất yếu, không có GPU. Nên chọn biến thể YOLO nào?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>yolo11n (nano)</strong> — nhỏ nhất (~2,62 triệu tham số), nhanh nhất, phù hợp thiết bị biên và ít tài nguyên. Đây đúng là tình huống ưu tiên <strong>tốc độ và ràng buộc phần cứng</strong> hơn độ chính xác tối đa — đúng tư duy đánh đổi đã học ở Bài 5: chọn mô hình đủ tốt cho ràng buộc thực tế, không phải mô hình chính xác nhất trên giấy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l5">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 05 · Thực hành</span>
+    <h2 class="section-title">Thực hành với Ultralytics</h2>
+    <p class="section-lead">Đây là phần bạn sẽ dùng nhiều nhất sau bài học: chạy suy luận, chuẩn bị dữ liệu, huấn luyện, đánh giá và xuất mô hình — tất cả chỉ trong vài dòng code nhờ thư viện Ultralytics.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">5.1</span>Cài đặt</h3>
+      <p>Ultralytics đóng gói YOLO thành một thư viện Python rất gọn. Cài bằng một lệnh:</p>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">terminal</span></div>
+        <pre><code class="nohighlight">pip install ultralytics</code></pre>
+      </div>
+
+      <div class="callout callout-warn">
+        <span class="callout-head">Lưu ý về môi trường</span>
+        <p>Lần đầu dùng, Ultralytics <strong>tự tải trọng số pretrained</strong> (vd <code>yolo11n.pt</code>) từ internet. Trong môi trường biên soạn tài liệu này <strong>không có kết nối tải trọng số</strong>, nên các con số kiến trúc ở Lớp 04 được lấy bằng cách <strong>dựng mô hình từ cấu hình</strong>. Khi bạn chạy trên máy có mạng, các đoạn code dưới đây hoạt động đầy đủ.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.2</span>Suy luận (inference)</h3>
+      <p>Chỉ vài dòng để phát hiện vật thể trên ảnh, video hoặc webcam:</p>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">suy_luan.py</span></div>
+        <pre><code class="language-python">from ultralytics import YOLO
+
+model = YOLO("yolo11n.pt")          # tai mo hinh pretrained (COCO, 80 lop)
+
+# Suy luan tren mot anh
+results = model("anh.jpg")          # cung nhan video.mp4, thu muc, hoac 0 = webcam
+
+for r in results:
+    r.show()                        # hien thi anh kem khung
+    r.save("ket_qua.jpg")           # luu ket qua
+    for box in r.boxes:
+        cls  = model.names[int(box.cls)]    # ten lop
+        conf = float(box.conf)              # do tin cay
+        xyxy = box.xyxy[0].tolist()         # toa do khung (x1,y1,x2,y2)
+        print(cls, round(conf, 2), xyxy)
+
+# Tinh chinh nguong khi can:
+# results = model("anh.jpg", conf=0.25, iou=0.5)</code></pre>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Nếu bạn tăng ngưỡng <code>conf</code> khi suy luận (vd từ 0.25 lên 0.7), số khung phát hiện trả về sẽ thay đổi thế nào?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Giảm đi.</strong> Chỉ những khung có độ tin cậy ≥ 0.7 mới được giữ lại, nên các dự đoán không chắc chắn (điểm thấp) bị loại ngay từ bước lọc ngưỡng, trước cả khi tới NMS — đúng cơ chế bạn vừa thực hành ở widget hậu xử lý tại Lớp 02. Ngưỡng cao hơn cho kết quả "sạch" hơn nhưng dễ bỏ sót vật thể thật có độ tin cậy vừa phải; ngưỡng thấp hơn bắt được nhiều hơn nhưng dễ lẫn nhiễu.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.3</span>Định dạng dữ liệu để huấn luyện</h3>
+      <p>Để huấn luyện trên dữ liệu <strong>của riêng bạn</strong>, cần hai thứ: một file <code>data.yaml</code> mô tả bộ dữ liệu, và <strong>nhãn dạng YOLO</strong> (mỗi ảnh một file <code>.txt</code>, mỗi dòng một vật thể).</p>
+
+      <div class="figure">
+        <svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:280px;display:block;margin:0 auto;">
+          <rect x="30" y="20" width="240" height="200" fill="#fff" stroke="#132036" stroke-width="1.5"></rect>
+          <text x="16" y="24" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#7c8aa0">0</text>
+          <text x="16" y="224" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#7c8aa0">1</text>
+          <text x="30" y="236" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#7c8aa0">0</text>
+          <text x="270" y="236" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#7c8aa0">1</text>
+          <rect x="110" y="80" width="90" height="80" fill="rgba(15,139,141,.12)" stroke="#0f8b8d" stroke-width="2"></rect>
+          <line x1="30" y1="120" x2="110" y2="120" stroke="#d1495b" stroke-width="1.3" stroke-dasharray="3 2"></line>
+          <line x1="155" y1="20" x2="155" y2="80" stroke="#d1495b" stroke-width="1.3" stroke-dasharray="3 2"></line>
+          <circle cx="155" cy="120" r="3.5" fill="#d1495b"></circle>
+          <text x="70" y="113" text-anchor="middle" font-family="JetBrains Mono" font-size="9.5" fill="#9c2f3d">y_tâm</text>
+          <text x="155" y="55" text-anchor="middle" font-family="JetBrains Mono" font-size="9.5" fill="#9c2f3d">x_tâm</text>
+          <text x="155" y="252" text-anchor="middle" font-family="Inter" font-size="11" fill="#42506a">Toạ độ chuẩn hoá 0–1 theo kích thước ảnh</text>
+        </svg>
+        <div class="figure-caption"><b>Hình 9.</b> Định dạng nhãn YOLO: tâm khung (x_tâm, y_tâm) cùng rộng/cao đều được chuẩn hoá về 0–1 theo kích thước ảnh, không phải toạ độ pixel tuyệt đối.</div>
+      </div>
+
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">data.yaml</span></div>
+        <pre><code class="nohighlight">train: images/train
+val: images/val
+nc: 3                          # so luong lop
+names: ['nguoi', 'xe_dap', 'cho']</code></pre>
+      </div>
+
+      <p>Mỗi dòng nhãn có dạng <code>lớp x_tâm y_tâm rộng cao</code>, trong đó bốn số toạ độ được <strong>chuẩn hoá về 0–1</strong> theo kích thước ảnh — nhờ vậy nhãn <strong>không phụ thuộc độ phân giải</strong>. Ví dụ file <code>nhan.txt</code> cho một ảnh có 2 vật thể:</p>
+
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">nhan.txt</span></div>
+        <pre><code class="nohighlight">0 0.52 0.61 0.30 0.42
+2 0.15 0.30 0.18 0.22</code></pre>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao nhãn YOLO dùng toạ độ <strong>chuẩn hoá 0–1</strong> thay vì toạ độ pixel tuyệt đối (vd x=320, y=240)?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì chuẩn hoá làm nhãn <strong>không phụ thuộc độ phân giải ảnh</strong>. YOLO luôn resize ảnh đầu vào (vd về 640×640) trước khi đưa vào mạng; nếu nhãn ghi bằng pixel tuyệt đối, mỗi lần resize sẽ phải tính lại toàn bộ toạ độ nhãn. Với toạ độ 0–1, cùng một nhãn áp dụng đúng cho ảnh gốc lẫn ảnh đã resize ở bất kỳ kích thước nào — không cần chuyển đổi lại.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.4</span>Huấn luyện trên dữ liệu riêng</h3>
+      <p>Bắt đầu từ trọng số pretrained (transfer learning, Bài 4) rồi huấn luyện tiếp trên dữ liệu của bạn:</p>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">huan_luyen.py</span></div>
+        <pre><code class="language-python">from ultralytics import YOLO
+
+model = YOLO("yolo11n.pt")          # bat dau tu pretrained -&gt; transfer learning
+
+model.train(
+    data="data.yaml",              # mo ta bo du lieu
+    epochs=100,                    # so vong huan luyen
+    imgsz=640,                     # kich thuoc anh dau vao
+    batch=16,
+)
+# Ket qua (trong so tot nhat, bieu do, mAP) luu trong thu muc runs/detect/train/</code></pre>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.5</span>Đánh giá &amp; xuất mô hình</h3>
+      <p>Sau huấn luyện, đánh giá bằng mAP (Bài 6) và xuất sang định dạng triển khai:</p>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">danh_gia_xuat.py</span></div>
+        <pre><code class="language-python">metrics = model.val()              # tinh mAP tren tap kiem dinh
+print(metrics.box.map)             # mAP@[.5:.95]
+print(metrics.box.map50)           # mAP@0.5
+
+# Xuat sang ONNX de trien khai (hoac 'engine', 'coreml', 'tflite'...)
+model.export(format="onnx")</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l6">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 06 · Tổng quan</span>
+    <h2 class="section-title">Mẹo thực hành &amp; khi nào dùng YOLO</h2>
+    <p class="section-lead">Sáu ghi chú ngắn dưới đây gói lại những điều quan trọng nhất khi bạn bắt đầu dùng YOLO cho một dự án thật.</p>
+
+    <ul class="tip-list">
+      <li><span class="tip-check">✓</span><span><strong>Luôn bắt đầu từ trọng số pretrained</strong> rồi tinh chỉnh — nhanh hơn và chính xác hơn huấn luyện từ đầu.</span></li>
+      <li><span class="tip-check">✓</span><span><strong>Chọn biến thể theo ràng buộc:</strong> nano/small cho real-time và thiết bị biên; medium/large/xlarge khi cần độ chính xác và có GPU mạnh.</span></li>
+      <li><span class="tip-check">✓</span><span>Ultralytics <strong>tự bật augmentation mạnh</strong> (mosaic, lật, đổi màu...) khi huấn luyện — yếu tố lớn giúp YOLO tổng quát tốt.</span></li>
+      <li><span class="tip-check">✓</span><span>Tinh chỉnh <strong><code>conf</code></strong> (ngưỡng tin cậy) và <strong><code>iou</code></strong> (ngưỡng NMS) khi suy luận để cân giữa số khung và độ sạch.</span></li>
+      <li><span class="tip-check">✓</span><span>YOLO mạnh cho <strong>real-time</strong> và <strong>dễ triển khai</strong>, nhưng vật thể <strong>rất nhỏ hoặc quá đông đúc</strong> vẫn là thách thức — cân nhắc tăng <code>imgsz</code> hoặc dùng mô hình lớn hơn.</span></li>
+      <li><span class="tip-check">✓</span><span>Khi so sánh mô hình, luôn đối chiếu <strong>mAP trên cùng bộ dữ liệu &amp; cùng thang đo</strong> (Bài 6).</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="l7">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Bài tập · Thực hành</span>
+    <h2 class="section-title">Bài tập thực hành</h2>
+    <p class="section-lead">Không gì giúp bạn hiểu YOLO sâu hơn việc tự chạy nó trên dữ liệu của chính mình. Hãy làm lần lượt từ bài 1.</p>
+
+    <div class="task-grid">
+      <div class="task-card"><span class="task-num">Bài tập 01</span><p>Cài <code>ultralytics</code>, chạy <strong>suy luận</strong> trên 5 ảnh của bạn bằng <code>yolo11n.pt</code>. Quan sát nhãn và độ tin cậy; vật thể nào bị bỏ sót?</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 02</span><p>Thử thay đổi <code>conf</code> và <code>iou</code> trong <code>model.predict(...)</code>. Số khung phát hiện thay đổi thế nào? Giải thích.</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 03</span><p>Tự gán nhãn khoảng <strong>20 ảnh</strong> (định dạng YOLO) cho một lớp tuỳ chọn và viết file <code>data.yaml</code> tương ứng.</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 04</span><p><strong>Huấn luyện</strong> <code>yolo11n</code> trên tập nhỏ đó (vài chục epoch). Đọc <strong>mAP</strong> từ <code>model.val()</code>. Kết quả có hợp lý không?</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 05</span><p>So sánh <code>yolo11n</code> và <code>yolo11s</code> về <strong>tốc độ và độ chính xác</strong> trên cùng ảnh. Đánh đổi đúng như dự đoán không?</p></div>
+      <div class="task-card advanced"><span class="task-num">Nâng cao</span><p>Xuất mô hình sang <strong>ONNX</strong> và giải thích vì sao định dạng này hữu ích khi triển khai trên các nền tảng khác nhau.</p></div>
+    </div>
+  </div>
+</section>
+<section class="section" id="quiz">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp ra · Trắc nghiệm tổng kết</span>
+    <h2 class="section-title">Kiểm tra lại toàn bài</h2>
+    <p class="section-lead">10 câu trắc nghiệm rải đều qua các Lớp 01–05. Chọn một đáp án để xem giải thích — cứ thử trước, sai không sao.</p>
+
+    <div class="quiz-item" data-answer="A">
+      <p class="quiz-q"><span class="qnum">Câu 1.</span>YOLO khác R-CNN (Bài 6) ở điểm cốt lõi nào?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. YOLO chỉ cần MỘT lượt truyền xuôi để dự đoán đồng thời mọi khung và lớp, không có bước đề xuất vùng riêng như R-CNN.</button>
+        <button class="quiz-opt" data-key="B">B. YOLO dùng CNN còn R-CNN thì không.</button>
+        <button class="quiz-opt" data-key="C">C. YOLO chỉ hoạt động trên video, R-CNN chỉ hoạt động trên ảnh tĩnh.</button>
+        <button class="quiz-opt" data-key="D">D. YOLO không cần huấn luyện.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Nhớ lại "một lượt truyền xuôi" ở mục 1.1.</p>
+      <p class="quiz-explain">R-CNN (Bài 6) tách rời hai bước: đề xuất vùng rồi phân loại từng vùng — nhìn ảnh nhiều lần. YOLO gộp mọi thứ vào MỘT lượt truyền xuôi duy nhất qua một mạng, dự đoán đồng thời mọi khung và lớp trên toàn ảnh — đây chính là ý nghĩa của cái tên "You Only Look Once".</p>
+    </div>
+
+    <div class="quiz-item" data-answer="C">
+      <p class="quiz-q"><span class="qnum">Câu 2.</span>Vì sao YOLO tận dụng GPU hiệu quả hơn nhiều so với kiến trúc hai giai đoạn?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Vì YOLO có ít tham số hơn hẳn mọi kiến trúc khác.</button>
+        <button class="quiz-opt" data-key="B">B. Vì YOLO không dùng phép tích chập.</button>
+        <button class="quiz-opt" data-key="C">C. Vì YOLO gói toàn bộ dự đoán vào một lượt truyền xuôi duy nhất — đúng kiểu tính toán song song lớn mà GPU mạnh nhất.</button>
+        <button class="quiz-opt" data-key="D">D. Vì YOLO chạy trên CPU, không cần GPU.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Liên hệ cách GPU xử lý song song hiệu quả nhất.</p>
+      <p class="quiz-explain">GPU mạnh nhất khi xử lý song song một khối tính toán lớn, không phải nhiều bước tuần tự nhỏ lẻ. Vì YOLO gói toàn bộ dự đoán vào một lượt truyền xuôi duy nhất (không có bước đề xuất vùng riêng phải chờ tuần tự như R-CNN), nó tận dụng được đúng thế mạnh song song hoá của GPU.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="D">
+      <p class="quiz-q"><span class="qnum">Câu 3.</span>Trong cơ chế lưới của YOLO, ô nào chịu trách nhiệm dự đoán một vật thể?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Ô có diện tích chồng lấn nhiều nhất với khung thật.</button>
+        <button class="quiz-opt" data-key="B">B. Tất cả các ô trong ảnh, mỗi ô một phiếu bầu.</button>
+        <button class="quiz-opt" data-key="C">C. Ô đầu tiên theo thứ tự quét từ trái sang phải.</button>
+        <button class="quiz-opt" data-key="D">D. Ô chứa tâm của vật thể đó.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Đây chính là quy ước cốt lõi bạn đã tự tay thử ở widget đầu bài.</p>
+      <p class="quiz-explain">Quy ước cốt lõi của YOLO: ô lưới nào chứa TÂM của một vật thể thì ô đó chịu trách nhiệm dự đoán vật thể ấy — không phải ô chồng lấn nhiều nhất, không phải mọi ô cùng bỏ phiếu.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="D">
+      <p class="quiz-q"><span class="qnum">Câu 4.</span>Với YOLO11n thật trên ảnh 640×640, con số 84 trong tensor đầu ra (84 × 8400) đến từ đâu?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. 84 = số lớp head nhân với số kênh mỗi lớp.</button>
+        <button class="quiz-opt" data-key="B">B. 84 là số epoch huấn luyện mặc định.</button>
+        <button class="quiz-opt" data-key="C">C. 84 = 80×80 chia cho 40×40 cộng 20×20.</button>
+        <button class="quiz-opt" data-key="D">D. 84 = 4 toạ độ khung + 80 lớp của bộ dữ liệu COCO.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại Hình 3 ở mục 2.2.</p>
+      <p class="quiz-explain">84 = 4 (toạ độ khung x,y,w,h) + 80 (một điểm cho mỗi lớp trong 80 lớp của bộ dữ liệu COCO). Đây là số liệu thật, kiểm chứng bằng cách dựng kiến trúc YOLO11n từ cấu hình (Lớp 04).</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 5.</span>Vì sao bước lọc theo ngưỡng tin cậy cần thực hiện TRƯỚC khi chạy NMS?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Vì NMS chạy chậm hơn nhiều nếu không lọc trước.</button>
+        <button class="quiz-opt" data-key="B">B. Vì NMS chỉ loại khung trùng lặp (IoU cao) cho cùng một vật thể, không loại được khung điểm thấp đứng riêng lẻ, không chồng lấn với khung nào khác.</button>
+        <button class="quiz-opt" data-key="C">C. Vì thứ tự không quan trọng, làm trước hay sau đều cho kết quả giống hệt nhau.</button>
+        <button class="quiz-opt" data-key="D">D. Vì NMS chỉ hoạt động khi số khung là số chẵn.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Nhớ lại widget hậu xử lý 2 bước ở mục 2.3, đặc biệt các khung "nhiễu".</p>
+      <p class="quiz-explain">NMS chỉ xử lý các khung TRÙNG LẶP (IoU cao) cho cùng một vật thể — nó không có cơ chế nào để loại một khung điểm thấp đứng RIÊNG LẺ, không chồng lấn với khung nào khác. Muốn loại khung nhiễu điểm thấp đó, bắt buộc phải lọc theo ngưỡng tin cậy trước.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="A">
+      <p class="quiz-q"><span class="qnum">Câu 6.</span>Anchor-free (YOLOv8, v11) khác anchor-based (v2–v7) ở điểm nào?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Anchor-free dự đoán thẳng tâm và kích thước, không cần bộ khung mẫu (anchor) định sẵn — ít siêu tham số hơn.</button>
+        <button class="quiz-opt" data-key="B">B. Anchor-free chỉ hoạt động với đúng một lớp duy nhất.</button>
+        <button class="quiz-opt" data-key="C">C. Anchor-free không thể huấn luyện bằng transfer learning.</button>
+        <button class="quiz-opt" data-key="D">D. Anchor-free chậm hơn anchor-based vì phải thử nhiều khung mẫu hơn.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại Hình 5 ở mục 3.1.</p>
+      <p class="quiz-explain">Anchor-based (v2–v7) cần một bộ khung mẫu (anchor) định sẵn để mô hình tinh chỉnh — người huấn luyện phải tự chọn số lượng và tỉ lệ khung mẫu. Anchor-free (v8, v11) bỏ hẳn bước này, dự đoán thẳng tâm và kích thước — đơn giản hơn, ít siêu tham số hơn.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="C">
+      <p class="quiz-q"><span class="qnum">Câu 7.</span>Vì sao YOLOv5 (2020) được xem là mốc quan trọng với người THỰC HÀNH?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Vì đây là phiên bản đầu tiên của YOLO.</button>
+        <button class="quiz-opt" data-key="B">B. Vì YOLOv5 là phiên bản anchor-free đầu tiên.</button>
+        <button class="quiz-opt" data-key="C">C. Vì Ultralytics đưa YOLO lên PyTorch với API cực kỳ dễ dùng, biến YOLO thành thứ ai cũng chạy được trong vài dòng code.</button>
+        <button class="quiz-opt" data-key="D">D. Vì YOLOv5 đạt độ chính xác cao nhất trong lịch sử YOLO.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Đây là mốc gắn liền với thư viện bạn vừa thực hành ở Lớp 05.</p>
+      <p class="quiz-explain">YOLOv5 (2020) là mốc Ultralytics đưa YOLO lên PyTorch với API cực kỳ dễ dùng — biến YOLO từ công cụ nghiên cứu phức tạp thành thứ ai cũng chạy được chỉ trong vài dòng code, không cần hiểu hết chi tiết bên trong kiến trúc.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="A">
+      <p class="quiz-q"><span class="qnum">Câu 8.</span>Vì sao YOLO dùng BA head ở ba tỉ lệ (80×80 / 40×40 / 20×20) thay vì một lưới duy nhất?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Vì mỗi tỉ lệ lấy đặc trưng từ một độ sâu khác nhau của mạng, cho vùng nhìn (receptive field) phù hợp với vật thể nhỏ/vừa/to khác nhau.</button>
+        <button class="quiz-opt" data-key="B">B. Để tăng tốc độ suy luận lên gấp ba lần.</button>
+        <button class="quiz-opt" data-key="C">C. Vì quy định của Ultralytics yêu cầu đúng ba head.</button>
+        <button class="quiz-opt" data-key="D">D. Để giảm số tham số của mô hình.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Liên hệ khái niệm vùng nhìn (receptive field) và FPN đã học ở Bài 6.</p>
+      <p class="quiz-explain">Mỗi head lấy đặc trưng từ một độ sâu khác nhau của mạng qua Neck/FPN: lớp nông (lưới 80×80) có vùng nhìn hẹp, độ phân giải cao — hợp vật nhỏ; lớp sâu (lưới 20×20) có vùng nhìn rộng, ngữ nghĩa mạnh — hợp vật to. Ba tỉ lệ giúp bắt được cả ba nhóm kích thước trong cùng một ảnh.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 9.</span>Ứng dụng cần độ chính xác tối đa, có sẵn GPU mạnh, không ràng buộc thời gian thực nghiêm ngặt. Nên chọn biến thể nào?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. yolo11n (nano)</button>
+        <button class="quiz-opt" data-key="B">B. yolo11x (xlarge)</button>
+        <button class="quiz-opt" data-key="C">C. yolo11s (small)</button>
+        <button class="quiz-opt" data-key="D">D. Không biến thể nào phù hợp, phải dùng kiến trúc khác hoàn toàn.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Liên hệ đúng tư duy đánh đổi tốc độ/độ chính xác đã học ở Bài 5.</p>
+      <p class="quiz-explain">yolo11x (xlarge) lớn nhất, chính xác nhất nhưng chậm hơn — đúng lựa chọn khi ưu tiên độ chính xác tối đa và có GPU đủ mạnh để bù lại tốc độ chậm hơn, không bị ràng buộc thời gian thực nghiêm ngặt.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="C">
+      <p class="quiz-q"><span class="qnum">Câu 10.</span>Nhãn dạng YOLO (.txt) ghi toạ độ theo cách nào?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Pixel tuyệt đối, ví dụ x=320, y=240.</button>
+        <button class="quiz-opt" data-key="B">B. Toạ độ theo hệ toạ độ cực (góc và bán kính).</button>
+        <button class="quiz-opt" data-key="C">C. Toạ độ chuẩn hoá 0–1 theo kích thước ảnh (lớp x_tâm y_tâm rộng cao).</button>
+        <button class="quiz-opt" data-key="D">D. Chỉ số thứ tự của ô lưới chứa vật thể.</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại Hình 9 và cách chuẩn hoá toạ độ ở mục 5.3.</p>
+      <p class="quiz-explain">Nhãn YOLO ghi mỗi dòng theo dạng lớp x_tâm y_tâm rộng cao, với bốn số toạ độ được chuẩn hoá về khoảng 0–1 theo kích thước ảnh — nhờ vậy nhãn không phụ thuộc độ phân giải, không cần tính lại khi ảnh được resize.</p>
+    </div>
+  </div>
+</section>
+<section class="section" id="end">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Tổng kết</span>
+    <h2 class="section-title">Từ ý tưởng đến mô hình chạy thật</h2>
+    <p>Bạn vừa hiểu cặn kẽ bộ phát hiện phổ biến nhất thế giới. <strong>YOLO</strong> hiện thực hoá ý tưởng "một giai đoạn" của Bài 6 bằng cách <strong>chia ảnh thành lưới</strong> và <strong>dự đoán đồng thời</strong> trong một lượt nhìn — với mô hình YOLO11n thật, đó là <strong>8400 dự đoán</strong> (mỗi cái 4 toạ độ + 80 lớp) ở ba tỉ lệ, rồi lọc tin cậy và <strong>NMS</strong> để ra kết quả cuối. Bạn cũng theo dõi hành trình <strong>anchor-based → anchor-free</strong> qua các phiên bản <strong>v1 → v11</strong>, hiểu kiến trúc <strong>backbone–neck–3 head</strong>, và quan trọng nhất — biết cách <strong>chạy suy luận, huấn luyện, đánh giá và xuất</strong> YOLO bằng Ultralytics chỉ trong vài dòng.</p>
+    <p>Đến đây, series đã đưa bạn đi một chặng dài: từ khái niệm ảnh số (Bài 1), xử lý ảnh (Bài 2), học sâu &amp; CNN (Bài 3–4), phương pháp luận &amp; đánh giá (Bài 5), đến phát hiện đối tượng (Bài 6) và YOLO (Bài 7). Bài toán lớn còn lại trong bộ tứ thị giác là <strong>phân đoạn ảnh (segmentation)</strong> — gán nhãn tới từng pixel — sẽ là điểm đến tiếp theo tự nhiên nếu bạn muốn hoàn thiện bức tranh. Hãy bắt tay làm các bài tập ở phần trên: không gì giúp bạn hiểu YOLO sâu hơn việc tự huấn luyện nó trên dữ liệu của chính mình.</p>
+  </div>
+</section>
+
+<div class="footer">
+  <div class="wrap">
+    Học sâu cho Thị giác Máy tính — Bài giảng Tutorial 7 · YOLO
+  </div>
+</div>
+
+</main>
+</div>
+<script>
+/* ---------- Reveal / Hint toggles ---------- */
+function toggleReveal(btn){
+  const box = btn.nextElementSibling;
+  box.classList.toggle('show');
+  btn.textContent = box.classList.contains('show') ? 'Ẩn đáp án' : 'Hiện đáp án';
+}
+function toggleHint(btn){
+  const hint = btn.closest('.quiz-item').querySelector('.quiz-hint');
+  hint.classList.toggle('show');
+  btn.textContent = hint.classList.contains('show') ? 'Ẩn gợi ý' : 'Gợi ý';
+}
+
+/* ---------- Quiz logic (giữ nguyên cho mọi bài) ---------- */
+document.querySelectorAll('.quiz-item').forEach(item=>{
+  const answer = item.dataset.answer;
+  const opts = item.querySelectorAll('.quiz-opt');
+  const explain = item.querySelector('.quiz-explain');
+  opts.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(item.classList.contains('answered')) return;
+      item.classList.add('answered');
+      opts.forEach(o=>o.disabled=true);
+      if(opt.dataset.key === answer){
+        opt.classList.add('correct');
+      } else {
+        opt.classList.add('incorrect');
+        const correctBtn = item.querySelector('.quiz-opt[data-key="'+answer+'"]');
+        if(correctBtn) correctBtn.classList.add('correct');
+      }
+      if(explain) explain.classList.add('show');
+    });
+  });
+});
+
+/* ---------- Rail scrollspy (giữ nguyên cho mọi bài) ---------- */
+(function railScrollSpy(){
+  const map={};
+  document.querySelectorAll('.rail-item').forEach(item=>{
+    const a=item.querySelector('a');
+    if(a){ map[a.getAttribute('href').slice(1)] = item; }
+  });
+  const targets=Object.keys(map).map(id=>document.getElementById(id)).filter(Boolean);
+  const observer=new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        Object.values(map).forEach(it=>it.classList.remove('active'));
+        const item=map[entry.target.id];
+        if(item) item.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-35% 0px -55% 0px', threshold:0});
+  targets.forEach(t=>observer.observe(t));
+})();
+
+/* ---------- Syntax highlighting (giữ nguyên cho mọi bài) ---------- */
+if(window.hljs){ hljs.highlightAll(); }
+
+/* ---------- BÊN DƯỚI: JS riêng cho widget của bài này ---------- */
+
+/* ---------- Widget 1 (hero): O luoi nao chiu trach nhiem? ---------- */
+(function(){
+  const grid = document.getElementById('gridRespCells');
+  if(!grid) return;
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const ROWS = 8, COLS = 8, CELL = 60;
+
+  const boxEl   = document.getElementById('gridRespBox');
+  const dotEl   = document.getElementById('gridRespDot');
+  const cellLbl = document.getElementById('gridRespCellLabel');
+  const xyEl    = document.getElementById('gridRespXY');
+  const whEl    = document.getElementById('gridRespWH');
+  const objEl   = document.getElementById('gridRespObj');
+  const clsEl   = document.getElementById('gridRespClasses');
+
+  const PROFILES = [
+    {classes:[['người',0.94],['xe đạp',0.03],['ba lô',0.02]], w:0.16, h:0.34, obj:0.95},
+    {classes:[['ô tô',0.89],['xe tải',0.07],['xe buýt',0.03]],   w:0.30, h:0.18, obj:0.92},
+    {classes:[['chó',0.86],['mèo',0.09],['ngựa',0.03]],          w:0.18, h:0.16, obj:0.90},
+    {classes:[['xe đạp',0.81],['xe máy',0.12],['người',0.05]],   w:0.22, h:0.24, obj:0.88},
+    {classes:[['ghế',0.77],['bàn',0.14],['sofa',0.06]],          w:0.16, h:0.20, obj:0.85}
+  ];
+
+  const cellEls = [];
+  for(let r=0; r<ROWS; r++){
+    for(let c=0; c<COLS; c++){
+      const rect = document.createElementNS(svgNS,'rect');
+      rect.setAttribute('class','grid-resp-cell');
+      rect.setAttribute('x', c*CELL);
+      rect.setAttribute('y', r*CELL);
+      rect.setAttribute('width', CELL);
+      rect.setAttribute('height', CELL);
+      rect.dataset.row = r; rect.dataset.col = c;
+      rect.addEventListener('click', ()=> selectCell(r,c));
+      grid.appendChild(rect);
+      cellEls.push(rect);
+    }
+  }
+
+  function selectCell(r, c){
+    cellEls.forEach(el=> el.classList.remove('active'));
+    const target = cellEls.find(el=> +el.dataset.row===r && +el.dataset.col===c);
+    if(target) target.classList.add('active');
+
+    const cx = c*CELL + CELL/2;
+    const cy = r*CELL + CELL/2;
+    const profile = PROFILES[Math.floor(Math.random()*PROFILES.length)];
+    const boxW = profile.w * (COLS*CELL);
+    const boxH = profile.h * (ROWS*CELL);
+
+    boxEl.setAttribute('x', cx - boxW/2);
+    boxEl.setAttribute('y', cy - boxH/2);
+    boxEl.setAttribute('width', boxW);
+    boxEl.setAttribute('height', boxH);
+    dotEl.setAttribute('cx', cx);
+    dotEl.setAttribute('cy', cy);
+
+    cellLbl.textContent = 'hàng ' + (r+1) + ', cột ' + (c+1);
+    xyEl.textContent = (cx/(COLS*CELL)).toFixed(2) + ', ' + (cy/(ROWS*CELL)).toFixed(2);
+    whEl.textContent = profile.w.toFixed(2) + ', ' + profile.h.toFixed(2);
+    objEl.textContent = profile.obj.toFixed(2);
+    clsEl.textContent = profile.classes.map(x=> x[0]+' '+x[1].toFixed(2)).join(' · ');
+  }
+
+  selectCell(3, 5); /* vi du mac dinh khi tai trang */
+})();
+
+/* ---------- Widget 2 (L2): pipeline hau xu ly (loc nguong -> NMS) ---------- */
+(function(){
+  const svg = document.getElementById('ppSvg');
+  if(!svg) return;
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const container = document.getElementById('ppBoxContainer');
+
+  const boxData = [
+    {x:60,  y:40,  w:110, h:240, score:0.91, noise:false},
+    {x:72,  y:52,  w:110, h:238, score:0.78, noise:false},
+    {x:50,  y:48,  w:110, h:227, score:0.65, noise:false},
+    {x:68,  y:60,  w:110, h:235, score:0.55, noise:false},
+    {x:250, y:140, w:180, h:120, score:0.87, noise:false},
+    {x:262, y:150, w:180, h:120, score:0.72, noise:false},
+    {x:240, y:132, w:180, h:120, score:0.60, noise:false},
+    {x:258, y:155, w:180, h:120, score:0.48, noise:false},
+    {x:480, y:170, w:110, h:100, score:0.83, noise:false},
+    {x:490, y:178, w:108, h:100, score:0.68, noise:false},
+    {x:472, y:162, w:110, h:100, score:0.51, noise:false},
+    {x:20,  y:10,  w:35,  h:25,  score:0.28, noise:true},
+    {x:550, y:20,  w:40,  h:30,  score:0.22, noise:true},
+    {x:200, y:290, w:35,  h:25,  score:0.19, noise:true},
+    {x:430, y:30,  w:35,  h:25,  score:0.31, noise:true},
+    {x:20,  y:290, w:35,  h:25,  score:0.15, noise:true},
+    {x:600, y:290, w:35,  h:25,  score:0.25, noise:true}
+  ];
+  const CONF_THRESH = 0.35;
+  const NMS_THRESH = 0.5;
+
+  function boxIoU(a,b){
+    const ax2=a.x+a.w, ay2=a.y+a.h, bx2=b.x+b.w, by2=b.y+b.h;
+    const x1=Math.max(a.x,b.x), y1=Math.max(a.y,b.y);
+    const x2=Math.min(ax2,bx2), y2=Math.min(ay2,by2);
+    const inter=Math.max(0,x2-x1)*Math.max(0,y2-y1);
+    const union = a.w*a.h + b.w*b.h - inter;
+    return union>0 ? inter/union : 0;
+  }
+
+  const boxEls = boxData.map((b,i)=>{
+    const g = document.createElementNS(svgNS,'g');
+    g.setAttribute('class', 'pp-box' + (b.noise ? ' pp-noise' : ''));
+    g.id = 'ppBox'+i;
+    const rect = document.createElementNS(svgNS,'rect');
+    rect.setAttribute('x', b.x); rect.setAttribute('y', b.y);
+    rect.setAttribute('width', b.w); rect.setAttribute('height', b.h);
+    rect.setAttribute('rx', 5);
+    g.appendChild(rect);
+    const text = document.createElementNS(svgNS,'text');
+    text.setAttribute('x', b.x+6); text.setAttribute('y', b.y+16);
+    text.textContent = b.score.toFixed(2);
+    g.appendChild(text);
+    container.appendChild(g);
+    return g;
+  });
+
+  [['Người',115,308], ['Xe đạp',340,305], ['Chó',535,300]].forEach(l=>{
+    const t = document.createElementNS(svgNS,'text');
+    t.setAttribute('x', l[1]); t.setAttribute('y', l[2]);
+    t.setAttribute('text-anchor','middle');
+    t.setAttribute('fill', '#9aa6b8');
+    t.setAttribute('font-family', 'JetBrains Mono');
+    t.setAttribute('font-size', '11');
+    t.textContent = l[0];
+    container.appendChild(t);
+  });
+
+  let step = 0;
+  const step1Btn  = document.getElementById('ppStep1Btn');
+  const step2Btn  = document.getElementById('ppStep2Btn');
+  const resetBtn  = document.getElementById('ppResetBtn');
+  const countEl   = document.getElementById('ppCurrentCount');
+  const stepNum1  = document.getElementById('ppStepNum1');
+  const stepNum2  = document.getElementById('ppStepNum2');
+
+  function applyConfFilter(){
+    let remain = 0;
+    boxData.forEach((b,i)=>{
+      if(b.score < CONF_THRESH){ boxEls[i].classList.add('removed-conf'); }
+      else { remain++; }
+    });
+    countEl.textContent = remain;
+    step1Btn.disabled = true;
+    stepNum1.classList.add('done');
+    step2Btn.disabled = false;
+    step = 1;
+  }
+
+  function applyNMS(){
+    const remainIdx = boxData.map((b,i)=>i).filter(i=> boxData[i].score >= CONF_THRESH);
+    let idx = remainIdx.slice().sort((i,j)=> boxData[j].score - boxData[i].score);
+    const keep = [];
+    while(idx.length){
+      const i = idx.shift();
+      keep.push(i);
+      idx = idx.filter(j=> boxIoU(boxData[i], boxData[j]) < NMS_THRESH);
+    }
+    const keepSet = new Set(keep);
+    remainIdx.forEach(i=>{
+      if(keepSet.has(i)){ boxEls[i].classList.add('kept-final'); }
+      else { boxEls[i].classList.add('removed-nms'); }
+    });
+    countEl.textContent = keep.length;
+    step2Btn.disabled = true;
+    stepNum2.classList.add('done');
+    step = 2;
+  }
+
+  function resetAll(){
+    boxEls.forEach(el=> el.classList.remove('removed-conf','removed-nms','kept-final'));
+    countEl.textContent = boxData.length;
+    step1Btn.disabled = false;
+    step2Btn.disabled = true;
+    stepNum1.classList.remove('done');
+    stepNum2.classList.remove('done');
+    step = 0;
+  }
+
+  step1Btn.addEventListener('click', applyConfFilter);
+  step2Btn.addEventListener('click', ()=>{ if(step===1) applyNMS(); });
+  resetBtn.addEventListener('click', resetAll);
+})();
+
+/* ---------- Widget 3 (L4): 8400 = 80^2 + 40^2 + 20^2 ---------- */
+(function(){
+  const readout = document.getElementById('scaleReadout');
+  if(!readout) return;
+  const info = {
+    80: 'Lưới <b>80×80</b> = <b>6.400 ô</b>. Mỗi ô có thể là tâm một vật thể — lưới dày đặc này chuyên bắt vật thể <b>NHỎ</b>: càng nhiều ô, độ phân giải không gian càng cao, càng dễ tách các vật thể nhỏ nằm gần nhau.',
+    40: 'Lưới <b>40×40</b> = <b>1.600 ô</b>. Mức trung gian — phù hợp bắt vật thể <b>VỪA</b>, cân bằng giữa độ phân giải và vùng nhìn mỗi ô.',
+    20: 'Lưới <b>20×20</b> = <b>400 ô</b>. Lưới thưa nhất nhưng mỗi ô "nhìn" một vùng ảnh rộng hơn nhiều — phù hợp bắt vật thể <b>TO</b>, vốn không cần độ phân giải cao mà cần ngữ cảnh rộng.'
+  };
+  [80,40,20].forEach(s=>{
+    const el = document.getElementById('scaleBlock'+s);
+    if(!el) return;
+    el.addEventListener('click', ()=>{
+      document.querySelectorAll('.scale-block').forEach(b=> b.classList.remove('active'));
+      el.classList.add('active');
+      readout.innerHTML = info[s];
+    });
+  });
+})();
+</script>
+</body>
+</html>

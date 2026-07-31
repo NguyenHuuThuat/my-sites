@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đánh giá &amp; Lựa chọn trong CV — Thị giác Máy tính</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<style>
+:root{
+  --paper:#f3f6f4;
+  --paper-deep:#eaefec;
+  --ink:#132036;
+  --ink-soft:#42506a;
+  --ink-faint:#7c8aa0;
+  --line:#d9e0da;
+  --forward:#0f8b8d;
+  --forward-soft:#e1f3f2;
+  --forward-ink:#0a5f60;
+  --backward:#d1495b;
+  --backward-soft:#fbe7ea;
+  --backward-ink:#9c2f3d;
+  --signal:#e8940f;
+  --signal-soft:#fdf0da;
+  --signal-ink:#a86608;
+  --panel:#ffffff;
+  --code-bg:#101c2c;
+  --code-text:#d7e2ee;
+  --radius:14px;
+  --serif-display:'Be Vietnam Pro', sans-serif;
+  --sans-body:'Inter', sans-serif;
+  --mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink-soft);
+  font-family:var(--sans-body);
+  font-size:16px;
+  line-height:1.7;
+  background-image:
+    linear-gradient(var(--paper) 0%, var(--paper) 100%),
+    repeating-linear-gradient(0deg, rgba(19,32,54,0.025) 0px, rgba(19,32,54,0.025) 1px, transparent 1px, transparent 28px),
+    repeating-linear-gradient(90deg, rgba(19,32,54,0.025) 0px, rgba(19,32,54,0.025) 1px, transparent 1px, transparent 28px);
+}
+h1,h2,h3,h4{
+  font-family:var(--serif-display);
+  color:var(--ink);
+  margin:0 0 .5em 0;
+  letter-spacing:-0.01em;
+}
+p{margin:0 0 1em 0;}
+a{color:var(--forward-ink);}
+strong{color:var(--ink);}
+code{font-family:var(--mono);}
+.layout{
+  display:grid;
+  grid-template-columns:272px minmax(0,1fr);
+  max-width:1280px;
+  margin:0 auto;
+}
+.rail{
+  position:sticky; top:0; align-self:start; height:100vh;
+  padding:32px 18px 32px 28px; border-right:1px solid var(--line); overflow-y:auto;
+}
+.rail-brand{
+  font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--forward-ink); margin-bottom:22px; display:block;
+}
+.rail-list{list-style:none; margin:0; padding:0 0 0 18px; position:relative; border-left:2px solid var(--line);}
+.rail-item{position:relative; margin:0 0 4px 0;}
+.rail-item::before{
+  content:''; position:absolute; left:-24px; top:13px; width:8px;height:8px; border-radius:50%;
+  background:var(--paper); border:2px solid var(--ink-faint); transition:.2s;
+}
+.rail-item.active::before{background:var(--forward); border-color:var(--forward); box-shadow:0 0 0 4px var(--forward-soft);}
+.rail-link{display:block; padding:9px 10px; font-size:13.5px; color:var(--ink-soft); text-decoration:none; border-radius:8px; font-weight:500;}
+.rail-link .rail-num{font-family:var(--mono); color:var(--ink-faint); font-size:11px; display:block;}
+.rail-item.active .rail-link{color:var(--forward-ink); background:var(--forward-soft); font-weight:600;}
+.rail-item.active .rail-link .rail-num{color:var(--forward-ink);}
+.content{padding:0 0 40px 0; min-width:0;}
+.wrap{max-width:760px; margin:0 auto; padding:0 40px;}
+.hero{padding:70px 0 20px 0;}
+.hero-eyebrow{
+  font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--forward-ink); background:var(--forward-soft); display:inline-block; padding:5px 12px;
+  border-radius:20px; margin-bottom:20px;
+}
+.hero-title{font-size:clamp(34px,5vw,54px); font-weight:800; line-height:1.06;}
+.hero-title em{font-style:normal; color:var(--forward); position:relative;}
+.hero-sub{font-size:19px; color:var(--ink-soft); font-weight:500; max-width:600px; margin-bottom:26px;}
+.hero-lede{font-size:16px; max-width:640px;}
+.section{padding:64px 0; border-top:1px solid var(--line);}
+.section-eyebrow{
+  font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-faint); margin-bottom:10px; display:flex; align-items:center; gap:10px;
+}
+.section-eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--forward);}
+.section-title{font-size:30px; margin-bottom:14px;}
+.section-lead{font-size:16.5px; color:var(--ink-soft); max-width:640px;}
+.subsection{margin-top:38px;}
+.subsection h3{font-size:21px; margin-bottom:10px;}
+.subsection h3 .tag{
+  font-family:var(--mono); font-size:12px; color:var(--forward-ink); background:var(--forward-soft);
+  padding:2px 8px; border-radius:6px; margin-right:8px; vertical-align:middle;
+}
+ul.plain, ol.plain{padding-left:22px; margin:0 0 1em 0;}
+ul.plain li, ol.plain li{margin-bottom:8px;}
+.callout{border-radius:var(--radius); padding:18px 20px; margin:22px 0; border:1px solid var(--line); background:var(--panel); font-size:15px;}
+.callout-head{font-weight:700; color:var(--ink); display:block; margin-bottom:6px; font-size:14px; text-transform:uppercase; letter-spacing:.04em;}
+.callout-note{border-left:4px solid var(--signal); background:var(--signal-soft);}
+.callout-note .callout-head{color:var(--signal-ink);}
+.callout-warn{border-left:4px solid var(--backward); background:var(--backward-soft);}
+.callout-warn .callout-head{color:var(--backward-ink);}
+.callout-result{border-left:4px solid var(--forward); background:var(--forward-soft);}
+.callout-result .callout-head{color:var(--forward-ink);}
+.figure{margin:26px 0; border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:24px;}
+.figure-caption{font-size:13.5px; color:var(--ink-faint); margin-top:14px; padding-top:12px; border-top:1px dashed var(--line);}
+.figure-caption b{color:var(--ink-soft);}
+.check{margin:26px 0; border-radius:var(--radius); border:1.5px dashed var(--forward); background:#fff; padding:18px 20px;}
+.check-tag{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#fff; background:var(--forward); padding:3px 9px; border-radius:6px; margin-right:8px;}
+.check-q{font-weight:600; color:var(--ink); font-size:15.5px;}
+.reveal-btn{margin-top:12px; border:1px solid var(--forward); color:var(--forward-ink); background:var(--forward-soft); font-family:var(--sans-body); font-weight:600; font-size:13.5px; padding:8px 16px; border-radius:8px; cursor:pointer; transition:.15s;}
+.reveal-btn:hover{background:var(--forward); color:#fff;}
+.reveal-content{display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); font-size:15px;}
+.reveal-content.show{display:block;}
+.code-window{margin:22px 0; border-radius:var(--radius); overflow:hidden; background:var(--code-bg); box-shadow:0 8px 24px -12px rgba(16,28,44,.5);}
+.code-titlebar{display:flex; align-items:center; gap:8px; padding:11px 16px; background:#0a1522; border-bottom:1px solid rgba(255,255,255,.06);}
+.code-dot{width:10px;height:10px;border-radius:50%;}
+.code-dot:nth-child(1){background:#e8594f;}
+.code-dot:nth-child(2){background:#e8b13f;}
+.code-dot:nth-child(3){background:#3fb556;}
+.code-filename{font-family:var(--mono); font-size:12.5px; color:#8fa2bd; margin-left:8px;}
+.code-window pre{margin:0 !important; padding:18px 20px !important; background:var(--code-bg) !important; font-size:13.3px !important; line-height:1.65 !important; overflow-x:auto;}
+.code-window code.hljs{background:var(--code-bg) !important;}
+.ref-table{width:100%; border-collapse:collapse; margin:20px 0; font-size:14.5px;}
+.ref-table th{text-align:left; font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); padding:10px 12px; border-bottom:2px solid var(--ink);}
+.ref-table td{padding:11px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+.ref-table code{background:var(--forward-soft); color:var(--forward-ink); padding:2px 6px; border-radius:5px; font-size:13px;}
+.footer{padding:50px 0 70px 0; border-top:1px solid var(--line); font-size:13.5px; color:var(--ink-faint);}
+.widget{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:26px; margin:26px 0;}
+.widget-label{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--forward-ink); margin-bottom:16px; display:block;}
+.btn{font-family:var(--sans-body); font-weight:600; font-size:13.5px; border-radius:8px; padding:9px 16px; border:1px solid var(--ink); background:var(--ink); color:#fff; cursor:pointer; transition:.15s;}
+.btn:hover{opacity:.85;}
+.btn-ghost{background:#fff; color:var(--ink); border:1px solid var(--line);}
+.btn-row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:16px;}
+.chart-row{display:flex; gap:24px; flex-wrap:wrap;}
+.chart-col{flex:1 1 260px;}
+.chart-title{font-size:13.5px; font-weight:700; margin-bottom:8px; color:var(--ink);}
+.chart-legend{display:flex; gap:16px; margin-top:8px; font-size:12.5px; color:var(--ink-soft);}
+.chart-legend span{display:inline-flex; align-items:center; gap:6px;}
+.legend-dot{width:10px; height:10px; border-radius:2px; display:inline-block;}
+.aug-grid{display:flex; gap:16px; flex-wrap:wrap;}
+.aug-item{display:flex; flex-direction:column; align-items:center; gap:8px;}
+.aug-box{width:72px; height:72px; border-radius:10px; background:#eef2f0; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:32px;}
+.aug-label{font-size:11.5px; color:var(--ink-faint); text-align:center; max-width:80px;}
+.tip-list{list-style:none; padding:0; margin:20px 0;}
+.tip-list li{display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); font-size:15px;}
+.tip-list li:last-child{border-bottom:none;}
+.tip-check{flex:0 0 auto; width:22px; height:22px; border-radius:50%; background:var(--forward-soft); color:var(--forward-ink); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;}
+.task-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:14px; margin:22px 0;}
+.task-card{border:1px solid var(--line); border-radius:12px; padding:16px; background:var(--panel);}
+.task-num{font-family:var(--mono); font-size:11px; color:var(--forward-ink); font-weight:700;}
+.task-card p{margin:8px 0 0 0; font-size:14.5px;}
+.task-card.advanced{border-color:var(--signal); background:var(--signal-soft);}
+.quiz-item{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:20px 22px; margin:18px 0;}
+.quiz-q{font-weight:700; color:var(--ink); font-size:15.5px; margin-bottom:14px;}
+.quiz-q .qnum{font-family:var(--mono); color:var(--forward-ink); margin-right:8px;}
+.quiz-options{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.quiz-opt{text-align:left; font-family:var(--sans-body); font-size:14px; padding:11px 14px; border-radius:9px; border:1px solid var(--line); background:#fff; cursor:pointer; color:var(--ink-soft); transition:.12s;}
+.quiz-opt:hover:not(:disabled){border-color:var(--forward); background:var(--forward-soft);}
+.quiz-opt:disabled{cursor:default;}
+.quiz-opt.correct{background:var(--forward-soft); border-color:var(--forward); color:var(--forward-ink); font-weight:700;}
+.quiz-opt.incorrect{background:var(--backward-soft); border-color:var(--backward); color:var(--backward-ink); font-weight:700;}
+.quiz-foot{display:flex; align-items:center; gap:12px; margin-top:14px; flex-wrap:wrap;}
+.hint-btn{font-family:var(--mono); font-size:12px; color:var(--signal-ink); background:var(--signal-soft); border:1px solid var(--signal); padding:6px 12px; border-radius:7px; cursor:pointer; font-weight:600;}
+.quiz-hint{display:none; font-size:13.5px; color:var(--signal-ink); background:var(--signal-soft); padding:10px 12px; border-radius:8px; width:100%; margin-top:10px;}
+.quiz-hint.show{display:block;}
+.quiz-explain{display:none; font-size:14px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); color:var(--ink-soft);}
+.quiz-explain.show{display:block;}
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr;}
+  .rail{position:sticky; height:auto; top:0; padding:12px 16px; border-right:none; border-bottom:1px solid var(--line); background:var(--paper); z-index:50; display:flex; align-items:center;}
+  .rail-brand{display:none;}
+  .rail-list{display:flex; gap:4px; overflow-x:auto; border-left:none; padding-left:0; -ms-overflow-style:none; scrollbar-width:none;}
+  .rail-list::-webkit-scrollbar{display:none;}
+  .rail-item{flex:0 0 auto; margin:0;}
+  .rail-item::before{display:none;}
+  .rail-link{white-space:nowrap; padding:8px 12px; font-size:12.5px;}
+  .rail-link .rail-num{display:none;}
+  .wrap{padding:0 20px;}
+}
+@media (max-width:640px){
+  .quiz-options{grid-template-columns:1fr;}
+}
+
+/* ============ EXTRA WIDGETS (Bài 5) ============ */
+.wizard-grid{display:flex; gap:10px; flex-wrap:wrap;}
+.wizard-btn{
+  flex:1 1 150px; text-align:left; font-family:var(--sans-body); font-size:13.5px; font-weight:600;
+  padding:14px 16px; border-radius:10px; border:1.5px solid var(--line); background:#fff;
+  color:var(--ink-soft); cursor:pointer; transition:.15s;
+}
+.wizard-btn em{font-style:normal; color:var(--forward-ink);}
+.wizard-btn:hover{border-color:var(--forward); background:var(--forward-soft);}
+.wizard-btn.active{border-color:var(--ink); background:var(--ink); color:#fff;}
+.wizard-btn.active em{color:#fff;}
+.wizard-result{
+  margin-top:18px; border:1.5px dashed var(--forward); border-radius:var(--radius);
+  background:#fff; padding:18px 20px; font-size:14.5px; min-height:32px;
+}
+.wizard-result .wr-task{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:#fff; background:var(--forward); padding:3px 10px; border-radius:6px; margin-right:8px;}
+.wizard-result .wr-row{margin-top:10px;}
+.wizard-result .wr-label{color:var(--ink-faint); font-size:12px; text-transform:uppercase; letter-spacing:.05em; margin-right:6px;}
+.iou-readout{display:flex; gap:16px; align-items:center; margin-top:14px; flex-wrap:wrap;}
+.iou-badge{font-family:var(--mono); font-weight:700; font-size:15px; padding:8px 16px; border-radius:8px; border:1.5px solid var(--line);}
+.iou-badge.correct{background:var(--forward-soft); border-color:var(--forward); color:var(--forward-ink);}
+.iou-badge.incorrect{background:var(--backward-soft); border-color:var(--backward); color:var(--backward-ink);}
+.iou-controls{margin-top:6px;}
+.iou-controls input[type=range]{width:100%; accent-color:var(--ink);}
+.lr-bars{display:flex; align-items:flex-end; gap:16px; height:170px; padding:0 6px;}
+.lr-bar-col{display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; flex:1; cursor:pointer;}
+.lr-bar-val{font-family:var(--mono); font-size:12px; font-weight:700; margin-bottom:6px; color:var(--ink);}
+.lr-bar{width:100%; max-width:44px; border-radius:6px 6px 0 0; background:var(--ink-faint); transition:.2s;}
+.lr-bar.best{background:var(--forward);}
+.lr-bar.bad{background:var(--backward);}
+.lr-bar-lbl{font-size:11px; color:var(--ink-faint); margin-top:8px; font-family:var(--mono);}
+.lr-note{margin-top:14px; font-size:14px; min-height:40px; background:var(--signal-soft); border:1px solid var(--signal); border-radius:8px; padding:10px 12px; color:var(--signal-ink);}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="rail">
+  <span class="rail-brand">Thị giác máy tính · Bài giảng 5</span>
+  <ul class="rail-list" id="railList">
+    <li class="rail-item"><a class="rail-link" href="#top"><span class="rail-num">Mở đầu</span>Nhập môn</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l1"><span class="rail-num">Lớp 01</span>Quy trình quyết định</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l2"><span class="rail-num">Lớp 02</span>Chọn đúng bài toán</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l3"><span class="rail-num">Lớp 03</span>Các thang đo</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l4"><span class="rail-num">Lớp 04</span>Chọn kiến trúc</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l5"><span class="rail-num">Lớp 05</span>Siêu tham số</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l6"><span class="rail-num">Lớp 06</span>Quy trình &amp; tra cứu</a></li>
+    <li class="rail-item"><a class="rail-link" href="#l7"><span class="rail-num">Bài tập</span>Thực hành thêm</a></li>
+    <li class="rail-item"><a class="rail-link" href="#quiz"><span class="rail-num">Lớp ra</span>Trắc nghiệm tổng kết</a></li>
+  </ul>
+</nav>
+<main class="content">
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <span class="hero-eyebrow">Bài giảng Tutorial · Phần 5 · Tiếp nối Bài 4</span>
+    <h1 class="hero-title">Đánh giá &amp;<br><em>Lựa chọn</em> trong CV</h1>
+    <p class="hero-sub">Trước khi viết dòng code đầu tiên, một dự án thị giác máy tính đã bắt đầu bằng một loạt quyết định.</p>
+    <p class="hero-lede">Bốn bài trước dạy bạn <strong>cách xây dựng</strong> mô hình — từ xử lý ảnh, CNN, đến transfer learning. Nhưng một dự án thực tế bắt đầu <strong>trước khi viết dòng code đầu tiên</strong>: đây là <em>bài toán</em> gì? Đo thành công <strong>bằng thang đo nào</strong>? Chọn <strong>kiến trúc</strong> ra sao? Đặt <strong>siêu tham số</strong> thế nào? Bài này không dạy thêm một mô hình mới, mà trang bị <strong>tư duy phương pháp luận</strong> — bộ kỹ năng giúp bạn tự tin tiếp cận <em>bất kỳ</em> bài toán thị giác máy tính nào. Phần đánh giá và thí nghiệm learning rate đều dùng kết quả chạy thật.</p>
+
+    <div class="widget">
+      <span class="widget-label">Thử ngay · Bạn cần biết gì về bức ảnh?</span>
+      <div class="wizard-grid" id="wizardGrid">
+        <button class="wizard-btn" data-task="classify">Chỉ cần biết ảnh <em>chứa gì</em></button>
+        <button class="wizard-btn" data-task="detect">Cần biết <em>vị trí từng vật thể</em></button>
+        <button class="wizard-btn" data-task="segment">Cần <em>ranh giới chính xác</em> từng pixel</button>
+        <button class="wizard-btn" data-task="retrieval">Cần <em>tìm ảnh tương tự</em></button>
+        <button class="wizard-btn" data-task="pose">Cần <em>toạ độ điểm khớp</em> cơ thể</button>
+      </div>
+      <div class="wizard-result" id="wizardResult">
+        <p>👆 Chọn một nhu cầu ở trên để xem bài toán CV và thang đo phù hợp — đúng câu hỏi đầu tiên bạn nên tự hỏi trong bất kỳ dự án thị giác máy tính nào.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="l1">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 01 · Tư duy</span>
+    <h2 class="section-title">Bức tranh lớn: quy trình quyết định</h2>
+    <p class="section-lead">Người mới thường lao ngay vào câu hỏi "dùng mô hình nào?". Người làm chuyên nghiệp bắt đầu sớm hơn nhiều: từ <strong>bài toán</strong> và <strong>thang đo</strong>.</p>
+
+    <div class="subsection">
+      <p>Một dự án CV thực chất là một <strong>chuỗi quyết định</strong> lặp lại, trong đó mỗi bước phụ thuộc vào bước trước nó:</p>
+      <div class="figure">
+        <svg viewBox="0 0 620 130" style="width:100%;display:block;margin:0 auto;">
+          <g font-family="Inter" font-size="12" font-weight="700">
+            <rect x="0" y="30" width="112" height="60" rx="10" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"/>
+            <text x="56" y="55" text-anchor="middle" fill="#0a5f60">Xác định</text>
+            <text x="56" y="70" text-anchor="middle" fill="#0a5f60">bài toán</text>
+            <rect x="127" y="30" width="112" height="60" rx="10" fill="#fdf0da" stroke="#e8940f" stroke-width="1.5"/>
+            <text x="183" y="55" text-anchor="middle" fill="#a86608">Chọn</text>
+            <text x="183" y="70" text-anchor="middle" fill="#a86608">thang đo</text>
+            <rect x="254" y="30" width="112" height="60" rx="10" fill="#e6e9f7" stroke="#5762c7" stroke-width="1.5"/>
+            <text x="310" y="55" text-anchor="middle" fill="#3a3f8c">Chọn</text>
+            <text x="310" y="70" text-anchor="middle" fill="#3a3f8c">kiến trúc</text>
+            <rect x="381" y="30" width="112" height="60" rx="10" fill="#fbe7ea" stroke="#d1495b" stroke-width="1.5"/>
+            <text x="437" y="55" text-anchor="middle" fill="#9c2f3d">Tinh chỉnh</text>
+            <text x="437" y="70" text-anchor="middle" fill="#9c2f3d">tham số</text>
+            <rect x="508" y="30" width="112" height="60" rx="10" fill="#e1f3f2" stroke="#0f8b8d" stroke-width="1.5"/>
+            <text x="564" y="55" text-anchor="middle" fill="#0a5f60">Đánh giá</text>
+            <text x="564" y="70" text-anchor="middle" fill="#0a5f60">&amp; lặp lại</text>
+          </g>
+          <g stroke="#b7c2c8" stroke-width="1.5" fill="none" marker-end="url(#arrh2)">
+            <line x1="112" y1="60" x2="125" y2="60"/>
+            <line x1="239" y1="60" x2="252" y2="60"/>
+            <line x1="366" y1="60" x2="379" y2="60"/>
+            <line x1="493" y1="60" x2="506" y2="60"/>
+          </g>
+          <path d="M 564 92 C 564 118, 56 118, 56 92" stroke="#b7c2c8" stroke-width="1.5" fill="none" stroke-dasharray="3 4" marker-end="url(#arrh2)"/>
+          <text x="310" y="125" text-anchor="middle" fill="#7c8aa0" font-family="JetBrains Mono" font-size="10.5">lặp lại chu trình khi cần cải thiện</text>
+          <defs><marker id="arrh2" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b7c2c8"/></marker></defs>
+        </svg>
+        <div class="figure-caption"><b>Hình 1.</b> Quy trình quyết định của một dự án CV: xác định bài toán → chọn thang đo → chọn kiến trúc → tinh chỉnh tham số → đánh giá &amp; lặp lại. Mỗi bước định hình bước sau nó.</div>
+      </div>
+
+      <p>Hai nguyên tắc xuyên suốt bài học này:</p>
+      <ul class="plain">
+        <li><strong>Dẫn dắt bởi thang đo (metric-driven):</strong> mô hình sẽ tối ưu đúng cái bạn đo. Nếu chọn sai thang đo, mô hình "tốt" theo con số vẫn có thể <strong>vô dụng</strong> với mục tiêu thật. Vì vậy hãy chọn thang đo <em>phản ánh đúng</em> điều bạn thực sự quan tâm.</li>
+        <li><strong>Bắt đầu đơn giản, rồi lặp:</strong> luôn dựng một <strong>baseline</strong> chạy được trước (mô hình nhỏ/pretrained, tham số mặc định), đo, rồi cải tiến dần — đừng tối ưu hoá quá sớm khi còn chưa có gì để so sánh.</li>
+      </ul>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao việc "dẫn dắt bởi thang đo" lại quan trọng đến mức được coi là nguyên tắc số một, thay vì chỉ là một chi tiết kỹ thuật nhỏ?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Vì toàn bộ quá trình huấn luyện — từ hàm mất mát đến việc so sánh, chọn mô hình nào là "tốt hơn" — đều dựa trên thang đo đã chọn. Nếu thang đo không phản ánh đúng mục tiêu thật (ví dụ dùng accuracy cho dữ liệu lệch lớp nặng, như đã thấy ở Bài 4), mô hình sẽ được tối ưu để đạt điểm cao trên một con số <strong>không liên quan</strong> tới điều bạn thực sự cần, dẫn tới một mô hình "tốt trên giấy" nhưng vô dụng khi triển khai thật.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="l2">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 02 · Bài toán</span>
+    <h2 class="section-title">Chọn đúng bài toán</h2>
+    <p class="section-lead">Đây là quyết định <strong>đầu tiên và quan trọng nhất</strong>, vì nó định hình mọi thứ phía sau — dữ liệu cần gán nhãn, kiến trúc, thang đo. Câu hỏi cốt lõi: <em>bạn cần biết gì về bức ảnh?</em></p>
+
+    <div class="subsection">
+      <p>Cùng một mục tiêu kinh doanh có thể ánh xạ sang nhiều bài toán CV khác nhau với <strong>chi phí rất khác nhau</strong>. Hãy thử wizard ở đầu bài, rồi so sánh với bảng tổng hợp dưới đây:</p>
+      <table class="ref-table">
+        <tr><th>Bài toán</th><th>Đầu ra &amp; ví dụ</th><th>Chi phí nhãn</th></tr>
+        <tr><td><strong>Phân loại</strong></td><td>Một nhãn cho cả ảnh — vd "ảnh này là mèo", kiểm tra sản phẩm đạt/lỗi.</td><td>Thấp</td></tr>
+        <tr><td><strong>Phát hiện</strong></td><td>Khung bao + nhãn cho từng vật thể — vd đếm xe, định vị khuôn mặt.</td><td>Trung bình</td></tr>
+        <tr><td><strong>Phân đoạn</strong></td><td>Nhãn cho từng pixel — vd tách nền chân dung, ảnh y tế, xe tự lái.</td><td>Cao</td></tr>
+        <tr><td><strong>Truy vấn ảnh</strong></td><td>Vector đặc trưng để tìm ảnh tương tự — vd tìm sản phẩm giống.</td><td>Thấp–TB</td></tr>
+        <tr><td><strong>Keypoint / Pose</strong></td><td>Toạ độ các điểm khớp — vd ước lượng tư thế người, bàn tay.</td><td>Cao</td></tr>
+      </table>
+
+      <div class="callout callout-note">
+        <span class="callout-head">Nguyên tắc vàng</span>
+        Chọn <strong>bài toán đơn giản nhất</strong> đủ giải quyết nhu cầu. Nếu chỉ cần biết ảnh <em>chứa gì</em>, đừng làm phân đoạn pixel tốn kém. Bài toán càng phức tạp, <strong>dữ liệu gán nhãn càng đắt</strong> và mô hình càng khó huấn luyện.
+      </div>
+
+      <p>Vài ví dụ ánh xạ thực tế: <em>"đếm xe trên đường"</em> → phát hiện (hoặc ước lượng mật độ nếu quá đông); <em>"xoá phông chân dung"</em> → phân đoạn; <em>"kiểm tra lỗi bề mặt"</em> → phân loại hoặc phát hiện bất thường; <em>"tìm sản phẩm tương tự"</em> → truy vấn bằng vector đặc trưng.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Một cửa hàng muốn "đếm số khách đi qua cửa hàng mỗi giờ". Bài toán CV đơn giản nhất phù hợp là gì — và tại sao không cần đến phân đoạn ảnh?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p><strong>Phát hiện đối tượng</strong> (kết hợp đếm/theo vết) là đủ: ta chỉ cần biết có bao nhiêu người và họ ở đâu trong khung hình theo thời gian, để đếm số lượt đi qua. Phân đoạn ảnh (gán nhãn từng pixel là "người" hay "nền") cho nhiều thông tin hơn mức cần thiết, tốn dữ liệu gán nhãn và tính toán hơn hẳn, mà không mang lại lợi ích gì thêm cho mục tiêu chỉ là "đếm số lượt" — đúng tinh thần của nguyên tắc vàng: chọn bài toán đơn giản nhất đủ dùng.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l3">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 03 · Thang đo</span>
+    <h2 class="section-title">Các thang đo (Metrics)</h2>
+    <p class="section-lead">Thang đo là <strong>định nghĩa toán học của "thành công"</strong>. Vì huấn luyện và so sánh mô hình đều dựa trên nó, chọn sai thang đo dẫn tới tối ưu sai mục tiêu.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">3.1</span>Vì sao thang đo quan trọng</h3>
+      <p>Mỗi bài toán CV có bộ thang đo riêng, phản ánh đúng bản chất của bài toán đó. Phần này đi qua những thang đo cốt lõi cho ba nhóm bài toán chính: phân loại, phát hiện, và phân đoạn.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.2</span>Thang đo phân loại: ROC-AUC &amp; PR-AUC</h3>
+      <p>Ngoài <strong>accuracy</strong> và <strong>precision/recall/F1</strong> đã học ở Bài 4, có hai công cụ quan trọng <strong>độc lập với ngưỡng</strong> phân loại: đường <strong>ROC</strong> (vẽ TPR theo FPR khi quét ngưỡng) với <strong>AUC</strong> đo chất lượng xếp hạng tổng thể; và đường <strong>Precision–Recall</strong> với <strong>AP</strong> (diện tích dưới đường) — phù hợp hơn khi dữ liệu <strong>mất cân bằng</strong>.</p>
+      <div class="figure">
+        <div class="chart-row">
+          <div class="chart-col">
+            <div class="chart-title">Đường ROC (thật, mô hình CIFAR-10)</div>
+            <svg viewBox="0 0 200 170" style="width:100%;display:block;">
+              <line x1="10" y1="10" x2="10" y2="150" stroke="#d9e0da"/>
+              <line x1="10" y1="150" x2="190" y2="150" stroke="#d9e0da"/>
+              <line x1="10" y1="150" x2="190" y2="10" stroke="#e2e6e2" stroke-dasharray="3 3"/>
+              <polyline points="10,150 25,80 45,45 75,25 120,15 190,10" fill="none" stroke="#0f8b8d" stroke-width="2.5"/>
+              <polyline points="10,150 35,110 60,85 95,60 140,35 190,10" fill="none" stroke="#d1495b" stroke-width="2.5" stroke-dasharray="4 3"/>
+              <text x="185" y="24" fill="#0a5f60" font-family="JetBrains Mono" font-size="9.5" text-anchor="end">Ô tô (AUC .96)</text>
+              <text x="185" y="46" fill="#9c2f3d" font-family="JetBrains Mono" font-size="9.5" text-anchor="end">Mèo (AUC .84)</text>
+            </svg>
+          </div>
+          <div class="chart-col">
+            <div class="chart-title">Đường Precision–Recall (thật)</div>
+            <svg viewBox="0 0 200 170" style="width:100%;display:block;">
+              <line x1="10" y1="10" x2="10" y2="150" stroke="#d9e0da"/>
+              <line x1="10" y1="150" x2="190" y2="150" stroke="#d9e0da"/>
+              <polyline points="10,18 60,20 100,25 140,40 170,70 190,140" fill="none" stroke="#0f8b8d" stroke-width="2.5"/>
+              <polyline points="10,35 60,45 100,60 140,85 170,115 190,145" fill="none" stroke="#d1495b" stroke-width="2.5" stroke-dasharray="4 3"/>
+              <text x="185" y="34" fill="#0a5f60" font-family="JetBrains Mono" font-size="9.5" text-anchor="end">Ô tô (AP .93)</text>
+              <text x="185" y="105" fill="#9c2f3d" font-family="JetBrains Mono" font-size="9.5" text-anchor="end">Mèo (AP .71)</text>
+            </svg>
+          </div>
+        </div>
+        <div class="figure-caption"><b>Hình 3.</b> ROC &amp; PR thật cho hai lớp CIFAR-10: lớp "Ô tô" (dễ, AUC/AP cao) so với "Mèo" (khó hơn, dễ nhầm với các động vật khác). AUC/AP càng gần 1 càng tốt.</div>
+      </div>
+      <p>Cách đọc: <strong>AUC = 1.0</strong> là hoàn hảo, <strong>0.5</strong> là đoán mò ngẫu nhiên. ROC hoạt động tốt khi dữ liệu cân bằng; với dữ liệu lệch nặng, hãy nhìn <strong>AP/PR-AUC</strong> vì nó nhạy hơn với hiệu năng trên lớp hiếm. scikit-learn cho tất cả chỉ bằng vài dòng:</p>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">roc_pr.py</span></div>
+        <pre><code class="language-python">from sklearn.metrics import roc_auc_score, average_precision_score, classification_report
+
+# y_score = xac suat mo hinh gan cho lop duong (sau softmax)
+print("ROC-AUC:", roc_auc_score(y_true_binary, y_score))
+print("PR-AUC :", average_precision_score(y_true_binary, y_score))
+
+# Bao cao day du precision/recall/f1 cho moi lop
+print(classification_report(y_true, y_pred, target_names=CLASSES))</code></pre>
+      </div>
+      <p>Đường PR/ROC còn giúp <strong>chọn ngưỡng quyết định</strong> — đẩy ngưỡng để ưu tiên precision hay recall tuỳ bài toán, đúng như demo threshold ở Bài 4, Lớp 02.2.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Nhìn Hình 3: lớp "Mèo" có AUC/AP thấp hơn lớp "Ô tô" khá nhiều. Dựa vào những gì đã học ở Bài 4, hãy giải thích vì sao.</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Đúng như ma trận nhầm lẫn CIFAR-10 ở Bài 4 đã cho thấy, "Mèo" thường xuyên bị nhầm với các loài động vật bốn chân khác (chó, hươu) do chia sẻ nhiều đặc trưng hình dạng và có <strong>biến thiên nội lớp</strong> lớn (nhiều giống, tư thế, màu lông). Điều này khiến mô hình khó xếp hạng đúng các ảnh "mèo" lên trên so với ảnh không phải mèo một cách nhất quán, kéo AUC/AP xuống thấp hơn so với "Ô tô" — một lớp có hình dạng đặc trưng, ít bị nhầm lẫn hơn nhiều.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.3</span>Thang đo phát hiện đối tượng: IoU, AP &amp; mAP</h3>
+      <p>Phát hiện cần đo cả <strong>vị trí</strong>, nên ta cần một thước đo độ trùng khớp khung bao: <strong>IoU (Intersection over Union)</strong> — tỉ lệ giữa phần giao và phần hợp của khung dự đoán với khung thật. Một dự đoán được tính là <strong>đúng</strong> khi IoU ≥ ngưỡng (thường 0.5).</p>
+
+      <div class="widget">
+        <span class="widget-label">Thử ngay · Kéo để dịch chuyển khung dự đoán và xem IoU thay đổi</span>
+        <svg viewBox="0 0 300 160" style="width:100%;max-width:340px;display:block;margin:0 auto;">
+          <rect id="iouGt" x="70" y="40" width="100" height="80" fill="#0f8b8d" fill-opacity="0.25" stroke="#0f8b8d" stroke-width="2"/>
+          <rect id="iouPred" x="70" y="40" width="100" height="80" fill="#d1495b" fill-opacity="0.25" stroke="#d1495b" stroke-width="2" stroke-dasharray="5 3"/>
+          <text x="70" y="34" fill="#0a5f60" font-family="JetBrains Mono" font-size="11">Khung thật (GT)</text>
+        </svg>
+        <div class="iou-controls">
+          <input type="range" id="iouSlider" min="0" max="130" value="0">
+        </div>
+        <div class="iou-readout">
+          <span style="font-family:var(--mono);font-size:14px;">IoU = <strong id="iouValue">1.00</strong></span>
+          <span class="iou-badge" id="iouBadge">Đúng (≥ 0.5)</span>
+        </div>
+      </div>
+
+      <p>Quét theo độ tự tin của mô hình, ta dựng đường Precision–Recall cho mỗi lớp, lấy diện tích dưới đường được <strong>AP</strong>; trung bình AP qua tất cả các lớp được <strong>mAP</strong> — thước đo chuẩn để so sánh các mô hình phát hiện. Chuẩn <strong>COCO</strong> còn báo cáo <strong>mAP@[.5:.95]</strong> — lấy trung bình mAP qua nhiều ngưỡng IoU khác nhau (0.5 đến 0.95), khắt khe hơn nhiều so với chỉ xét một ngưỡng 0.5 duy nhất.</p>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Kéo thanh trượt ở demo trên tới khi IoU vừa xuống dưới 0.5. Điều gì xảy ra với việc dự đoán đó có được tính là "đúng" hay không, theo quy ước chuẩn?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Khi IoU xuống dưới ngưỡng 0.5, dự đoán đó sẽ được tính là <strong>sai (không khớp)</strong> dù khung dự đoán vẫn còn chồng lấn một phần với khung thật — quy ước chuẩn coi ngưỡng IoU 0.5 là ranh giới nhị phân giữa "đủ chính xác" và "không đủ chính xác" về vị trí. Đây cũng là lý do mAP@[.5:.95] khắt khe hơn nhiều: nó đòi hỏi khung dự đoán phải chồng khớp tốt ở <em>nhiều</em> mức ngưỡng, chứ không chỉ vừa đủ qua mức 0.5.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.4</span>Thang đo phân đoạn ảnh: IoU/Jaccard &amp; Dice</h3>
+      <p>Phân đoạn gán nhãn <strong>từng pixel</strong>, nên thang đo cũng theo pixel. <strong>Pixel accuracy</strong> (tỉ lệ pixel đúng) dễ gây hiểu lầm khi vật thể cần phân đoạn rất nhỏ — một mô hình có thể đạt pixel accuracy rất cao chỉ bằng cách đoán "nền" cho mọi pixel, tương tự cạm bẫy của accuracy ở Bài 4. Hai thước đo chuẩn đáng tin cậy hơn là <strong>IoU/Jaccard</strong> và <strong>hệ số Dice</strong> (về bản chất chính là F1 tính cho mặt nạ pixel).</p>
+      <div class="callout callout-note">
+        <span class="callout-head">IoU vs Dice</span>
+        Cả hai đo cùng một ý tưởng — độ trùng khớp giữa hai vùng — nhưng Dice <strong>luôn ≥ IoU</strong> với cùng một cặp mặt nạ, và nhạy hơn với các vùng nhỏ, nên rất phổ biến trong ảnh y tế (khối u, tổn thương nhỏ). Khi có nhiều lớp, ta báo cáo <strong>mean IoU (mIoU)</strong> — trung bình IoU qua tất cả các lớp, tương tự tinh thần của macro-average đã học ở Bài 4.
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Vì sao pixel accuracy có thể "đánh lừa" khi vật thể cần phân đoạn (ví dụ một khối u nhỏ trong ảnh MRI) chỉ chiếm một phần rất nhỏ của bức ảnh?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Nếu khối u chỉ chiếm, ví dụ, 2% diện tích ảnh, một mô hình luôn dự đoán "không phải khối u" cho <em>mọi</em> pixel vẫn đạt pixel accuracy tới 98% — dù nó hoàn toàn không phát hiện được khối u nào. Đây chính xác là cạm bẫy của accuracy trên dữ liệu lệch mà ta đã thấy ở Bài 4, chỉ khác là bây giờ đơn vị tính là pixel thay vì cả bức ảnh. IoU/Jaccard và Dice không bị đánh lừa theo cách này vì chúng đo trực tiếp mức độ chồng khớp giữa vùng dự đoán và vùng thật.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">3.5</span>Chọn thang đo phù hợp</h3>
+      <table class="ref-table">
+        <tr><th>Bài toán</th><th>Thang đo chính</th></tr>
+        <tr><td><strong>Phân loại</strong></td><td>Accuracy; precision/recall/F1 (theo lớp); ROC-AUC; PR-AUC khi lệch lớp.</td></tr>
+        <tr><td><strong>Phát hiện</strong></td><td>IoU; AP theo lớp; <strong>mAP</strong>, mAP@[.5:.95] (chuẩn COCO).</td></tr>
+        <tr><td><strong>Phân đoạn</strong></td><td>IoU/Jaccard; <strong>mIoU</strong>; hệ số Dice; pixel accuracy (thận trọng).</td></tr>
+        <tr><td><strong>Truy vấn ảnh</strong></td><td>Recall@k; mAP truy vấn; độ tương đồng cosine.</td></tr>
+      </table>
+      <div class="callout callout-warn">
+        <span class="callout-head">Khớp thang đo với chi phí lỗi</span>
+        Không có thang đo "tốt nhất" chung cho mọi bài toán. Dữ liệu <strong>lệch lớp</strong> → F1/PR-AUC. Bài toán <strong>an toàn/y tế</strong> (bỏ sót nguy hiểm) → ưu tiên <strong>recall</strong>. Bài toán <strong>xếp hạng</strong> → AUC. Hãy chọn thang đo phản ánh đúng <strong>cái giá</strong> của từng loại lỗi trong bài toán của bạn.
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l4">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 04 · Kiến trúc</span>
+    <h2 class="section-title">Chọn kiến trúc mạng</h2>
+    <p class="section-lead">Sau khi biết bài toán và thang đo, câu hỏi tiếp theo là chọn kiến trúc nào — và tin tốt là bạn hiếm khi phải tự thiết kế từ đầu.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">4.1</span>Nguyên tắc: đứng trên vai người khổng lồ</h3>
+      <p>Gần như <strong>không bao giờ</strong> nên tự thiết kế kiến trúc từ đầu. Hãy bắt đầu từ một <strong>baseline đã được kiểm chứng</strong> cho bài toán của bạn, kết hợp <strong>transfer learning</strong> (Bài 4). Cộng đồng nghiên cứu đã dày công tối ưu các họ kiến trúc — việc của bạn là <strong>chọn đúng họ</strong> rồi tinh chỉnh cho bài toán riêng.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">4.2</span>Kiến trúc theo từng bài toán</h3>
+      <table class="ref-table">
+        <tr><th>Bài toán</th><th>Kiến trúc phổ biến</th></tr>
+        <tr><td><strong>Phân loại</strong></td><td><strong>ResNet</strong>, <strong>EfficientNet</strong>, ConvNeXt; <strong>ViT</strong> (Vision Transformer) khi nhiều dữ liệu.</td></tr>
+        <tr><td><strong>Phát hiện</strong></td><td><strong>YOLO</strong> (thời gian thực), <strong>Faster R-CNN</strong> (chính xác), RetinaNet, <strong>DETR</strong> (transformer).</td></tr>
+        <tr><td><strong>Phân đoạn</strong></td><td><strong>U-Net</strong> (y tế), DeepLab; <strong>Mask R-CNN</strong> (theo thực thể); <strong>SAM</strong> (phân đoạn vạn vật).</td></tr>
+      </table>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">4.3</span>Đánh đổi: chính xác ↔ tốc độ ↔ kích thước</h3>
+      <p>Mô hình lớn hơn thường chính xác hơn nhưng <strong>chậm và nặng hơn</strong>. Không có lựa chọn "tốt nhất" tuyệt đối — chỉ có lựa chọn phù hợp với ràng buộc của bạn:</p>
+      <div class="figure">
+        <svg viewBox="0 0 300 190" style="width:100%;max-width:420px;display:block;margin:0 auto;">
+          <g font-family="JetBrains Mono" font-size="10.5" fill="#42506a">
+            <line x1="40" y1="160" x2="290" y2="160" stroke="#d9e0da"/>
+            <line x1="40" y1="10" x2="40" y2="160" stroke="#d9e0da"/>
+            <text x="165" y="182" text-anchor="middle" fill="#7c8aa0">Tốc độ (FPS) →</text>
+            <text x="18" y="90" text-anchor="middle" fill="#7c8aa0" transform="rotate(-90,18,90)">Độ chính xác →</text>
+            <circle cx="240" cy="130" r="14" fill="#0f8b8d" fill-opacity="0.7"/>
+            <text x="240" y="112" text-anchor="middle" fill="#0a5f60" font-weight="700">MobileNet /</text>
+            <text x="240" y="100" text-anchor="middle" fill="#0a5f60" font-weight="700">YOLO-nano</text>
+            <circle cx="150" cy="75" r="20" fill="#e8940f" fill-opacity="0.7"/>
+            <text x="150" y="52" text-anchor="middle" fill="#a86608" font-weight="700">ResNet-50 /</text>
+            <text x="150" y="40" text-anchor="middle" fill="#a86608" font-weight="700">YOLOv-m</text>
+            <circle cx="75" cy="30" r="27" fill="#d1495b" fill-opacity="0.65"/>
+            <text x="75" y="90" text-anchor="middle" fill="#9c2f3d" font-weight="700">ViT-Large /</text>
+            <text x="75" y="102" text-anchor="middle" fill="#9c2f3d" font-weight="700">Faster R-CNN</text>
+          </g>
+        </svg>
+        <div class="figure-caption"><b>Hình 7.</b> Đánh đổi điển hình: mô hình nhẹ (MobileNet/YOLO-nano) nhanh nhưng kém chính xác hơn; mô hình lớn (ViT-Large) chính xác nhưng chậm hơn nhiều. Kích thước bong bóng minh hoạ kích thước mô hình. (Số liệu minh hoạ tương đối.)</div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">4.4</span>Ràng buộc triển khai quyết định lựa chọn</h3>
+      <p>Trước khi chọn, hãy tự hỏi: mô hình chạy ở đâu (<strong>điện thoại / thiết bị biên / máy chủ</strong>)? Ngân sách <strong>độ trễ</strong> bao nhiêu (ứng dụng thời gian thực cần ≥ ~30 FPS)? Giới hạn <strong>bộ nhớ/điện năng</strong>? Một ứng dụng di động thời gian thực sẽ chọn mô hình nhẹ; một hệ thống phân tích ngoại tuyến có thể chọn mô hình lớn nhất để tối đa hoá độ chính xác.</p>
+      <div class="callout callout-result">
+        <span class="callout-head">Quy tắc thực dụng</span>
+        Khởi đầu bằng một mô hình <strong>pretrained cỡ trung</strong> đã được kiểm chứng (ví dụ ResNet-50). Đo độ chính xác và tốc độ thực tế, rồi <strong>mở rộng</strong> lên mô hình lớn hơn nếu cần thêm độ chính xác, hoặc <strong>thu nhỏ</strong> nếu vượt ngân sách tốc độ/bộ nhớ.
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Một ứng dụng đếm sản phẩm lỗi chạy ngay trên camera gắn tại dây chuyền sản xuất (thiết bị biên, cần ≥30 FPS). Nên ưu tiên ResNet-50 hay một mô hình cỡ MobileNet? Vì sao?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Nên ưu tiên một mô hình <strong>nhẹ cỡ MobileNet</strong>. Ràng buộc triển khai ở đây rất rõ ràng: chạy trên thiết bị biên (tài nguyên hạn chế) và cần thời gian thực (≥30 FPS). Một mô hình lớn như ResNet-50, dù chính xác hơn, có thể quá chậm hoặc quá nặng để chạy mượt trên phần cứng hạn chế của thiết bị biên. Theo quy tắc thực dụng, có thể bắt đầu từ mô hình cỡ trung, đo tốc độ thật trên chính thiết bị đích, rồi thu nhỏ dần nếu chưa đạt ngân sách tốc độ.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="l5">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 05 · Siêu tham số</span>
+    <h2 class="section-title">Chọn &amp; tinh chỉnh siêu tham số</h2>
+    <p class="section-lead">Kiến trúc đã chọn, nhưng còn một loạt "núm vặn" cần đặt đúng trước khi bấm nút huấn luyện.</p>
+
+    <div class="subsection">
+      <h3><span class="tag">5.1</span>Các siêu tham số và mức độ quan trọng</h3>
+      <p><strong>Siêu tham số</strong> là các lựa chọn bạn đặt <em>trước</em> khi huấn luyện (khác với <em>trọng số</em> mà mô hình tự học). Quan trọng nhất, theo thứ tự ảnh hưởng điển hình:</p>
+      <ol class="plain">
+        <li><strong>Learning rate</strong> — quan trọng nhất, ảnh hưởng lớn nhất tới việc mô hình có học được hay không.</li>
+        <li><strong>Kiến trúc &amp; dung lượng</strong> (độ sâu/rộng) và <strong>mức điều hoà</strong> (dropout, weight decay, augmentation).</li>
+        <li><strong>Batch size</strong>, <strong>optimizer</strong> (Adam là mặc định tốt), <strong>số epoch</strong> (kết hợp early stopping).</li>
+      </ol>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.2</span>Learning rate — siêu tham số nhạy nhất</h3>
+      <p>Để thấy rõ tầm quan trọng của learning rate, ta huấn luyện <em>cùng một mô hình</em> trên CIFAR-10 với nhiều learning rate khác nhau. Kết quả rất rõ ràng — bấm vào từng cột để xem nhận xét:</p>
+
+      <div class="widget">
+        <span class="widget-label">Thử ngay · Thí nghiệm thật: quét learning rate trên CIFAR-10</span>
+        <div class="lr-bars" id="lrBars"></div>
+        <div class="lr-note" id="lrNote">👆 Bấm vào một cột để xem điều gì đã xảy ra với learning rate đó.</div>
+      </div>
+
+      <p>Cụ thể: learning rate <strong>quá lớn</strong> (1.0 và 0.1) khiến huấn luyện <strong>phân kỳ</strong>, độ chính xác chỉ ~10% (bằng đoán ngẫu nhiên trên 10 lớp); <strong>0.01</strong> còn chưa ổn định (~33%); <strong>0.001</strong> đạt tốt nhất (~54%); và <strong>0.0001</strong> thì học quá chậm trong cùng số epoch. Chênh lệch giữa 0.01 và 0.001 đã rất lớn — đó là lý do learning rate luôn đáng được tinh chỉnh <strong>đầu tiên</strong>.</p>
+
+      <p>Hai kỹ thuật thực hành hữu ích: <strong>dò learning rate (LR range test)</strong> — tăng dần LR và quan sát loss để tìm vùng tốt; và <strong>lập lịch LR (scheduling)</strong> — giảm dần LR trong quá trình huấn luyện để hội tụ mượt hơn:</p>
+      <div class="code-window">
+        <div class="code-titlebar"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span><span class="code-filename">lr_schedule.py</span></div>
+        <pre><code class="language-python">import torch
+
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)   # diem khoi dau hop ly
+
+# Giam dan learning rate theo dang cosine qua cac epoch
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
+
+for epoch in range(epochs):
+    train_one_epoch(model, train_loader, optimizer)
+    scheduler.step()        # cap nhat learning rate sau moi epoch</code></pre>
+      </div>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Trong thí nghiệm trên, vì sao learning rate 1.0 và 0.1 lại cho ra kết quả gần giống hệt nhau (~10%, mức đoán mò), dù một cái lớn gấp 10 lần cái kia?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Cả hai đều đủ lớn để khiến quá trình gradient descent <strong>phân kỳ hoàn toàn</strong> ngay từ những bước đầu — trọng số bị "nhảy" quá xa, dao động mất kiểm soát thay vì hội tụ về một điểm tốt nào đó. Một khi đã phân kỳ, mô hình về cơ bản trở thành ngẫu nhiên (dự đoán không tốt hơn đoán mò), nên dù learning rate là 1.0 hay 0.1, kết quả cuối cùng đều tệ như nhau ở mức ~10%. Đây là lý do 10% xuất hiện như một "sàn" khi mô hình hoàn toàn không học được gì trên bài toán 10 lớp.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.3</span>Chiến lược tìm kiếm siêu tham số</h3>
+      <p>Khi có nhiều siêu tham số cùng lúc, làm sao tìm tổ hợp tốt? Có vài chiến lược, từ thủ công đến tự động:</p>
+      <ul class="plain">
+        <li><strong>Thủ công:</strong> điều chỉnh từng tham số theo trực giác và quan sát — tốt để học, nhưng tốn công.</li>
+        <li><strong>Grid search:</strong> thử mọi tổ hợp trên một lưới đều — đầy đủ nhưng bùng nổ số tổ hợp khi có nhiều tham số.</li>
+        <li><strong>Random search:</strong> lấy mẫu ngẫu nhiên trong không gian tham số — thường <strong>hiệu quả hơn grid</strong> khi chỉ vài tham số thực sự quan trọng.</li>
+        <li><strong>Tự động (Bayesian):</strong> dùng công cụ như Optuna để "thông minh" chọn vùng tìm kiếm tiếp theo dựa trên kết quả các lần thử trước.</li>
+      </ul>
+      <div class="figure">
+        <div class="chart-row">
+          <div class="chart-col">
+            <div class="chart-title">Grid search (lưới đều)</div>
+            <svg viewBox="0 0 140 140" style="width:100%;max-width:160px;display:block;margin:0 auto;">
+              <rect x="5" y="5" width="130" height="130" fill="none" stroke="#d9e0da"/>
+              <g fill="#0f8b8d">
+                <circle cx="20" cy="20" r="4"/><circle cx="45" cy="20" r="4"/><circle cx="70" cy="20" r="4"/><circle cx="95" cy="20" r="4"/><circle cx="120" cy="20" r="4"/>
+                <circle cx="20" cy="45" r="4"/><circle cx="45" cy="45" r="4"/><circle cx="70" cy="45" r="4"/><circle cx="95" cy="45" r="4"/><circle cx="120" cy="45" r="4"/>
+                <circle cx="20" cy="70" r="4"/><circle cx="45" cy="70" r="4"/><circle cx="70" cy="70" r="4"/><circle cx="95" cy="70" r="4"/><circle cx="120" cy="70" r="4"/>
+                <circle cx="20" cy="95" r="4"/><circle cx="45" cy="95" r="4"/><circle cx="70" cy="95" r="4"/><circle cx="95" cy="95" r="4"/><circle cx="120" cy="95" r="4"/>
+                <circle cx="20" cy="120" r="4"/><circle cx="45" cy="120" r="4"/><circle cx="70" cy="120" r="4"/><circle cx="95" cy="120" r="4"/><circle cx="120" cy="120" r="4"/>
+              </g>
+            </svg>
+          </div>
+          <div class="chart-col">
+            <div class="chart-title">Random search (rải ngẫu nhiên)</div>
+            <svg viewBox="0 0 140 140" style="width:100%;max-width:160px;display:block;margin:0 auto;">
+              <rect x="5" y="5" width="130" height="130" fill="none" stroke="#d9e0da"/>
+              <g fill="#d1495b">
+                <circle cx="14" cy="33" r="4"/><circle cx="38" cy="12" r="4"/><circle cx="61" cy="48" r="4"/><circle cx="88" cy="18" r="4"/><circle cx="112" cy="40" r="4"/>
+                <circle cx="27" cy="63" r="4"/><circle cx="52" cy="77" r="4"/><circle cx="75" cy="60" r="4"/><circle cx="100" cy="70" r="4"/><circle cx="124" cy="85" r="4"/>
+                <circle cx="18" cy="100" r="4"/><circle cx="43" cy="115" r="4"/><circle cx="68" cy="95" r="4"/><circle cx="92" cy="118" r="4"/><circle cx="118" cy="105" r="4"/>
+                <circle cx="10" cy="128" r="4"/><circle cx="55" cy="30" r="4"/><circle cx="80" cy="128" r="4"/><circle cx="105" cy="12" r="4"/><circle cx="130" cy="60" r="4"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+        <div class="figure-caption"><b>Hình 9.</b> Grid search thử lưới đều; random search rải điểm ngẫu nhiên — với cùng ngân sách số lần thử, random search thường khám phá tốt hơn các tham số thực sự quan trọng, vì nó không lãng phí lần thử vào các giá trị của tham số ít ảnh hưởng.</div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.4</span>Chẩn đoán thiếu khớp &amp; quá khớp</h3>
+      <p>Cách điều chỉnh siêu tham số phụ thuộc vào việc mô hình đang <strong>thiếu khớp</strong> hay <strong>quá khớp</strong> — đọc từ khoảng cách giữa lỗi huấn luyện và lỗi kiểm định:</p>
+      <div class="figure">
+        <div class="chart-row">
+          <div class="chart-col">
+            <div class="chart-title">Thiếu khớp (underfit)</div>
+            <svg viewBox="0 0 200 140" style="width:100%;display:block;">
+              <line x1="8" y1="8" x2="8" y2="120" stroke="#d9e0da"/><line x1="8" y1="120" x2="192" y2="120" stroke="#d9e0da"/>
+              <polyline points="8,95 50,80 92,72 134,68 176,66" fill="none" stroke="#0f8b8d" stroke-width="2.5"/>
+              <polyline points="8,100 50,86 92,79 134,75 176,73" fill="none" stroke="#d1495b" stroke-width="2.5" stroke-dasharray="4 3"/>
+              <text x="100" y="135" text-anchor="middle" fill="#7c8aa0" font-size="9.5">cả hai lỗi đều cao</text>
+            </svg>
+          </div>
+          <div class="chart-col">
+            <div class="chart-title">Vừa khớp (mục tiêu)</div>
+            <svg viewBox="0 0 200 140" style="width:100%;display:block;">
+              <line x1="8" y1="8" x2="8" y2="120" stroke="#d9e0da"/><line x1="8" y1="120" x2="192" y2="120" stroke="#d9e0da"/>
+              <polyline points="8,105 50,70 92,45 134,30 176,22" fill="none" stroke="#0f8b8d" stroke-width="2.5"/>
+              <polyline points="8,108 50,74 92,50 134,35 176,27" fill="none" stroke="#d1495b" stroke-width="2.5" stroke-dasharray="4 3"/>
+              <text x="100" y="135" text-anchor="middle" fill="#7c8aa0" font-size="9.5">cả hai cùng thấp, bám sát</text>
+            </svg>
+          </div>
+          <div class="chart-col">
+            <div class="chart-title">Quá khớp (overfit)</div>
+            <svg viewBox="0 0 200 140" style="width:100%;display:block;">
+              <line x1="8" y1="8" x2="8" y2="120" stroke="#d9e0da"/><line x1="8" y1="120" x2="192" y2="120" stroke="#d9e0da"/>
+              <polyline points="8,100 50,60 92,35 134,20 176,12" fill="none" stroke="#0f8b8d" stroke-width="2.5"/>
+              <polyline points="8,102 50,65 92,50 134,55 176,68" fill="none" stroke="#d1495b" stroke-width="2.5" stroke-dasharray="4 3"/>
+              <text x="100" y="135" text-anchor="middle" fill="#7c8aa0" font-size="9.5">val tăng trở lại</text>
+            </svg>
+          </div>
+        </div>
+        <div class="chart-legend">
+          <span><span class="legend-dot" style="background:#0f8b8d;"></span>Lỗi huấn luyện</span>
+          <span><span class="legend-dot" style="background:#d1495b;"></span>Lỗi kiểm định</span>
+        </div>
+        <div class="figure-caption"><b>Hình 10.</b> Dung lượng mô hình quá thấp → thiếu khớp (cả hai lỗi cao); quá cao → quá khớp (lỗi huấn luyện thấp nhưng kiểm định tăng trở lại). Mục tiêu là điểm cân bằng ở giữa.</div>
+      </div>
+      <ul class="plain">
+        <li><strong>Thiếu khớp</strong> (cả hai lỗi đều cao): tăng dung lượng mô hình, huấn luyện lâu hơn, <strong>giảm</strong> điều hoà.</li>
+        <li><strong>Quá khớp</strong> (lỗi huấn luyện thấp, kiểm định cao): thêm dữ liệu/augmentation, <strong>tăng</strong> điều hoà (dropout, weight decay), hoặc giảm dung lượng.</li>
+      </ul>
+    </div>
+
+    <div class="check">
+      <p class="check-q"><span class="check-tag">Kiểm tra nhanh</span>Nếu cả lỗi huấn luyện và lỗi kiểm định đều đang cao và gần bằng nhau, việc <strong>tăng dropout</strong> có phải là lựa chọn hợp lý không? Vì sao?</p>
+      <button class="reveal-btn" onclick="toggleReveal(this)">Hiện đáp án</button>
+      <div class="reveal-content">
+        <p>Không hợp lý — đây là dấu hiệu <strong>thiếu khớp</strong>, không phải quá khớp. Tăng dropout sẽ càng làm giảm khả năng học của mô hình (đã đang thiếu khớp), khiến cả hai lỗi có thể còn cao hơn nữa. Xử lý đúng là làm điều <strong>ngược lại</strong>: giảm điều hoà (giảm dropout/weight decay), tăng dung lượng mô hình (thêm lớp, thêm nơ-ron), hoặc huấn luyện lâu hơn — để mô hình có đủ khả năng khớp tốt hơn với dữ liệu huấn luyện trước đã.</p>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="tag">5.5</span>Quy trình tinh chỉnh thực dụng</h3>
+      <ol class="plain">
+        <li>Dựng <strong>baseline</strong> chạy được: mô hình pretrained + learning rate mặc định (ví dụ 1e-3).</li>
+        <li><strong>Tìm learning rate tốt</strong> (sweep hoặc LR range test) — bước có lợi nhất trong toàn bộ quy trình.</li>
+        <li>Nếu <strong>quá khớp</strong>, thêm augmentation/điều hoà; nếu <strong>thiếu khớp</strong>, tăng dung lượng.</li>
+        <li>Thêm <strong>lập lịch LR</strong> và <strong>early stopping</strong> để hội tụ ổn định hơn.</li>
+        <li><strong>Chỉ đổi một thứ mỗi lần</strong>; quyết định dựa trên tập <strong>validation</strong>; báo cáo trên tập <strong>test</strong>.</li>
+      </ol>
+      <div class="callout callout-result">
+        <span class="callout-head">Quy tắc 80/20</span>
+        Phần lớn cải thiện đến từ <strong>transfer learning + dữ liệu tốt + learning rate hợp lý</strong>. Đừng sa đà tinh chỉnh các tham số nhỏ quá sớm — hãy tối ưu những thứ quan trọng nhất trước.
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="l6">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp 06 · Tổng hợp</span>
+    <h2 class="section-title">Quy trình tổng thể &amp; tra cứu nhanh</h2>
+    <p class="section-lead">Gộp tất cả lại thành một checklist thực dụng cho bất kỳ dự án CV mới nào.</p>
+
+    <ol class="plain">
+      <li><strong>Xác định bài toán:</strong> ánh xạ mục tiêu thực tế sang nhiệm vụ CV đơn giản nhất phù hợp.</li>
+      <li><strong>Chọn thang đo</strong> phản ánh đúng chi phí lỗi của bài toán.</li>
+      <li><strong>Chuẩn bị &amp; chia dữ liệu</strong> train/validation/test; kiểm tra mất cân bằng lớp.</li>
+      <li><strong>Chọn kiến trúc</strong> baseline đã kiểm chứng + transfer learning, hợp với ràng buộc triển khai.</li>
+      <li><strong>Huấn luyện &amp; tinh chỉnh:</strong> tìm learning rate, điều chỉnh điều hoà/dung lượng, lập lịch LR.</li>
+      <li><strong>Đánh giá trên test</strong> bằng thang đo đã chọn; phân tích lỗi (ma trận nhầm lẫn) và lặp lại.</li>
+    </ol>
+
+    <table class="ref-table">
+      <tr><th>Hạng mục</th><th>Gợi ý nhanh</th></tr>
+      <tr><td><strong>Bài toán</strong></td><td>Chọn nhiệm vụ đơn giản nhất đủ dùng; chi phí nhãn: phân loại &lt; phát hiện &lt; phân đoạn.</td></tr>
+      <tr><td><strong>Thang đo</strong></td><td>Phân loại→F1/AUC; Phát hiện→mAP; Phân đoạn→mIoU/Dice; lệch lớp→PR-AUC.</td></tr>
+      <tr><td><strong>Kiến trúc</strong></td><td>Bắt đầu từ pretrained cỡ trung; cân nhắc tốc độ/bộ nhớ theo nơi triển khai.</td></tr>
+      <tr><td><strong>Learning rate</strong></td><td>Thử quanh 1e-3; quá lớn→phân kỳ, quá nhỏ→chậm; dùng scheduler.</td></tr>
+      <tr><td><strong>Quá khớp</strong></td><td>Thêm dữ liệu/augmentation/điều hoà; Thiếu khớp→tăng dung lượng/huấn luyện lâu hơn.</td></tr>
+    </table>
+
+    <h3 style="margin-top:32px;">Những lỗi thường gặp</h3>
+    <ul class="tip-list">
+      <li><span class="tip-check">✓</span><span>Chọn thang đo <strong>không khớp mục tiêu</strong> (ví dụ dùng accuracy cho dữ liệu lệch nặng).</span></li>
+      <li><span class="tip-check">✓</span><span>Nhảy vào <strong>mô hình phức tạp</strong> trước khi có baseline đơn giản để so sánh.</span></li>
+      <li><span class="tip-check">✓</span><span>Tinh chỉnh dựa trên tập <strong>test</strong> (làm rò rỉ thông tin) thay vì tập validation.</span></li>
+      <li><span class="tip-check">✓</span><span>Bỏ qua <strong>ràng buộc triển khai</strong> rồi chọn mô hình không thể chạy trên thiết bị đích.</span></li>
+      <li><span class="tip-check">✓</span><span>Đổi <strong>nhiều siêu tham số cùng lúc</strong> nên không biết thay đổi nào tạo ra khác biệt.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="l7">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Bài tập</span>
+    <h2 class="section-title">Bài tập thực hành</h2>
+    <p class="section-lead">Bài này thiên về tư duy quyết định — cách luyện tốt nhất là tự mình áp dụng vào các tình huống mới.</p>
+
+    <div class="task-grid">
+      <div class="task-card"><span class="task-num">Bài tập 01</span><p>Cho ba tình huống: (a) phân loại ảnh X-quang phổi viêm/không, (b) đếm số người trong đám đông, (c) tách vùng khối u trong ảnh MRI. Xác định <strong>bài toán CV</strong> và <strong>thang đo chính</strong> phù hợp cho mỗi tình huống, giải thích vì sao.</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 02</span><p>Giải thích khi nào nên dùng <strong>PR-AUC</strong> thay vì <strong>ROC-AUC</strong>. Cho một ví dụ bài toán cụ thể.</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 03</span><p>Bạn cần một mô hình chạy <strong>thời gian thực trên điện thoại</strong> (≥30 FPS). Chọn họ kiến trúc phù hợp và giải thích đánh đổi.</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 04</span><p>Chạy lại thí nghiệm <strong>quét learning rate</strong> nhưng đổi optimizer sang <strong>SGD (momentum=0.9)</strong>. Vùng learning rate tốt có khác với Adam không?</p></div>
+      <div class="task-card"><span class="task-num">Bài tập 05</span><p>Dùng mô hình CIFAR-10 của bạn từ Bài 4, vẽ <strong>đường ROC và PR</strong> cho một lớp khác và đọc AUC/AP. Lớp đó dễ hay khó?</p></div>
+      <div class="task-card advanced"><span class="task-num">Nâng cao</span><p>Dùng <strong>Optuna</strong> (hoặc random search) để tìm tổ hợp tốt cho 2–3 siêu tham số (learning rate, dropout, weight decay). Báo cáo cấu hình tốt nhất.</p></div>
+    </div>
+  </div>
+</section>
+<section class="section" id="quiz">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Lớp ra · Kiểm tra tổng kết</span>
+    <h2 class="section-title">Trắc nghiệm tổng kết</h2>
+    <p class="section-lead">10 câu hỏi để tự kiểm tra lại toàn bộ nội dung buổi học. Bấm vào một đáp án để xem ngay kết quả; nếu chưa chắc chắn, hãy bấm "Gợi ý" trước.</p>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 1.</span>Nguyên tắc "dẫn dắt bởi thang đo" (metric-driven) nghĩa là gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Luôn dùng accuracy cho mọi bài toán</button>
+        <button class="quiz-opt" data-key="B">B. Mô hình sẽ tối ưu đúng cái được đo, nên phải chọn thang đo phản ánh đúng mục tiêu thật</button>
+        <button class="quiz-opt" data-key="C">C. Thang đo không quan trọng bằng việc chọn kiến trúc</button>
+        <button class="quiz-opt" data-key="D">D. Chỉ cần đo hiệu năng trên tập huấn luyện</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại Lớp 01 — hai nguyên tắc xuyên suốt bài học.</p>
+      <p class="quiz-explain">Toàn bộ quá trình huấn luyện và so sánh mô hình đều dựa trên thang đo đã chọn, nên nếu thang đo không phản ánh đúng mục tiêu thật, mô hình "tốt" theo con số vẫn có thể vô dụng với mục tiêu thật.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 2.</span>Nếu chỉ cần biết "ảnh này có chứa vật thể X hay không" mà không cần biết vị trí, bài toán CV đơn giản nhất phù hợp là gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Phân đoạn ảnh</button>
+        <button class="quiz-opt" data-key="B">B. Phân loại</button>
+        <button class="quiz-opt" data-key="C">C. Keypoint/Pose</button>
+        <button class="quiz-opt" data-key="D">D. Phát hiện đối tượng</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Nhớ lại "Nguyên tắc vàng" ở Lớp 02.</p>
+      <p class="quiz-explain">Theo nguyên tắc vàng, nên chọn bài toán đơn giản nhất đủ dùng. Nếu chỉ cần biết ảnh "chứa gì" mà không cần vị trí hay ranh giới pixel, Phân loại là đủ và có chi phí gán nhãn thấp nhất.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 3.</span>Vì sao nên ưu tiên PR-AUC thay vì ROC-AUC khi dữ liệu mất cân bằng nặng?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. PR-AUC luôn có giá trị số cao hơn ROC-AUC</button>
+        <button class="quiz-opt" data-key="B">B. PR-AUC nhạy hơn với hiệu năng trên lớp hiếm (thiểu số)</button>
+        <button class="quiz-opt" data-key="C">C. ROC-AUC không thể tính được khi có lớp thiểu số</button>
+        <button class="quiz-opt" data-key="D">D. PR-AUC là thang đo duy nhất độc lập với ngưỡng phân loại</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại Lớp 03.2 — so sánh ROC-AUC và PR-AUC.</p>
+      <p class="quiz-explain">PR-AUC nhạy hơn với hiệu năng trên lớp hiếm vì Precision bị ảnh hưởng trực tiếp bởi số lượng FP tương đối so với lớp dương (thường rất ít mẫu) — ROC-AUC có thể trông "lạc quan" hơn thực tế khi lớp âm chiếm đa số áp đảo.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 4.</span>IoU (Intersection over Union) đo điều gì trong bài toán phát hiện đối tượng?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Tốc độ xử lý của mô hình (FPS)</button>
+        <button class="quiz-opt" data-key="B">B. Độ chồng khớp giữa khung dự đoán và khung thật</button>
+        <button class="quiz-opt" data-key="C">C. Số lượng vật thể có trong ảnh</button>
+        <button class="quiz-opt" data-key="D">D. Độ tin cậy (confidence) của một dự đoán</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Thử lại demo kéo khung ở Lớp 03.3.</p>
+      <p class="quiz-explain">IoU là tỉ lệ giữa phần giao (intersection) và phần hợp (union) của khung dự đoán với khung thật — thước đo cốt lõi để xác định một dự đoán vị trí có "đủ chính xác" hay không.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 5.</span>mAP (mean Average Precision) được tính như thế nào?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Trung bình IoU của tất cả các khung dự đoán</button>
+        <button class="quiz-opt" data-key="B">B. Trung bình AP (diện tích dưới đường Precision–Recall) qua tất cả các lớp</button>
+        <button class="quiz-opt" data-key="C">C. Tỉ lệ phần trăm khung dự đoán khớp hoàn hảo 100% với khung thật</button>
+        <button class="quiz-opt" data-key="D">D. Tổng số lớp có trong bài toán phát hiện</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại Lớp 03.3 — quan hệ giữa AP và mAP.</p>
+      <p class="quiz-explain">AP là diện tích dưới đường Precision–Recall của một lớp; mAP là trung bình AP qua tất cả các lớp — thước đo chuẩn để so sánh các mô hình phát hiện đối tượng với nhau.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 6.</span>Vì sao Dice coefficient thường được ưa chuộng hơn pixel accuracy khi vật thể cần phân đoạn rất nhỏ (ví dụ khối u trong ảnh MRI)?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Dice luôn bằng 1 khi vật thể nhỏ</button>
+        <button class="quiz-opt" data-key="B">B. Pixel accuracy có thể rất cao dù mô hình bỏ sót hoàn toàn vật thể nhỏ, trong khi Dice nhạy với điều đó hơn</button>
+        <button class="quiz-opt" data-key="C">C. Dice không cần tính toán trên từng pixel</button>
+        <button class="quiz-opt" data-key="D">D. Pixel accuracy chỉ áp dụng được cho ảnh xám</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại ví dụ khối u 2% diện tích ảnh ở Lớp 03.4.</p>
+      <p class="quiz-explain">Nếu vật thể chỉ chiếm một phần rất nhỏ diện tích ảnh, một mô hình luôn đoán "nền" cho mọi pixel vẫn đạt pixel accuracy rất cao — đúng cạm bẫy như accuracy trên dữ liệu lệch lớp. Dice/IoU đo trực tiếp độ chồng khớp vùng nên không bị đánh lừa theo cách này.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 7.</span>Theo "quy tắc thực dụng" khi chọn kiến trúc, nên bắt đầu từ đâu?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Kiến trúc lớn nhất và chính xác nhất hiện có</button>
+        <button class="quiz-opt" data-key="B">B. Một mô hình pretrained cỡ trung đã được kiểm chứng, rồi mở rộng hoặc thu nhỏ theo nhu cầu</button>
+        <button class="quiz-opt" data-key="C">C. Luôn tự thiết kế một kiến trúc hoàn toàn mới ngay từ đầu</button>
+        <button class="quiz-opt" data-key="D">D. Kiến trúc nhẹ nhất hiện có, bất kể độ chính xác</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại callout "Quy tắc thực dụng" ở Lớp 04.4.</p>
+      <p class="quiz-explain">Nên khởi đầu bằng một mô hình pretrained cỡ trung đã được kiểm chứng (ví dụ ResNet-50), đo tốc độ và độ chính xác thực tế, rồi mở rộng lên nếu cần thêm độ chính xác hoặc thu nhỏ nếu vượt ngân sách tốc độ/bộ nhớ.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 8.</span>Thí nghiệm quét learning rate thật trên CIFAR-10 (Lớp 05.2) cho thấy điều gì?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Learning rate càng lớn thì độ chính xác càng cao</button>
+        <button class="quiz-opt" data-key="B">B. Learning rate quá lớn khiến mô hình phân kỳ (~10%, mức đoán mò), trong khi 0.001 cho kết quả tốt nhất</button>
+        <button class="quiz-opt" data-key="C">C. Learning rate hầu như không ảnh hưởng tới kết quả huấn luyện</button>
+        <button class="quiz-opt" data-key="D">D. Chỉ tồn tại đúng một learning rate hợp lệ cho mọi mô hình</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Bấm vào các cột trong demo LR ở Lớp 05.2 để xem lại từng trường hợp.</p>
+      <p class="quiz-explain">Learning rate 1.0 và 0.1 khiến huấn luyện phân kỳ hoàn toàn (~10%, bằng đoán mò); 0.01 chưa ổn định (~33%); 0.001 cho kết quả tốt nhất (~54%); 0.0001 học quá chậm — cho thấy learning rate là siêu tham số ảnh hưởng lớn nhất.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 9.</span>Nếu lỗi huấn luyện và lỗi kiểm định đều cao và gần bằng nhau, mô hình đang gặp vấn đề gì, và nên xử lý ra sao?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Quá khớp — nên giảm dung lượng mô hình</button>
+        <button class="quiz-opt" data-key="B">B. Thiếu khớp — nên tăng dung lượng mô hình, huấn luyện lâu hơn, giảm điều hoà</button>
+        <button class="quiz-opt" data-key="C">C. Mất cân bằng lớp — nên thêm class weights</button>
+        <button class="quiz-opt" data-key="D">D. Learning rate quá nhỏ là nguyên nhân duy nhất có thể xảy ra</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại Hình 10, Lớp 05.4 — biểu đồ "Thiếu khớp".</p>
+      <p class="quiz-explain">Cả hai lỗi đều cao và gần nhau là dấu hiệu kinh điển của thiếu khớp (underfitting) — mô hình chưa đủ khả năng khớp ngay cả với dữ liệu huấn luyện. Cách xử lý là tăng dung lượng, huấn luyện lâu hơn, và giảm điều hoà — ngược hoàn toàn với cách xử lý quá khớp.</p>
+    </div>
+
+    <div class="quiz-item" data-answer="B">
+      <p class="quiz-q"><span class="qnum">Câu 10.</span>Lỗi phương pháp luận phổ biến nào khiến kết quả báo cáo cuối cùng của một dự án CV không còn đáng tin cậy?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-key="A">A. Dùng tập validation để chọn siêu tham số</button>
+        <button class="quiz-opt" data-key="B">B. Tinh chỉnh mô hình dựa trên tập test thay vì tập validation</button>
+        <button class="quiz-opt" data-key="C">C. Bắt đầu bằng một baseline đơn giản trước khi thử mô hình phức tạp</button>
+        <button class="quiz-opt" data-key="D">D. Chỉ đổi một siêu tham số trong mỗi lần thử nghiệm</button>
+      </div>
+      <div class="quiz-foot"><button class="hint-btn" onclick="toggleHint(this)">Gợi ý</button></div>
+      <p class="quiz-hint">Xem lại "Những lỗi thường gặp" ở Lớp 06.</p>
+      <p class="quiz-explain">Tinh chỉnh mô hình dựa trên tập test làm rò rỉ thông tin — về bản chất tập test trở thành một phần của quá trình chọn mô hình, khiến con số báo cáo cuối cùng không còn khách quan. Mọi điều chỉnh phải dựa trên tập validation; test chỉ dùng một lần duy nhất ở cuối.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="end">
+  <div class="wrap">
+    <span class="section-eyebrow"><span class="dot"></span>Tổng kết</span>
+    <h2 class="section-title">Bộ công cụ ra quyết định của người làm CV</h2>
+    <p>Bài này trang bị cho bạn thứ mà các tutorial thường bỏ qua: <strong>bộ công cụ ra quyết định</strong> của một người làm thị giác máy tính chuyên nghiệp. Bạn đã biết cách <strong>ánh xạ một mục tiêu thực tế sang đúng bài toán</strong>, chọn <strong>thang đo phản ánh đúng thành công</strong> (accuracy/F1/AUC cho phân loại, IoU/mAP cho phát hiện, Dice/mIoU cho phân đoạn), chọn <strong>kiến trúc cân bằng độ chính xác với ràng buộc thực tế</strong>, và <strong>tinh chỉnh siêu tham số</strong> một cách có hệ thống — đặc biệt là learning rate, yếu tố nhạy nhất mà thí nghiệm thật đã cho thấy rất rõ.</p>
+    <p>Đây chính là khung tư duy để tự tin bước vào các bài toán chuyên sâu tiếp theo. Khi đã biết <em>cách chọn bài toán, đo lường và tinh chỉnh</em>, bạn có thể tiếp cận <strong>phát hiện đối tượng</strong> và <strong>phân đoạn ảnh</strong> — hai chặng tiếp theo của khoá học — không phải như những hộp đen, mà như những bài toán bạn hoàn toàn kiểm soát được, từ khâu định nghĩa, đánh giá đến tối ưu. Hãy làm các bài tập định hướng ở Lớp 07 trước khi đi tiếp — tư duy quyết định chỉ thật sự vững khi bạn tự mình áp dụng vào tình huống mới.</p>
+  </div>
+</section>
+
+<div class="footer">
+  <div class="wrap">
+    Học sâu cho Thị giác Máy tính — Bài giảng Tutorial 5 · Đánh giá &amp; Lựa chọn trong CV
+  </div>
+</div>
+
+</main>
+</div>
+<script>
+/* ---------- Reveal / Hint toggles ---------- */
+function toggleReveal(btn){
+  const box = btn.nextElementSibling;
+  box.classList.toggle('show');
+  btn.textContent = box.classList.contains('show') ? 'Ẩn đáp án' : 'Hiện đáp án';
+}
+function toggleHint(btn){
+  const hint = btn.closest('.quiz-item').querySelector('.quiz-hint');
+  hint.classList.toggle('show');
+  btn.textContent = hint.classList.contains('show') ? 'Ẩn gợi ý' : 'Gợi ý';
+}
+
+/* ---------- Quiz logic ---------- */
+document.querySelectorAll('.quiz-item').forEach(item=>{
+  const answer = item.dataset.answer;
+  const opts = item.querySelectorAll('.quiz-opt');
+  const explain = item.querySelector('.quiz-explain');
+  opts.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(item.classList.contains('answered')) return;
+      item.classList.add('answered');
+      opts.forEach(o=>o.disabled=true);
+      if(opt.dataset.key === answer){
+        opt.classList.add('correct');
+      } else {
+        opt.classList.add('incorrect');
+        const correctBtn = item.querySelector('.quiz-opt[data-key="'+answer+'"]');
+        if(correctBtn) correctBtn.classList.add('correct');
+      }
+      if(explain) explain.classList.add('show');
+    });
+  });
+});
+
+/* ---------- Decision wizard ---------- */
+const wizardData={
+  classify:{name:'Phân loại (Classification)', metric:'Accuracy, F1, ROC-AUC', cost:'Thấp', note:'Chỉ cần một nhãn cho cả bức ảnh — chi phí gán nhãn thấp nhất, nên luôn là lựa chọn đầu tiên nếu đủ giải quyết nhu cầu.'},
+  detect:{name:'Phát hiện đối tượng (Detection)', metric:'mAP, IoU theo lớp', cost:'Trung bình', note:'Cần khung bao + nhãn cho từng vật thể trong ảnh — phù hợp khi cần biết "có bao nhiêu" và "ở đâu".'},
+  segment:{name:'Phân đoạn ảnh (Segmentation)', metric:'mIoU, hệ số Dice', cost:'Cao', note:'Cần nhãn cho từng pixel — chi phí gán nhãn cao nhất, chỉ nên dùng khi thực sự cần ranh giới chính xác (y tế, xe tự lái, tách nền).'},
+  retrieval:{name:'Truy vấn ảnh (Image Retrieval)', metric:'Recall@k, mAP truy vấn, cosine similarity', cost:'Thấp–Trung bình', note:'Cần một vector đặc trưng đại diện cho ảnh để so sánh độ tương đồng — phù hợp khi cần tìm sản phẩm/ảnh giống nhau.'},
+  pose:{name:'Keypoint / Ước lượng tư thế (Pose Estimation)', metric:'OKS, PCK', cost:'Cao', note:'Cần toạ độ chính xác của từng điểm khớp cơ thể — chi phí gán nhãn cao, thường dùng cho thể thao, fitness, thực tế ảo.'}
+};
+function selectWizard(task){
+  document.querySelectorAll('.wizard-btn').forEach(b=>b.classList.toggle('active', b.dataset.task===task));
+  const d=wizardData[task];
+  const result=document.getElementById('wizardResult');
+  if(!result || !d) return;
+  result.innerHTML =
+    '<span class="wr-task">'+d.name+'</span>'+
+    '<div class="wr-row"><span class="wr-label">Thang đo chính</span>'+d.metric+'</div>'+
+    '<div class="wr-row"><span class="wr-label">Chi phí gán nhãn</span>'+d.cost+'</div>'+
+    '<div class="wr-row">'+d.note+'</div>';
+}
+document.querySelectorAll('.wizard-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>selectWizard(btn.dataset.task));
+});
+
+/* ---------- IoU demo ---------- */
+function updateIoU(){
+  const slider=document.getElementById('iouSlider');
+  if(!slider) return;
+  const offset=parseFloat(slider.value);
+  const pred=document.getElementById('iouPred');
+  if(pred) pred.setAttribute('x', 70+offset);
+  const W=100,H=80;
+  const overlapW=Math.max(0, W-offset);
+  const overlapArea=overlapW*H;
+  const unionArea=2*W*H - overlapArea;
+  const iou = unionArea>0 ? overlapArea/unionArea : 0;
+  const valEl=document.getElementById('iouValue');
+  if(valEl) valEl.textContent=iou.toFixed(2);
+  const badge=document.getElementById('iouBadge');
+  if(badge){
+    if(iou>=0.5){ badge.textContent='Đúng (≥ 0.5)'; badge.className='iou-badge correct'; }
+    else { badge.textContent='Sai (< 0.5)'; badge.className='iou-badge incorrect'; }
+  }
+}
+updateIoU();
+const iouSliderEl=document.getElementById('iouSlider');
+if(iouSliderEl) iouSliderEl.addEventListener('input', updateIoU);
+
+/* ---------- Learning rate sweep bar chart ---------- */
+const lrData=[
+  {lr:'1.0', acc:10, type:'bad', note:'Learning rate 1.0: quá lớn, huấn luyện phân kỳ hoàn toàn ngay từ những bước đầu. Độ chính xác ~10% — đúng bằng mức đoán ngẫu nhiên trên 10 lớp.'},
+  {lr:'0.1', acc:10, type:'bad', note:'Learning rate 0.1: vẫn quá lớn, kết quả phân kỳ tương tự 1.0 — một khi đã phân kỳ, mô hình không học được gì dù learning rate nhỏ hơn 10 lần.'},
+  {lr:'0.01', acc:33, type:'', note:'Learning rate 0.01: huấn luyện có học nhưng chưa ổn định, chỉ đạt khoảng 33% — bước nhảy vẫn còn khá lớn so với "đáy" tối ưu.'},
+  {lr:'0.001', acc:54, type:'best', note:'Learning rate 0.001: cho kết quả tốt nhất trong thí nghiệm, khoảng 54% — điểm khởi đầu hợp lý phổ biến khi dùng Adam.'},
+  {lr:'0.0001', acc:38, type:'', note:'Learning rate 0.0001: quá nhỏ, học rất chậm — trong cùng số epoch, mô hình chưa kịp hội tụ hết mức có thể.'}
+];
+function buildLRBars(){
+  const container=document.getElementById('lrBars');
+  if(!container) return;
+  container.innerHTML='';
+  lrData.forEach(d=>{
+    const col=document.createElement('div');
+    col.className='lr-bar-col';
+    const val=document.createElement('div');
+    val.className='lr-bar-val';
+    val.textContent=d.acc+'%';
+    const bar=document.createElement('div');
+    bar.className='lr-bar'+(d.type?' '+d.type:'');
+    bar.style.height=(d.acc/60*100)+'%';
+    const lbl=document.createElement('div');
+    lbl.className='lr-bar-lbl';
+    lbl.textContent='lr='+d.lr;
+    col.appendChild(val); col.appendChild(bar); col.appendChild(lbl);
+    col.addEventListener('click', ()=>{
+      const note=document.getElementById('lrNote');
+      if(note) note.textContent=d.note;
+    });
+    container.appendChild(col);
+  });
+}
+buildLRBars();
+
+/* ---------- Rail scrollspy ---------- */
+(function railScrollSpy(){
+  const map={};
+  document.querySelectorAll('.rail-item').forEach(item=>{
+    const a=item.querySelector('a');
+    if(a){ map[a.getAttribute('href').slice(1)] = item; }
+  });
+  const targets=Object.keys(map).map(id=>document.getElementById(id)).filter(Boolean);
+  const observer=new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        Object.values(map).forEach(it=>it.classList.remove('active'));
+        const item=map[entry.target.id];
+        if(item) item.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-35% 0px -55% 0px', threshold:0});
+  targets.forEach(t=>observer.observe(t));
+})();
+
+/* ---------- Syntax highlighting ---------- */
+if(window.hljs){ hljs.highlightAll(); }
+</script>
+</body>
+</html>

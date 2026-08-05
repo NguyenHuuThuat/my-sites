@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PigID Vision — Lộ trình triển khai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#122A20;
+    --ink-soft:#4E6459;
+    --ink-faint:#7C9184;
+    --paper:#F5FAF7;
+    --surface:#FFFFFF;
+    --surface-alt:#EAF3EC;
+    --line:#D8E7DE;
+    --primary:#0C6B4C;
+    --primary-2:#0E8A5F;
+    --primary-deep:#063C2A;
+    --primary-soft:#D6EEE1;
+    --gold:#A9812F;
+    --gold-soft:#F1E7CE;
+    --radius-s:8px;
+    --radius-m:14px;
+    --radius-l:20px;
+    --shadow:0 1px 2px rgba(6,60,42,0.04), 0 8px 24px -12px rgba(6,60,42,0.12);
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Be Vietnam Pro',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+  h1,h2,h3{font-family:'Be Vietnam Pro',sans-serif; margin:0; letter-spacing:-0.01em; color:var(--primary-deep);}
+  p{margin:0;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .icon{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;display:block;}
+  a{color:inherit;}
+
+  /* ---------- background texture ---------- */
+  .grain{
+    position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:radial-gradient(var(--line) 1px, transparent 1px);
+    background-size:26px 26px;
+    opacity:.55;
+  }
+
+  /* ---------- topbar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:100;
+    background:rgba(245,250,247,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{
+    max-width:var(--maxw); margin:0 auto; padding:14px 28px;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+  }
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand-mark{
+    width:36px;height:36px;border-radius:10px;background:var(--primary-deep);
+    color:var(--primary-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .brand-mark .icon{width:20px;height:20px;}
+  .brand-text{line-height:1.25;}
+  .brand-name{font-weight:800;font-size:16.5px;color:var(--primary-deep);}
+  .brand-sub{font-size:10.5px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.09em;}
+  .tabs{display:flex;gap:4px;background:var(--surface-alt);padding:4px;border-radius:999px;flex-shrink:0;}
+  .tab-btn{
+    border:none;background:transparent;cursor:pointer;
+    padding:9px 16px;border-radius:999px;
+    font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;
+    letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);
+    transition:background .2s,color .2s;white-space:nowrap;
+  }
+  .tab-btn.active{background:var(--primary);color:#fff;box-shadow:var(--shadow);}
+  @media(max-width:640px){ .brand-sub{display:none;} .tab-btn{padding:8px 11px;font-size:10.5px;} }
+
+  /* ---------- layout helpers ---------- */
+  .phase{max-width:var(--maxw); margin:0 auto; padding:88px 28px 40px; position:relative; z-index:1; scroll-margin-top:78px;}
+  .phase-stripe{
+    display:flex; align-items:center; gap:10px; margin-bottom:26px;
+  }
+  .phase-stripe .dot{width:8px;height:8px;border-radius:50%;background:var(--primary);}
+  .phase-stripe span{
+    font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--primary);font-weight:600;
+  }
+  #phase2 .phase-stripe .dot{background:var(--gold);}
+  #phase2 .phase-stripe span{color:var(--gold);}
+
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--primary-2);font-weight:600;margin-bottom:14px;display:block;
+  }
+  #phase2 .eyebrow{color:var(--gold);}
+
+  .hero{display:grid;grid-template-columns:1.15fr 0.85fr;gap:48px;align-items:center;padding-bottom:52px;border-bottom:1px solid var(--line);}
+  .hero h1{font-size:clamp(30px,4vw,46px);line-height:1.1;font-weight:800;}
+  .hero .lead{margin-top:16px;font-size:16.5px;color:var(--ink-soft);max-width:520px;line-height:1.65;}
+  .hero-art{display:flex;align-items:center;justify-content:center;}
+  @media(max-width:900px){.hero{grid-template-columns:1fr;} .hero-art{order:-1;max-width:320px;margin:0 auto;}}
+
+  .stat-row{display:flex;gap:0;margin-top:34px;flex-wrap:wrap;}
+  .stat{padding:0 26px;border-left:1px solid var(--line);}
+  .stat:first-child{padding-left:0;border-left:none;}
+  .stat .num{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:28px;color:var(--primary-deep);}
+  #phase2 .stat .num{color:var(--gold);}
+  .stat .lbl{font-size:12.5px;color:var(--ink-soft);margin-top:2px;max-width:120px;}
+  @media(max-width:560px){.stat{padding:0 16px 12px;}}
+
+  .badge-line{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;}
+  .chip{
+    display:inline-flex;align-items:center;gap:7px;
+    font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--primary-deep);
+    background:var(--primary-soft);border-radius:999px;padding:7px 13px;font-weight:600;
+  }
+  .chip .icon{width:13px;height:13px;}
+
+  /* section headings */
+  .block{margin-top:64px;}
+  .block-head{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin-bottom:26px;flex-wrap:wrap;}
+  .block-head h2{font-size:24px;font-weight:800;}
+  .block-head .note{font-size:13.5px;color:var(--ink-soft);max-width:380px;}
+  .block-num{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-faint);letter-spacing:.06em;}
+
+  /* function cards */
+  .grid-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;}
+  .card{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-l);
+    padding:22px;transition:transform .2s,box-shadow .2s;
+  }
+  .card:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+  .card-icon{
+    width:42px;height:42px;border-radius:11px;background:var(--primary-soft);color:var(--primary-deep);
+    display:flex;align-items:center;justify-content:center;margin-bottom:14px;
+  }
+  #phase2 .card-icon{background:var(--gold-soft);color:#6B5320;}
+  .card-icon .icon{width:21px;height:21px;}
+  .card h3{font-size:15.5px;font-weight:700;margin-bottom:7px;}
+  .card p{font-size:13.5px;color:var(--ink-soft);line-height:1.55;}
+
+  /* architecture flow */
+  .flow{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;flex-wrap:wrap;}
+  .flow-step{flex:1;min-width:130px;text-align:center;position:relative;padding:0 6px;}
+  .flow-step .node{
+    width:52px;height:52px;border-radius:50%;background:var(--surface);border:1.5px solid var(--primary);
+    color:var(--primary-deep);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;
+  }
+  .flow-step .node .icon{width:22px;height:22px;}
+  .flow-step .ttl{font-size:13px;font-weight:700;margin-bottom:4px;}
+  .flow-step .dsc{font-size:11.5px;color:var(--ink-soft);line-height:1.4;}
+  .flow-arrow{align-self:center;margin-top:14px;color:var(--ink-faint);flex-shrink:0;}
+  .flow-arrow .icon{width:18px;height:18px;}
+  @media(max-width:820px){.flow{flex-direction:column;align-items:stretch;} .flow-arrow{transform:rotate(90deg);margin:2px auto;}}
+
+  /* table */
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius-m);background:var(--surface);}
+  table{width:100%;border-collapse:collapse;min-width:640px;}
+  thead th{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--ink-soft);text-align:left;padding:13px 16px;background:var(--surface-alt);border-bottom:1px solid var(--line);
+  }
+  tbody td{padding:13px 16px;font-size:13.5px;border-bottom:1px solid var(--line);color:var(--ink);}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.total td{font-weight:700;background:var(--surface-alt);font-family:'IBM Plex Mono',monospace;font-size:13px;}
+  td.num,th.num{font-family:'IBM Plex Mono',monospace;}
+
+  /* compute callout */
+  .callout{
+    display:flex;align-items:center;gap:18px;margin-top:18px;
+    background:var(--primary-deep);color:var(--primary-soft);border-radius:var(--radius-l);padding:22px 26px;
+  }
+  .callout .icon-wrap{width:46px;height:46px;border-radius:12px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .callout .icon-wrap .icon{width:24px;height:24px;color:#fff;}
+  .callout .ttl{font-weight:700;color:#fff;font-size:15px;margin-bottom:3px;}
+  .callout .dsc{font-size:13px;color:var(--primary-soft);line-height:1.55;}
+
+  /* cost bars */
+  .cost-layout{display:grid;grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;}
+  @media(max-width:820px){.cost-layout{grid-template-columns:1fr;}}
+  .cost-row{display:grid;grid-template-columns:160px 1fr 108px;gap:14px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);}
+  .cost-row:last-child{border-bottom:none;}
+  .cost-row .lbl{font-size:13px;color:var(--ink);}
+  .bar-track{height:7px;background:var(--surface-alt);border-radius:4px;overflow:hidden;}
+  .bar-fill{height:100%;background:var(--primary-2);border-radius:4px;}
+  .cost-row .amt{font-family:'IBM Plex Mono',monospace;font-size:12.5px;text-align:right;font-weight:600;color:var(--ink);}
+
+  .total-card{background:var(--primary-deep);border-radius:var(--radius-l);padding:26px;color:#fff;}
+  .total-card .k{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--primary-soft);font-family:'IBM Plex Mono',monospace;}
+  .total-card .v{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:30px;margin:8px 0 4px;line-height:1.1;}
+  .total-card .u{font-size:13px;color:var(--primary-soft);}
+  .total-card hr{border:none;border-top:1px solid rgba(255,255,255,0.18);margin:18px 0;}
+  .opex-row{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .opex-row .v2{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:19px;}
+
+  /* roadmap */
+  .roadmap{display:flex;gap:0;position:relative;}
+  .roadmap::before{content:"";position:absolute;top:19px;left:0;right:0;height:1px;background:var(--line);}
+  .rm-item{flex:1;position:relative;padding-top:44px;padding-right:20px;}
+  .rm-item .dot{
+    position:absolute;top:10px;left:0;width:20px;height:20px;border-radius:50%;
+    background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;
+  }
+  .rm-item .m{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--primary-2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;font-weight:600;}
+  .rm-item h4{font-size:14px;font-weight:700;margin-bottom:6px;}
+  .rm-item p{font-size:12.5px;color:var(--ink-soft);line-height:1.55;}
+  @media(max-width:760px){.roadmap{flex-direction:column;gap:26px;} .roadmap::before{display:none;} .rm-item{padding-top:0;padding-left:34px;padding-right:0;} .rm-item .dot{top:0;left:0;}}
+
+  /* two-layer identification (phase2) */
+  .layer-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:760px){.layer-grid{grid-template-columns:1fr;}}
+  .layer-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-l);padding:24px;}
+  .layer-card .lyr-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:10px;}
+  .layer-card h3{font-size:16.5px;margin-bottom:8px;}
+  .layer-card p{font-size:13.5px;color:var(--ink-soft);line-height:1.6;}
+  .reconcile-card{
+    margin-top:16px;background:var(--gold-soft);border:1px solid #E4D4A8;border-radius:var(--radius-l);
+    padding:22px 24px;display:flex;gap:16px;align-items:flex-start;
+  }
+  .reconcile-card .icon-wrap{width:40px;height:40px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .reconcile-card .icon-wrap .icon{width:20px;height:20px;color:#6B5320;}
+  .reconcile-card h4{font-size:14.5px;font-weight:700;color:#5B4319;margin-bottom:4px;}
+  .reconcile-card p{font-size:13px;color:#6B5320;line-height:1.55;}
+
+  /* signal chain (5 tầng) */
+  .signal-row{display:flex;gap:12px;flex-wrap:wrap;}
+  .signal-card{flex:1;min-width:150px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);padding:18px;text-align:left;}
+  .signal-card .si-num{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-faint);margin-bottom:10px;}
+  .signal-card .icon-wrap{width:34px;height:34px;border-radius:9px;background:var(--gold-soft);color:#6B5320;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+  .signal-card .icon-wrap .icon{width:17px;height:17px;}
+  .signal-card h4{font-size:13.5px;font-weight:700;margin-bottom:5px;}
+  .signal-card p{font-size:12px;color:var(--ink-soft);line-height:1.5;}
+  .merge-note{
+    margin-top:16px;display:flex;gap:12px;align-items:center;
+    background:var(--surface-alt);border-radius:var(--radius-m);padding:16px 20px;font-size:13px;color:var(--ink-soft);
+  }
+  .merge-note b{color:var(--ink);}
+
+  /* package cards phase2 cost */
+  .pkg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;}
+  .pkg-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-l);padding:22px;}
+  .pkg-card .pk-badge{
+    display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;
+    letter-spacing:.05em;font-weight:700;padding:4px 9px;border-radius:999px;margin-bottom:14px;
+  }
+  .pk-badge.required{background:#FCE4E0;color:#A23B2C;}
+  .pk-badge.recommended{background:var(--primary-soft);color:var(--primary-deep);}
+  .pk-badge.optional{background:var(--surface-alt);color:var(--ink-soft);}
+  .pk-badge.variable{background:var(--gold-soft);color:#6B5320;}
+  .pkg-card h4{font-size:14.5px;font-weight:700;margin-bottom:10px;}
+  .pkg-card .amt{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:22px;color:var(--primary-deep);margin-bottom:8px;}
+  .pkg-card p{font-size:12.5px;color:var(--ink-soft);line-height:1.55;}
+
+  /* outlook GD3 */
+  .outlook-row{display:flex;gap:16px;flex-wrap:wrap;}
+  .outlook-item{flex:1;min-width:220px;display:flex;gap:12px;padding:18px;border:1px dashed var(--line);border-radius:var(--radius-m);}
+  .outlook-item .icon-wrap{width:32px;height:32px;border-radius:8px;background:var(--surface-alt);color:var(--ink-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .outlook-item .icon-wrap .icon{width:16px;height:16px;}
+  .outlook-item p{font-size:12.5px;color:var(--ink-soft);line-height:1.55;}
+
+  /* checklist */
+  .checklist{display:flex;flex-direction:column;gap:0;border:1px solid var(--line);border-radius:var(--radius-m);overflow:hidden;background:var(--surface);}
+  .check-item{display:flex;align-items:center;gap:14px;padding:15px 20px;border-bottom:1px solid var(--line);}
+  .check-item:last-child{border-bottom:none;}
+  .check-item .num{
+    width:24px;height:24px;border-radius:50%;background:var(--surface-alt);color:var(--ink-soft);
+    display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;flex-shrink:0;
+  }
+  .check-item p{font-size:13.5px;color:var(--ink);}
+
+  footer{
+    max-width:var(--maxw);margin:0 auto;padding:46px 28px 60px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;position:relative;z-index:1;
+  }
+  footer .fnote{font-size:12px;color:var(--ink-faint);max-width:560px;line-height:1.6;}
+  footer .fbrand{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);font-weight:600;}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<!-- SVG icon defs -->
+<svg width="0" height="0" style="position:absolute">
+<defs>
+  <symbol id="i-gate" viewBox="0 0 24 24"><path d="M4 20V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14"/><line x1="4" y1="20" x2="20" y2="20"/><line x1="9" y1="20" x2="9" y2="9"/><line x1="15" y1="20" x2="15" y2="9"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><rect x="3" y="7" width="14" height="10" rx="2"/><circle cx="10" cy="12" r="3"/><path d="M17 10l4-2v8l-4-2z"/></symbol>
+  <symbol id="i-face" viewBox="0 0 24 24"><circle cx="12" cy="13" r="4"/><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v4.7l3.2 2"/></symbol>
+  <symbol id="i-userx" viewBox="0 0 24 24"><circle cx="10" cy="8" r="3.3"/><path d="M4 20.5c0-3.6 2.7-6 6-6s6 2.4 6 6"/><path d="M17 8l4 4M21 8l-4 4"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6.2 10a5.8 5.8 0 0 1 11.6 0c0 4 1.5 5.5 1.5 5.5H4.7S6.2 14 6.2 10z"/><path d="M10.2 18a1.8 1.8 0 0 0 3.6 0"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M2.5 12h4l2-6.5 4 13 2-6.5h6"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24"><path d="M6.5 3h6.3L20 10.2l-8 8-7.5-7.5V3z"/><circle cx="9" cy="7" r="1.3" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.2 12s3.6-6.3 9.8-6.3S21.8 12 21.8 12s-3.6 6.3-9.8 6.3S2.2 12 2.2 12z"/><circle cx="12" cy="12" r="2.9"/></symbol>
+  <symbol id="i-balance" viewBox="0 0 24 24"><path d="M12 3v18M5 7h14M5 7l-3 6h6l-3-6zM19 7l-3 6h6l-3-6z"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><line x1="4" y1="9.5" x2="4" y2="14.5"/><line x1="8.3" y1="6.5" x2="8.3" y2="17.5"/><line x1="12.6" y1="3" x2="12.6" y2="21"/><line x1="16.9" y1="6.5" x2="16.9" y2="17.5"/><line x1="21" y1="9.5" x2="21" y2="14.5"/></symbol>
+  <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M12.5 3.2a2 2 0 0 0-2 2v9.4a4 4 0 1 0 4 0V5.2a2 2 0 0 0-2-2z"/><circle cx="12.5" cy="17.3" r="2"/></symbol>
+  <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-9"/><path d="M15 6h6v6"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M9.5 14.5l5-5"/><path d="M8 11.3l-1.8 1.8a3 3 0 0 0 4.2 4.2l1.8-1.8"/><path d="M16 12.7l1.8-1.8a3 3 0 0 0-4.2-4.2L11.8 8.5"/></symbol>
+  <symbol id="i-brain" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="12" cy="12" r="2.3"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M7.6 7.4l3 3.2M16.4 7.4l-3 3.2M7.6 16.6l3-3.2M16.4 16.6l-3-3.2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></symbol>
+  <symbol id="i-server" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><circle cx="7.6" cy="7" r="0.9" fill="currentColor" stroke="none"/><circle cx="7.6" cy="17" r="0.9" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z"/></symbol>
+</defs>
+</svg>
+
+<!-- ============ TOPBAR ============ -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark"><svg class="icon"><use href="#i-gate"/></svg></div>
+      <div class="brand-text">
+        <div class="brand-name">PigID Vision</div>
+        <div class="brand-sub">Đề xuất triển khai kỹ thuật</div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" data-target="#phase1">Giai đoạn 1</button>
+      <button class="tab-btn" data-target="#phase2">Giai đoạn 2 &amp; tiếp theo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PHASE 1 ============ -->
+<section class="phase" id="phase1">
+  <div class="phase-stripe reveal"><span class="dot"></span><span>Giai đoạn 1 — Thí điểm</span></div>
+
+  <div class="hero">
+    <div>
+      <span class="eyebrow reveal">Đề xuất triển khai thí điểm</span>
+      <h1 class="reveal">Giám sát ra/vào &amp; chống thất thoát chuồng lợn</h1>
+      <p class="lead reveal">Triển khai hệ thống camera AI tại toàn bộ cửa ra/vào khu chuồng trại và một dãy chuồng thí điểm, vận hành đồng thời năm chức năng giám sát thời gian thực.</p>
+
+      <div class="badge-line reveal">
+        <span class="chip"><svg class="icon"><use href="#i-check"/></svg>Object detection mAP 0,98 — đã huấn luyện, sẵn sàng vận hành</span>
+      </div>
+
+      <div class="stat-row reveal">
+        <div class="stat"><div class="num count" data-target="15">0</div><div class="lbl">cửa ra/vào (5 chính · 10 phụ)</div></div>
+        <div class="stat"><div class="num count" data-target="10">0</div><div class="lbl">camera / dãy chuồng thí điểm</div></div>
+        <div class="stat"><div class="num count" data-target="5">0</div><div class="lbl">chức năng giám sát đồng thời</div></div>
+        <div class="stat"><div class="num count" data-target="3">0</div><div class="lbl">tháng triển khai dự kiến</div></div>
+      </div>
+    </div>
+
+    <div class="hero-art reveal">
+      <svg viewBox="0 0 320 240" width="100%" style="max-width:320px">
+        <rect x="0" y="0" width="320" height="240" fill="none"/>
+        <line x1="20" y1="200" x2="300" y2="200" stroke="#D8E7DE" stroke-width="1.5"/>
+        <line x1="70" y1="60" x2="70" y2="200" stroke="#0C6B4C" stroke-width="3" stroke-linecap="round"/>
+        <line x1="230" y1="60" x2="230" y2="200" stroke="#0C6B4C" stroke-width="3" stroke-linecap="round"/>
+        <line x1="70" y1="60" x2="230" y2="60" stroke="#0C6B4C" stroke-width="3" stroke-linecap="round"/>
+        <rect x="128" y="42" width="44" height="26" rx="5" fill="#063C2A"/>
+        <circle cx="150" cy="55" r="7" fill="#D6EEE1"/>
+        <path d="M138 68 L96 190 L204 190 Z" fill="#0C6B4C" opacity="0.08"/>
+        <path d="M138 68 L96 190" stroke="#0C6B4C" stroke-width="1" stroke-dasharray="3 4" opacity="0.5"/>
+        <path d="M162 68 L204 190" stroke="#0C6B4C" stroke-width="1" stroke-dasharray="3 4" opacity="0.5"/>
+        <ellipse cx="150" cy="178" rx="20" ry="12" fill="#A9812F" opacity="0.85"/>
+        <circle cx="167" cy="172" r="6" fill="#A9812F" opacity="0.85"/>
+        <path d="M150 205 l10 -8" stroke="#4E6459" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <text x="152" y="222" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7C9184">RA / VÀO</text>
+        <defs><marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#4E6459"/></marker></defs>
+      </svg>
+    </div>
+  </div>
+
+  <!-- 5 FUNCTIONS -->
+  <div class="block">
+    <div class="block-head reveal">
+      <h2>Năm chức năng giám sát đồng thời</h2>
+      <span class="block-num">01 / PHẠM VI CHỨC NĂNG</span>
+    </div>
+    <div class="grid-cards">
+      <div class="card reveal">
+        <div class="card-icon"><svg class="icon"><use href="#i-camera"/></svg></div>
+        <h3>Phát hiện lợn &amp; người ra/vào</h3>
+        <p>Object detection kết hợp tracking đếm lợn theo hướng; nhận diện khuôn mặt xác thực danh tính nhân viên qua từng cửa.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon"><svg class="icon"><use href="#i-clock"/></svg></div>
+        <h3>Cảnh báo giờ giấc bất thường</h3>
+        <p>Rule engine đối chiếu thời điểm và vị trí cửa với lịch đăng ký ra/vào để xác định sự kiện có bình thường hay không.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon"><svg class="icon"><use href="#i-pulse"/></svg></div>
+        <h3>Giám sát lợn bỏ ăn / nguy cơ bệnh</h3>
+        <p>Phân tích hành vi tại khu vực chuồng nuôi, phát hiện sớm dấu hiệu bỏ ăn hoặc hoạt động bất thường.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon"><svg class="icon"><use href="#i-userx"/></svg></div>
+        <h3>Cảnh báo người lạ</h3>
+        <p>Nhận diện khuôn mặt open-set, phát hiện người không có trong danh sách đăng ký, hiển thị tập trung trên dashboard.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon"><svg class="icon"><use href="#i-bell"/></svg></div>
+        <h3>Thông báo tức thời</h3>
+        <p>Tự động chụp ảnh, cắt clip quanh thời điểm sự kiện, gửi cảnh báo qua Email/Telegram và ghi log vào dashboard.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURE FLOW -->
+  <div class="block">
+    <div class="block-head reveal">
+      <h2>Luồng xử lý sự kiện</h2>
+      <span class="block-num">02 / KIẾN TRÚC XỬ LÝ</span>
+    </div>
+    <div class="flow reveal">
+      <div class="flow-step">
+        <div class="node"><svg class="icon"><use href="#i-camera"/></svg></div>
+        <div class="ttl">Camera ghi nhận</div>
+        <div class="dsc">Hình ảnh lợn &amp; khuôn mặt người qua cửa</div>
+      </div>
+      <div class="flow-arrow"><svg class="icon"><use href="#i-trend"/></svg></div>
+      <div class="flow-step">
+        <div class="node"><svg class="icon"><use href="#i-eye"/></svg></div>
+        <div class="ttl">Detection + Tracking</div>
+        <div class="dsc">Xác định hướng ra/vào, tránh đếm trùng</div>
+      </div>
+      <div class="flow-arrow"><svg class="icon"><use href="#i-trend"/></svg></div>
+      <div class="flow-step">
+        <div class="node"><svg class="icon"><use href="#i-face"/></svg></div>
+        <div class="ttl">Đối chiếu danh tính</div>
+        <div class="dsc">So khớp khuôn mặt với danh sách đăng ký</div>
+      </div>
+      <div class="flow-arrow"><svg class="icon"><use href="#i-trend"/></svg></div>
+      <div class="flow-step">
+        <div class="node"><svg class="icon"><use href="#i-balance"/></svg></div>
+        <div class="ttl">Rule Engine</div>
+        <div class="dsc">Đối chiếu thời điểm, vị trí với lịch đăng ký</div>
+      </div>
+      <div class="flow-arrow"><svg class="icon"><use href="#i-trend"/></svg></div>
+      <div class="flow-step">
+        <div class="node"><svg class="icon"><use href="#i-bell"/></svg></div>
+        <div class="ttl">Cảnh báo &amp; Dashboard</div>
+        <div class="dsc">Email/Telegram + nhật ký tập trung</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAMERA CONFIG -->
+  <div class="block">
+    <div class="block-head reveal">
+      <h2>Cấu hình camera theo vị trí</h2>
+      <span class="block-num">03 / HẠ TẦNG THIẾT BỊ</span>
+    </div>
+    <div class="tbl-wrap reveal">
+      <table>
+        <thead><tr><th>Loại camera</th><th>Chức năng</th><th class="num">SL</th><th>Vị trí lắp</th><th>Thông số</th></tr></thead>
+        <tbody>
+          <tr><td>Thân trụ hồng ngoại</td><td>Giám sát &amp; đếm lợn ra/vào</td><td class="num">15</td><td>Thấp (0,8–1,2m), phủ hết bề ngang cửa</td><td>3–4MP, hồng ngoại</td></tr>
+          <tr><td>Nhận diện khuôn mặt</td><td>Xác thực danh tính người ra/vào</td><td class="num">15</td><td>Ngang tầm mắt (1,5–2,2m)</td><td>4–8MP, chống ngược sáng WDR</td></tr>
+          <tr><td>Toàn cảnh góc rộng</td><td>Lưu video bằng chứng</td><td class="num">5</td><td>Cửa chính</td><td>Bullet góc rộng</td></tr>
+          <tr><td>Giám sát trong chuồng</td><td>Giám sát hành vi lợn</td><td class="num">10</td><td>Trong chuồng — dãy thí điểm</td><td>3–4MP, hồng ngoại</td></tr>
+          <tr><td>Dự phòng</td><td>Thay thế khi hỏng</td><td class="num">5</td><td>—</td><td>Cùng chủng loại trên</td></tr>
+          <tr class="total"><td colspan="2">Tổng cộng</td><td class="num">50</td><td colspan="2">Đã bao gồm 5 camera dự phòng</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout reveal">
+      <div class="icon-wrap"><svg class="icon"><use href="#i-server"/></svg></div>
+      <div>
+        <div class="ttl">2× NVIDIA DGX Spark — hạ tầng xử lý trung tâm</div>
+        <div class="dsc">Suy luận AI đồng thời cho toàn bộ luồng camera, đồng thời dự phòng năng lực cho các mô-đun mở rộng ở Giai đoạn 2.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COST -->
+  <div class="block">
+    <div class="block-head reveal">
+      <h2>Chi phí đầu tư Giai đoạn 1</h2>
+      <span class="block-num">04 / NGÂN SÁCH</span>
+    </div>
+    <div class="cost-layout reveal">
+      <div>
+        <div class="cost-row">
+          <div class="lbl">Camera &amp; thiết bị hình ảnh</div>
+          <div class="bar-track"><div class="bar-fill" style="width:72%"></div></div>
+          <div class="amt">202,5 tr</div>
+        </div>
+        <div class="cost-row">
+          <div class="lbl">Hạ tầng mạng, lưu trữ, điện</div>
+          <div class="bar-track"><div class="bar-fill" style="width:47%"></div></div>
+          <div class="amt">133,0 tr</div>
+        </div>
+        <div class="cost-row">
+          <div class="lbl">Máy chủ xử lý AI (2× DGX Spark)</div>
+          <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+          <div class="amt">280,0 tr</div>
+        </div>
+        <div class="cost-row">
+          <div class="lbl">Thi công, lắp đặt</div>
+          <div class="bar-track"><div class="bar-fill" style="width:14%"></div></div>
+          <div class="amt">40,0 tr</div>
+        </div>
+        <div class="cost-row">
+          <div class="lbl">Subtotal thiết bị &amp; hạ tầng</div>
+          <div></div>
+          <div class="amt">655,5 tr</div>
+        </div>
+        <div class="cost-row">
+          <div class="lbl">Dự phòng biến động (10–20%)</div>
+          <div></div>
+          <div class="amt">62,6 – 125,1 tr</div>
+        </div>
+      </div>
+      <div class="total-card">
+        <div class="k">Tổng đầu tư — một lần</div>
+        <div class="v">718,1 – 780,6</div>
+        <div class="u">triệu VNĐ, đã gồm dự phòng biến động chi phí</div>
+        <hr>
+        <div class="opex-row">
+          <div>
+            <div class="k">Vận hành &amp; bảo trì</div>
+            <div class="u" style="margin-top:2px">hàng năm, từ năm 2</div>
+          </div>
+          <div class="v2">116,3 – 122,5 tr</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROADMAP -->
+  <div class="block">
+    <div class="block-head reveal">
+      <h2>Lộ trình triển khai — 3 tháng</h2>
+      <span class="block-num">05 / TIẾN ĐỘ</span>
+    </div>
+    <div class="roadmap reveal">
+      <div class="rm-item"><div class="dot">1</div><div class="m">Tháng 1</div><h4>Khảo sát &amp; thi công cửa chính</h4><p>Khảo sát thực địa, mua sắm thiết bị, thi công 5 cửa chính.</p></div>
+      <div class="rm-item"><div class="dot">2</div><div class="m">Tháng 2</div><h4>Thi công &amp; tích hợp</h4><p>Thi công 10 cửa phụ, lắp đặt máy chủ, tích hợp phần mềm &amp; rule engine.</p></div>
+      <div class="rm-item"><div class="dot">3</div><div class="m">Tháng 3</div><h4>Nghiệm thu &amp; go-live</h4><p>Kiểm thử toàn hệ thống, nghiệm thu, đào tạo vận hành, go-live.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PHASE 2 ============ -->
+<section class="phase" id="phase2">
+  <div class="phase-stripe reveal"><span class="dot"></span><span>Giai đoạn 2 — Mở rộng</span></div>
+
+  <div class="hero">
+    <div>
+      <span class="eyebrow reveal">Định hướng mở rộng</span>
+      <h1 class="reveal">Định danh cá thể &amp; mở rộng phạm vi</h1>
+      <p class="lead reveal">Bổ sung lớp định danh RFID, mở rộng giám sát sức khỏe ra toàn trại — khắc phục hạn chế cốt lõi của Giai đoạn 1: giữ danh tính từng cá thể lợn lâu dài, chống đánh tráo.</p>
+      <div class="badge-line reveal">
+        <span class="chip"><svg class="icon"><use href="#i-shield"/></svg>Kiến trúc dự phòng chéo — RFID + Computer Vision</span>
+      </div>
+      <div class="stat-row reveal">
+        <div class="stat"><div class="num">6→16</div><div class="lbl">cụm cổng định danh RFID</div></div>
+        <div class="stat"><div class="num">5</div><div class="lbl">tầng tín hiệu sức khỏe</div></div>
+        <div class="stat"><div class="num">3D</div><div class="lbl">ước lượng khối lượng qua camera</div></div>
+      </div>
+    </div>
+    <div class="hero-art reveal">
+      <svg viewBox="0 0 320 220" width="100%" style="max-width:320px">
+        <circle cx="120" cy="110" r="78" fill="#0C6B4C" opacity="0.10"/>
+        <circle cx="200" cy="110" r="78" fill="#A9812F" opacity="0.14"/>
+        <circle cx="120" cy="110" r="78" fill="none" stroke="#0C6B4C" stroke-width="1.4"/>
+        <circle cx="200" cy="110" r="78" fill="none" stroke="#A9812F" stroke-width="1.4"/>
+        <text x="78" y="60" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="#0C6B4C">RFID</text>
+        <text x="222" y="60" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="#A9812F" text-anchor="end">CV</text>
+        <text x="160" y="114" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#5B4319" text-anchor="middle">ĐỐI SOÁT</text>
+        <text x="160" y="127" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#5B4319" text-anchor="middle">3 CHIỀU</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- OBJECTIVE -->
+  <div class="block">
+    <div class="block-head reveal">
+      <h2>Mục tiêu</h2>
+      <span class="block-num">06 / VÌ SAO GIAI ĐOẠN 2</span>
+    </div>
+    <p class="reveal" style="font-size:15px;color:var(--ink-soft);line-height:1.75;max-width:760px;">
+      Sau khi Giai đoạn 1 vận hành ổn định, Giai đoạn 2 giải quyết bài toán mà camera thuần túy không đảm bảo được: giữ danh tính từng cá thể lợn lâu dài. Camera đếm và phát hiện tốt nhưng không đủ tin cậy để định danh xuyên suốt vòng đời nuôi — RFID neo danh tính cố định bằng thẻ tai điện tử, computer vision duy trì tính liên tục giữa các lần đọc thẻ và cung cấp bằng chứng hình ảnh. Hai lớp không thay thế mà dự phòng chéo cho nhau.
+    </p>
+  </div>
+
+  <!-- TWO-LAYER ARCHITECTURE -->
+  <div class="block">
+    <div class="block-head reveal">
+      <h2>Kiến trúc định danh hai lớp</h2>
+      <span class="block-num">07 / KIẾN TRÚC BỔ SUNG</span>
+    </div>
+    <div class="layer-grid reveal">
+      <div class="layer-card">
+        <div class="lyr-tag">Lớp 1 — RFID</div>
+        <h3><svg class="icon" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px"><use href="#i-tag"/></svg>Neo danh tính cố định</h3>
+        <p>Thẻ tai điện tử gắn danh tính cố định cho từng cá thể. Đầu đọc UHF tại cổng chính và khu cân/xuất bán; đầu đọc LF tầm ngắn tại máng ăn và núm uống để loại nhiễu từ cá thể bên cạnh.</p>
+      </div>
+      <div class="layer-card">
+        <div class="lyr-tag">Lớp 2 — Computer Vision</div>
+        <h3><svg class="icon" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px"><use href="#i-eye"/></svg>Duy trì tính liên tục</h3>
+        <p>Tracking bám theo cá thể giữa hai lần đọc thẻ, phục hồi danh tính sau khi bị che khuất, cung cấp clip bằng chứng gắn với mỗi lượt di chuyển.</p>
+      </div>
+    </div>
+    <div class="reconcile-card reveal">
+      <div class="icon-wrap"><svg class="icon"><use href="#i-balance"/></svg></div>
+      <div>
+        <h4>Đối soát ba chiều hằng ngày</h4>
+        <p>Số đếm camera ↔ danh sách mã thẻ RFID ↔ sổ sách quản lý đàn. Mọi chênh lệch giữa ba nguồn tự động sinh cảnh báo kèm danh sách sự kiện liên quan để truy vết.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCOPE EXPANSION -->
+  <div class="block">
+    <div class="block-head reveal">
+      <h2>Mở rộng phạm vi triển khai</h2>
+      <span class="block-num">08 / PHẠM VI</span>
+    </div>
+    <div class="grid-cards reveal">
+      <div class="card">
+        <div class="card-icon"><svg class="icon"><use href="#i-gate"/></svg></div>
+        <h3>Cổng định danh RFID</h3>
+        <p>Từ 5 cửa chính + khu cân/xuất bán, mở rộng dần ra toàn bộ 10 cửa phụ sau khi đánh giá hiệu quả tại cửa chính.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"><svg class="icon"><use href="#i-camera"/></svg></div>
+        <h3>Camera trong chuồng</h3>
+        <p>Mở rộng từ 1 dãy thí điểm ra toàn bộ các dãy chuồng, cùng dữ liệu vận hành ban đêm.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"><svg class="icon"><use href="#i-trend"/></svg></div>
+        <h3>Ước lượng khối lượng</h3>
+        <p>Bổ sung camera 3D ước lượng khối lượng không tiếp xúc, hỗ trợ theo dõi tăng trọng theo cá thể.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"><svg class="icon"><use href="#i-eye"/></svg></div>
+        <h3>Mô hình định danh cá thể</h3>
+        <p>Hoàn thiện mô hình nhận diện cá thể bằng dữ liệu thực địa thu thập được trong Giai đoạn 1.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 SIGNALS -->
+  <div class="block">
+    <div class="block-head reveal">
+      <h2>Nâng cấp giám sát bệnh — năm tầng tín hiệu</h2>
+      <span class="block-num">09 / SỨC KHỎE CÁ THỂ</span>
+    </div>
+    <div class="signal-row reveal">
+      <div class="signal-card"><div class="si-num">01</div><div class="icon-wrap"><svg class="icon"><use href="#i-eye"/></svg></div><h4>Hành vi</h4><p>Phân tích hoạt động, tư thế bất thường qua camera trong chuồng.</p></div>
+      <div class="signal-card"><div class="si-num">02</div><div class="icon-wrap"><svg class="icon"><use href="#i-tag"/></svg></div><h4>Ăn – uống</h4><p>Thời gian, tần suất tiếp cận máng &amp; núm qua đầu đọc RFID tầm ngắn.</p></div>
+      <div class="signal-card"><div class="si-num">03</div><div class="icon-wrap"><svg class="icon"><use href="#i-sound"/></svg></div><h4>Âm thanh</h4><p>Phát hiện tiếng ho qua thiết bị thu âm tại dãy thí điểm.</p></div>
+      <div class="signal-card"><div class="si-num">04</div><div class="icon-wrap"><svg class="icon"><use href="#i-thermo"/></svg></div><h4>Thân nhiệt</h4><p>Sàng lọc sốt không tiếp xúc bằng camera ảnh nhiệt.</p></div>
+      <div class="signal-card"><div class="si-num">05</div><div class="icon-wrap"><svg class="icon"><use href="#i-trend"/></svg></div><h4>Tăng trọng</h4><p>Theo dõi xu hướng khối lượng theo thời gian từng cá thể.</p></div>
+    </div>
+    <div class="merge-note reveal">
+      <svg class="icon" style="width:18px;height:18px;color:var(--gold);flex-shrink:0"><use href="#i-balance"/></svg>
+      <span>Năm tín hiệu được hợp nhất thành <b>một điểm rủi ro theo từng cá thể</b>, xếp hạng ưu tiên có giới hạn số lượng mỗi ngày — thay vì cảnh báo nhị phân gây mệt mỏi cho nhân viên vận hành.</span>
+    </div>
+  </div>
+
+  <!-- COST PACKAGES -->
+  <div class="block">
+    <div class="block-head reveal">
+      <h2>Chi phí bổ sung Giai đoạn 2</h2>
+      <span class="block-num">10 / NGÂN SÁCH MỞ RỘNG</span>
+    </div>
+    <div class="pkg-grid reveal">
+      <div class="pkg-card">
+        <span class="pk-badge required">Bắt buộc</span>
+        <h4>Gói A — Chống thất thoát</h4>
+        <div class="amt">~300 tr</div>
+        <p>RFID cổng chính + khu cân/xuất bán. Nền tảng cho đối soát ba chiều.</p>
+      </div>
+      <div class="pkg-card">
+        <span class="pk-badge recommended">Nên có</span>
+        <h4>Gói B — Sức khỏe cá thể</h4>
+        <div class="amt">~150 tr</div>
+        <p>Đầu đọc RFID tại máng ăn, núm uống và thiết bị thu âm tại dãy thí điểm.</p>
+      </div>
+      <div class="pkg-card">
+        <span class="pk-badge optional">Tùy chọn</span>
+        <h4>Gói C — Sàng lọc thân nhiệt</h4>
+        <div class="amt">~102 tr</div>
+        <p>Camera ảnh nhiệt công nghiệp, mở rộng tại các điểm nút.</p>
+      </div>
+      <div class="pkg-card">
+        <span class="pk-badge variable">Theo quy mô đàn</span>
+        <h4>Thẻ tai điện tử</h4>
+        <div class="amt">50 – 400 tr</div>
+        <p>Chi phí lặp lại theo từng lứa, không phải đầu tư một lần.</p>
+      </div>
+    </div>
+    <p class="reveal" style="margin-top:16px;font-size:12.5px;color:var(--ink-faint);line-height:1.6;max-width:720px;">
+      Nếu chỉ triển khai Gói A cùng hạ tầng nền tảng Giai đoạn 1, tổng đầu tư thiết bị ước khoảng 955,5 triệu đồng cộng chi phí thẻ tai, trước dự phòng. Ngân sách chi tiết sẽ chốt sau khi có kết quả thực tế của Giai đoạn 1 và khảo sát thực địa.
+    </p>
+  </div>
+
+  <!-- OUTLOOK PHASE 3 -->
+  <div class="block">
+    <div class="block-head reveal">
+      <h2>Định hướng các giai đoạn tiếp theo</h2>
+      <span class="block-num">11 / GIAI ĐOẠN 3</span>
+    </div>
+    <div class="outlook-row reveal">
+      <div class="outlook-item"><div class="icon-wrap"><svg class="icon"><use href="#i-link"/></svg></div><p>Kết nối dữ liệu định danh cá thể với hệ thống truy xuất nguồn gốc và đối tác trong chuỗi — lò mổ, đơn vị phân phối.</p></div>
+      <div class="outlook-item"><div class="icon-wrap"><svg class="icon"><use href="#i-trend"/></svg></div><p>Mô hình dự báo tăng trưởng và dự báo rủi ro dịch bệnh ở cấp trại.</p></div>
+      <div class="outlook-item"><div class="icon-wrap"><svg class="icon"><use href="#i-brain"/></svg></div><p>Phân tích bằng mô hình ngôn ngữ lớn cho dashboard quản lý.</p></div>
+    </div>
+  </div>
+
+  <!-- NEXT STEPS -->
+  <div class="block">
+    <div class="block-head reveal">
+      <h2>Bước tiếp theo</h2>
+      <span class="block-num">12 / QUYẾT ĐỊNH CẦN THIẾT</span>
+    </div>
+    <div class="checklist reveal">
+      <div class="check-item"><div class="num">1</div><p>Xác nhận phạm vi 15 cửa và cấu hình camera Giai đoạn 1.</p></div>
+      <div class="check-item"><div class="num">2</div><p>Chọn phạm vi đầu tư RFID Giai đoạn 2 — Gói A, A+B, hoặc A+B+C.</p></div>
+      <div class="check-item"><div class="num">3</div><p>Thống nhất phương án gắn thẻ tai theo quy mô đàn thực tế.</p></div>
+      <div class="check-item"><div class="num">4</div><p>Thống nhất hạng mục nhân sự vận hành và chính sách bảo trì.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="fbrand">PigID Vision</div>
+  <div class="fnote">Số liệu chi phí là ước tính tham khảo mặt bằng thị trường, cần khảo sát thực địa để chốt báo giá chính thức. Chưa bao gồm nhân sự vận hành nội bộ, chi phí điện và chi phí tuân thủ pháp lý về bảo vệ dữ liệu cá nhân.</div>
+</footer>
+
+<script>
+  // Tab navigation
+  const tabs = document.querySelectorAll('.tab-btn');
+  const sections = document.querySelectorAll('.phase');
+  tabs.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelector(btn.dataset.target).scrollIntoView({behavior:'smooth'});
+    });
+  });
+  const navObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        tabs.forEach(t=>t.classList.toggle('active', t.dataset.target === '#'+entry.target.id));
+      }
+    });
+  },{rootMargin:'-45% 0px -50% 0px', threshold:0});
+  sections.forEach(s=>navObserver.observe(s));
+
+  // Reveal on scroll
+  const revealObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.classList.add('in');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  },{threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
+
+  // Count-up numbers
+  const countEls = document.querySelectorAll('.count');
+  const countObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        const el = entry.target;
+        const target = parseInt(el.dataset.target,10);
+        const start = performance.now();
+        const dur = 700;
+        function step(now){
+          const p = Math.min(1,(now-start)/dur);
+          const eased = 1-Math.pow(1-p,3);
+          el.textContent = Math.round(eased*target);
+          if(p<1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+        countObserver.unobserve(el);
+      }
+    });
+  },{threshold:0.4});
+  countEls.forEach(el=>countObserver.observe(el));
+</script>
+</body>
+</html>
